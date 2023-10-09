@@ -2,9 +2,14 @@ import React from "react";
 
 import { createRoot } from "react-dom/client";
 import Dump from "./dump";
+import { TaskProvider } from "./context/tasks";
 
 const App = function App() {
-  return <Dump />;
+  return (
+    <TaskProvider>
+      <Dump />
+    </TaskProvider>
+  );
 };
 
 // After
