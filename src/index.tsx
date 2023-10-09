@@ -3,7 +3,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 
 const App = function App() {
-  return <div>hi</div>;
+  return <div className="bg-slate-100">hi</div>;
 };
 
 // After

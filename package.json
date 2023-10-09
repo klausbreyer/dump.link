@@ -7,14 +7,15 @@
     "@types/web": "^0.0.116",
     "bun-types": "1.0.5-canary.20231008T140131",
     "parcel": "2.9.3",
+    "postcss": "8.4.31",
     "prettier": "3.0.3",
-    "process": "0.11.10"
+    "process": "0.11.10",
+    "tailwindcss": "3.3.3",
+    "typescript": "5.2.2"
   },
   "scripts": {
-    "start": "parcel public/index.html"
-  },
-  "peerDependencies": {
-    "typescript": "5.0.0"
+    "start": "parcel public/index.html",
+    "build": "parcel build public/index.html"
   },
   "dependencies": {
     "react": "18.2.0",
