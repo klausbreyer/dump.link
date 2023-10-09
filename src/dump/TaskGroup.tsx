@@ -1,23 +1,15 @@
-import React from 'react';
-
-interface Task {
-  id: number;
-  name: string;
-  completed: boolean;
-}
+import React from "react";
 
 interface TaskGroupProps {
-  tasks: Task[];
+  index: number;
 }
 
-const TaskGroup: React.FC<TaskGroupProps> = ({ tasks }) => {
+const TaskGroup: React.FC<TaskGroupProps> = (props) => {
+  const { index } = props;
   return (
-    <div>
-      {tasks.map(task => (
-        <div key={task.id}>
-          <input type="checkbox" checked={task.completed} readOnly />
-          {task.name}
-        </div>
+    <div className="w-full bg-stone-300">
+      {Array.from({ length: index }).map((_, index) => (
+        <div>task</div>
       ))}
     </div>
   );

@@ -14,7 +14,7 @@
     "typescript": "5.2.2"
   },
   "scripts": {
-    "start": "parcel public/index.html",
+    "start": "parcel public/index.html --dist-dir watch",
     "build": "parcel build public/index.html"
   },
   "dependencies": {

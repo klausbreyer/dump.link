@@ -1,9 +1,10 @@
 import React from "react";
 
 import { createRoot } from "react-dom/client";
+import Dump from "./dump";
 
 const App = function App() {
-  return <div className="bg-slate-100">hi</div>;
+  return <Dump />;
 };
 
 // After
