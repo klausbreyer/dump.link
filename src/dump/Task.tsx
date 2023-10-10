@@ -45,7 +45,10 @@ const Task: React.FC<TaskProps> = (props) => {
   };
 
   function handleBlur() {
-    if (taskId === null && val.length > 0) {
+    if (taskId === null) {
+      if (val.length == 0) {
+        return;
+      }
       addTask("0", { title: val, state: TaskState.OPEN });
       setVal("");
       return;

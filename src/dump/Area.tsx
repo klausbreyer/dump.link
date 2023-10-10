@@ -6,19 +6,23 @@ import { useDrop } from "react-dnd";
 import { DraggedItem } from "../context/types";
 
 export interface AreaProps {
-  [key: string]: any;
+  // [key: string]: any;
 }
 
 const Area: React.FC<AreaProps> = (props) => {
-  const id = "0";
-  const { getBucket, moveTask } = useTasks();
+  const bucketId = "0";
+  const { getBucket, moveTask, getBucketForTask } = useTasks();
 
-  const bucket = getBucket(id);
+  const bucket = getBucket(bucketId);
 
   const [, dropRef] = useDrop({
     accept: "TASK",
     drop: (item: DraggedItem) => {
-      moveTask(id, item.taskId);
+      console.log("drop");
+      const fromBucketId = getBucketForTask(item.taskId)?.id || "";
+      if (fromBucketId !== bucketId.toString()) {
+        moveTask(bucketId, item.taskId);
+      }
     },
   });
 
