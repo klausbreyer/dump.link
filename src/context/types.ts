@@ -14,3 +14,13 @@ export type Bucket = {
   name: string;
   tasks: Task[];
 };
+
+export type DraggedItem = {
+  taskId: string;
+  // fromBucketId: string;
+};
+
+export type DropCollectedProps = {
+  isOver: boolean;
+  canDrop: boolean;
+};

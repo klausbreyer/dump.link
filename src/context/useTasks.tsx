@@ -19,12 +19,18 @@ type ActionType =
       type: "UPDATE_TASK";
       taskId: string;
       updatedTask: Omit<Task, "id">;
+    }
+  | {
+      type: "REORDER_TASK";
+      bucketId: string;
+      taskId: string;
+      newIndex: number;
     };
 
 type TaskContextType = {
   state: Bucket[];
   addTask: (bucketId: string, task: Omit<Task, "id">) => void;
-  moveTask: (fromBucketId: string, toBucketId: string, taskId: string) => void;
+  moveTask: (toBucketId: string, taskId: string) => void;
   changeTaskState: (
     bucketId: string,
     taskId: string,
@@ -33,6 +39,12 @@ type TaskContextType = {
   updateTask: (taskId: string, updatedTask: Omit<Task, "id">) => void;
   getBucket: (bucketId: string) => Bucket | undefined;
   getTask: (taskId: string) => Task | undefined;
+  getBucketForTask: (taskId: string) => Bucket | undefined;
+  reorderTask: (bucketId: string, taskId: string, newIndex: number) => void;
+  getTaskType: (task: Task | null | undefined) => string;
+  getOpenBucketType: (bucketId: string) => string;
+  getClosedBucketType: (bucketId: string) => string;
+  getBuckets: () => Bucket[];
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -93,6 +105,25 @@ const taskReducer = (state: Bucket[], action: ActionType): Bucket[] => {
         };
       });
 
+    case "REORDER_TASK": {
+      const { bucketId, taskId, newIndex } = action;
+      return state.map((bucket) => {
+        if (bucket.id !== bucketId) return bucket;
+
+        const newTasks = [...bucket.tasks];
+        const taskIndex = newTasks.findIndex((task) => task.id === taskId);
+        if (taskIndex === -1) return bucket;
+
+        const [taskToReorder] = newTasks.splice(taskIndex, 1);
+        newTasks.splice(newIndex, 0, taskToReorder);
+
+        return {
+          ...bucket,
+          tasks: newTasks,
+        };
+      });
+    }
+
     default:
       return state;
   }
@@ -130,14 +161,10 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     });
   };
 
-  const moveTask = (
-    fromBucketId: string,
-    toBucketId: string,
-    taskId: string,
-  ) => {
+  const moveTask = (toBucketId: string, taskId: string) => {
     dispatch({
       type: "MOVE_TASK",
-      fromBucketId: fromBucketId,
+      fromBucketId: getBucketForTask(taskId)?.id || "", //@todo: not pretty.
       toBucketId: toBucketId,
       taskId: taskId,
     });
@@ -172,7 +199,52 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     return undefined;
   };
 
+  const getBucketForTask = (taskId: string) => {
+    return state.find((bucket) =>
+      bucket.tasks.some((task) => task.id === taskId),
+    );
+  };
+
+  const reorderTask = (bucketId: string, taskId: string, newIndex: number) => {
+    dispatch({
+      type: "REORDER_TASK",
+      bucketId: bucketId,
+      taskId: taskId,
+      newIndex: newIndex,
+    });
+  };
+
+  const getBuckets = () => {
+    return state;
+  };
+
   console.log(state);
+
+  // for react dnd.
+  const getClosedBucketType = (bucketId: string) => {
+    return `CLOSED_BUCKET_${bucketId}`;
+  };
+  const getOpenBucketType = (bucketId: string) => {
+    return `OPEN_BUCKET_${bucketId}`;
+  };
+
+  const getTaskType = (task: Task | null | undefined) => {
+    if (!task) {
+      return "NO_OP";
+    }
+
+    const bucket = getBucketForTask(task.id);
+
+    if (!bucket) {
+      return "NO_OP";
+    }
+
+    if (bucket && task.state === TaskState.CLOSED) {
+      return getClosedBucketType(bucket.id);
+    }
+
+    return getOpenBucketType(bucket.id);
+  };
 
   return (
     <TaskContext.Provider
@@ -184,6 +256,12 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         updateTask,
         getBucket,
         getTask,
+        getBucketForTask,
+        reorderTask,
+        getTaskType,
+        getOpenBucketType,
+        getClosedBucketType,
+        getBuckets,
       }}
     >
       {children}

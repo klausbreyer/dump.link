@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { useTasks } from "../context/useTasks";
 import { TaskState } from "../context/types";
+import { useDrag } from "react-dnd";
 
 interface TaskProps {
   taskId: string | null;
@@ -14,10 +15,18 @@ interface TaskProps {
 
 const Task: React.FC<TaskProps> = (props) => {
   const { taskId } = props;
-  const { addTask, getTask, updateTask } = useTasks();
+  const { addTask, getTask, updateTask, getTaskType } = useTasks();
   const task = taskId ? getTask(taskId) : null;
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [val, setVal] = useState<string>(task?.title || "");
+  const [{ isDragging }, dragRef] = useDrag(() => ({
+    type: getTaskType(task),
+    item: { taskId },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -37,6 +46,9 @@ const Task: React.FC<TaskProps> = (props) => {
 
   function handleBlur() {
     if (taskId === null) {
+      if (val.length == 0) {
+        return;
+      }
       addTask("0", { title: val, state: TaskState.OPEN });
       setVal("");
       return;
@@ -46,22 +58,29 @@ const Task: React.FC<TaskProps> = (props) => {
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" || e.keyCode === 13) {
+      if (e.shiftKey) {
+        // Wenn Shift + Enter gedrückt wird, tun Sie nichts
+        return;
+      }
       e.preventDefault(); // Verhindert den Zeilenumbruch im Textbereich
       handleBlur();
     }
   }
 
   return (
-    <textarea
-      className="w-full resize-y"
-      placeholder="type more here"
-      value={val}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      onChange={handleChange}
-      rows={1}
-      ref={textAreaRef}
-    ></textarea>
+    <div ref={dragRef}>
+      <textarea
+        style={{ opacity: isDragging ? 0.5 : 1 }}
+        className="w-full resize-y"
+        placeholder="type more here"
+        value={val}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        onChange={handleChange}
+        rows={1}
+        ref={textAreaRef}
+      ></textarea>
+    </div>
   );
 };
 
