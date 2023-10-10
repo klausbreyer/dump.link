@@ -1,0 +1,29 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    name: Deploy to Cloudflare
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        run: |
+          sudo apt-get install nodejs yarn
+      - name: Build
+        run: |
+          yarn && yarn build
+
+      - name: Publish Page
+        uses: cloudflare/pages-action@1 # https://github.com/cloudflare/pages-action
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: dumplink-app # e.g. 'my-project'
+          directory: dist # e.g. 'dist'
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
