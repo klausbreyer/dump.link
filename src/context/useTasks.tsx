@@ -19,6 +19,12 @@ type ActionType =
       type: "UPDATE_TASK";
       taskId: string;
       updatedTask: Omit<Task, "id">;
+    }
+  | {
+      type: "REORDER_TASK";
+      bucketId: string;
+      taskId: string;
+      newIndex: number;
     };
 
 type TaskContextType = {
@@ -34,6 +40,7 @@ type TaskContextType = {
   getBucket: (bucketId: string) => Bucket | undefined;
   getTask: (taskId: string) => Task | undefined;
   getBucketForTask: (taskId: string) => Bucket | undefined;
+  reorderTask: (bucketId: string, taskId: string, newIndex: number) => void;
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -93,6 +100,25 @@ const taskReducer = (state: Bucket[], action: ActionType): Bucket[] => {
           ),
         };
       });
+
+    case "REORDER_TASK": {
+      const { bucketId, taskId, newIndex } = action;
+      return state.map((bucket) => {
+        if (bucket.id !== bucketId) return bucket;
+
+        const newTasks = [...bucket.tasks];
+        const taskIndex = newTasks.findIndex((task) => task.id === taskId);
+        if (taskIndex === -1) return bucket;
+
+        const [taskToReorder] = newTasks.splice(taskIndex, 1);
+        newTasks.splice(newIndex, 0, taskToReorder);
+
+        return {
+          ...bucket,
+          tasks: newTasks,
+        };
+      });
+    }
 
     default:
       return state;
@@ -175,6 +201,15 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     );
   };
 
+  const reorderTask = (bucketId: string, taskId: string, newIndex: number) => {
+    dispatch({
+      type: "REORDER_TASK",
+      bucketId: bucketId,
+      taskId: taskId,
+      newIndex: newIndex,
+    });
+  };
+
   console.log(state);
 
   return (
@@ -188,6 +223,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         getBucket,
         getTask,
         getBucketForTask,
+        reorderTask,
       }}
     >
       {children}
