@@ -11,12 +11,21 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const bucketId = "0";
-  const { getBucket, moveTask, getBucketForTask } = useTasks();
+  const {
+    getBucket,
+    getBuckets,
+    moveTask,
+    getBucketForTask,
+    getOpenBucketType,
+  } = useTasks();
 
   const bucket = getBucket(bucketId);
 
+  const allOtherBuckets = getBuckets().filter((b) => b.id !== bucketId);
+
   const [collectedProps, dropRef] = useDrop({
-    accept: [TaskState.OPEN],
+    accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
+
     drop: (item: DraggedItem) => {
       console.log("drop");
       const fromBucketId = getBucketForTask(item.taskId)?.id || "";
@@ -31,20 +40,16 @@ const Area: React.FC<AreaProps> = (props) => {
   });
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
-
   return (
-    <div className="w-full h-full p-2 bg-amber-100">
+    <div
+      ref={dropRef}
+      className={`w-full h-full p-2 bg-amber-100 ${
+        canDrop && !isOver ? "border-dashed border-2 border-gray-400" : ""
+      } ${isOver ? "border-solid border-2 border-gray-400" : ""}`}
+    >
       <FlexCol>
         {bucket?.tasks.map((task) => <Task taskId={task.id} key={task.id} />)}
         <Task taskId={null} />
-        <div
-          ref={dropRef}
-          className={`min-h-[2rem] p-2 bg-amber-500   ${
-            canDrop && !isOver && "border-dashed border-4 border-gray-400"
-          }
-          ${isOver && "border-solid border-4 border-gray-400"}
-          `}
-        ></div>
       </FlexCol>
     </div>
   );

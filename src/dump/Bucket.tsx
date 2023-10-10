@@ -18,14 +18,21 @@ const Bucket: React.FC<BucketProps> = (props) => {
     getTask,
     changeTaskState,
     getClosedBucketType,
+    getOpenBucketType,
+
     getTaskType,
     getBucketForTask,
+    getBuckets,
   } = useTasks();
 
   const bucket = getBucket(bucketId);
 
+  const allOtherBuckets = getBuckets().filter((b) => b.id !== bucketId);
   const [topCollectedProps, topDropRef] = useDrop({
-    accept: [TaskState.OPEN, getClosedBucketType(bucketId)],
+    accept: [
+      ...allOtherBuckets.map((b) => getOpenBucketType(b.id)),
+      getClosedBucketType(bucketId),
+    ],
 
     drop: (item: DraggedItem) => {
       console.log("drop");
@@ -52,15 +59,11 @@ const Bucket: React.FC<BucketProps> = (props) => {
     topCollectedProps as DropCollectedProps;
 
   const [bottomCollectedProps, bottomDropRef] = useDrop({
-    accept: [TaskState.OPEN],
+    accept: [getOpenBucketType(bucketId)],
 
     drop: (item: DraggedItem) => {
       // only allow dropping if the task is already in this bucket but in another state.
-      const fromBucket = getBucketForTask(item.taskId);
-      if (fromBucket?.id !== bucketId.toString()) {
-        return;
-      }
-      changeTaskState(bucketId.toString(), item.taskId, TaskState.CLOSED);
+      changeTaskState(bucketId, item.taskId, TaskState.CLOSED);
     },
 
     collect: (monitor) => ({
@@ -78,33 +81,29 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const closed = tasks.filter((task) => task.state === TaskState.CLOSED);
   return (
     <div className="w-full">
-      <div className={`min-h-[8rem] p-2 bg-amber-200 `}>
+      <div
+        ref={topDropRef}
+        className={`min-h-[8rem] p-2 bg-amber-200  ${
+          topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
+        }
+          ${topIsOver && "border-solid border-2 border-gray-400"}`}
+      >
         {open.map((task) => (
           <Task taskId={task.id} key={task.id} />
         ))}
-        <div
-          ref={topDropRef}
-          className={`min-h-[2rem] p-2 bg-amber-500   ${
-            topCanDrop && !topIsOver && "border-dashed border-4 border-gray-400"
-          }
-          ${topIsOver && "border-solid border-4 border-gray-400"}
-          `}
-        ></div>
       </div>
-      <div className={`min-h-[8rem] p-2 bg-amber-300 `}>
+      <div
+        ref={bottomDropRef}
+        className={`min-h-[8rem] p-2 bg-amber-300 ${
+          bottomCanDrop &&
+          !bottomIsOver &&
+          "border-dashed border-2 border-gray-400"
+        }
+          ${bottomIsOver && "border-solid border-2 border-gray-400"} `}
+      >
         {closed.map((task) => (
           <Task taskId={task.id} key={task.id} />
         ))}
-        <div
-          ref={bottomDropRef}
-          className={`min-h-[2rem] p-2 bg-amber-500  ${
-            bottomCanDrop &&
-            !bottomIsOver &&
-            "border-dashed border-4 border-gray-400"
-          }
-          ${bottomIsOver && "border-solid border-4 border-gray-400"}
-          `}
-        ></div>
       </div>
     </div>
   );
