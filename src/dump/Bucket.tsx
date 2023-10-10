@@ -47,7 +47,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
       } else {
         changeTaskState(bucketId.toString(), item.taskId, TaskState.OPEN);
       }
-      // setTopHovering(false);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -74,8 +73,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const { isOver: bottomIsOver, canDrop: bottomCanDrop } =
     bottomCollectedProps as DropCollectedProps;
 
-  console.log(bucketId, topIsOver, topCanDrop, bottomIsOver, bottomCanDrop);
-
   const tasks = bucket?.tasks || [];
   const open = tasks.filter((task) => task.state === TaskState.OPEN);
   const closed = tasks.filter((task) => task.state === TaskState.CLOSED);
@@ -94,7 +91,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       </div>
       <div
         ref={bottomDropRef}
-        className={`min-h-[8rem] p-2 bg-amber-300 ${
+        className={`min-h-[2.5rem] p-2 bg-amber-300 ${
           bottomCanDrop &&
           !bottomIsOver &&
           "border-dashed border-2 border-gray-400"
