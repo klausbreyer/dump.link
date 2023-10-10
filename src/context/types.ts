@@ -19,3 +19,8 @@ export type DraggedItem = {
   taskId: string;
   // fromBucketId: string;
 };
+
+export type DropCollectedProps = {
+  isOver: boolean;
+  canDrop: boolean;
+};

@@ -41,6 +41,8 @@ type TaskContextType = {
   getTask: (taskId: string) => Task | undefined;
   getBucketForTask: (taskId: string) => Bucket | undefined;
   reorderTask: (bucketId: string, taskId: string, newIndex: number) => void;
+  getTaskType: (task: Task | null | undefined) => string;
+  getClosedBucketType: (bucketId: string) => string;
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -212,6 +214,23 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
 
   console.log(state);
 
+  // for react dnd.
+  const getClosedBucketType = (bucketId: string) => {
+    return `CLOSED_${bucketId}`;
+  };
+  const getTaskType = (task: Task | null | undefined) => {
+    if (!task) {
+      return "NO_OP";
+    }
+
+    const bucket = getBucketForTask(task.id);
+    if (bucket && task.state === TaskState.CLOSED) {
+      return getClosedBucketType(bucket.id);
+    }
+
+    return TaskState.OPEN;
+  };
+
   return (
     <TaskContext.Provider
       value={{
@@ -224,6 +243,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         getTask,
         getBucketForTask,
         reorderTask,
+        getTaskType,
+        getClosedBucketType,
       }}
     >
       {children}

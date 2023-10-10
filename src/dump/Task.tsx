@@ -15,13 +15,13 @@ interface TaskProps {
 
 const Task: React.FC<TaskProps> = (props) => {
   const { taskId } = props;
-  const { addTask, getTask, updateTask } = useTasks();
+  const { addTask, getTask, updateTask, getTaskType } = useTasks();
   const task = taskId ? getTask(taskId) : null;
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [val, setVal] = useState<string>(task?.title || "");
   const [{ isDragging }, dragRef] = useDrag(() => ({
-    type: "TASK",
+    type: getTaskType(task),
     item: { taskId },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
