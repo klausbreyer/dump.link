@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { useTasks } from "../context/useTasks";
 import { TaskState } from "../context/types";
+import { useDrag } from "react-dnd";
 
 interface TaskProps {
   taskId: string | null;
@@ -16,6 +17,15 @@ const Task: React.FC<TaskProps> = (props) => {
   const { taskId } = props;
   const { addTask, getTask, updateTask } = useTasks();
   const task = taskId ? getTask(taskId) : null;
+
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: "TASK",
+    item: { taskId },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [val, setVal] = useState<string>(task?.title || "");
 

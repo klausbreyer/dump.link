@@ -14,3 +14,8 @@ export type Bucket = {
   name: string;
   tasks: Task[];
 };
+
+export type DraggedItem = {
+  taskId: string;
+  fromBucketId: string;
+};
