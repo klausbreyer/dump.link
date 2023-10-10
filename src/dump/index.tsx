@@ -17,12 +17,12 @@ const Dump: React.FC<DumpProps> = (props) => {
         <div className="grid grid-cols-2 col-span-2 gap-4 ">
           <FlexCol>
             {[1, 2, 3, 4, 5].map((index) => (
-              <Bucket index={index} key={index} />
+              <Bucket bucketId={index + ""} key={index} />
             ))}
           </FlexCol>
           <FlexCol>
             {[6, 7, 8, 9, 10].map((index) => (
-              <Bucket index={index} key={index} />
+              <Bucket bucketId={index + ""} key={index} />
             ))}
           </FlexCol>
         </div>

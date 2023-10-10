@@ -18,7 +18,7 @@ const Area: React.FC<AreaProps> = (props) => {
   const [, dropRef] = useDrop({
     accept: "TASK",
     drop: (item: DraggedItem) => {
-      moveTask(item.fromBucketId, id, item.taskId);
+      moveTask(id, item.taskId);
     },
   });
 

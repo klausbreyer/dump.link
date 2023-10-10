@@ -18,16 +18,15 @@ const Task: React.FC<TaskProps> = (props) => {
   const { addTask, getTask, updateTask } = useTasks();
   const task = taskId ? getTask(taskId) : null;
 
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [val, setVal] = useState<string>(task?.title || "");
+  const [{ isDragging }, dragRef] = useDrag(() => ({
     type: "TASK",
     item: { taskId },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
-
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const [val, setVal] = useState<string>(task?.title || "");
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -46,7 +45,7 @@ const Task: React.FC<TaskProps> = (props) => {
   };
 
   function handleBlur() {
-    if (taskId === null) {
+    if (taskId === null && val.length > 0) {
       addTask("0", { title: val, state: TaskState.OPEN });
       setVal("");
       return;
@@ -56,22 +55,29 @@ const Task: React.FC<TaskProps> = (props) => {
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" || e.keyCode === 13) {
+      if (e.shiftKey) {
+        // Wenn Shift + Enter gedrückt wird, tun Sie nichts
+        return;
+      }
       e.preventDefault(); // Verhindert den Zeilenumbruch im Textbereich
       handleBlur();
     }
   }
 
   return (
-    <textarea
-      className="w-full resize-y"
-      placeholder="type more here"
-      value={val}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      onChange={handleChange}
-      rows={1}
-      ref={textAreaRef}
-    ></textarea>
+    <div ref={dragRef}>
+      <textarea
+        style={{ opacity: isDragging ? 0.5 : 1 }}
+        className="w-full resize-y"
+        placeholder="type more here"
+        value={val}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        onChange={handleChange}
+        rows={1}
+        ref={textAreaRef}
+      ></textarea>
+    </div>
   );
 };
 

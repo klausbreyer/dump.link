@@ -24,7 +24,7 @@ type ActionType =
 type TaskContextType = {
   state: Bucket[];
   addTask: (bucketId: string, task: Omit<Task, "id">) => void;
-  moveTask: (fromBucketId: string, toBucketId: string, taskId: string) => void;
+  moveTask: (toBucketId: string, taskId: string) => void;
   changeTaskState: (
     bucketId: string,
     taskId: string,
@@ -33,6 +33,7 @@ type TaskContextType = {
   updateTask: (taskId: string, updatedTask: Omit<Task, "id">) => void;
   getBucket: (bucketId: string) => Bucket | undefined;
   getTask: (taskId: string) => Task | undefined;
+  getBucketForTask: (taskId: string) => Bucket | undefined;
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -130,14 +131,10 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     });
   };
 
-  const moveTask = (
-    fromBucketId: string,
-    toBucketId: string,
-    taskId: string,
-  ) => {
+  const moveTask = (toBucketId: string, taskId: string) => {
     dispatch({
       type: "MOVE_TASK",
-      fromBucketId: fromBucketId,
+      fromBucketId: getBucketForTask(taskId)?.id || "", //@todo: not pretty.
       toBucketId: toBucketId,
       taskId: taskId,
     });
@@ -172,6 +169,12 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     return undefined;
   };
 
+  const getBucketForTask = (taskId: string) => {
+    return state.find((bucket) =>
+      bucket.tasks.some((task) => task.id === taskId),
+    );
+  };
+
   console.log(state);
 
   return (
@@ -184,6 +187,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         updateTask,
         getBucket,
         getTask,
+        getBucketForTask,
       }}
     >
       {children}
