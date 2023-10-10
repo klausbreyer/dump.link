@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useTasks } from "../context/tasks";
+import { useTasks } from "../context/useTasks";
 import { TaskState } from "../context/types";
 
 interface TaskProps {
@@ -14,10 +14,17 @@ interface TaskProps {
 
 const Task: React.FC<TaskProps> = (props) => {
   const { taskId } = props;
-  const { state, addTask, moveTask, changeTaskState, updateTaskTitle } =
-    useTasks();
+  const { addTask, getTask, updateTask } = useTasks();
+  const task = taskId ? getTask(taskId) : null;
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const [val, setVal] = useState<string>("");
+  const [val, setVal] = useState<string>(task?.title || "");
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  }, [val]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -30,23 +37,27 @@ const Task: React.FC<TaskProps> = (props) => {
 
   function handleBlur() {
     if (taskId === null) {
-      addTask(0, { title: val, state: TaskState.OPEN });
+      addTask("0", { title: val, state: TaskState.OPEN });
+      setVal("");
+      return;
     }
+    updateTask(taskId, { title: val, state: task?.state || TaskState.OPEN });
   }
 
-  useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "auto";
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" || e.keyCode === 13) {
+      e.preventDefault(); // Verhindert den Zeilenumbruch im Textbereich
+      handleBlur();
     }
-  }, [val]);
+  }
 
   return (
     <textarea
       className="w-full resize-y"
-      placeholder="type here"
+      placeholder="type more here"
       value={val}
       onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
       onChange={handleChange}
       rows={1}
       ref={textAreaRef}

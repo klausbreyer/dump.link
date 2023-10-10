@@ -14,8 +14,8 @@
     "typescript": "5.2.2"
   },
   "scripts": {
-    "start": "parcel public/index.html --dist-dir watch",
-    "build": "parcel build public/index.html"
+    "start": "rm -rf watch && parcel public/index.html --dist-dir watch",
+    "build": "rm -rf dist && parcel build public/index.html"
   },
   "dependencies": {
     "react": "18.2.0",

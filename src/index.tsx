@@ -2,7 +2,7 @@ import React from "react";
 
 import { createRoot } from "react-dom/client";
 import Dump from "./dump";
-import { TaskProvider } from "./context/tasks";
+import { TaskProvider } from "./context/useTasks";
 
 const App = function App() {
   return (

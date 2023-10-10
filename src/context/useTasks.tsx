@@ -2,36 +2,37 @@ import React, { createContext, useReducer, useContext } from "react";
 import { Bucket, Task, TaskState } from "./types";
 
 type ActionType =
-  | { type: "ADD_TASK"; bucketId: number; task: Omit<Task, "id"> }
+  | { type: "ADD_TASK"; bucketId: string; task: Omit<Task, "id"> }
   | {
       type: "MOVE_TASK";
-      fromBucketId: number;
-      toBucketId: number;
+      fromBucketId: string;
+      toBucketId: string;
       taskId: string;
     }
   | {
       type: "CHANGE_TASK_STATE";
-      bucketId: number;
+      bucketId: string;
       taskId: string;
       newState: TaskState;
     }
   | {
-      type: "UPDATE_TASK_TITLE";
-      bucketId: number;
+      type: "UPDATE_TASK";
       taskId: string;
-      newTitle: string;
+      updatedTask: Omit<Task, "id">;
     };
 
 type TaskContextType = {
   state: Bucket[];
-  addTask: (bucketId: number, task: Omit<Task, "id">) => void;
-  moveTask: (fromBucketId: number, toBucketId: number, taskId: string) => void;
+  addTask: (bucketId: string, task: Omit<Task, "id">) => void;
+  moveTask: (fromBucketId: string, toBucketId: string, taskId: string) => void;
   changeTaskState: (
-    bucketId: number,
+    bucketId: string,
     taskId: string,
     newState: TaskState,
   ) => void;
-  updateTaskTitle: (bucketId: number, taskId: string, newTitle: string) => void;
+  updateTask: (taskId: string, updatedTask: Omit<Task, "id">) => void;
+  getBucket: (bucketId: string) => Bucket | undefined;
+  getTask: (taskId: string) => Task | undefined;
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -80,19 +81,17 @@ const taskReducer = (state: Bucket[], action: ActionType): Bucket[] => {
             }
           : bucket,
       );
-    case "UPDATE_TASK_TITLE":
-      return state.map((bucket) =>
-        bucket.id === action.bucketId
-          ? {
-              ...bucket,
-              tasks: bucket.tasks.map((task) =>
-                task.id === action.taskId
-                  ? { ...task, title: action.newTitle }
-                  : task,
-              ),
-            }
-          : bucket,
-      );
+    case "UPDATE_TASK":
+      return state.map((bucket) => {
+        return {
+          ...bucket,
+          tasks: bucket.tasks.map((task) =>
+            task.id === action.taskId
+              ? { ...task, ...action.updatedTask }
+              : task,
+          ),
+        };
+      });
 
     default:
       return state;
@@ -104,15 +103,24 @@ type TaskProviderProps = {
 };
 
 const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
-  id: index,
+  id: index + "",
   name: `Bucket ${index}`,
-  tasks: [],
+  tasks:
+    index === 0
+      ? [
+          {
+            id: Date.now().toString(),
+            title: "Your first task",
+            state: TaskState.OPEN,
+          },
+        ]
+      : [],
 }));
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(taskReducer, initialBuckets);
 
-  const addTask = (bucketId: number, task: Omit<Task, "id">) => {
+  const addTask = (bucketId: string, task: Omit<Task, "id">) => {
     console.log("add");
 
     dispatch({
@@ -123,8 +131,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   };
 
   const moveTask = (
-    fromBucketId: number,
-    toBucketId: number,
+    fromBucketId: string,
+    toBucketId: string,
     taskId: string,
   ) => {
     dispatch({
@@ -136,7 +144,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   };
 
   const changeTaskState = (
-    bucketId: number,
+    bucketId: string,
     taskId: string,
     newState: TaskState,
   ) => {
@@ -148,17 +156,20 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     });
   };
 
-  const updateTaskTitle = (
-    bucketId: number,
-    taskId: string,
-    newTitle: string,
-  ) => {
-    dispatch({
-      type: "UPDATE_TASK_TITLE",
-      bucketId: bucketId,
-      taskId: taskId,
-      newTitle: newTitle,
-    });
+  const updateTask = (taskId: string, updatedTask: Omit<Task, "id">) => {
+    dispatch({ type: "UPDATE_TASK", taskId, updatedTask });
+  };
+
+  const getBucket = (bucketId: string) => {
+    return state.find((bucket) => bucket.id === bucketId);
+  };
+
+  const getTask = (taskId: string) => {
+    for (const bucket of state) {
+      const task = bucket.tasks.find((t) => t.id === taskId);
+      if (task) return task;
+    }
+    return undefined;
   };
 
   console.log(state);
@@ -170,7 +181,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         addTask,
         moveTask,
         changeTaskState,
-        updateTaskTitle,
+        updateTask,
+        getBucket,
+        getTask,
       }}
     >
       {children}

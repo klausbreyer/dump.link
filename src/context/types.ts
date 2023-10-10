@@ -10,7 +10,7 @@ export type Task = {
 };
 
 export type Bucket = {
-  id: number;
+  id: string;
   name: string;
   tasks: Task[];
 };
