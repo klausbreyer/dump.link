@@ -2,9 +2,13 @@ import React, { ChangeEvent } from "react";
 import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 
-import { Bucket, TaskState } from "../context/types";
-import { getTasksByState, useTasks } from "../context/useTasks";
-import { getBackgroundColor } from "./Bucket";
+import { useTasks } from "../context/useTasks";
+import {
+  getBucketBackgroundColor,
+  getHeaderBorderColor,
+  getHeaderHoverColor,
+  getHeaderTextColor,
+} from "../design/colors";
 
 export interface HeaderProps {
   bucketId: string;
@@ -29,10 +33,10 @@ const Header: React.FC<HeaderProps> = (props) => {
     flagBucket(bucketId, !bucket?.flagged);
   };
 
-  const bgTop = getBackgroundColor(bucket, "top");
-  const bgBottom = getBackgroundColor(bucket, "bottom");
-  const border = getBorderColor(bucket);
-  const hover = getHoverColor(bucket);
+  const bgTop = getBucketBackgroundColor(bucket, "top");
+  const border = getHeaderBorderColor(bucket);
+  const hover = getHeaderHoverColor(bucket);
+  const text = getHeaderTextColor(bucket);
   return (
     <div className={`w-full ${bgTop} p-1 flex gap-1 `}>
       <input
@@ -44,9 +48,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       />
       <button
         onClick={handleClick}
-        className={` p-0.5 bg-transparent border-2 focus:outline-none ${border}
-			  ${hover}
-        `}
+        className={` p-0.5 bg-transparent border-2 focus:outline-none ${border} ${hover} ${text}`}
       >
         {bucket?.flagged ? (
           <FlagIconSolid className="w-5 h-5 " />
@@ -59,41 +61,3 @@ const Header: React.FC<HeaderProps> = (props) => {
 };
 
 export default Header;
-
-export function getBorderColor(bucket: Bucket | undefined): string {
-  if (bucket?.flagged) {
-    return "border-rose-500 focus:border-rose-700 hover:border-rose-700";
-  }
-
-  const openCount = getTasksByState(bucket, TaskState.OPEN).length;
-  const closedCount = getTasksByState(bucket, TaskState.CLOSED).length;
-
-  if (openCount === 0) {
-    if (closedCount > 0) {
-      return "border-green-500 focus:border-green-700 hover:border-green-700";
-    } else {
-      return "border-slate-500 focus:border-slate-700 hover:border-slate-700";
-    }
-  } else {
-    return "border-amber-500 focus:border-amber-700 hover:border-amber-700";
-  }
-}
-
-export function getHoverColor(bucket: Bucket | undefined): string {
-  if (bucket?.flagged) {
-    return "hover:bg-rose-300";
-  }
-
-  const openCount = getTasksByState(bucket, TaskState.OPEN).length;
-  const closedCount = getTasksByState(bucket, TaskState.CLOSED).length;
-
-  if (openCount === 0) {
-    if (closedCount > 0) {
-      return "hover:bg-green-300";
-    } else {
-      return "hover:bg-slate-300";
-    }
-  } else {
-    return "hover:bg-amber-300";
-  }
-}

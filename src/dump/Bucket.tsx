@@ -10,6 +10,7 @@ import {
 import TaskItem from "./TaskItem";
 import CardList from "../design/CardList";
 import Header from "./Header";
+import { getBucketBackgroundColor } from "../design/colors";
 
 interface BucketProps {
   bucketId: string;
@@ -30,7 +31,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
   } = useTasks();
 
   const bucket = getBucket(bucketId);
-  const allOtherBuckets = getBuckets().filter((b) => b.id !== bucketId);
+  const allOtherBuckets = getBuckets().filter((b: Bucket) => b.id !== bucketId);
 
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
@@ -38,7 +39,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const [topCollectedProps, topDropRef] = useDrop(
     {
       accept: [
-        ...allOtherBuckets.map((b) => getOpenBucketType(b.id)),
+        ...allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
         getClosedBucketType(bucketId),
       ],
 
@@ -99,8 +100,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const open = getTasksByState(bucket, TaskState.OPEN);
   const closed = getTasksByState(bucket, TaskState.CLOSED);
 
-  const bgTop = getBackgroundColor(bucket, "top");
-  const bgBottom = getBackgroundColor(bucket, "bottom");
+  const bgTop = getBucketBackgroundColor(bucket, "top");
+  const bgBottom = getBucketBackgroundColor(bucket, "bottom");
 
   return (
     <div className={`w-full`}>
@@ -154,27 +155,3 @@ const Bucket: React.FC<BucketProps> = (props) => {
 };
 
 export default Bucket;
-
-// backgrounds: Colors: Black when no tasks are added, yellow when at least one is added to top state, and green when all are in the bottom state.
-
-export function getBackgroundColor(
-  bucket: Bucket | undefined,
-  position = "top",
-): string {
-  if (bucket?.flagged) {
-    return position === "top" ? "bg-rose-200" : "bg-rose-300";
-  }
-
-  const openCount = getTasksByState(bucket, TaskState.OPEN).length;
-  const closedCount = getTasksByState(bucket, TaskState.CLOSED).length;
-
-  if (openCount === 0) {
-    if (closedCount > 0) {
-      return position === "top" ? "bg-green-200" : "bg-green-300";
-    } else {
-      return position === "top" ? "bg-slate-200" : "bg-slate-300";
-    }
-  } else {
-    return position === "top" ? "bg-amber-200" : "bg-amber-300";
-  }
-}
