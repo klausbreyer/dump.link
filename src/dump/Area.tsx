@@ -24,26 +24,29 @@ const Area: React.FC<AreaProps> = (props) => {
 
   const allOtherBuckets = getBuckets().filter((b) => b.id !== bucketId);
 
-  const [collectedProps, dropRef] = useDrop({
-    accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
+  const [collectedProps, dropRef] = useDrop(
+    {
+      accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
 
-    drop: (item: DraggedItem) => {
-      const fromBucketId = getBucketForTask(item.taskId)?.id || "";
-      if (fromBucketId !== bucketId.toString()) {
-        moveTask(bucketId, item.taskId);
-      }
+      drop: (item: DraggedItem) => {
+        const fromBucketId = getBucketForTask(item.taskId)?.id || "";
+        if (fromBucketId !== bucketId.toString()) {
+          moveTask(bucketId, item.taskId);
+        }
+      },
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop(),
+      }),
     },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-    }),
-  });
+    [bucketId, allOtherBuckets, getOpenBucketType, getBucketForTask, moveTask],
+  );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
   return (
     <div
       ref={dropRef}
-      className={`w-full h-full p-2 bg-amber-100 ${
+      className={`w-full h-full p-2 bg-slate-50 ${
         canDrop && !isOver ? "border-dashed border-2 border-gray-400" : ""
       } ${isOver ? "border-solid border-2 border-gray-400" : ""}`}
     >

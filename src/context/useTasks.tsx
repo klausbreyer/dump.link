@@ -154,17 +154,25 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
     index === 0
       ? [
           {
-            id: Date.now().toString(),
+            id: Date.now().toString() + index,
             title: "Your first task",
             state: TaskState.OPEN,
           },
         ]
       : index === 1
-      ? Array.from({ length: 5 }).map((_, i) => ({
-          id: Date.now().toString() + i,
+      ? Array.from({ length: 3 }).map((_, i) => ({
+          id: Date.now().toString() + index + i,
           title: `Task ${i} in Bucket ${index}`,
           state: TaskState.OPEN,
         }))
+      : index === 2
+      ? [
+          {
+            id: Date.now().toString() + index,
+            title: "Done Task in Bucket 2",
+            state: TaskState.CLOSED,
+          },
+        ]
       : [],
 }));
 
