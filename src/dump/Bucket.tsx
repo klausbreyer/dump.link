@@ -3,6 +3,7 @@ import { useDrop } from "react-dnd";
 import { useTasks } from "../context/useTasks";
 import { DraggedItem, DropCollectedProps, TaskState } from "../context/types";
 import Task from "./Task";
+import CardList from "../design/CardList";
 
 interface BucketProps {
   bucketId: string;
@@ -85,22 +86,26 @@ const Bucket: React.FC<BucketProps> = (props) => {
         }
           ${topIsOver && "border-solid border-2 border-gray-400"}`}
       >
-        {open.map((task) => (
-          <Task taskId={task.id} key={task.id} />
-        ))}
+        <CardList>
+          {open.map((task) => (
+            <Task taskId={task.id} key={task.id} />
+          ))}
+        </CardList>
       </div>
       <div
         ref={bottomDropRef}
-        className={`min-h-[2.5rem] p-2 bg-amber-300 ${
+        className={` min-h-[2.5rem] p-2 bg-amber-300 ${
           bottomCanDrop &&
           !bottomIsOver &&
           "border-dashed border-2 border-gray-400"
         }
           ${bottomIsOver && "border-solid border-2 border-gray-400"} `}
       >
-        {closed.map((task) => (
-          <Task taskId={task.id} key={task.id} />
-        ))}
+        <CardList>
+          {closed.map((task) => (
+            <Task taskId={task.id} key={task.id} />
+          ))}
+        </CardList>
       </div>
     </div>
   );

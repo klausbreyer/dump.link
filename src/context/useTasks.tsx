@@ -22,9 +22,8 @@ type ActionType =
     }
   | {
       type: "REORDER_TASK";
-      bucketId: string;
-      taskId: string;
-      newIndex: number;
+      movingTaskId: string;
+      newPosition: number;
     };
 
 type TaskContextType = {
@@ -40,11 +39,12 @@ type TaskContextType = {
   getBucket: (bucketId: string) => Bucket | undefined;
   getTask: (taskId: string) => Task | undefined;
   getBucketForTask: (taskId: string) => Bucket | undefined;
-  reorderTask: (bucketId: string, taskId: string, newIndex: number) => void;
+  reorderTask: (movingTaskId: string, newPosition: number) => void;
   getTaskType: (task: Task | null | undefined) => string;
   getOpenBucketType: (bucketId: string) => string;
   getClosedBucketType: (bucketId: string) => string;
   getBuckets: () => Bucket[];
+  getTaskIndex: (taskId: string | null) => number | undefined;
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -106,22 +106,36 @@ const taskReducer = (state: Bucket[], action: ActionType): Bucket[] => {
       });
 
     case "REORDER_TASK": {
-      const { bucketId, taskId, newIndex } = action;
-      return state.map((bucket) => {
-        if (bucket.id !== bucketId) return bucket;
+      const { movingTaskId, newPosition } = action;
 
-        const newTasks = [...bucket.tasks];
-        const taskIndex = newTasks.findIndex((task) => task.id === taskId);
-        if (taskIndex === -1) return bucket;
+      let movingTask: Task | null = null;
+      let bucketId: string | null = null;
+      let originalPosition: number | null = null;
 
-        const [taskToReorder] = newTasks.splice(taskIndex, 1);
-        newTasks.splice(newIndex, 0, taskToReorder);
+      for (const bucket of state) {
+        const taskIndex = bucket.tasks.findIndex(
+          (task) => task.id === movingTaskId,
+        );
+        if (taskIndex !== -1) {
+          movingTask = { ...bucket.tasks[taskIndex] };
+          originalPosition = taskIndex;
+          bucketId = bucket.id;
+          break;
+        }
+      }
 
-        return {
-          ...bucket,
-          tasks: newTasks,
-        };
-      });
+      if (!movingTask || !bucketId || originalPosition === null) return state; // Task not found
+
+      const targetBucket = state.find((bucket) => bucket.id === bucketId);
+      if (!targetBucket) return state; // Bucket not found
+
+      // Remove the task from its original position
+      targetBucket.tasks.splice(originalPosition, 1);
+
+      // Insert the moving task at the new position
+      targetBucket.tasks.splice(newPosition, 0, movingTask);
+
+      return [...state]; // Return a new copy of the state to trigger re-renders
     }
 
     default:
@@ -145,6 +159,12 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
             state: TaskState.OPEN,
           },
         ]
+      : index === 1
+      ? Array.from({ length: 5 }).map((_, i) => ({
+          id: Date.now().toString() + i,
+          title: `Task ${i} in Bucket ${index}`,
+          state: TaskState.OPEN,
+        }))
       : [],
 }));
 
@@ -205,17 +225,24 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     );
   };
 
-  const reorderTask = (bucketId: string, taskId: string, newIndex: number) => {
+  const reorderTask = (movingTaskId: string, newPosition: number) => {
     dispatch({
       type: "REORDER_TASK",
-      bucketId: bucketId,
-      taskId: taskId,
-      newIndex: newIndex,
+      movingTaskId,
+      newPosition,
     });
   };
 
   const getBuckets = () => {
     return state;
+  };
+
+  const getTaskIndex = (taskId: string | null): number | undefined => {
+    if (!taskId) return undefined;
+    const bucket = getBucketForTask(taskId);
+    if (!bucket) return undefined;
+
+    return bucket.tasks.findIndex((task) => task.id === taskId);
   };
 
   console.log(state);
@@ -257,6 +284,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         getBucket,
         getTask,
         getBucketForTask,
+        getTaskIndex,
         reorderTask,
         getTaskType,
         getOpenBucketType,

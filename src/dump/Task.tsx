@@ -1,32 +1,77 @@
 import React, {
   ChangeEvent,
   KeyboardEvent,
+  memo,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { useTasks } from "../context/useTasks";
-import { TaskState } from "../context/types";
-import { useDrag } from "react-dnd";
+import { useDrag, useDrop } from "react-dnd";
+import { DraggedItem, TaskState } from "../context/types";
 
 interface TaskProps {
   taskId: string | null;
 }
 
-const Task: React.FC<TaskProps> = (props) => {
+// memo is necessary to prevent flickering.
+// it works by comparing the props of the component.
+// if they are the same, it does not re-render.
+const Task: React.FC<TaskProps> = function Card(props) {
   const { taskId } = props;
-  const { addTask, getTask, updateTask, getTaskType } = useTasks();
-  const task = taskId ? getTask(taskId) : null;
+  const {
+    addTask,
+    getTask,
+    updateTask,
+    getTaskType,
+    getTaskIndex,
+    reorderTask,
+  } = useTasks();
 
+  const task = taskId ? getTask(taskId) : null;
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [val, setVal] = useState<string>(task?.title || "");
-  const [{ isDragging }, dragRef] = useDrag(() => ({
-    type: getTaskType(task),
-    item: { taskId },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
+
+  const [{ isDragging }, dragRef] = useDrag(
+    () => ({
+      type: getTaskType(task),
+      item: { taskId },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
+      end: (item, monitor) => {
+        const droppedId = item.taskId;
+        const overIndex = getTaskIndex(taskId);
+        const didDrop = monitor.didDrop();
+
+        if (overIndex === undefined) return;
+        if (droppedId === null) return;
+        if (droppedId === taskId) return;
+
+        if (!didDrop) {
+          reorderTask(droppedId, overIndex);
+        }
+      },
     }),
-  }));
+    [reorderTask, taskId],
+  );
+
+  const [, dropRef] = useDrop(
+    () => ({
+      accept: getTaskType(task),
+      hover(item: DraggedItem) {
+        const draggedId = item.taskId;
+        const overIndex = getTaskIndex(taskId);
+
+        // avoid flickering.
+        if (overIndex === undefined) return;
+        if (draggedId === taskId) return;
+
+        reorderTask(draggedId, overIndex);
+      },
+    }),
+    [reorderTask, taskId],
+  );
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -68,10 +113,11 @@ const Task: React.FC<TaskProps> = (props) => {
   }
 
   return (
-    <div ref={dragRef}>
+    <div ref={(node) => dragRef(dropRef(node))}>
       <textarea
-        style={{ opacity: isDragging ? 0.5 : 1 }}
-        className="w-full resize-y"
+        className={`w-full resize-y
+        ${isDragging ? "invisible" : "visible"}
+        `}
         placeholder="type more here"
         value={val}
         onBlur={handleBlur}
