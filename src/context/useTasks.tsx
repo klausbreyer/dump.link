@@ -24,6 +24,16 @@ type ActionType =
       type: "REORDER_TASK";
       movingTaskId: string;
       newPosition: number;
+    }
+  | {
+      type: "RENAME_BUCKET";
+      bucketId: string;
+      newName: string;
+    }
+  | {
+      type: "FLAG_BUCKET";
+      bucketId: string;
+      flag: boolean;
     };
 
 type TaskContextType = {
@@ -45,6 +55,8 @@ type TaskContextType = {
   getClosedBucketType: (bucketId: string) => string;
   getBuckets: () => Bucket[];
   getTaskIndex: (taskId: string | null) => number | undefined;
+  renameBucket: (bucketId: string, newName: string) => void;
+  flagBucket: (bucketId: string, flag: boolean) => void;
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -138,6 +150,20 @@ const taskReducer = (state: Bucket[], action: ActionType): Bucket[] => {
       return [...state]; // Return a new copy of the state to trigger re-renders
     }
 
+    case "RENAME_BUCKET":
+      return state.map((bucket) =>
+        bucket.id === action.bucketId
+          ? { ...bucket, name: action.newName }
+          : bucket,
+      );
+
+    case "FLAG_BUCKET":
+      return state.map((bucket) =>
+        bucket.id === action.bucketId
+          ? { ...bucket, flagged: action.flag }
+          : bucket,
+      );
+
     default:
       return state;
   }
@@ -149,7 +175,8 @@ type TaskProviderProps = {
 
 const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
   id: index + "",
-  name: `Bucket ${index}`,
+  name: ``,
+  flagged: index === 6,
   tasks:
     index === 0
       ? [
@@ -170,6 +197,14 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
           {
             id: Date.now().toString() + index,
             title: "Done Task in Bucket 2",
+            state: TaskState.CLOSED,
+          },
+        ]
+      : index === 6
+      ? [
+          {
+            id: Date.now().toString() + index,
+            title: "Open Task in Bucket 6",
             state: TaskState.CLOSED,
           },
         ]
@@ -253,15 +288,23 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     return bucket.tasks.findIndex((task) => task.id === taskId);
   };
 
-  console.log(state);
-
   // for react dnd.
-  const getClosedBucketType = (bucketId: string) => {
-    return `CLOSED_BUCKET_${bucketId}`;
+  const renameBucket = (bucketId: string, newName: string) => {
+    dispatch({
+      type: "RENAME_BUCKET",
+      bucketId,
+      newName,
+    });
   };
-  const getOpenBucketType = (bucketId: string) => {
-    return `OPEN_BUCKET_${bucketId}`;
+
+  const flagBucket = (bucketId: string, flag: boolean) => {
+    dispatch({
+      type: "FLAG_BUCKET",
+      bucketId,
+      flag,
+    });
   };
+  console.log(state);
 
   const getTaskType = (task: Task | null | undefined) => {
     if (!task) {
@@ -295,6 +338,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         getTaskIndex,
         reorderTask,
         getTaskType,
+        renameBucket,
+        flagBucket,
         getOpenBucketType,
         getClosedBucketType,
         getBuckets,
@@ -305,6 +350,13 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   );
 };
 
+const getClosedBucketType = (bucketId: string) => {
+  return `CLOSED_BUCKET_${bucketId}`;
+};
+const getOpenBucketType = (bucketId: string) => {
+  return `OPEN_BUCKET_${bucketId}`;
+};
+
 export const useTasks = () => {
   const context = useContext(TaskContext);
   if (!context) {
@@ -312,3 +364,11 @@ export const useTasks = () => {
   }
   return context;
 };
+
+export function getTasksByState(
+  bucket: Bucket | undefined,
+  state: TaskState,
+): Task[] {
+  const tasks = bucket?.tasks || [];
+  return tasks.filter((task) => task.state === state);
+}

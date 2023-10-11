@@ -13,11 +13,11 @@ export type Bucket = {
   id: string;
   name: string;
   tasks: Task[];
+  flagged?: boolean;
 };
 
 export type DraggedItem = {
   taskId: string;
-  // fromBucketId: string;
 };
 
 export type DropCollectedProps = {

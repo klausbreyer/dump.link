@@ -10,14 +10,14 @@ import { useTasks } from "../context/useTasks";
 import { useDrag, useDrop } from "react-dnd";
 import { DraggedItem, TaskState } from "../context/types";
 
-interface TaskProps {
+interface TaskItemProps {
   taskId: string | null;
 }
 
 // memo is necessary to prevent flickering.
 // it works by comparing the props of the component.
 // if they are the same, it does not re-render.
-const Task: React.FC<TaskProps> = function Card(props) {
+const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { taskId } = props;
   const {
     addTask,
@@ -115,7 +115,7 @@ const Task: React.FC<TaskProps> = function Card(props) {
   return (
     <div ref={(node) => dragRef(dropRef(node))}>
       <textarea
-        className={`w-full resize-y
+        className={`w-full  rounded-sm shadow-md resize-y
         ${isDragging ? "invisible" : "visible"}
         `}
         placeholder="type more here"
@@ -130,4 +130,4 @@ const Task: React.FC<TaskProps> = function Card(props) {
   );
 };
 
-export default Task;
+export default TaskItem;

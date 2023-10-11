@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
-import { useTasks } from "../context/useTasks";
-import { DraggedItem, DropCollectedProps, TaskState } from "../context/types";
-import Task from "./Task";
+import { getTasksByState, useTasks } from "../context/useTasks";
+import {
+  Bucket,
+  DraggedItem,
+  DropCollectedProps,
+  Task,
+  TaskState,
+} from "../context/types";
+import TaskItem from "./TaskItem";
 import CardList from "../design/CardList";
+import Header from "./Header";
 
 interface BucketProps {
   bucketId: string;
 }
-// ... (andere Imports)
 
 const Bucket: React.FC<BucketProps> = (props) => {
   const { bucketId: bucketId } = props;
@@ -20,8 +26,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
     changeTaskState,
     getClosedBucketType,
     getOpenBucketType,
-
-    getTaskType,
     getBucketForTask,
     getBuckets,
   } = useTasks();
@@ -90,28 +94,15 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const { isOver: bottomIsOver, canDrop: bottomCanDrop } =
     bottomCollectedProps as DropCollectedProps;
 
-  const tasks = bucket?.tasks || [];
-  const open = tasks.filter((task) => task.state === TaskState.OPEN);
-  const closed = tasks.filter((task) => task.state === TaskState.CLOSED);
+  const open = getTasksByState(bucket, TaskState.OPEN);
+  const closed = getTasksByState(bucket, TaskState.CLOSED);
 
-  // backgrounds: Colors: Black when no tasks are added, yellow when at least one is added to top state, and green when all are in the bottom state.
-
-  const bgTop =
-    open.length === 0
-      ? closed.length > 0
-        ? "bg-green-200"
-        : "bg-slate-200"
-      : "bg-amber-200";
-
-  const bgBottom =
-    open.length === 0
-      ? closed.length > 0
-        ? "bg-green-300"
-        : "bg-slate-300"
-      : "bg-amber-300";
+  const bgTop = getBackgroundColor(bucket, "top");
+  const bgBottom = getBackgroundColor(bucket, "bottom");
 
   return (
     <div className={`w-full`}>
+      <Header bucketId={bucketId} />
       <div
         ref={topDropRef}
         className={`min-h-[7.1rem] p-2 ${bgTop} border-solid border-2 ${
@@ -123,7 +114,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       >
         <CardList>
           {open.map((task) => (
-            <Task taskId={task.id} key={task.id} />
+            <TaskItem taskId={task.id} key={task.id} />
           ))}
         </CardList>
       </div>
@@ -140,7 +131,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       >
         <CardList>
           {closed.map((task) => (
-            <Task taskId={task.id} key={task.id} />
+            <TaskItem taskId={task.id} key={task.id} />
           ))}
         </CardList>
       </div>
@@ -149,3 +140,27 @@ const Bucket: React.FC<BucketProps> = (props) => {
 };
 
 export default Bucket;
+
+// backgrounds: Colors: Black when no tasks are added, yellow when at least one is added to top state, and green when all are in the bottom state.
+
+export function getBackgroundColor(
+  bucket: Bucket | undefined,
+  position = "top",
+): string {
+  if (bucket?.flagged) {
+    return position === "top" ? "bg-rose-200" : "bg-rose-300";
+  }
+
+  const openCount = getTasksByState(bucket, TaskState.OPEN).length;
+  const closedCount = getTasksByState(bucket, TaskState.CLOSED).length;
+
+  if (openCount === 0) {
+    if (closedCount > 0) {
+      return position === "top" ? "bg-green-200" : "bg-green-300";
+    } else {
+      return position === "top" ? "bg-slate-200" : "bg-slate-300";
+    }
+  } else {
+    return position === "top" ? "bg-amber-200" : "bg-amber-300";
+  }
+}

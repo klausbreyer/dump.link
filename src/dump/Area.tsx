@@ -1,10 +1,11 @@
 import React from "react";
-import Task from "./Task";
+import TaskItem from "./TaskItem";
 import FlexCol from "../design/FlexCol";
 import { useTasks } from "../context/useTasks";
 import { useDrop } from "react-dnd";
 import { DraggedItem, DropCollectedProps, TaskState } from "../context/types";
 import CardList from "../design/CardList";
+import Header from "./Header";
 
 export interface AreaProps {
   // [key: string]: any;
@@ -51,8 +52,10 @@ const Area: React.FC<AreaProps> = (props) => {
       } ${isOver ? "border-solid border-2 border-gray-400" : ""}`}
     >
       <CardList>
-        {bucket?.tasks.map((task) => <Task taskId={task.id} key={task.id} />)}
-        <Task taskId={null} />
+        {bucket?.tasks.map((task) => (
+          <TaskItem taskId={task.id} key={task.id} />
+        ))}
+        <TaskItem taskId={null} />
       </CardList>
     </div>
   );
