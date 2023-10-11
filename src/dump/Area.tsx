@@ -47,10 +47,19 @@ const Area: React.FC<AreaProps> = (props) => {
   return (
     <div
       ref={dropRef}
-      className={`w-full h-full p-2 bg-slate-50 ${
+      className={`w-full h-full bg-slate-50 ${
         canDrop && !isOver ? "border-dashed border-2 border-gray-400" : ""
       } ${isOver ? "border-solid border-2 border-gray-400" : ""}`}
     >
+      <div className={`w-full bg-slate-50 p-1 flex gap-1 `}>
+        <input
+          readOnly
+          type="text"
+          value={"Dump"}
+          className={`w-full bg-transparent border-b-2 focus:outline-none border-slate-500
+        `}
+        />
+      </div>
       <CardList>
         {bucket?.tasks.map((task) => (
           <TaskItem taskId={task.id} key={task.id} />

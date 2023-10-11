@@ -105,7 +105,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       <Header bucketId={bucketId} />
       <div
         ref={topDropRef}
-        className={`min-h-[7.1rem] p-2 ${bgTop} border-solid border-2 ${
+        className={`min-h-[7.1rem] ${bgTop} border-solid border-2 ${
           topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
         }
           ${topIsOver && " border-gray-400"}
@@ -120,7 +120,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       </div>
       <div
         ref={bottomDropRef}
-        className={`min-h-[3rem]  p-2 ${bgBottom} bg-amber-300  border-solid border-2 ${
+        className={`min-h-[3rem] ${bgBottom} bg-amber-300  border-solid border-2 ${
           bottomCanDrop &&
           !bottomIsOver &&
           "border-dashed border-2 border-gray-400"

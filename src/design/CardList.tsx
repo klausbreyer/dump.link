@@ -5,7 +5,7 @@ interface CardListProps {
 }
 
 const CardList: React.FC<CardListProps> = ({ children }) => {
-  return <div className="grid grid-cols-1 gap-2">{children}</div>;
+  return <div className="grid grid-cols-1 gap-2 p-2">{children}</div>;
 };
 
 export default CardList;

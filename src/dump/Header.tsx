@@ -46,6 +46,7 @@ const Header: React.FC<HeaderProps> = (props) => {
   const bgTop = getBackgroundColor(bucket, "top");
   const bgBottom = getBackgroundColor(bucket, "bottom");
   const border = getBorderColor(bucket);
+  const hover = getHoverColor(bucket);
   return (
     <div className={`w-full ${bgTop} p-1 flex gap-1 `}>
       <input
@@ -58,7 +59,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       <button
         onClick={handleClick}
         className={`px-2 bg-transparent border-2 focus:outline-none ${border}
-			  ${bucket?.flagged ? bgBottom : bgTop}
+			  ${hover}
         `}
       >
         F
@@ -85,5 +86,24 @@ export function getBorderColor(bucket: Bucket | undefined): string {
     }
   } else {
     return "border-amber-500 focus:border-amber-700 hover:border-amber-700";
+  }
+}
+
+export function getHoverColor(bucket: Bucket | undefined): string {
+  if (bucket?.flagged) {
+    return "hover:bg-rose-300";
+  }
+
+  const openCount = getTasksByState(bucket, TaskState.OPEN).length;
+  const closedCount = getTasksByState(bucket, TaskState.CLOSED).length;
+
+  if (openCount === 0) {
+    if (closedCount > 0) {
+      return "hover:bg-green-300";
+    } else {
+      return "hover:bg-slate-300";
+    }
+  } else {
+    return "hover:bg-amber-300";
   }
 }
