@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDrop } from "react-dnd";
 import { getTasksByState, useTasks } from "../context/useTasks";
 import {
@@ -30,8 +30,11 @@ const Bucket: React.FC<BucketProps> = (props) => {
   } = useTasks();
 
   const bucket = getBucket(bucketId);
-
   const allOtherBuckets = getBuckets().filter((b) => b.id !== bucketId);
+
+  // flag closed expansion
+  const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
+
   const [topCollectedProps, topDropRef] = useDrop(
     {
       accept: [
@@ -129,9 +132,21 @@ const Bucket: React.FC<BucketProps> = (props) => {
           `}
       >
         <CardList>
-          {closed.map((task) => (
-            <TaskItem taskId={task.id} key={task.id} />
-          ))}
+          {closedExpanded
+            ? closed.map((task) => <TaskItem taskId={task.id} key={task.id} />)
+            : closed
+                .slice(0, 1)
+                .map((task) => <TaskItem taskId={task.id} key={task.id} />)}
+          {closed.length > 1 && (
+            <div
+              onClick={() => setClosedExpanded(!closedExpanded)}
+              className="w-full text-sm text-center cursor-pointer hover:underline"
+            >
+              {!closedExpanded
+                ? `Show 1 of ${closed.length} Tasks`
+                : `Hide Tasks`}
+            </div>
+          )}
         </CardList>
       </div>
     </div>
