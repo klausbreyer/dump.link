@@ -56,7 +56,7 @@ const Area: React.FC<AreaProps> = (props) => {
           readOnly
           type="text"
           value={"Dump"}
-          className={`w-full bg-transparent border-b-2 focus:outline-none border-slate-500
+          className={`px-1 w-full bg-transparent border-b-2 focus:outline-none border-slate-500
         `}
         />
       </div>

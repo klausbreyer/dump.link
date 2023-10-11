@@ -1,7 +1,6 @@
 import React, {
   ChangeEvent,
   KeyboardEvent,
-  memo,
   useEffect,
   useRef,
   useState,
@@ -113,11 +112,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   return (
-    <div ref={(node) => dragRef(dropRef(node))}>
-      <textarea
-        className={`w-full  rounded-sm shadow-md resize-y
+    <div
+      ref={(node) => dragRef(dropRef(node))}
+      className={`z-10
         ${isDragging ? "invisible" : "visible"}
         `}
+    >
+      <textarea
+        className={`w-full px-1 rounded-sm shadow-md resize-y z-10`}
         placeholder="type more here"
         value={val}
         onBlur={handleBlur}

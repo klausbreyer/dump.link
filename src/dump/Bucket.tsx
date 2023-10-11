@@ -5,7 +5,6 @@ import {
   Bucket,
   DraggedItem,
   DropCollectedProps,
-  Task,
   TaskState,
 } from "../context/types";
 import TaskItem from "./TaskItem";
@@ -105,7 +104,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       <Header bucketId={bucketId} />
       <div
         ref={topDropRef}
-        className={`min-h-[7.1rem] ${bgTop} border-solid border-2 ${
+        className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${
           topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
         }
           ${topIsOver && " border-gray-400"}
