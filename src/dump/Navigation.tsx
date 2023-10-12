@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-import {
-  CogIcon,
-  ArrowLeftOnRectangleIcon,
-  ArrowsPointingOutIcon,
-  ChartBarIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowsPointingOutIcon } from "@heroicons/react/24/solid";
 import { Tab } from "@headlessui/react";
-import Container from "./common/Container";
 
 interface Step {
   id: string;
@@ -70,44 +64,42 @@ const Navigation: React.FC<NavigationProps> = ({ onTabChange }) => {
   }, []);
 
   return (
-    <Container>
-      <Tab.Group as="nav" aria-label="Progress">
-        <ol
-          role="list"
-          className="my-2 border border-gray-300 divide-y divide-gray-300 rounded-md md:flex md:divide-y-0"
-        >
-          {steps.map((step, stepIdx) => (
-            <Tab as="li" key={step.name} className="relative md:flex md:flex-1">
-              <Tab.List className="flex items-center w-full">
-                <button
-                  onClick={() => handleTabClick(step)}
-                  className={`flex items-center w-full px-6 py-2 text-sm font-medium
+    <Tab.Group as="nav" aria-label="Progress">
+      <ol
+        role="list"
+        className="mb-2 border border-gray-300 divide-y divide-gray-300 rounded-md md:flex md:divide-y-0"
+      >
+        {steps.map((step, stepIdx) => (
+          <Tab as="li" key={step.name} className="relative md:flex md:flex-1">
+            <Tab.List className="flex items-center w-full">
+              <button
+                onClick={() => handleTabClick(step)}
+                className={`flex items-center w-full px-6 py-2 text-sm font-medium
                 ${
                   currentTab === step.id
                     ? "bg-slate-200"
                     : "hover:bg-slate-100 focus:bg-slate-100"
                 }
                 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2`}
-                >
-                  <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-slate-600">
-                    {step.icon}
-                  </span>
-                  <span className="ml-4 text-sm font-medium text-slate-600">
-                    {step.name}
-                  </span>
-                </button>
-              </Tab.List>
-              {stepIdx !== steps.length - 1 && (
-                <div
-                  className="absolute top-0 right-0 hidden w-5 h-full border-r md:block"
-                  aria-hidden="true"
-                ></div>
-              )}
-            </Tab>
-          ))}
-        </ol>
-      </Tab.Group>
-    </Container>
+              >
+                <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-slate-600">
+                  {step.icon}
+                </span>
+                <span className="ml-4 text-sm font-medium text-slate-600">
+                  {step.name}
+                </span>
+              </button>
+            </Tab.List>
+            {stepIdx !== steps.length - 1 && (
+              <div
+                className="absolute top-0 right-0 hidden w-5 h-full border-r md:block"
+                aria-hidden="true"
+              ></div>
+            )}
+          </Tab>
+        ))}
+      </ol>
+    </Tab.Group>
   );
 };
 

@@ -1,10 +1,10 @@
 import React from "react";
 import TaskItem from "./TaskItem";
-import FlexCol from "../design/FlexCol";
+import FlexCol from "../common/FlexCol";
 import { useTasks } from "../hooks/useTasks";
 import { useDrop } from "react-dnd";
 import { DraggedItem, DropCollectedProps, TaskState } from "../types";
-import CardList from "../design/CardList";
+import CardList from "../common/CardList";
 import BucketHeader from "./BucketHeader";
 
 export interface AreaProps {

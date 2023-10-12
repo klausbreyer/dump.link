@@ -8,7 +8,7 @@ import {
   getHeaderBorderColor,
   getHeaderHoverColor,
   getHeaderTextColor,
-} from "../design/colors";
+} from "../common/colors";
 
 export interface BucketHeaderProps {
   bucketId: string;

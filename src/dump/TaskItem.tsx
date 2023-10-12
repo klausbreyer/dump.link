@@ -5,10 +5,12 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { ArrowsPointingOutIcon } from "@heroicons/react/24/solid";
 import { useTasks } from "../hooks/useTasks";
 import { useDrag, useDrop } from "react-dnd";
 import { DraggedItem, TaskState } from "../types";
 
+import { Task } from "../types";
 interface TaskItemProps {
   taskId: string | null;
 }
@@ -31,7 +33,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [val, setVal] = useState<string>(task?.title || "");
 
-  const [{ isDragging }, dragRef] = useDrag(
+  useEffect(() => {
+    if (taskId === null && textAreaRef.current) {
+      textAreaRef.current.focus();
+    }
+  }, [taskId]);
+
+  const [{ isDragging }, dragRef, previewRev] = useDrag(
     () => ({
       type: getTaskType(task),
       item: { taskId },
@@ -95,6 +103,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       }
       addTask("0", { title: val, state: TaskState.OPEN });
       setVal("");
+
+      // keep focus in this empty field. The new entry will be a new entry. This will stay the input text field.
+      setTimeout(() => {
+        textAreaRef?.current?.focus();
+      }, 100);
       return;
     }
     updateTask(taskId, { title: val, state: task?.state || TaskState.OPEN });
@@ -113,11 +126,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   return (
     <div
-      ref={(node) => dragRef(dropRef(node))}
-      className={`z-10
+      ref={(node) => previewRev(dropRef(node))}
+      className={`z-10 flex gap-1 items-center
         ${isDragging ? "invisible" : "visible"}
         `}
     >
+      <div ref={dragRef} className="cursor-move">
+        <ArrowsPointingOutIcon className="w-5 h-5" />
+      </div>
       <textarea
         className={`w-full px-1 rounded-sm shadow-md resize-y z-10`}
         placeholder="type more here"

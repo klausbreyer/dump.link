@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
 import { getTasksByState, useTasks } from "../hooks/useTasks";
 import { Bucket, DraggedItem, DropCollectedProps, TaskState } from "../types";
 import TaskItem from "./TaskItem";
-import CardList from "../design/CardList";
+import CardList from "../common/CardList";
 import BucketHeader from "./BucketHeader";
-import { getBucketBackgroundColor } from "../design/colors";
+import { getBucketBackgroundColor } from "../common/colors";
 
 interface BucketProps {
   bucketId: string;
@@ -27,6 +27,15 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const bucket = getBucket(bucketId);
   const allOtherBuckets = getBuckets().filter((b: Bucket) => b.id !== bucketId);
+
+  const open = getTasksByState(bucket, TaskState.OPEN);
+  const closed = getTasksByState(bucket, TaskState.CLOSED);
+
+  useEffect(() => {
+    if (closed.length === 1) {
+      setClosedExpanded(false);
+    }
+  }, [closed.length]);
 
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
@@ -92,9 +101,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const { isOver: bottomIsOver, canDrop: bottomCanDrop } =
     bottomCollectedProps as DropCollectedProps;
 
-  const open = getTasksByState(bucket, TaskState.OPEN);
-  const closed = getTasksByState(bucket, TaskState.CLOSED);
-
   const bgTop = getBucketBackgroundColor(bucket, "top");
   const bgBottom = getBucketBackgroundColor(bucket, "bottom");
 
@@ -139,7 +145,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
               className="w-full text-sm text-center cursor-pointer hover:underline"
             >
               {!closedExpanded
-                ? `Show 1 of ${closed.length} Tasks`
+                ? `Show all ${closed.length} Tasks`
                 : `Hide Tasks`}
             </div>
           )}

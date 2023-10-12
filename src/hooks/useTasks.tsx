@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, useContext } from "react";
 import { Bucket, Task, TaskState } from "../types";
-
+import { ArrowsPointingOutIcon } from "@heroicons/react/24/solid";
 type ActionType =
   | { type: "ADD_TASK"; bucketId: string; task: Omit<Task, "id"> }
   | {
@@ -173,7 +173,7 @@ type TaskProviderProps = {
   children: React.ReactNode;
 };
 
-const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
+let initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
   id: index + "",
   name: ``,
   flagged: index === 6,
@@ -210,6 +210,22 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
         ]
       : [],
 }));
+
+// initialBuckets = Array.from({ length: 11 }).map((_, index) => ({
+//   id: index + "",
+//   name: ``,
+//   flagged: false,
+//   tasks:
+//     index === 0
+//       ? [
+//           {
+//             id: Date.now().toString() + index,
+//             title: "Your first task",
+//             state: TaskState.OPEN,
+//           },
+//         ]
+//       : [],
+// }));
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(taskReducer, initialBuckets);

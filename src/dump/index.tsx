@@ -1,7 +1,8 @@
 import React from "react";
 import Area from "./Area";
 import Bucket from "./Bucket";
-import FlexCol from "../design/FlexCol";
+import FlexCol from "../common/FlexCol";
+import Container from "../common/Container";
 
 interface DumpProps {
   // [key: string]: any;
@@ -9,7 +10,7 @@ interface DumpProps {
 
 const Dump: React.FC<DumpProps> = (props) => {
   return (
-    <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <Container>
       <div className="grid grid-cols-3 gap-4">
         <div className="">
           <Area />
@@ -27,7 +28,7 @@ const Dump: React.FC<DumpProps> = (props) => {
           </FlexCol>
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 
