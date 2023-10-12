@@ -1,11 +1,11 @@
 import React from "react";
 import TaskItem from "./TaskItem";
 import FlexCol from "../design/FlexCol";
-import { useTasks } from "../context/useTasks";
+import { useTasks } from "../hooks/useTasks";
 import { useDrop } from "react-dnd";
-import { DraggedItem, DropCollectedProps, TaskState } from "../context/types";
+import { DraggedItem, DropCollectedProps, TaskState } from "../types";
 import CardList from "../design/CardList";
-import Header from "./Header";
+import BucketHeader from "./BucketHeader";
 
 export interface AreaProps {
   // [key: string]: any;
@@ -47,11 +47,11 @@ const Area: React.FC<AreaProps> = (props) => {
   return (
     <div
       ref={dropRef}
-      className={`w-full h-full bg-slate-50 ${
+      className={`w-full h-full bg-slate-200 ${
         canDrop && !isOver ? "border-dashed border-2 border-gray-400" : ""
       } ${isOver ? "border-solid border-2 border-gray-400" : ""}`}
     >
-      <div className={`w-full bg-slate-50 p-1 flex gap-1 `}>
+      <div className={`w-full p-1 flex gap-1 `}>
         <input
           readOnly
           type="text"

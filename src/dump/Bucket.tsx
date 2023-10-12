@@ -1,15 +1,10 @@
 import React, { useState } from "react";
 import { useDrop } from "react-dnd";
-import { getTasksByState, useTasks } from "../context/useTasks";
-import {
-  Bucket,
-  DraggedItem,
-  DropCollectedProps,
-  TaskState,
-} from "../context/types";
+import { getTasksByState, useTasks } from "../hooks/useTasks";
+import { Bucket, DraggedItem, DropCollectedProps, TaskState } from "../types";
 import TaskItem from "./TaskItem";
 import CardList from "../design/CardList";
-import Header from "./Header";
+import BucketHeader from "./BucketHeader";
 import { getBucketBackgroundColor } from "../design/colors";
 
 interface BucketProps {
@@ -105,7 +100,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   return (
     <div className={`w-full`}>
-      <Header bucketId={bucketId} />
+      <BucketHeader bucketId={bucketId} />
       <div
         ref={topDropRef}
         className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${

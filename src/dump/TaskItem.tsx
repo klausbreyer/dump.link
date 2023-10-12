@@ -5,9 +5,9 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useTasks } from "../context/useTasks";
+import { useTasks } from "../hooks/useTasks";
 import { useDrag, useDrop } from "react-dnd";
-import { DraggedItem, TaskState } from "../context/types";
+import { DraggedItem, TaskState } from "../types";
 
 interface TaskItemProps {
   taskId: string | null;

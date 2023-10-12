@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { Bucket, Task, TaskState } from "./types";
+import { Bucket, Task, TaskState } from "../types";
 
 type ActionType =
   | { type: "ADD_TASK"; bucketId: string; task: Omit<Task, "id"> }

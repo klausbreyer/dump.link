@@ -3,13 +3,37 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { createRoot } from "react-dom/client";
 import Dump from "./dump";
-import { TaskProvider } from "./context/useTasks";
+import { TaskProvider } from "./hooks/useTasks";
+import Navigation from "./Navigation";
+import { useHashChange } from "./hooks/useHashChange"; // Import the custom hook
+import Settings from "./settings";
+import Graph from "./graph";
+import Foliation from "./foliation";
 
 const App = function App() {
+  const currentHash = useHashChange();
+
+  const renderComponentBasedOnHash = () => {
+    switch (currentHash) {
+      case "settings":
+        return <Settings />;
+      case "dump":
+        return <Dump />;
+      case "graph":
+        return <Graph />;
+      case "foliation":
+        return <Foliation />;
+      // Add more cases here for other hash values and their corresponding components
+      default:
+        return <Dump />;
+    }
+  };
+
   return (
     <TaskProvider>
       <DndProvider backend={HTML5Backend}>
-        <Dump />
+        <Navigation />
+        {renderComponentBasedOnHash()}
       </DndProvider>
     </TaskProvider>
   );

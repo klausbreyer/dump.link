@@ -2,7 +2,7 @@ import React, { ChangeEvent } from "react";
 import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 
-import { useTasks } from "../context/useTasks";
+import { useTasks } from "../hooks/useTasks";
 import {
   getBucketBackgroundColor,
   getHeaderBorderColor,
@@ -10,11 +10,11 @@ import {
   getHeaderTextColor,
 } from "../design/colors";
 
-export interface HeaderProps {
+export interface BucketHeaderProps {
   bucketId: string;
 }
 
-const Header: React.FC<HeaderProps> = (props) => {
+const BucketHeader: React.FC<BucketHeaderProps> = (props) => {
   const { bucketId } = props;
 
   const { getBucket, renameBucket, flagBucket } = useTasks();
@@ -60,4 +60,4 @@ const Header: React.FC<HeaderProps> = (props) => {
   );
 };
 
-export default Header;
+export default BucketHeader;
