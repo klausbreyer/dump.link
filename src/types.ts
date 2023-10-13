@@ -14,6 +14,7 @@ export type Bucket = {
   name: string;
   tasks: Task[];
   flagged?: boolean;
+  dependencies: string[]; // List of Bucket IDs this bucket depends on
 };
 
 export type DraggedItem = {
