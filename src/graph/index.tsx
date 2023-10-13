@@ -33,7 +33,7 @@ const Graph: React.FC<GraphProps> = (props) => {
   );
   const [resizeCounter, setResizeCounter] = useState(0);
 
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 11; i++) {
     if (!boxRefs.current[i]) {
       boxRefs.current[i] = React.createRef();
     }
@@ -51,27 +51,10 @@ const Graph: React.FC<GraphProps> = (props) => {
     };
   }, []);
 
-  const getArrowCoordinates = (fromId: number, toId: number) => {
-    const fromBox = boxRefs.current[fromId].current!.getBoundingClientRect();
-    const toBox = boxRefs.current[toId].current!.getBoundingClientRect();
-    const containerRect = document
-      .querySelector(".grid")
-      .getBoundingClientRect();
-
-    return {
-      start: {
-        x: fromBox.left + fromBox.width / 2 - containerRect.left,
-        y: fromBox.top + fromBox.height / 2 - containerRect.top,
-      },
-      end: {
-        x: toBox.left + toBox.width / 2 - containerRect.left,
-        y: toBox.top + toBox.height / 2 - containerRect.top,
-      },
-    };
-  };
-
   const addRandomArrow = () => {
-    const boxes = buckets.map((bucket) => parseInt(bucket.id));
+    const boxes = buckets
+      .map((bucket) => parseInt(bucket.id))
+      .filter((id) => id >= 1 && id <= 10);
     const start = boxes[Math.floor(Math.random() * boxes.length)];
     let end = boxes[Math.floor(Math.random() * boxes.length)];
 
@@ -97,9 +80,11 @@ const Graph: React.FC<GraphProps> = (props) => {
   };
 
   const getCenterCoordinates = (id: number) => {
+    console.log(id);
+
     const rect = boxRefs.current[id].current!.getBoundingClientRect();
     const containerRect = document
-      .querySelector(".grid")
+      .querySelector(".parent")
       .getBoundingClientRect();
 
     return {
@@ -137,8 +122,7 @@ const Graph: React.FC<GraphProps> = (props) => {
   return (
     <Container>
       <button onClick={addRandomArrow}>Zufälligen Pfeil hinzufügen</button>
-      <div className="relative grid grid-cols-4 gap-20">
-        <div className="col-span-2 col-start-2 row-start-2"></div>
+      <div className="relative w-full h-screen parent">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {arrows.map((arrow, index) => {
             const fromCoords = getCenterCoordinates(arrow.startBoxId);
@@ -173,11 +157,27 @@ const Graph: React.FC<GraphProps> = (props) => {
             </marker>
           </defs>
         </svg>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((index) => (
-          <div ref={boxRefs.current[index]} className="box" key={index}>
-            <Box bucketId={index + ""} />
-          </div>
-        ))}
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i, index) => {
+          const angle = ((2 * Math.PI) / 10) * index;
+          const x = 50 + 32 * Math.sin(angle); // 32% des Elternelements ist der Radius
+          const y = 50 - 32 * Math.cos(angle);
+
+          return (
+            <div
+              data-testid={i}
+              ref={boxRefs.current[i]}
+              className="absolute w-40 bg-blue-500"
+              style={{
+                top: `${y}%`,
+                left: `${x}%`,
+                transform: "translate(-50%, -50%)", // Zentriert die Box
+              }}
+              key={i}
+            >
+              <Box bucketId={i + 1} />
+            </div>
+          );
+        })}
       </div>
     </Container>
   );

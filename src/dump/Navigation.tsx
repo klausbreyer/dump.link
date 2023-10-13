@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 
-import { ArrowsPointingOutIcon } from "@heroicons/react/24/solid";
+import {
+  CogIcon,
+  ArrowLeftOnRectangleIcon,
+  ArrowsPointingOutIcon,
+  ChartBarIcon,
+} from "@heroicons/react/24/solid";
 import { Tab } from "@headlessui/react";
 
 interface Step {
