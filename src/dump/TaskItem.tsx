@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ArrowsPointingOutIcon } from "@heroicons/react/24/solid";
+import { Bars2Icon } from "@heroicons/react/24/solid";
 import { useTasks } from "../hooks/useTasks";
 import { useDrag, useDrop } from "react-dnd";
 import { DraggedItem, TaskState } from "../types";
@@ -131,9 +131,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         ${isDragging ? "invisible" : "visible"}
         `}
     >
-      <div ref={dragRef} className="cursor-move">
-        <ArrowsPointingOutIcon className="w-5 h-5" />
-      </div>
       <textarea
         className={`w-full px-1 rounded-sm shadow-md resize-y z-10`}
         placeholder="type more here"
@@ -144,6 +141,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         rows={1}
         ref={textAreaRef}
       ></textarea>
+      {taskId !== null && (
+        <div ref={dragRef} className="cursor-move">
+          <Bars2Icon className="w-5 h-5" />
+        </div>
+      )}
     </div>
   );
 };
