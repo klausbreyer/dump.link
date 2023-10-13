@@ -2,8 +2,28 @@ import React, { useState, useRef, useEffect } from "react";
 import Container from "../common/Container";
 import Box from "./Box";
 import { useTasks } from "../hooks/useTasks";
+import { Bucket } from "../types";
 
 interface GraphProps {}
+
+type Coordinates = {
+  x: number;
+  y: number;
+};
+
+// clockwise.
+const positions: { top: number; left: number }[] = [
+  { top: 10, left: 50 }, // 12
+  { top: 20.112, left: 68.8091 },
+  { top: 38.1115, left: 90.4338 }, // 3
+  { top: 62.8885, left: 90.4338 }, // 3
+  { top: 79.8885, left: 68.8091 },
+  { top: 90, left: 50 }, // 6
+  { top: 79.8885, left: 31.1909 },
+  { top: 62.8885, left: 10.5662 }, //9
+  { top: 38.1115, left: 10.5662 }, //9
+  { top: 20.112, left: 31.1909 },
+];
 
 const Graph: React.FC<GraphProps> = (props) => {
   const {
@@ -14,25 +34,11 @@ const Graph: React.FC<GraphProps> = (props) => {
   } = useTasks();
 
   const buckets = getBuckets();
-
-  const [arrows, setArrows] = useState(() => {
-    const dependencies = [];
-    buckets.forEach((bucket) => {
-      bucket.dependencies.forEach((dependencyId) => {
-        dependencies.push({
-          startBoxId: parseInt(bucket.id),
-          endBoxId: parseInt(dependencyId),
-        });
-      });
-    });
-    return dependencies;
-  });
+  const [resizeCounter, setResizeCounter] = useState(0);
 
   const boxRefs = useRef<{ [key: number]: React.RefObject<HTMLDivElement> }>(
     {},
   );
-  const [resizeCounter, setResizeCounter] = useState(0);
-
   for (let i = 1; i <= 11; i++) {
     if (!boxRefs.current[i]) {
       boxRefs.current[i] = React.createRef();
@@ -64,28 +70,21 @@ const Graph: React.FC<GraphProps> = (props) => {
 
     if (!hasCyclicDependency(start.toString(), end.toString())) {
       addBucketDependency(start.toString(), end.toString());
-      setArrows((prev) => [...prev, { startBoxId: start, endBoxId: end }]);
     } else {
       console.warn("Cyclic dependency detected! Dependency not added.");
     }
   };
 
-  const removeArrow = (index: number) => {
-    const arrowToRemove = arrows[index];
-    removeBucketDependency(
-      arrowToRemove.startBoxId.toString(),
-      arrowToRemove.endBoxId.toString(),
-    );
-    setArrows((prev) => prev.filter((_, arrowIndex) => arrowIndex !== index));
+  const removeArrow = (bucketId: string, dependencyId: string) => {
+    removeBucketDependency(bucketId, dependencyId);
   };
-
-  const getCenterCoordinates = (id: number) => {
-    console.log(id);
-
+  const getCenterCoordinates = (id: number): Coordinates => {
     const rect = boxRefs.current[id].current!.getBoundingClientRect();
-    const containerRect = document
-      .querySelector(".parent")
-      .getBoundingClientRect();
+    const parentElement = document.querySelector(".parent");
+    if (!parentElement) {
+      throw new Error("Parent element not found");
+    }
+    const containerRect = parentElement.getBoundingClientRect();
 
     return {
       x: rect.left + rect.width / 2 - containerRect.left,
@@ -93,7 +92,7 @@ const Graph: React.FC<GraphProps> = (props) => {
     };
   };
 
-  const createArrowheads = (from, to) => {
+  const createArrowheads = (from: Coordinates, to: Coordinates) => {
     const distance = Math.sqrt(
       Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2),
     );
@@ -124,25 +123,29 @@ const Graph: React.FC<GraphProps> = (props) => {
       <button onClick={addRandomArrow}>Zufälligen Pfeil hinzufügen</button>
       <div className="relative w-full h-screen parent">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
-          {arrows.map((arrow, index) => {
-            const fromCoords = getCenterCoordinates(arrow.startBoxId);
-            const toCoords = getCenterCoordinates(arrow.endBoxId);
+          {buckets.map((bucket) =>
+            bucket.dependencies.map((dependencyId, index) => {
+              const fromCoords = getCenterCoordinates(parseInt(bucket.id));
+              const toCoords = getCenterCoordinates(parseInt(dependencyId));
 
-            // Hauptpfeil
-            return (
-              <g key={index} onClick={() => removeArrow(index)}>
-                <line
-                  x1={fromCoords.x}
-                  y1={fromCoords.y}
-                  x2={toCoords.x}
-                  y2={toCoords.y}
-                  stroke="black"
-                  strokeWidth="2"
-                />
-                {createArrowheads(fromCoords, toCoords)}
-              </g>
-            );
-          })}
+              return (
+                <g
+                  key={index}
+                  onClick={() => removeArrow(bucket.id, dependencyId)}
+                >
+                  <line
+                    x1={fromCoords.x}
+                    y1={fromCoords.y}
+                    x2={toCoords.x}
+                    y2={toCoords.y}
+                    stroke="black"
+                    strokeWidth="2"
+                  />
+                  {createArrowheads(fromCoords, toCoords)}
+                </g>
+              );
+            }),
+          )}
 
           <defs>
             <marker
@@ -158,9 +161,8 @@ const Graph: React.FC<GraphProps> = (props) => {
           </defs>
         </svg>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i, index) => {
-          const angle = ((2 * Math.PI) / 10) * index;
-          const x = 50 + 32 * Math.sin(angle); // 32% des Elternelements ist der Radius
-          const y = 50 - 32 * Math.cos(angle);
+          const x = positions[index].left;
+          const y = positions[index].top;
 
           return (
             <div
@@ -174,7 +176,7 @@ const Graph: React.FC<GraphProps> = (props) => {
               }}
               key={i}
             >
-              <Box bucketId={i + 1} />
+              <Box bucketId={i + ""} />
             </div>
           );
         })}
