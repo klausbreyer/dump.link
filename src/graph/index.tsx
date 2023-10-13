@@ -1,13 +1,33 @@
 import React, { useState, useRef, useEffect } from "react";
 import Container from "../common/Container";
 import Box from "./Box";
+import { useTasks } from "../hooks/useTasks";
 
 interface GraphProps {}
 
 const Graph: React.FC<GraphProps> = (props) => {
-  const [arrows, setArrows] = useState<
-    Array<{ startBoxId: number; endBoxId: number }>
-  >([]);
+  const {
+    addBucketDependency,
+    hasCyclicDependency,
+    removeBucketDependency,
+    getBuckets,
+  } = useTasks();
+
+  const buckets = getBuckets();
+
+  const [arrows, setArrows] = useState(() => {
+    const dependencies = [];
+    buckets.forEach((bucket) => {
+      bucket.dependencies.forEach((dependencyId) => {
+        dependencies.push({
+          startBoxId: parseInt(bucket.id),
+          endBoxId: parseInt(dependencyId),
+        });
+      });
+    });
+    return dependencies;
+  });
+
   const boxRefs = useRef<{ [key: number]: React.RefObject<HTMLDivElement> }>(
     {},
   );
@@ -18,12 +38,6 @@ const Graph: React.FC<GraphProps> = (props) => {
       boxRefs.current[i] = React.createRef();
     }
   }
-  useEffect(() => {
-    setArrows([
-      { startBoxId: 1, endBoxId: 2 },
-      { startBoxId: 1, endBoxId: 8 },
-    ]);
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,38 +71,29 @@ const Graph: React.FC<GraphProps> = (props) => {
   };
 
   const addRandomArrow = () => {
-    const boxes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const startBoxId = boxes[Math.floor(Math.random() * boxes.length)];
-    let endBoxId = boxes[Math.floor(Math.random() * boxes.length)];
+    const boxes = buckets.map((bucket) => parseInt(bucket.id));
+    const start = boxes[Math.floor(Math.random() * boxes.length)];
+    let end = boxes[Math.floor(Math.random() * boxes.length)];
 
-    while (startBoxId === endBoxId) {
-      endBoxId = boxes[Math.floor(Math.random() * boxes.length)];
+    while (start === end) {
+      end = boxes[Math.floor(Math.random() * boxes.length)];
     }
 
-    setArrows((prev) => [...prev, { startBoxId, endBoxId }]);
+    if (!hasCyclicDependency(start.toString(), end.toString())) {
+      addBucketDependency(start.toString(), end.toString());
+      setArrows((prev) => [...prev, { startBoxId: start, endBoxId: end }]);
+    } else {
+      console.warn("Cyclic dependency detected! Dependency not added.");
+    }
   };
 
   const removeArrow = (index: number) => {
+    const arrowToRemove = arrows[index];
+    removeBucketDependency(
+      arrowToRemove.startBoxId.toString(),
+      arrowToRemove.endBoxId.toString(),
+    );
     setArrows((prev) => prev.filter((_, arrowIndex) => arrowIndex !== index));
-  };
-
-  const getBezierPath = (fromId: number, toId: number) => {
-    const fromCoords = getEdgeCoordinates(fromId);
-    const toCoords = getEdgeCoordinates(toId);
-    const containerRect = document
-      .querySelector(".grid")
-      .getBoundingClientRect();
-
-    const midX = containerRect.left + containerRect.width / 2;
-    const midY = containerRect.top + containerRect.height / 2;
-
-    // If the arrow is roughly horizontal
-    if (Math.abs(fromCoords.y - toCoords.y) < 10) {
-      return `M ${fromCoords.x} ${fromCoords.y} C ${fromCoords.x} ${midY}, ${toCoords.x} ${midY}, ${toCoords.x} ${toCoords.y}`;
-    }
-
-    // For all other arrows
-    return `M ${fromCoords.x} ${fromCoords.y} C ${midX} ${fromCoords.y}, ${midX} ${toCoords.y}, ${toCoords.x} ${toCoords.y}`;
   };
 
   const getCenterCoordinates = (id: number) => {
@@ -103,43 +108,6 @@ const Graph: React.FC<GraphProps> = (props) => {
     };
   };
 
-  const getEdgeCoordinates = (id: number) => {
-    const boxRect = boxRefs.current[id].current!.getBoundingClientRect();
-    const containerRect = document
-      .querySelector(".grid")
-      .getBoundingClientRect();
-
-    const containerCenter = {
-      x: containerRect.left + containerRect.width / 2,
-      y: containerRect.top + containerRect.height / 2,
-    };
-
-    // Define the four corners of the box
-    const corners = [
-      { x: boxRect.left, y: boxRect.top }, // top-left
-      { x: boxRect.right, y: boxRect.top }, // top-right
-      { x: boxRect.left, y: boxRect.bottom }, // bottom-left
-      { x: boxRect.right, y: boxRect.bottom }, // bottom-right
-    ];
-
-    // Find the corner that's closest to the container's center
-    const closestCorner = corners.reduce((closest, corner) => {
-      const currentDist = Math.sqrt(
-        Math.pow(corner.x - containerCenter.x, 2) +
-          Math.pow(corner.y - containerCenter.y, 2),
-      );
-      const closestDist = Math.sqrt(
-        Math.pow(closest.x - containerCenter.x, 2) +
-          Math.pow(closest.y - containerCenter.y, 2),
-      );
-      return currentDist < closestDist ? corner : closest;
-    });
-
-    return {
-      x: closestCorner.x - containerRect.left,
-      y: closestCorner.y - containerRect.top,
-    };
-  };
   const createArrowheads = (from, to) => {
     const distance = Math.sqrt(
       Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2),
