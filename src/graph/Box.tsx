@@ -3,6 +3,7 @@ import { useDrop } from "react-dnd";
 import { getTasksByState, useTasks } from "../hooks/useTasks";
 import { getBucketBackgroundColor } from "../common/colors";
 import BucketHeader from "../dump/BucketHeader";
+import BoxHeader from "./BoxHeader";
 
 interface BoxProps {
   bucketId: string;
@@ -28,7 +29,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
   return (
     <div className={`w-full`}>
-      <BucketHeader bucketId={bucketId} />
+      <BoxHeader bucketId={bucketId} />
       <div className={`min-h-[6rem] ${bgTop} `}></div>
     </div>
   );

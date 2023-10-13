@@ -10,19 +10,20 @@ type Coordinates = {
   x: number;
   y: number;
 };
+type BoxSide = "top" | "right" | "bottom" | "left";
 
 // clockwise.
 const positions: { top: number; left: number }[] = [
-  { top: 10, left: 50 }, // 12
-  { top: 20.112, left: 68.8091 },
+  { top: 5, left: 50 }, // 12
+  { top: 15.112, left: 75.8091 },
   { top: 38.1115, left: 90.4338 }, // 3
   { top: 62.8885, left: 90.4338 }, // 3
-  { top: 79.8885, left: 68.8091 },
-  { top: 90, left: 50 }, // 6
-  { top: 79.8885, left: 31.1909 },
+  { top: 85.8885, left: 75.8091 },
+  { top: 95, left: 50 }, // 6
+  { top: 85.8885, left: 25.1909 },
   { top: 62.8885, left: 10.5662 }, //9
   { top: 38.1115, left: 10.5662 }, //9
-  { top: 20.112, left: 31.1909 },
+  { top: 15.112, left: 25.1909 },
 ];
 
 const Graph: React.FC<GraphProps> = (props) => {
@@ -78,55 +79,43 @@ const Graph: React.FC<GraphProps> = (props) => {
   const removeArrow = (bucketId: string, dependencyId: string) => {
     removeBucketDependency(bucketId, dependencyId);
   };
-  const getCenterCoordinates = (id: number): Coordinates => {
-    const rect = boxRefs.current[id].current!.getBoundingClientRect();
-    const parentElement = document.querySelector(".parent");
-    if (!parentElement) {
-      throw new Error("Parent element not found");
+
+  const drawAllArrows = () => {
+    const boxes = buckets
+      .map((bucket) => parseInt(bucket.id))
+      .filter((id) => id >= 1 && id <= 10);
+
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = 0; j < boxes.length; j++) {
+        if (
+          i !== j &&
+          !hasCyclicDependency(boxes[i].toString(), boxes[j].toString())
+        ) {
+          addBucketDependency(boxes[i].toString(), boxes[j].toString());
+        }
+      }
     }
-    const containerRect = parentElement.getBoundingClientRect();
-
-    return {
-      x: rect.left + rect.width / 2 - containerRect.left,
-      y: rect.top + rect.height / 2 - containerRect.top,
-    };
-  };
-
-  const createArrowheads = (from: Coordinates, to: Coordinates) => {
-    const distance = Math.sqrt(
-      Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2),
-    );
-    const numberOfArrows = Math.floor(distance / 20); // Abstand zwischen den Pfeilspitzen
-    const dx = (to.x - from.x) / numberOfArrows;
-    const dy = (to.y - from.y) / numberOfArrows;
-
-    const arrows = [];
-    for (let i = 1; i < numberOfArrows; i++) {
-      arrows.push(
-        <line
-          key={i}
-          x1={from.x + i * dx}
-          y1={from.y + i * dy}
-          x2={from.x + (i + 1) * dx}
-          y2={from.y + (i + 1) * dy}
-          stroke="black"
-          strokeWidth="2"
-          markerEnd="url(#smallArrowhead)"
-        />,
-      );
-    }
-    return arrows;
   };
 
   return (
     <Container>
-      <button onClick={addRandomArrow}>Zufälligen Pfeil hinzufügen</button>
-      <div className="relative w-full h-screen parent">
+      <button onClick={addRandomArrow}>Add Random Arrow</button>
+      <button onClick={drawAllArrows}>Draw All Arrows</button>
+
+      <div className="relative w-full h-[800px]  parent">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {buckets.map((bucket) =>
             bucket.dependencies.map((dependencyId, index) => {
-              const fromCoords = getCenterCoordinates(parseInt(bucket.id));
-              const toCoords = getCenterCoordinates(parseInt(dependencyId));
+              const fromRect =
+                boxRefs.current[
+                  parseInt(bucket.id)
+                ].current!.getBoundingClientRect();
+              const toRect =
+                boxRefs.current[
+                  parseInt(dependencyId)
+                ].current!.getBoundingClientRect();
+              const { from, to } = getBorderCenterCoordinates(fromRect, toRect);
+              const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
 
               return (
                 <g
@@ -134,14 +123,14 @@ const Graph: React.FC<GraphProps> = (props) => {
                   onClick={() => removeArrow(bucket.id, dependencyId)}
                 >
                   <line
-                    x1={fromCoords.x}
-                    y1={fromCoords.y}
-                    x2={toCoords.x}
-                    y2={toCoords.y}
+                    x1={from.x}
+                    y1={from.y}
+                    x2={shortenedTo.x}
+                    y2={shortenedTo.y}
                     stroke="black"
                     strokeWidth="2"
+                    markerEnd="url(#smallArrowhead)"
                   />
-                  {createArrowheads(fromCoords, toCoords)}
                 </g>
               );
             }),
@@ -172,7 +161,7 @@ const Graph: React.FC<GraphProps> = (props) => {
               style={{
                 top: `${y}%`,
                 left: `${x}%`,
-                transform: "translate(-50%, -50%)", // Zentriert die Box
+                transform: "translate(-50%, -50%)", // Center the box
               }}
               key={i}
             >
@@ -186,3 +175,82 @@ const Graph: React.FC<GraphProps> = (props) => {
 };
 
 export default Graph;
+const shortenLineEnd = (
+  from: Coordinates,
+  to: Coordinates,
+  shortenAmount: number,
+): Coordinates => {
+  const direction = {
+    x: to.x - from.x,
+    y: to.y - from.y,
+  };
+
+  const length = Math.sqrt(direction.x ** 2 + direction.y ** 2);
+  const normalizedDirection = {
+    x: direction.x / length,
+    y: direction.y / length,
+  };
+
+  return {
+    x: to.x - normalizedDirection.x * shortenAmount,
+    y: to.y - normalizedDirection.y * shortenAmount,
+  };
+};
+
+const getBorderCenterCoordinates = (
+  fromRect: DOMRect,
+  toRect: DOMRect,
+): { from: Coordinates; to: Coordinates } => {
+  let from: Coordinates = { x: 0, y: 0 };
+  let to: Coordinates = { x: 0, y: 0 };
+
+  const parentElement = document.querySelector(".parent");
+  if (!parentElement) {
+    throw new Error("Parent element not found");
+  }
+  const parentRect = parentElement.getBoundingClientRect();
+
+  const centersFrom: Record<BoxSide, Coordinates> = {
+    top: { x: fromRect.left + fromRect.width / 2, y: fromRect.top },
+    right: { x: fromRect.right, y: fromRect.top + fromRect.height / 2 },
+    bottom: { x: fromRect.left + fromRect.width / 2, y: fromRect.bottom },
+    left: { x: fromRect.left, y: fromRect.top + fromRect.height / 2 },
+  };
+
+  const centersTo: Record<BoxSide, Coordinates> = {
+    top: { x: toRect.left + toRect.width / 2, y: toRect.top },
+    right: { x: toRect.right, y: toRect.top + toRect.height / 2 },
+    bottom: { x: toRect.left + toRect.width / 2, y: toRect.bottom },
+    left: { x: toRect.left, y: toRect.top + toRect.height / 2 },
+  };
+
+  let minDistance = Infinity;
+  let chosenFrom: Coordinates = { x: 0, y: 0 };
+  let chosenTo: Coordinates = { x: 0, y: 0 };
+
+  for (const sideFrom of ["top", "right", "bottom", "left"] as BoxSide[]) {
+    for (const sideTo of ["top", "right", "bottom", "left"] as BoxSide[]) {
+      const dist = Math.sqrt(
+        Math.pow(centersFrom[sideFrom].x - centersTo[sideTo].x, 2) +
+          Math.pow(centersFrom[sideFrom].y - centersTo[sideTo].y, 2),
+      );
+
+      if (dist < minDistance) {
+        minDistance = dist;
+        chosenFrom = centersFrom[sideFrom];
+        chosenTo = centersTo[sideTo];
+      }
+    }
+  }
+
+  return {
+    from: {
+      x: chosenFrom.x - parentRect.left,
+      y: chosenFrom.y - parentRect.top,
+    },
+    to: {
+      x: chosenTo.x - parentRect.left,
+      y: chosenTo.y - parentRect.top,
+    },
+  };
+};
