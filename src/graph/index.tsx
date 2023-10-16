@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Container from "../common/Container";
 import Box from "./Box";
-import { useTasks } from "../hooks/useTasks";
+import { useData } from "../hooks/useData";
 import { Bucket } from "../types";
 
 interface GraphProps {}
@@ -33,7 +33,7 @@ const Graph: React.FC<GraphProps> = (props) => {
     removeBucketDependency,
     getBucketsDependingOn,
     getBuckets,
-  } = useTasks();
+  } = useData();
 
   const buckets = getBuckets();
   const [resizeCounter, setResizeCounter] = useState(0);

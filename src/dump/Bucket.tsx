@@ -4,8 +4,8 @@ import {
   getClosedBucketType,
   getOpenBucketType,
   getTasksByState,
-  useTasks,
-} from "../hooks/useTasks";
+  useData,
+} from "../hooks/useData";
 import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "../types";
 import TaskItem from "./TaskItem";
 import CardList from "../common/CardList";
@@ -26,7 +26,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
     changeTaskState,
     getBucketForTask,
     getBuckets,
-  } = useTasks();
+  } = useData();
 
   const bucket = getBucket(bucketId);
   const allOtherBuckets = getBuckets().filter((b: Bucket) => b.id !== bucketId);

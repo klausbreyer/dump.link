@@ -1,4 +1,3 @@
-//@todo. rename: dataProvider / useData. it is more than tasks.
 import React, { createContext, useReducer, useContext } from "react";
 import { Bucket, Task, TaskState } from "../types";
 type ActionType =
@@ -46,7 +45,7 @@ type ActionType =
       dependencyId: Bucket["id"];
     };
 
-type TaskContextType = {
+type DataContextType = {
   state: Bucket[];
   addTask: (bucketId: Bucket["id"], task: Omit<Task, "id">) => void;
   moveTask: (toBucketId: Bucket["id"], taskId: Task["id"]) => void;
@@ -83,9 +82,9 @@ type TaskContextType = {
   getBucketsAvailbleFor: (givenBucketId: Bucket["id"]) => Bucket["id"][];
 };
 
-const TaskContext = createContext<TaskContextType | undefined>(undefined);
+const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const taskReducer = (state: Bucket[], action: ActionType): Bucket[] => {
+const dataReducer = (state: Bucket[], action: ActionType): Bucket[] => {
   switch (action.type) {
     case "ADD_TASK":
       return state.map((bucket) =>
@@ -215,7 +214,7 @@ const taskReducer = (state: Bucket[], action: ActionType): Bucket[] => {
   }
 };
 
-type TaskProviderProps = {
+type DataProviderProps = {
   children: React.ReactNode;
 };
 
@@ -274,8 +273,8 @@ let initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
 //       : [],
 // }));
 
-export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
-  const [state, dispatch] = useReducer(taskReducer, initialBuckets);
+export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
+  const [state, dispatch] = useReducer(dataReducer, initialBuckets);
 
   const addTask = (bucketId: Bucket["id"], task: Omit<Task, "id">) => {
     console.log("add");
@@ -464,7 +463,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   console.log(state);
 
   return (
-    <TaskContext.Provider
+    <DataContext.Provider
       value={{
         state,
         addTask,
@@ -488,14 +487,14 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       }}
     >
       {children}
-    </TaskContext.Provider>
+    </DataContext.Provider>
   );
 };
 
-export const useTasks = () => {
-  const context = useContext(TaskContext);
+export const useData = () => {
+  const context = useContext(DataContext);
   if (!context) {
-    throw new Error("useTasks must be used within a TaskProvider");
+    throw new Error("useData must be used within a DataProvider");
   }
   return context;
 };
@@ -511,6 +510,7 @@ export function getTasksByState(
 export const getClosedBucketType = (bucketId: Bucket["id"]) => {
   return `CLOSED_BUCKET_${bucketId}`;
 };
+
 export const getOpenBucketType = (bucketId: Bucket["id"]) => {
   return `OPEN_BUCKET_${bucketId}`;
 };

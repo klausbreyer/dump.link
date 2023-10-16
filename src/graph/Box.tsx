@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import { getTasksByState, useTasks } from "../hooks/useTasks";
+import { getTasksByState, useData } from "../hooks/useData";
 import { getBucketBackgroundColor } from "../common/colors";
 import BucketHeader from "../dump/BucketHeader";
 import {
@@ -11,7 +11,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { DraggedBucket, DropCollectedProps } from "../types";
-import { useGlobalGrabbing } from "../hooks/useGlobalTracking";
+import { useGlobalDragging } from "../hooks/useGlobalDragging";
 
 interface BoxProps {
   bucketId: string;
@@ -30,7 +30,7 @@ const Box: React.FC<BoxProps> = (props) => {
     addBucketDependency,
     getBucketsAvailbleFor,
     getBucketsDependingOn,
-  } = useTasks();
+  } = useData();
 
   const bucket = getBucket(bucketId);
 
@@ -71,10 +71,10 @@ const Box: React.FC<BoxProps> = (props) => {
     [bucketId],
   );
 
-  const { globalGrabbing, setGlobalGrabbing } = useGlobalGrabbing();
+  const { globalDragging, setGlobalDragging } = useGlobalDragging();
   useEffect(() => {
-    setGlobalGrabbing(isDragging);
-  }, [isDragging, setGlobalGrabbing]);
+    setGlobalDragging(isDragging);
+  }, [isDragging, setGlobalDragging]);
 
   const bgTop = getBucketBackgroundColor(bucket, "top");
 
@@ -103,16 +103,16 @@ const Box: React.FC<BoxProps> = (props) => {
             ${!canDrop && !isOver && " border-transparent"}
             `}
           >
-            {!globalGrabbing && (
+            {!globalDragging && (
               <>
                 <ArrowRightIcon className="block w-5 h-5" />
                 Drag Dep.
               </>
             )}
-            {globalGrabbing}
+            {globalDragging}
             {canDrop}
-            {globalGrabbing && canDrop && <>Drop Dep.</>}
-            {globalGrabbing && !canDrop && <>No Drop</>}
+            {globalDragging && canDrop && <>Drop Dep.</>}
+            {globalDragging && !canDrop && <>No Drop</>}
           </li>
         </ul>
       </div>

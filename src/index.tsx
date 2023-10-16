@@ -3,13 +3,13 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { createRoot } from "react-dom/client";
 import Dump from "./dump";
-import { TaskProvider } from "./hooks/useTasks";
+import { DataProvider } from "./hooks/useData";
 import Navigation from "./Navigation";
 import { useHashChange } from "./hooks/useHashChange"; // Import the custom hook
 import Settings from "./settings";
 import Graph from "./graph";
 import Foliation from "./foliation";
-import { GlobalGrabbingProvider } from "./hooks/useGlobalTracking";
+import { GlobalDraggingProvider } from "./hooks/useGlobalDragging";
 
 const App = function App() {
   const currentHash = useHashChange();
@@ -31,14 +31,14 @@ const App = function App() {
   };
 
   return (
-    <GlobalGrabbingProvider>
-      <TaskProvider>
+    <GlobalDraggingProvider>
+      <DataProvider>
         <DndProvider backend={HTML5Backend}>
           <Navigation />
           {renderComponentBasedOnHash()}
         </DndProvider>
-      </TaskProvider>
-    </GlobalGrabbingProvider>
+      </DataProvider>
+    </GlobalDraggingProvider>
   );
 };
 

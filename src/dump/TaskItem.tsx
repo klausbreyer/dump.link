@@ -6,11 +6,12 @@ import React, {
   useState,
 } from "react";
 import { Bars2Icon } from "@heroicons/react/24/solid";
-import { useTasks } from "../hooks/useTasks";
+import { useData } from "../hooks/useData";
 import { useDrag, useDrop } from "react-dnd";
 import { DraggedTask, TaskState } from "../types";
 
 import { Task } from "../types";
+import { useGlobalDragging } from "../hooks/useGlobalDragging";
 interface TaskItemProps {
   taskId: string | null;
 }
@@ -27,7 +28,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     getTaskType,
     getTaskIndex,
     reorderTask,
-  } = useTasks();
+  } = useData();
 
   const task = taskId ? getTask(taskId) : null;
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -62,6 +63,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     }),
     [reorderTask, taskId],
   );
+
+  const { setGlobalDragging } = useGlobalDragging();
+  useEffect(() => {
+    setGlobalDragging(isDragging);
+  }, [isDragging, setGlobalDragging]);
 
   const [, dropRef] = useDrop(
     () => ({
