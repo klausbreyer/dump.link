@@ -17,8 +17,12 @@ export type Bucket = {
   dependencies: string[]; // List of Bucket IDs this bucket depends on
 };
 
-export type DraggedItem = {
-  taskId: string;
+export type DraggedTask = {
+  taskId: Task["id"];
+};
+
+export type DraggedBucket = {
+  bucketId: Bucket["id"];
 };
 
 export type DropCollectedProps = {

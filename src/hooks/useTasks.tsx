@@ -1,71 +1,86 @@
+//@todo. rename: dataProvider / useData. it is more than tasks.
 import React, { createContext, useReducer, useContext } from "react";
 import { Bucket, Task, TaskState } from "../types";
-import { ArrowsPointingOutIcon } from "@heroicons/react/24/solid";
 type ActionType =
-  | { type: "ADD_TASK"; bucketId: string; task: Omit<Task, "id"> }
+  | { type: "ADD_TASK"; bucketId: Bucket["id"]; task: Omit<Task, "id"> }
   | {
       type: "MOVE_TASK";
-      fromBucketId: string;
-      toBucketId: string;
-      taskId: string;
+      fromBucketId: Bucket["id"];
+      toBucketId: Bucket["id"];
+      taskId: Task["id"];
     }
   | {
       type: "CHANGE_TASK_STATE";
-      bucketId: string;
-      taskId: string;
+      bucketId: Bucket["id"];
+      taskId: Task["id"];
       newState: TaskState;
     }
   | {
       type: "UPDATE_TASK";
-      taskId: string;
+      taskId: Task["id"];
       updatedTask: Omit<Task, "id">;
     }
   | {
       type: "REORDER_TASK";
-      movingTaskId: string;
+      movingTaskId: Task["id"];
       newPosition: number;
     }
   | {
       type: "RENAME_BUCKET";
-      bucketId: string;
+      bucketId: Bucket["id"];
       newName: string;
     }
   | {
       type: "FLAG_BUCKET";
-      bucketId: string;
+      bucketId: Bucket["id"];
       flag: boolean;
     }
-  | { type: "ADD_BUCKET_DEPENDENCY"; bucketId: string; dependencyId: string }
+  | {
+      type: "ADD_BUCKET_DEPENDENCY";
+      bucketId: Bucket["id"];
+      dependencyId: Bucket["id"];
+    }
   | {
       type: "REMOVE_BUCKET_DEPENDENCY";
-      bucketId: string;
-      dependencyId: string;
+      bucketId: Bucket["id"];
+      dependencyId: Bucket["id"];
     };
 
 type TaskContextType = {
   state: Bucket[];
-  addTask: (bucketId: string, task: Omit<Task, "id">) => void;
-  moveTask: (toBucketId: string, taskId: string) => void;
+  addTask: (bucketId: Bucket["id"], task: Omit<Task, "id">) => void;
+  moveTask: (toBucketId: Bucket["id"], taskId: Task["id"]) => void;
   changeTaskState: (
-    bucketId: string,
-    taskId: string,
+    bucketId: Bucket["id"],
+    taskId: Task["id"],
     newState: TaskState,
   ) => void;
-  updateTask: (taskId: string, updatedTask: Omit<Task, "id">) => void;
-  getBucket: (bucketId: string) => Bucket | undefined;
-  getTask: (taskId: string) => Task | undefined;
-  getBucketForTask: (taskId: string) => Bucket | undefined;
-  reorderTask: (movingTaskId: string, newPosition: number) => void;
+  updateTask: (taskId: Task["id"], updatedTask: Omit<Task, "id">) => void;
+  getBucket: (bucketId: Bucket["id"]) => Bucket | undefined;
+  getTask: (taskId: Task["id"]) => Task | undefined;
+  getBucketForTask: (taskId: Task["id"]) => Bucket | undefined;
+  reorderTask: (movingTaskId: Task["id"], newPosition: number) => void;
   getTaskType: (task: Task | null | undefined) => string;
-  getOpenBucketType: (bucketId: string) => string;
-  getClosedBucketType: (bucketId: string) => string;
   getBuckets: () => Bucket[];
-  getTaskIndex: (taskId: string | null) => number | undefined;
-  renameBucket: (bucketId: string, newName: string) => void;
-  flagBucket: (bucketId: string, flag: boolean) => void;
-  addBucketDependency: (bucketId: string, dependencyId: string) => void;
-  removeBucketDependency: (bucketId: string, dependencyId: string) => void;
-  hasCyclicDependency: (bucketId: string, dependencyId: string) => boolean;
+  getTaskIndex: (taskId: Task["id"] | null) => number | undefined;
+  renameBucket: (bucketId: Bucket["id"], newName: string) => void;
+  flagBucket: (bucketId: Bucket["id"], flag: boolean) => void;
+  addBucketDependency: (
+    bucketId: Bucket["id"],
+    dependencyId: Bucket["id"],
+  ) => void;
+  removeBucketDependency: (
+    bucketId: Bucket["id"],
+    dependencyId: string,
+  ) => void;
+  hasCyclicDependency: (
+    bucketId: Bucket["id"],
+    dependencyId: string,
+  ) => boolean;
+  //@todo. check if really needed.
+  getBucketsDependingOn: (dependencyId: Bucket["id"]) => Bucket["id"][];
+
+  getBucketsAvailbleFor: (givenBucketId: Bucket["id"]) => Bucket["id"][];
 };
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -130,7 +145,7 @@ const taskReducer = (state: Bucket[], action: ActionType): Bucket[] => {
       const { movingTaskId, newPosition } = action;
 
       let movingTask: Task | null = null;
-      let bucketId: string | null = null;
+      let bucketId: Bucket["id"] | null = null;
       let originalPosition: number | null = null;
 
       for (const bucket of state) {
@@ -262,7 +277,7 @@ let initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(taskReducer, initialBuckets);
 
-  const addTask = (bucketId: string, task: Omit<Task, "id">) => {
+  const addTask = (bucketId: Bucket["id"], task: Omit<Task, "id">) => {
     console.log("add");
 
     dispatch({
@@ -272,7 +287,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     });
   };
 
-  const moveTask = (toBucketId: string, taskId: string) => {
+  const moveTask = (toBucketId: Bucket["id"], taskId: Task["id"]) => {
     dispatch({
       type: "MOVE_TASK",
       fromBucketId: getBucketForTask(taskId)?.id || "", //@todo: not pretty.
@@ -282,8 +297,8 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   };
 
   const changeTaskState = (
-    bucketId: string,
-    taskId: string,
+    bucketId: Bucket["id"],
+    taskId: Task["id"],
     newState: TaskState,
   ) => {
     dispatch({
@@ -294,15 +309,15 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     });
   };
 
-  const updateTask = (taskId: string, updatedTask: Omit<Task, "id">) => {
+  const updateTask = (taskId: Task["id"], updatedTask: Omit<Task, "id">) => {
     dispatch({ type: "UPDATE_TASK", taskId, updatedTask });
   };
 
-  const getBucket = (bucketId: string) => {
+  const getBucket = (bucketId: Bucket["id"]) => {
     return state.find((bucket) => bucket.id === bucketId);
   };
 
-  const getTask = (taskId: string) => {
+  const getTask = (taskId: Task["id"]) => {
     for (const bucket of state) {
       const task = bucket.tasks.find((t) => t.id === taskId);
       if (task) return task;
@@ -310,13 +325,13 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     return undefined;
   };
 
-  const getBucketForTask = (taskId: string) => {
+  const getBucketForTask = (taskId: Task["id"]) => {
     return state.find((bucket) =>
       bucket.tasks.some((task) => task.id === taskId),
     );
   };
 
-  const reorderTask = (movingTaskId: string, newPosition: number) => {
+  const reorderTask = (movingTaskId: Task["id"], newPosition: number) => {
     dispatch({
       type: "REORDER_TASK",
       movingTaskId,
@@ -328,7 +343,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     return state;
   };
 
-  const getTaskIndex = (taskId: string | null): number | undefined => {
+  const getTaskIndex = (taskId: Task["id"] | null): number | undefined => {
     if (!taskId) return undefined;
     const bucket = getBucketForTask(taskId);
     if (!bucket) return undefined;
@@ -336,7 +351,10 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     return bucket.tasks.findIndex((task) => task.id === taskId);
   };
 
-  const addBucketDependency = (bucketId: string, dependencyId: string) => {
+  const addBucketDependency = (
+    bucketId: Bucket["id"],
+    dependencyId: Bucket["id"],
+  ) => {
     if (hasCyclicDependency(bucketId, dependencyId)) {
       console.error("Cyclic dependency detected!");
       return;
@@ -349,7 +367,10 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     });
   };
 
-  const removeBucketDependency = (bucketId: string, dependencyId: string) => {
+  const removeBucketDependency = (
+    bucketId: Bucket["id"],
+    dependencyId: Bucket["id"],
+  ) => {
     dispatch({
       type: "REMOVE_BUCKET_DEPENDENCY",
       bucketId,
@@ -357,26 +378,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     });
   };
 
-  const hasCyclicDependency = (
-    bucketId: string,
-    dependencyId: string,
-  ): boolean => {
-    // Recursive function to traverse the dependency graph
-    const traverse = (id: string, visited: Set<string>): boolean => {
-      if (visited.has(id)) return true;
-      visited.add(id);
-
-      const bucket = getBucket(id);
-      for (const depId of bucket?.dependencies || []) {
-        if (traverse(depId, visited)) return true;
-      }
-      return false;
-    };
-
-    return traverse(dependencyId, new Set([bucketId]));
-  };
-
-  const renameBucket = (bucketId: string, newName: string) => {
+  const renameBucket = (bucketId: Bucket["id"], newName: string) => {
     dispatch({
       type: "RENAME_BUCKET",
       bucketId,
@@ -384,15 +386,13 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     });
   };
 
-  const flagBucket = (bucketId: string, flag: boolean) => {
+  const flagBucket = (bucketId: Bucket["id"], flag: boolean) => {
     dispatch({
       type: "FLAG_BUCKET",
       bucketId,
       flag,
     });
   };
-
-  console.log(state);
 
   const getTaskType = (task: Task | null | undefined) => {
     if (!task) {
@@ -412,6 +412,57 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     return getOpenBucketType(bucket.id);
   };
 
+  const getBucketsDependingOn = (
+    dependencyId: Bucket["id"],
+  ): Bucket["id"][] => {
+    const dependentBuckets: string[] = [];
+
+    // Loop through all buckets
+    for (const bucket of state) {
+      // Check if the given bucket ID is present in the current bucket's dependencies array
+      if (bucket.dependencies.includes(dependencyId)) {
+        dependentBuckets.push(bucket.id);
+      }
+    }
+
+    return dependentBuckets;
+  };
+
+  const hasCyclicDependency = (
+    bucketId: Bucket["id"],
+    dependencyId: Bucket["id"],
+  ): boolean => {
+    // Recursive function to traverse the dependency graph
+    const traverse = (id: string, visited: Set<string>): boolean => {
+      if (visited.has(id)) return true;
+      visited.add(id);
+
+      const bucket = getBucket(id);
+      for (const depId of bucket?.dependencies || []) {
+        if (traverse(depId, visited)) return true;
+      }
+      return false;
+    };
+
+    return traverse(dependencyId, new Set([bucketId]));
+  };
+
+  const getBucketsAvailbleFor = (
+    givenBucketId: Bucket["id"],
+  ): Bucket["id"][] => {
+    return state
+      .filter(
+        (bucket) =>
+          bucket.id !== givenBucketId && // Exclude the given bucket itself
+          !bucket.dependencies.includes(givenBucketId) && // Exclude direct dependencies
+          // !dependentBuckets.includes(bucket.id) && // Exclude indirect dependencies
+          !hasCyclicDependency(bucket.id, givenBucketId), // Exclude buckets that would result in a cyclic dependency
+      )
+      .map((bucket) => bucket.id); // Extract the bucket IDs
+  };
+
+  console.log(state);
+
   return (
     <TaskContext.Provider
       value={{
@@ -428,24 +479,17 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         getTaskType,
         renameBucket,
         flagBucket,
-        getOpenBucketType,
-        getClosedBucketType,
+        getBucketsDependingOn,
         getBuckets,
         addBucketDependency,
         removeBucketDependency,
         hasCyclicDependency,
+        getBucketsAvailbleFor,
       }}
     >
       {children}
     </TaskContext.Provider>
   );
-};
-
-const getClosedBucketType = (bucketId: string) => {
-  return `CLOSED_BUCKET_${bucketId}`;
-};
-const getOpenBucketType = (bucketId: string) => {
-  return `OPEN_BUCKET_${bucketId}`;
 };
 
 export const useTasks = () => {
@@ -463,3 +507,10 @@ export function getTasksByState(
   const tasks = bucket?.tasks || [];
   return tasks.filter((task) => task.state === state);
 }
+
+export const getClosedBucketType = (bucketId: Bucket["id"]) => {
+  return `CLOSED_BUCKET_${bucketId}`;
+};
+export const getOpenBucketType = (bucketId: Bucket["id"]) => {
+  return `OPEN_BUCKET_${bucketId}`;
+};

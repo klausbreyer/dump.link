@@ -8,7 +8,7 @@ import React, {
 import { Bars2Icon } from "@heroicons/react/24/solid";
 import { useTasks } from "../hooks/useTasks";
 import { useDrag, useDrop } from "react-dnd";
-import { DraggedItem, TaskState } from "../types";
+import { DraggedTask, TaskState } from "../types";
 
 import { Task } from "../types";
 interface TaskItemProps {
@@ -66,7 +66,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const [, dropRef] = useDrop(
     () => ({
       accept: getTaskType(task),
-      hover(item: DraggedItem) {
+      hover(item: DraggedTask) {
         const draggedId = item.taskId;
         const overIndex = getTaskIndex(taskId);
 

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
-import { getTasksByState, useTasks } from "../hooks/useTasks";
-import { Bucket, DraggedItem, DropCollectedProps, TaskState } from "../types";
+import {
+  getClosedBucketType,
+  getOpenBucketType,
+  getTasksByState,
+  useTasks,
+} from "../hooks/useTasks";
+import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "../types";
 import TaskItem from "./TaskItem";
 import CardList from "../common/CardList";
 import BucketHeader from "./BucketHeader";
@@ -19,8 +24,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
     updateTask,
     getTask,
     changeTaskState,
-    getClosedBucketType,
-    getOpenBucketType,
     getBucketForTask,
     getBuckets,
   } = useTasks();
@@ -47,7 +50,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
         getClosedBucketType(bucketId),
       ],
 
-      drop: (item: DraggedItem) => {
+      drop: (item: DraggedTask) => {
         const fromBucketId = getBucketForTask(item.taskId)?.id || "";
         const task = getTask(item.taskId);
         if (fromBucketId !== bucketId.toString()) {
@@ -85,7 +88,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
     {
       accept: [getOpenBucketType(bucketId)],
 
-      drop: (item: DraggedItem) => {
+      drop: (item: DraggedTask) => {
         // only allow dropping if the task is already in this bucket but in another state.
         changeTaskState(bucketId, item.taskId, TaskState.CLOSED);
       },

@@ -1,9 +1,9 @@
 import React from "react";
 import TaskItem from "./TaskItem";
 import FlexCol from "../common/FlexCol";
-import { useTasks } from "../hooks/useTasks";
+import { getOpenBucketType, useTasks } from "../hooks/useTasks";
 import { useDrop } from "react-dnd";
-import { DraggedItem, DropCollectedProps, TaskState } from "../types";
+import { DraggedTask, DropCollectedProps, TaskState } from "../types";
 import CardList from "../common/CardList";
 import BucketHeader from "./BucketHeader";
 
@@ -13,13 +13,7 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const bucketId = "0";
-  const {
-    getBucket,
-    getBuckets,
-    moveTask,
-    getBucketForTask,
-    getOpenBucketType,
-  } = useTasks();
+  const { getBucket, getBuckets, moveTask, getBucketForTask } = useTasks();
 
   const bucket = getBucket(bucketId);
 
@@ -29,7 +23,7 @@ const Area: React.FC<AreaProps> = (props) => {
     {
       accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
 
-      drop: (item: DraggedItem) => {
+      drop: (item: DraggedTask) => {
         const fromBucketId = getBucketForTask(item.taskId)?.id || "";
         if (fromBucketId !== bucketId.toString()) {
           moveTask(bucketId, item.taskId);

@@ -9,6 +9,7 @@ import { useHashChange } from "./hooks/useHashChange"; // Import the custom hook
 import Settings from "./settings";
 import Graph from "./graph";
 import Foliation from "./foliation";
+import { GlobalGrabbingProvider } from "./hooks/useGlobalTracking";
 
 const App = function App() {
   const currentHash = useHashChange();
@@ -30,12 +31,14 @@ const App = function App() {
   };
 
   return (
-    <TaskProvider>
-      <DndProvider backend={HTML5Backend}>
-        <Navigation />
-        {renderComponentBasedOnHash()}
-      </DndProvider>
-    </TaskProvider>
+    <GlobalGrabbingProvider>
+      <TaskProvider>
+        <DndProvider backend={HTML5Backend}>
+          <Navigation />
+          {renderComponentBasedOnHash()}
+        </DndProvider>
+      </TaskProvider>
+    </GlobalGrabbingProvider>
   );
 };
 

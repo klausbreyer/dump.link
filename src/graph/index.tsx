@@ -31,6 +31,7 @@ const Graph: React.FC<GraphProps> = (props) => {
     addBucketDependency,
     hasCyclicDependency,
     removeBucketDependency,
+    getBucketsDependingOn,
     getBuckets,
   } = useTasks();
 
@@ -46,17 +47,22 @@ const Graph: React.FC<GraphProps> = (props) => {
     }
   }
 
-  useEffect(() => {
-    const handleResize = () => {
-      setResizeCounter((prev) => prev + 1);
-    };
+  const repaint = () => {
+    setResizeCounter((prev) => prev + 1);
+  };
 
-    window.addEventListener("resize", handleResize);
+  useEffect(() => {
+    window.addEventListener("resize", repaint);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", repaint);
     };
   }, []);
+
+  // repaint after adding dependencies.
+  useEffect(() => {
+    repaint();
+  }, [buckets]);
 
   const addRandomArrow = () => {
     const boxes = buckets
