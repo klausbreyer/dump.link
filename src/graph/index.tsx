@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import Container from "../common/Container";
 import Box from "./Box";
 import { useData } from "../hooks/useData";
-import { Bucket } from "../types";
+import { Bucket, BucketID } from "../types";
+import Foliation from "../foliation";
 
 interface GraphProps {}
 
@@ -27,18 +28,12 @@ const positions: { top: number; left: number }[] = [
 ];
 
 const Graph: React.FC<GraphProps> = (props) => {
-  const {
-    addBucketDependency,
-    hasCyclicDependency,
-    removeBucketDependency,
-    getBucketsDependingOn,
-    getBuckets,
-  } = useData();
+  const { getBuckets } = useData();
 
   const buckets = getBuckets();
-  const [resizeCounter, setResizeCounter] = useState(0);
+  const [, setRepaintcounter] = useState(0);
 
-  const boxRefs = useRef<{ [key: number]: React.RefObject<HTMLDivElement> }>(
+  const boxRefs = useRef<{ [key: BucketID]: React.RefObject<HTMLDivElement> }>(
     {},
   );
 
@@ -56,7 +51,7 @@ const Graph: React.FC<GraphProps> = (props) => {
   }, []);
 
   const repaint = () => {
-    setResizeCounter((prev) => prev + 1);
+    setRepaintcounter((prev) => prev + 1);
   };
 
   useEffect(() => {
@@ -70,50 +65,25 @@ const Graph: React.FC<GraphProps> = (props) => {
   // repaint after adding dependencies.
   useEffect(() => {
     repaint();
-  }, [buckets]);
+  }, [buckets, allBoxesRendered]);
 
-  const addRandomArrow = () => {
-    const boxes = buckets
-      .map((bucket) => parseInt(bucket.id))
-      .filter((id) => id >= 1 && id <= 10);
-    const start = boxes[Math.floor(Math.random() * boxes.length)];
-    let end = boxes[Math.floor(Math.random() * boxes.length)];
-
-    while (start === end) {
-      end = boxes[Math.floor(Math.random() * boxes.length)];
-    }
-
-    if (!hasCyclicDependency(start.toString(), end.toString())) {
-      addBucketDependency(start.toString(), end.toString());
-    } else {
-      console.warn("Cyclic dependency detected! Dependency not added.");
-    }
-  };
-
-  const drawAllArrows = () => {
-    const boxes = buckets
-      .map((bucket) => parseInt(bucket.id))
-      .filter((id) => id >= 1 && id <= 10);
-
-    for (let i = 0; i < boxes.length; i++) {
-      for (let j = 0; j < boxes.length; j++) {
-        if (
-          i !== j &&
-          !hasCyclicDependency(boxes[i].toString(), boxes[j].toString())
-        ) {
-          addBucketDependency(boxes[i].toString(), boxes[j].toString());
-        }
-      }
-    }
-  };
+  const shownBuckets = [...buckets].splice(1, 10);
+  console.log(shownBuckets);
 
   return (
     <Container>
-      <div className="relative w-full h-[800px]  parent">
+      <div className="relative w-full h-[800px] parent">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
             buckets.map((bucket) =>
               bucket.dependencies.map((dependencyId, index) => {
+                if (
+                  !boxRefs?.current[parseInt(bucket.id)]?.current ||
+                  !boxRefs?.current[parseInt(dependencyId)]?.current
+                ) {
+                  return null;
+                }
+
                 const fromRect =
                   boxRefs.current[
                     parseInt(bucket.id)
@@ -157,23 +127,23 @@ const Graph: React.FC<GraphProps> = (props) => {
             </marker>
           </defs>
         </svg>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i, index) => {
-          const x = positions[index].left;
-          const y = positions[index].top;
+
+        {shownBuckets.map((bucket, i) => {
+          const x = positions[i].left;
+          const y = positions[i].top;
 
           return (
             <div
-              data-testid={i}
-              ref={boxRefs.current[i]}
+              ref={boxRefs.current[bucket.id]}
               className="absolute w-40 bg-blue-500"
               style={{
                 top: `${y}%`,
                 left: `${x}%`,
                 transform: "translate(-50%, -50%)", // Center the box
               }}
-              key={i}
+              key={bucket.id}
             >
-              <Box bucketId={i + ""} />
+              <Box bucketId={bucket.id} />
             </div>
           );
         })}
@@ -183,7 +153,9 @@ const Graph: React.FC<GraphProps> = (props) => {
 };
 
 export default Graph;
-const shortenLineEnd = (
+
+// @todo. extract in own file.
+export const shortenLineEnd = (
   from: Coordinates,
   to: Coordinates,
   shortenAmount: number,
@@ -205,7 +177,7 @@ const shortenLineEnd = (
   };
 };
 
-const getBorderCenterCoordinates = (
+export const getBorderCenterCoordinates = (
   fromRect: DOMRect,
   toRect: DOMRect,
 ): { from: Coordinates; to: Coordinates } => {

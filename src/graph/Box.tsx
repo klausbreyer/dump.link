@@ -41,7 +41,6 @@ const Box: React.FC<BoxProps> = (props) => {
 
       drop: (item: DraggedBucket) => {
         const fromBucketId = item.bucketId;
-        console.log(fromBucketId, bucketId);
         addBucketDependency(fromBucketId, bucketId);
       },
       collect: (monitor) => ({
