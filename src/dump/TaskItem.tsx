@@ -5,12 +5,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ArrowsPointingOutIcon } from "@heroicons/react/24/solid";
-import { useTasks } from "../hooks/useTasks";
+import { Bars2Icon } from "@heroicons/react/24/solid";
+import { useData } from "../hooks/useData";
 import { useDrag, useDrop } from "react-dnd";
-import { DraggedItem, TaskState } from "../types";
+import { DraggedTask, TaskState } from "../types";
 
 import { Task } from "../types";
+import { useGlobalDragging } from "../hooks/useGlobalDragging";
 interface TaskItemProps {
   taskId: string | null;
 }
@@ -27,7 +28,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     getTaskType,
     getTaskIndex,
     reorderTask,
-  } = useTasks();
+  } = useData();
 
   const task = taskId ? getTask(taskId) : null;
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -63,10 +64,15 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     [reorderTask, taskId],
   );
 
+  const { setGlobalDragging } = useGlobalDragging();
+  useEffect(() => {
+    setGlobalDragging(isDragging);
+  }, [isDragging, setGlobalDragging]);
+
   const [, dropRef] = useDrop(
     () => ({
       accept: getTaskType(task),
-      hover(item: DraggedItem) {
+      hover(item: DraggedTask) {
         const draggedId = item.taskId;
         const overIndex = getTaskIndex(taskId);
 
@@ -131,9 +137,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         ${isDragging ? "invisible" : "visible"}
         `}
     >
-      <div ref={dragRef} className="cursor-move">
-        <ArrowsPointingOutIcon className="w-5 h-5" />
-      </div>
       <textarea
         className={`w-full px-1 rounded-sm shadow-md resize-y z-10`}
         placeholder="type more here"
@@ -144,6 +147,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         rows={1}
         ref={textAreaRef}
       ></textarea>
+      {taskId !== null && (
+        <div ref={dragRef} className="cursor-move">
+          <Bars2Icon className="w-5 h-5" />
+        </div>
+      )}
     </div>
   );
 };

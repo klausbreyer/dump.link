@@ -2,7 +2,7 @@ import React, { ChangeEvent } from "react";
 import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 
-import { useTasks } from "../hooks/useTasks";
+import { useData } from "../hooks/useData";
 import {
   getBucketBackgroundColor,
   getHeaderBorderColor,
@@ -17,7 +17,7 @@ export interface BucketHeaderProps {
 const BucketHeader: React.FC<BucketHeaderProps> = (props) => {
   const { bucketId } = props;
 
-  const { getBucket, renameBucket, flagBucket } = useTasks();
+  const { getBucket, renameBucket, flagBucket } = useData();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
