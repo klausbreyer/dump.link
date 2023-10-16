@@ -109,9 +109,6 @@ const Graph: React.FC<GraphProps> = (props) => {
 
   return (
     <Container>
-      <button onClick={addRandomArrow}>Add Random Arrow</button>
-      <button onClick={drawAllArrows}>Draw All Arrows</button>
-
       <div className="relative w-full h-[800px]  parent">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
