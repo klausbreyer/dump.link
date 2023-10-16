@@ -3,14 +3,17 @@ export enum TaskState {
   CLOSED = "closed",
 }
 
+export type BucketID = string;
+export type TaskID = string;
+
 export type Task = {
-  id: string;
+  id: TaskID;
   title: string;
   state: TaskState;
 };
 
 export type Bucket = {
-  id: string;
+  id: BucketID;
   name: string;
   tasks: Task[];
   flagged?: boolean;
@@ -18,11 +21,11 @@ export type Bucket = {
 };
 
 export type DraggedTask = {
-  taskId: Task["id"];
+  taskId: TaskID;
 };
 
 export type DraggedBucket = {
-  bucketId: Bucket["id"];
+  bucketId: BucketID;
 };
 
 export type DropCollectedProps = {

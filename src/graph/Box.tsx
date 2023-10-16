@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { getTasksByState, useData } from "../hooks/useData";
-import { getBucketBackgroundColor } from "../common/colors";
+import { getBucketBackgroundColor, getHeaderTextColor } from "../common/colors";
 import BucketHeader from "../dump/BucketHeader";
 import {
   ArrowRightIcon,
+  Bars2Icon,
+  ExclamationTriangleIcon,
   LinkIcon,
   PlusIcon,
   XCircleIcon,
@@ -20,13 +22,8 @@ interface BoxProps {
 const Box: React.FC<BoxProps> = (props) => {
   const { bucketId } = props;
   const {
-    moveTask,
+    removeBucketDependency,
     getBucket,
-    updateTask,
-    getTask,
-    changeTaskState,
-    getBucketForTask,
-    getBuckets,
     addBucketDependency,
     getBucketsAvailbleFor,
     getBucketsDependingOn,
@@ -35,10 +32,8 @@ const Box: React.FC<BoxProps> = (props) => {
   const bucket = getBucket(bucketId);
 
   const availbleIds = getBucketsAvailbleFor(bucketId);
-  console.log(bucketId, availbleIds);
 
   const dependingIds = getBucketsDependingOn(bucketId);
-  const dependencyIds = bucket?.dependencies;
 
   const [collectedProps, dropRef] = useDrop(
     {
@@ -59,7 +54,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
-  const [{ isDragging }, dragRef, previewRev] = useDrag(
+  const [{ isDragging }, dragRef] = useDrag(
     () => ({
       type: bucketId,
       item: { bucketId },
@@ -78,8 +73,6 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const bgTop = getBucketBackgroundColor(bucket, "top");
 
-  const isDefault = !canDrop && !isOver;
-
   return (
     <div className={`w-full`}>
       <BucketHeader bucketId={bucketId} />
@@ -88,7 +81,10 @@ const Box: React.FC<BoxProps> = (props) => {
           {dependingIds?.map((id) => (
             <li
               key={id}
-              className="flex items-center justify-start gap-1 p-0.5 cursor-pointer group hover:underline "
+              onClick={() => removeBucketDependency(id, bucketId)}
+              className={`flex items-center justify-start gap-1 p-0.5 cursor-pointer group hover:underline
+                ${getHeaderTextColor(getBucket(id))}
+              `}
             >
               <LinkIcon className="block w-5 h-5 group-hover:hidden" />
               <XMarkIcon className="hidden w-5 h-5 group-hover:block" />
@@ -97,7 +93,7 @@ const Box: React.FC<BoxProps> = (props) => {
           ))}
           <li
             ref={(node) => dragRef(dropRef(node))}
-            className={`flex border-2 items-center justify-start gap-1 p-1 cursor-pointer hover:underline hover:bg-gray-100
+            className={`flex border-2 h-8 items-center justify-between gap-1 p-1 cursor-pointer hover:underline
             ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
             ${isOver && " border-gray-400"}
             ${!canDrop && !isOver && " border-transparent"}
@@ -105,14 +101,18 @@ const Box: React.FC<BoxProps> = (props) => {
           >
             {!globalDragging && (
               <>
-                <ArrowRightIcon className="block w-5 h-5" />
-                Drag Dep.
+                Dependency to
+                <Bars2Icon className="block w-5 h-5" />
               </>
             )}
             {globalDragging}
             {canDrop}
-            {globalDragging && canDrop && <>Drop Dep.</>}
-            {globalDragging && !canDrop && <>No Drop</>}
+            {globalDragging && canDrop && <></>}
+            {globalDragging && !canDrop && !isDragging && (
+              <>
+                Unavailble <ExclamationTriangleIcon className="w-5 h-5" />
+              </>
+            )}
           </li>
         </ul>
       </div>

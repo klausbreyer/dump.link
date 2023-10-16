@@ -41,11 +41,19 @@ const Graph: React.FC<GraphProps> = (props) => {
   const boxRefs = useRef<{ [key: number]: React.RefObject<HTMLDivElement> }>(
     {},
   );
-  for (let i = 1; i <= 11; i++) {
-    if (!boxRefs.current[i]) {
-      boxRefs.current[i] = React.createRef();
+
+  // check if all box refs are initialized.
+  const [allBoxesRendered, setAllBoxesRendered] = useState(false);
+
+  useEffect(() => {
+    for (let i = 1; i <= 11; i++) {
+      if (!boxRefs.current[i]) {
+        boxRefs.current[i] = React.createRef();
+      }
     }
-  }
+
+    setAllBoxesRendered(true);
+  }, []);
 
   const repaint = () => {
     setResizeCounter((prev) => prev + 1);
@@ -82,10 +90,6 @@ const Graph: React.FC<GraphProps> = (props) => {
     }
   };
 
-  const removeArrow = (bucketId: string, dependencyId: string) => {
-    removeBucketDependency(bucketId, dependencyId);
-  };
-
   const drawAllArrows = () => {
     const boxes = buckets
       .map((bucket) => parseInt(bucket.id))
@@ -110,37 +114,38 @@ const Graph: React.FC<GraphProps> = (props) => {
 
       <div className="relative w-full h-[800px]  parent">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
-          {buckets.map((bucket) =>
-            bucket.dependencies.map((dependencyId, index) => {
-              const fromRect =
-                boxRefs.current[
-                  parseInt(bucket.id)
-                ].current!.getBoundingClientRect();
-              const toRect =
-                boxRefs.current[
-                  parseInt(dependencyId)
-                ].current!.getBoundingClientRect();
-              const { from, to } = getBorderCenterCoordinates(fromRect, toRect);
-              const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
+          {allBoxesRendered &&
+            buckets.map((bucket) =>
+              bucket.dependencies.map((dependencyId, index) => {
+                const fromRect =
+                  boxRefs.current[
+                    parseInt(bucket.id)
+                  ].current!.getBoundingClientRect();
+                const toRect =
+                  boxRefs.current[
+                    parseInt(dependencyId)
+                  ].current!.getBoundingClientRect();
+                const { from, to } = getBorderCenterCoordinates(
+                  fromRect,
+                  toRect,
+                );
+                const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
 
-              return (
-                <g
-                  key={index}
-                  onClick={() => removeArrow(bucket.id, dependencyId)}
-                >
-                  <line
-                    x1={from.x}
-                    y1={from.y}
-                    x2={shortenedTo.x}
-                    y2={shortenedTo.y}
-                    stroke="black"
-                    strokeWidth="2"
-                    markerEnd="url(#smallArrowhead)"
-                  />
-                </g>
-              );
-            }),
-          )}
+                return (
+                  <g key={index}>
+                    <line
+                      x1={from.x}
+                      y1={from.y}
+                      x2={shortenedTo.x}
+                      y2={shortenedTo.y}
+                      stroke="black"
+                      strokeWidth="2"
+                      markerEnd="url(#smallArrowhead)"
+                    />
+                  </g>
+                );
+              }),
+            )}
 
           <defs>
             <marker
