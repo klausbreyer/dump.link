@@ -1,11 +1,12 @@
 import React from "react";
 import TaskItem from "./TaskItem";
 import FlexCol from "../common/FlexCol";
-import { getOpenBucketType, useData } from "../hooks/useData";
+import { useData } from "../hooks/useData";
 import { useDrop } from "react-dnd";
 import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "../types";
 import CardList from "../common/CardList";
 import BucketHeader from "./BucketHeader";
+import { getOpenBucketType } from "../hooks/useData/helper";
 
 export interface AreaProps {
   bucket: Bucket;
@@ -13,7 +14,7 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const { bucket } = props;
-  const { getBuckets, moveTask, getBucketForTask } = useData();
+  const { getBuckets, moveTask, getTask, getBucketForTask } = useData();
 
   const allOtherBuckets = getBuckets().filter((b) => b.id !== bucket.id);
 
@@ -22,9 +23,11 @@ const Area: React.FC<AreaProps> = (props) => {
       accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
 
       drop: (item: DraggedTask) => {
-        const fromBucketId = getBucketForTask(item.taskId)?.id || "";
+        const task = getTask(item.taskId);
+        if (!task) return;
+        const fromBucketId = getBucketForTask(task)?.id || "";
         if (fromBucketId !== bucket.id) {
-          moveTask(bucket.id, item.taskId);
+          moveTask(bucket.id, task);
         }
       },
       collect: (monitor) => ({
@@ -32,7 +35,14 @@ const Area: React.FC<AreaProps> = (props) => {
         canDrop: monitor.canDrop(),
       }),
     },
-    [bucket, allOtherBuckets, getOpenBucketType, getBucketForTask, moveTask],
+    [
+      bucket,
+      allOtherBuckets,
+      getOpenBucketType,
+      getTask,
+      getBucketForTask,
+      moveTask,
+    ],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
@@ -53,10 +63,8 @@ const Area: React.FC<AreaProps> = (props) => {
         />
       </div>
       <CardList>
-        {bucket?.tasks.map((task) => (
-          <TaskItem taskId={task.id} key={task.id} />
-        ))}
-        <TaskItem taskId={null} />
+        {bucket?.tasks.map((task) => <TaskItem task={task} key={task.id} />)}
+        <TaskItem task={null} />
       </CardList>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Bucket, BucketID } from "../../types";
+import { Bucket, BucketID, Task, TaskState } from "../../types";
 
 /**
  * Given a list of chains, this function returns the longest chain.
@@ -94,4 +94,51 @@ export const getDumpBucket = (buckets: Bucket[]): Bucket | undefined => {
 // Function to get all the other buckets (excluding the one with dump: true)
 export const getOtherBuckets = (buckets: Bucket[]): Bucket[] => {
   return buckets.filter((bucket) => bucket.dump !== true);
+};
+
+/**
+ * Checks if adding a dependency to the given bucket would result in a cyclic relationship.
+ *
+ * @param {Bucket} bucket - The bucket to which a new dependency is being added.
+ * @param {BucketID} dependencyId - The proposed dependency ID.
+ * @param {Bucket[]} allBuckets - List of all buckets.
+ * @returns {boolean} - Returns true if adding the dependency would cause a cycle, false otherwise.
+ */
+export const hasCyclicDependencyWithBucket = (
+  bucket: Bucket,
+  dependencyId: BucketID,
+  allBuckets: Bucket[],
+): boolean => {
+  // Recursive function to traverse the dependency graph
+  const traverse = (currentId: BucketID, visited: Set<string>): boolean => {
+    if (visited.has(currentId)) return true;
+    visited.add(currentId);
+
+    const currentBucket = allBuckets.find((b) => b.id === currentId);
+    if (!currentBucket) return false;
+
+    for (const depId of currentBucket.dependencies) {
+      if (traverse(depId, visited)) return true;
+    }
+    return false;
+  };
+
+  // Start the traversal with the proposed dependency and the given bucket's ID
+  return traverse(dependencyId, new Set([bucket.id]));
+};
+
+export function getTasksByState(
+  bucket: Bucket | undefined,
+  state: TaskState,
+): Task[] {
+  const tasks = bucket?.tasks || [];
+  return tasks.filter((task) => task.state === state);
+}
+
+export const getClosedBucketType = (bucketId: BucketID) => {
+  return `CLOSED_BUCKET_${bucketId}`;
+};
+
+export const getOpenBucketType = (bucketId: BucketID) => {
+  return `OPEN_BUCKET_${bucketId}`;
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import { getTasksByState, useData } from "../hooks/useData";
+import { useData } from "../hooks/useData";
 import { getBucketBackgroundColor, getHeaderTextColor } from "../common/colors";
 import BucketHeader from "../dump/BucketHeader";
 import {
@@ -39,8 +39,9 @@ const Box: React.FC<BoxProps> = (props) => {
       accept: availbleIds,
 
       drop: (item: DraggedBucket) => {
-        const fromBucketId = item.bucketId;
-        addBucketDependency(fromBucketId, bucket.id);
+        const fromBucket = getBucket(item.bucketId);
+        if (!fromBucket) return;
+        addBucketDependency(fromBucket, bucket.id);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
-import {
-  getClosedBucketType,
-  getOpenBucketType,
-  getTasksByState,
-  useData,
-} from "../hooks/useData";
+import { useData } from "../hooks/useData";
 import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "../types";
 import TaskItem from "./TaskItem";
 import CardList from "../common/CardList";
 import BucketHeader from "./BucketHeader";
 import { getBucketBackgroundColor } from "../common/colors";
+import {
+  getClosedBucketType,
+  getOpenBucketType,
+  getTasksByState,
+} from "../hooks/useData/helper";
 
 interface BucketProps {
   bucket: Bucket;
@@ -52,16 +52,18 @@ const Bucket: React.FC<BucketProps> = (props) => {
       ],
 
       drop: (item: DraggedTask) => {
-        const fromBucketId = getBucketForTask(item.taskId)?.id || "";
-        const task = getTask(item.taskId);
+        const taskId = item.taskId;
+        const task = getTask(taskId);
+        if (!task) return;
+        const fromBucketId = getBucketForTask(task)?.id || "";
         if (fromBucketId !== bucket.id) {
-          updateTask(item.taskId, {
+          updateTask(taskId, {
             title: task?.title || "",
             state: TaskState.OPEN,
           });
-          moveTask(bucket.id, item.taskId);
+          moveTask(bucket.id, task);
         } else {
-          changeTaskState(bucket.id, item.taskId, TaskState.OPEN);
+          changeTaskState(bucket.id, taskId, TaskState.OPEN);
         }
       },
       collect: (monitor) => ({
@@ -122,7 +124,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       >
         <CardList>
           {open.map((task) => (
-            <TaskItem taskId={task.id} key={task.id} />
+            <TaskItem task={task} key={task.id} />
           ))}
         </CardList>
       </div>
@@ -139,10 +141,10 @@ const Bucket: React.FC<BucketProps> = (props) => {
       >
         <CardList>
           {closedExpanded
-            ? closed.map((task) => <TaskItem taskId={task.id} key={task.id} />)
+            ? closed.map((task) => <TaskItem task={task} key={task.id} />)
             : closed
                 .slice(0, 1)
-                .map((task) => <TaskItem taskId={task.id} key={task.id} />)}
+                .map((task) => <TaskItem task={task} key={task.id} />)}
           {closed.length > 1 && (
             <div
               onClick={() => setClosedExpanded(!closedExpanded)}

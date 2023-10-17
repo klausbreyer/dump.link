@@ -12,56 +12,58 @@ import { DraggedTask, TaskState } from "../types";
 
 import { Task } from "../types";
 import { useGlobalDragging } from "../hooks/useGlobalDragging";
+import { getDumpBucket } from "../hooks/useData/helper";
 interface TaskItemProps {
-  taskId: string | null;
+  task: Task | null;
 }
 
 // memo is necessary to prevent flickering.
 // it works by comparing the props of the component.
 // if they are the same, it does not re-render.
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
-  const { taskId } = props;
+  const { task } = props;
   const {
     addTask,
-    getTask,
     updateTask,
     getTaskType,
     getTaskIndex,
+    getBucketForTask,
     reorderTask,
+    getBuckets,
   } = useData();
 
-  const task = taskId ? getTask(taskId) : null;
+  const dumpBucket = getDumpBucket(getBuckets());
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [val, setVal] = useState<string>(task?.title || "");
 
   useEffect(() => {
-    if (taskId === null && textAreaRef.current) {
+    if (task?.id === null && textAreaRef.current) {
       textAreaRef.current.focus();
     }
-  }, [taskId]);
+  }, [task]);
 
   const [{ isDragging }, dragRef, previewRev] = useDrag(
     () => ({
       type: getTaskType(task),
-      item: { taskId },
+      item: { taskId: task?.id },
       collect: (monitor) => ({
         isDragging: !!monitor.isDragging(),
       }),
       end: (item, monitor) => {
         const droppedId = item.taskId;
-        const overIndex = getTaskIndex(taskId);
+        const overIndex = getTaskIndex(task);
         const didDrop = monitor.didDrop();
 
         if (overIndex === undefined) return;
-        if (droppedId === null) return;
-        if (droppedId === taskId) return;
+        if (droppedId === undefined) return;
+        if (droppedId === task?.id) return;
 
         if (!didDrop) {
           reorderTask(droppedId, overIndex);
         }
       },
     }),
-    [reorderTask, taskId],
+    [reorderTask, task],
   );
 
   const { setGlobalDragging } = useGlobalDragging();
@@ -74,16 +76,16 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       accept: getTaskType(task),
       hover(item: DraggedTask) {
         const draggedId = item.taskId;
-        const overIndex = getTaskIndex(taskId);
+        const overIndex = getTaskIndex(task);
 
         // avoid flickering.
         if (overIndex === undefined) return;
-        if (draggedId === taskId) return;
+        if (draggedId === task?.id) return;
 
         reorderTask(draggedId, overIndex);
       },
     }),
-    [reorderTask, taskId],
+    [reorderTask, task],
   );
 
   useEffect(() => {
@@ -103,11 +105,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   };
 
   function handleBlur() {
-    if (taskId === null) {
-      if (val.length == 0) {
-        return;
-      }
-      addTask("0", { title: val, state: TaskState.OPEN });
+    if (task === null) {
+      if (!dumpBucket) return;
+      if (val.length === 0) return;
+
+      addTask(dumpBucket?.id, { title: val, state: TaskState.OPEN });
       setVal("");
 
       // keep focus in this empty field. The new entry will be a new entry. This will stay the input text field.
@@ -116,7 +118,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       }, 100);
       return;
     }
-    updateTask(taskId, { title: val, state: task?.state || TaskState.OPEN });
+    updateTask(task.id, { title: val, state: task?.state || TaskState.OPEN });
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -147,7 +149,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         rows={1}
         ref={textAreaRef}
       ></textarea>
-      {taskId !== null && (
+      {task !== null && (
         <div ref={dragRef} className="cursor-move">
           <Bars2Icon className="w-5 h-5" />
         </div>
