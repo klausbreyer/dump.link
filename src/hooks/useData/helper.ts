@@ -142,3 +142,31 @@ export const getClosedBucketType = (bucketId: BucketID) => {
 export const getOpenBucketType = (bucketId: BucketID) => {
   return `OPEN_BUCKET_${bucketId}`;
 };
+
+export const getGraphBucketType = (bucketId: BucketID) => {
+  return `GRAPH_${bucketId}`;
+};
+
+export const getFoliationBucketType = (bucketId: BucketID) => {
+  return `FOLIATION_${bucketId}`;
+};
+/**
+ *
+ * @returns can return null, to fill the spots.
+ */
+export const getDefaultLayers = (
+  chains: BucketID[][],
+): (BucketID | null)[][] => {
+  const longestChain = getLongestChain(chains) || [];
+  const layers = longestChain.map((_, i) =>
+    getElementsAtIndex(chains, i).filter(Boolean),
+  );
+
+  //remove duplicates between layers
+  const cleanedLayers = deduplicateInnerValues(
+    // remove duplicates from each layer.
+    layers.map((layer) => removeDuplicates(layer)),
+  );
+
+  return cleanedLayers;
+};

@@ -33,3 +33,10 @@ export type DropCollectedProps = {
   isOver: boolean;
   canDrop: boolean;
 };
+
+export enum DraggingType {
+  TASK = "TASK",
+  GRAPH = "GRAPH",
+  FOLIATION = "FOLIATION",
+  NONE = "",
+}

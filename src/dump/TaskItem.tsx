@@ -8,7 +8,7 @@ import React, {
 import { Bars2Icon } from "@heroicons/react/24/solid";
 import { useData } from "../hooks/useData";
 import { useDrag, useDrop } from "react-dnd";
-import { DraggedTask, TaskState } from "../types";
+import { DraggedTask, DraggingType, TaskState } from "../types";
 
 import { Task } from "../types";
 import { useGlobalDragging } from "../hooks/useGlobalDragging";
@@ -68,7 +68,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const { setGlobalDragging } = useGlobalDragging();
   useEffect(() => {
-    setGlobalDragging(isDragging);
+    setGlobalDragging(isDragging ? DraggingType.TASK : DraggingType.NONE);
   }, [isDragging, setGlobalDragging]);
 
   const [, dropRef] = useDrop(

@@ -1,12 +1,13 @@
 import React, { createContext, useState, useContext, ReactNode } from "react";
+import { DraggingType } from "../types";
 
 interface GlobalDraggingProviderProps {
   children: ReactNode;
 }
 
 interface GlobalDraggingContextType {
-  globalDragging: boolean;
-  setGlobalDragging: React.Dispatch<React.SetStateAction<boolean>>;
+  globalDragging: DraggingType;
+  setGlobalDragging: React.Dispatch<React.SetStateAction<DraggingType>>;
 }
 
 export const GlobalDraggingContext = createContext<
@@ -16,7 +17,7 @@ export const GlobalDraggingContext = createContext<
 export const GlobalDraggingProvider: React.FC<GlobalDraggingProviderProps> = ({
   children,
 }): JSX.Element => {
-  const [globalDragging, setGlobalDragging] = useState(false);
+  const [globalDragging, setGlobalDragging] = useState(DraggingType.NONE);
 
   return (
     <GlobalDraggingContext.Provider

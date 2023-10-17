@@ -6,6 +6,7 @@ import {
   difference,
   getAllPairs,
   getElementsAtIndex,
+  getFoliationBucketType,
   getLongestChain,
   getOtherBuckets,
   removeDuplicates,
@@ -13,15 +14,24 @@ import {
 } from "../hooks/useData/helper";
 import Container from "../common/Container";
 import Box from "../graph/Box";
-import { Bucket, BucketID } from "../types";
+import {
+  Bucket,
+  BucketID,
+  DraggedBucket,
+  DraggingType,
+  DropCollectedProps,
+} from "../types";
 import { getBorderCenterCoordinates, shortenLineEnd } from "../graph";
+import { useDrop } from "react-dnd";
+import { useGlobalDragging } from "../hooks/useGlobalDragging";
+import Lane from "./Lane";
 
 interface FoliationProps {
   // [key: string]: any;
 }
 
 const Foliation: React.FC<FoliationProps> = (props) => {
-  const { getDependencyChains, getBucket, getBuckets } = useData();
+  const { getDependencyChains, getBucket, getBuckets, getLayers } = useData();
   const buckets = getBuckets();
 
   const others = getOtherBuckets(buckets);
@@ -62,18 +72,9 @@ const Foliation: React.FC<FoliationProps> = (props) => {
   }, [buckets, allBoxesRendered]);
 
   const chains = getDependencyChains();
-
   const longestChain = getLongestChain(chains) || [];
 
-  const layers = longestChain.map((_, i) =>
-    getElementsAtIndex(chains, i).filter(Boolean),
-  );
-
-  //remove duplicates between layers
-  const cleanedLayers = deduplicateInnerValues(
-    // remove duplicates from each layer.
-    layers.map((layer) => removeDuplicates(layer)),
-  );
+  const cleanedLayers = getLayers();
   const cleanedBuckets = cleanedLayers.map((layer) =>
     layer
       .filter((id): id is BucketID => id !== null)
@@ -82,6 +83,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
   );
 
   const uniquePaired = uniqueValues(cleanedLayers);
+
   const notPaired = difference(
     others.map((b) => b.id),
     uniquePaired,
@@ -93,6 +95,8 @@ const Foliation: React.FC<FoliationProps> = (props) => {
     .filter((bucket): bucket is Bucket => bucket !== undefined);
 
   const pairs = getAllPairs(chains);
+
+  console.dir(cleanedLayers);
 
   return (
     <Container>
@@ -143,25 +147,26 @@ const Foliation: React.FC<FoliationProps> = (props) => {
           </defs>
         </svg>
         <div className="flex flex-col gap-8">
+          <Lane defaultHidden={true} index={-1} hoverable />
+
           {longestChain.map((_, i) => (
-            <div
-              className="flex items-center justify-center w-full gap-8 "
-              key={i}
-            >
+            <Lane defaultHidden={false} index={i} hoverable={true} key={i}>
               {cleanedBuckets[i].map((bucket, j) => (
                 <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
                   <Box bucket={bucket} context="foliation" />
                 </div>
               ))}
-            </div>
+            </Lane>
           ))}
-          <div className="flex flex-wrap items-center justify-center w-full gap-8 py-8 border-t border-black bg-slate-50">
+
+          <Lane defaultHidden={true} index={longestChain.length} hoverable />
+          <Lane defaultHidden={false} hoverable={false}>
             {notPairedBuckets.map((bucket, j) => (
               <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
                 <Box bucket={bucket} context="foliation" />
               </div>
             ))}
-          </div>
+          </Lane>
         </div>
       </div>
     </Container>

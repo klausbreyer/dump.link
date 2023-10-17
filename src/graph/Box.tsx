@@ -13,9 +13,18 @@ import {
   XCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { Bucket, DraggedBucket, DropCollectedProps } from "../types";
+import {
+  Bucket,
+  DraggedBucket,
+  DraggingType,
+  DropCollectedProps,
+} from "../types";
 import { useGlobalDragging } from "../hooks/useGlobalDragging";
 import { ArrowIcon } from "../common/icons";
+import {
+  getFoliationBucketType,
+  getGraphBucketType,
+} from "../hooks/useData/helper";
 
 interface BoxProps {
   bucket: Bucket;
@@ -38,7 +47,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const [collectedProps, dropRef] = useDrop(
     {
-      accept: availbleIds,
+      accept: availbleIds.map((id) => getGraphBucketType(id)),
 
       drop: (item: DraggedBucket) => {
         const fromBucket = getBucket(item.bucketId);
@@ -50,27 +59,50 @@ const Box: React.FC<BoxProps> = (props) => {
         canDrop: monitor.canDrop(),
       }),
     },
-    [availbleIds, bucket, addBucketDependency],
+    [availbleIds, bucket, addBucketDependency, getGraphBucketType],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
-  const [{ isDragging: graphIsDragging }, graphDragRef, previewRev] = useDrag(
+  const [{ isDragging: graphIsDragging }, graphDragRef, graphPreviewRev] =
+    useDrag(
+      () => ({
+        type: getGraphBucketType(bucket.id),
+        item: { bucketId: bucket.id },
+        collect: (monitor) => ({
+          isDragging: !!monitor.isDragging(),
+        }),
+        end: (item, monitor) => {},
+      }),
+      [bucket, getGraphBucketType],
+    );
+
+  const { globalDragging, setGlobalDragging } = useGlobalDragging();
+  useEffect(() => {
+    setGlobalDragging(graphIsDragging ? DraggingType.GRAPH : DraggingType.NONE);
+  }, [graphIsDragging, setGlobalDragging]);
+
+  const [
+    { isDragging: foliationIsDragging },
+    foliationDragRef,
+    foliationPreviewRev,
+  ] = useDrag(
     () => ({
-      type: bucket.id,
+      type: getFoliationBucketType(bucket.id),
       item: { bucketId: bucket.id },
       collect: (monitor) => ({
         isDragging: !!monitor.isDragging(),
       }),
       end: (item, monitor) => {},
     }),
-    [bucket],
+    [bucket, getFoliationBucketType],
   );
 
-  const { globalDragging, setGlobalDragging } = useGlobalDragging();
   useEffect(() => {
-    setGlobalDragging(graphIsDragging);
-  }, [graphIsDragging, setGlobalDragging]);
+    setGlobalDragging(
+      foliationIsDragging ? DraggingType.FOLIATION : DraggingType.NONE,
+    );
+  }, [foliationIsDragging, setGlobalDragging]);
 
   const bgTop = getBucketBackgroundColor(bucket, "top");
   const showFoliationIcon =
@@ -78,7 +110,7 @@ const Box: React.FC<BoxProps> = (props) => {
     (dependingIds.length > 0 || bucket.dependencies.length > 0);
 
   return (
-    <div className={`w-full`} ref={previewRev}>
+    <div className={`w-full`} ref={graphPreviewRev}>
       <BucketHeader bucket={bucket} />
       <div className={`min-h-[2rem] ${bgTop} `}>
         <ul className="p-1 text-sm">
@@ -107,7 +139,9 @@ const Box: React.FC<BoxProps> = (props) => {
               <>
                 <div>
                   {showFoliationIcon && (
-                    <ArrowsUpDownIcon className="block w-5 h-5" />
+                    <div ref={foliationDragRef}>
+                      <ArrowsUpDownIcon className="block w-5 h-5 cursor-move" />
+                    </div>
                   )}
                 </div>
                 <div ref={graphDragRef}>
@@ -115,14 +149,16 @@ const Box: React.FC<BoxProps> = (props) => {
                 </div>
               </>
             )}
-            {globalDragging}
+            {globalDragging === DraggingType.GRAPH}
             {canDrop}
-            {globalDragging && canDrop && <></>}
-            {globalDragging && !canDrop && !graphIsDragging && (
-              <>
-                Unavailble <ExclamationTriangleIcon className="w-5 h-5" />
-              </>
-            )}
+            {globalDragging === DraggingType.GRAPH && canDrop && <></>}
+            {globalDragging === DraggingType.GRAPH &&
+              !canDrop &&
+              !graphIsDragging && (
+                <>
+                  Unavailble <ExclamationTriangleIcon className="w-5 h-5" />
+                </>
+              )}
           </li>
         </ul>
       </div>

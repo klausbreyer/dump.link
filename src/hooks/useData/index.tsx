@@ -2,10 +2,15 @@ import React, { createContext, useReducer, useContext } from "react";
 import { Bucket, BucketID, Task, TaskID, TaskState } from "../../types";
 import initialBuckets from "./init";
 import {
+  deduplicateInnerValues,
   getClosedBucketType,
+  getDefaultLayers,
+  getElementsAtIndex,
+  getLongestChain,
   getOpenBucketType,
   getOtherBuckets,
   hasCyclicDependencyWithBucket,
+  removeDuplicates,
 } from "./helper";
 type ActionType =
   | { type: "ADD_TASK"; bucketId: BucketID; task: Omit<Task, "id"> }
@@ -76,6 +81,8 @@ type DataContextType = {
   getBucketsDependingOn: (dependencyId: BucketID) => BucketID[];
   getBucketsAvailbleFor: (givenBucketId: BucketID) => BucketID[];
   getDependencyChains: () => BucketID[][];
+  //@todo: maybe we can get rid of the nulls. i dont know if I need them for positioning.
+  getLayers: () => (BucketID | null)[][];
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -417,6 +424,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       .filter((chain) => chain.length > 1);
   };
 
+  const getLayers = (): (BucketID | null)[][] => {
+    return getDefaultLayers(getAllDependencyChains());
+  };
   console.log(state);
 
   return (
@@ -435,6 +445,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getTaskType,
         renameBucket,
         flagBucket,
+        getLayers,
         getBucketsDependingOn,
         getBuckets,
         addBucketDependency,
