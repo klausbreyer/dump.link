@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { Bucket, BucketID, Task, TaskID, TaskState } from "../../types";
-import initialBuckets from "./init";
+import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../../types";
+import initialState from "./init";
 import {
   deduplicateInnerValues,
   getClosedBucketType,
@@ -58,7 +58,7 @@ type ActionType =
     };
 
 type DataContextType = {
-  state: Bucket[];
+  state: State;
   addTask: (bucketId: BucketID, task: Omit<Task, "id">) => void;
   moveTask: (toBucketId: BucketID, task: Task) => void;
   changeTaskState: (
@@ -79,69 +79,81 @@ type DataContextType = {
   addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
   getBucketsDependingOn: (dependencyId: BucketID) => BucketID[];
-  getBucketsAvailbleFor: (givenBucketId: BucketID) => BucketID[];
+  getBucketsAvailableFor: (givenBucketId: BucketID) => BucketID[];
   getDependencyChains: () => BucketID[][];
   //@todo: maybe we can get rid of the nulls. i dont know if I need them for positioning.
   getLayers: () => (BucketID | null)[][];
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
-
-const dataReducer = (state: Bucket[], action: ActionType): Bucket[] => {
+const dataReducer = (state: State, action: ActionType): State => {
   switch (action.type) {
     case "ADD_TASK":
-      return state.map((bucket) =>
-        bucket.id === action.bucketId
-          ? {
-              ...bucket,
-              tasks: [
-                ...bucket.tasks,
-                { ...action.task, id: Date.now().toString() },
-              ],
-            }
-          : bucket,
-      );
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? {
+                ...bucket,
+                tasks: [
+                  ...bucket.tasks,
+                  { ...action.task, id: Date.now().toString() },
+                ],
+              }
+            : bucket,
+        ),
+      };
+
     case "MOVE_TASK":
-      const taskToMove = state
+      const taskToMove = state.buckets
         .find((bucket) => bucket.id === action.fromBucketId)
         ?.tasks.find((task) => task.id === action.taskId);
       if (!taskToMove) return state;
-      return state.map((bucket) => {
-        if (bucket.id === action.fromBucketId) {
-          return {
-            ...bucket,
-            tasks: bucket.tasks.filter((task) => task.id !== action.taskId),
-          };
-        } else if (bucket.id === action.toBucketId) {
-          return { ...bucket, tasks: [...bucket.tasks, taskToMove] };
-        }
-        return bucket;
-      });
+
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) => {
+          if (bucket.id === action.fromBucketId) {
+            return {
+              ...bucket,
+              tasks: bucket.tasks.filter((task) => task.id !== action.taskId),
+            };
+          } else if (bucket.id === action.toBucketId) {
+            return { ...bucket, tasks: [...bucket.tasks, taskToMove] };
+          }
+          return bucket;
+        }),
+      };
 
     case "CHANGE_TASK_STATE":
-      return state.map((bucket) =>
-        bucket.id === action.bucketId
-          ? {
-              ...bucket,
-              tasks: bucket.tasks.map((task) =>
-                task.id === action.taskId
-                  ? { ...task, state: action.newState }
-                  : task,
-              ),
-            }
-          : bucket,
-      );
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? {
+                ...bucket,
+                tasks: bucket.tasks.map((task) =>
+                  task.id === action.taskId
+                    ? { ...task, state: action.newState }
+                    : task,
+                ),
+              }
+            : bucket,
+        ),
+      };
+
     case "UPDATE_TASK":
-      return state.map((bucket) => {
-        return {
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) => ({
           ...bucket,
           tasks: bucket.tasks.map((task) =>
             task.id === action.taskId
               ? { ...task, ...action.updatedTask }
               : task,
           ),
-        };
-      });
+        })),
+      };
 
     case "REORDER_TASK": {
       const { movingTaskId, newPosition } = action;
@@ -150,7 +162,7 @@ const dataReducer = (state: Bucket[], action: ActionType): Bucket[] => {
       let bucketId: BucketID | null = null;
       let originalPosition: number | null = null;
 
-      for (const bucket of state) {
+      for (const bucket of state.buckets) {
         const taskIndex = bucket.tasks.findIndex(
           (task) => task.id === movingTaskId,
         );
@@ -162,55 +174,66 @@ const dataReducer = (state: Bucket[], action: ActionType): Bucket[] => {
         }
       }
 
-      if (!movingTask || !bucketId || originalPosition === null) return state; // Task not found
+      if (!movingTask || !bucketId || originalPosition === null) return state;
 
-      const targetBucket = state.find((bucket) => bucket.id === bucketId);
-      if (!targetBucket) return state; // Bucket not found
+      const targetBucket = state.buckets.find(
+        (bucket) => bucket.id === bucketId,
+      );
+      if (!targetBucket) return state;
 
-      // Remove the task from its original position
       targetBucket.tasks.splice(originalPosition, 1);
-
-      // Insert the moving task at the new position
       targetBucket.tasks.splice(newPosition, 0, movingTask);
 
-      return [...state]; // Return a new copy of the state to trigger re-renders
+      return { ...state, buckets: [...state.buckets] };
     }
 
     case "RENAME_BUCKET":
-      return state.map((bucket) =>
-        bucket.id === action.bucketId
-          ? { ...bucket, name: action.newName }
-          : bucket,
-      );
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? { ...bucket, name: action.newName }
+            : bucket,
+        ),
+      };
 
     case "FLAG_BUCKET":
-      return state.map((bucket) =>
-        bucket.id === action.bucketId
-          ? { ...bucket, flagged: action.flag }
-          : bucket,
-      );
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? { ...bucket, flagged: action.flag }
+            : bucket,
+        ),
+      };
 
     case "ADD_BUCKET_DEPENDENCY":
-      return state.map((bucket) =>
-        bucket.id === action.bucketId
-          ? {
-              ...bucket,
-              dependencies: [...bucket.dependencies, action.dependencyId],
-            }
-          : bucket,
-      );
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? {
+                ...bucket,
+                dependencies: [...bucket.dependencies, action.dependencyId],
+              }
+            : bucket,
+        ),
+      };
 
     case "REMOVE_BUCKET_DEPENDENCY":
-      return state.map((bucket) =>
-        bucket.id === action.bucketId
-          ? {
-              ...bucket,
-              dependencies: bucket.dependencies.filter(
-                (id) => id !== action.dependencyId,
-              ),
-            }
-          : bucket,
-      );
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? {
+                ...bucket,
+                dependencies: bucket.dependencies.filter(
+                  (id) => id !== action.dependencyId,
+                ),
+              }
+            : bucket,
+        ),
+      };
 
     default:
       return state;
@@ -222,7 +245,7 @@ type DataProviderProps = {
 };
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-  const [state, dispatch] = useReducer(dataReducer, initialBuckets);
+  const [state, dispatch] = useReducer(dataReducer, initialState);
 
   const addTask = (bucketId: BucketID, task: Omit<Task, "id">) => {
     dispatch({
@@ -235,7 +258,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const moveTask = (toBucketId: BucketID, task: Task) => {
     dispatch({
       type: "MOVE_TASK",
-      fromBucketId: getBucketForTask(task)?.id || "", //@todo: not pretty.
+      fromBucketId: getBucketForTask(task)?.id || "", // Note: this pattern is a bit risky, you might want to handle this case more explicitly
       toBucketId: toBucketId,
       taskId: task.id,
     });
@@ -259,11 +282,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const getBucket = (bucketId: BucketID) => {
-    return state.find((bucket) => bucket.id === bucketId);
+    return state.buckets.find((bucket) => bucket.id === bucketId);
   };
 
   const getTask = (taskId: TaskID) => {
-    for (const bucket of state) {
+    for (const bucket of state.buckets) {
       const task = bucket.tasks.find((t) => t.id === taskId);
       if (task) return task;
     }
@@ -271,7 +294,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const getBucketForTask = (task: Task) => {
-    return state.find((bucket) => bucket.tasks.some((bt) => bt.id === task.id));
+    return state.buckets.find((bucket) =>
+      bucket.tasks.some((bt) => bt.id === task.id),
+    );
   };
 
   const reorderTask = (movingTaskId: TaskID, newPosition: number) => {
@@ -279,43 +304,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       type: "REORDER_TASK",
       movingTaskId,
       newPosition,
-    });
-  };
-
-  const getBuckets = () => {
-    return state;
-  };
-
-  const getTaskIndex = (task: Task | null): number | undefined => {
-    if (!task) return undefined;
-    const bucket = getBucketForTask(task);
-    if (!bucket) return undefined;
-
-    return bucket.tasks.findIndex((bt) => bt.id === task.id);
-  };
-
-  const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
-    const bucketId = bucket.id;
-    if (hasCyclicDependencyWithBucket(bucket, dependencyId, state)) {
-      console.error("Cyclic dependency detected!");
-      return;
-    }
-
-    dispatch({
-      type: "ADD_BUCKET_DEPENDENCY",
-      bucketId,
-      dependencyId,
-    });
-  };
-
-  const removeBucketDependency = (
-    bucketId: BucketID,
-    dependencyId: BucketID,
-  ) => {
-    dispatch({
-      type: "REMOVE_BUCKET_DEPENDENCY",
-      bucketId,
-      dependencyId,
     });
   };
 
@@ -334,7 +322,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       flag,
     });
   };
-
   const getTaskType = (task: Task | null | undefined) => {
     if (!task) {
       return "NO_OP";
@@ -354,10 +341,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const getBucketsDependingOn = (dependencyId: BucketID): BucketID[] => {
-    const dependentBuckets: string[] = [];
+    const dependentBuckets: BucketID[] = [];
 
-    // Loop through all buckets
-    for (const bucket of state) {
+    // Loop through all buckets in the state.buckets
+    for (const bucket of state.buckets) {
       // Check if the given bucket ID is present in the current bucket's dependencies array
       if (bucket.dependencies.includes(dependencyId)) {
         dependentBuckets.push(bucket.id);
@@ -367,21 +354,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return dependentBuckets;
   };
 
-  const getBucketsAvailbleFor = (givenBucketId: BucketID): BucketID[] => {
-    return state
+  const getBucketsAvailableFor = (givenBucketId: BucketID): BucketID[] => {
+    return state.buckets
       .filter(
         (bucket) =>
           bucket.id !== givenBucketId && // Exclude the given bucket itself
           !bucket.dependencies.includes(givenBucketId) && // Exclude direct dependencies
-          // !dependentBuckets.includes(bucket.id) && // Exclude indirect dependencies
-          !hasCyclicDependencyWithBucket(bucket, givenBucketId, state), // Exclude buckets that would result in a cyclic dependency
+          !hasCyclicDependencyWithBucket(bucket, givenBucketId, state.buckets), // Exclude buckets that would result in a cyclic dependency
       )
       .map((bucket) => bucket.id); // Extract the bucket IDs
   };
 
-  // This function retrieves all dependency chains for a specific bucket.
   const getDependencyChainsForBucket = (bucketId: BucketID): BucketID[][] => {
-    const bucket = state.find((b) => b.id === bucketId);
+    const bucket = state.buckets.find((b) => b.id === bucketId);
     if (!bucket) return [];
 
     // If the bucket has no dependencies, just return the bucket itself.
@@ -404,7 +389,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const getAllDependencyChains = () => {
     let allChains: BucketID[][] = [];
 
-    const others = getOtherBuckets(state);
+    const others = getOtherBuckets(state.buckets);
 
     for (const bucket of others) {
       allChains = [...allChains, ...getDependencyChainsForBucket(bucket.id)];
@@ -427,6 +412,44 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const getLayers = (): (BucketID | null)[][] => {
     return getDefaultLayers(getAllDependencyChains());
   };
+
+  const getTaskIndex = (task: Task | null): number | undefined => {
+    if (!task) return undefined;
+    const bucket = getBucketForTask(task);
+    if (!bucket) return undefined;
+
+    return bucket.tasks.findIndex((bt) => bt.id === task.id);
+  };
+
+  const getBuckets = () => {
+    return state.buckets;
+  };
+
+  const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
+    const bucketId = bucket.id;
+    if (hasCyclicDependencyWithBucket(bucket, dependencyId, state.buckets)) {
+      console.error("Cyclic dependency detected!");
+      return;
+    }
+
+    dispatch({
+      type: "ADD_BUCKET_DEPENDENCY",
+      bucketId,
+      dependencyId,
+    });
+  };
+
+  const removeBucketDependency = (
+    bucketId: BucketID,
+    dependencyId: BucketID,
+  ) => {
+    dispatch({
+      type: "REMOVE_BUCKET_DEPENDENCY",
+      bucketId,
+      dependencyId,
+    });
+  };
+
   console.log(state);
 
   return (
@@ -450,7 +473,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getBuckets,
         addBucketDependency,
         removeBucketDependency,
-        getBucketsAvailbleFor,
+        getBucketsAvailableFor,
         getDependencyChains: getAllDependencyChains,
       }}
     >

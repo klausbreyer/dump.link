@@ -1,4 +1,4 @@
-import { Bucket, TaskState } from "../../types";
+import { Bucket, State, TaskState } from "../../types";
 import { randomBytes } from "crypto";
 
 // NewID generates a random base-58 ID.
@@ -73,4 +73,9 @@ initialBuckets[10].name = "Chowder";
 //       : [],
 // }));
 
-export default initialBuckets;
+const state: State = {
+  buckets: initialBuckets,
+  layers: [],
+};
+
+export default state;

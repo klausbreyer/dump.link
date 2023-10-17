@@ -37,11 +37,11 @@ const Box: React.FC<BoxProps> = (props) => {
     removeBucketDependency,
     getBucket,
     addBucketDependency,
-    getBucketsAvailbleFor,
+    getBucketsAvailableFor,
     getBucketsDependingOn,
   } = useData();
 
-  const availbleIds = getBucketsAvailbleFor(bucket.id);
+  const availbleIds = getBucketsAvailableFor(bucket.id);
 
   const dependingIds = getBucketsDependingOn(bucket.id);
 

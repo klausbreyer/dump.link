@@ -21,6 +21,11 @@ export type Bucket = {
   dependencies: BucketID[]; // List of Bucket IDs this bucket depends on
 };
 
+export type State = {
+  buckets: Bucket[];
+  layers: BucketID[][];
+};
+
 export type DraggedTask = {
   taskId: TaskID;
 };
