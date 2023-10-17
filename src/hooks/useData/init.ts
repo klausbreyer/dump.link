@@ -1,10 +1,25 @@
 import { Bucket, TaskState } from "../../types";
+import { randomBytes } from "crypto";
+
+// NewID generates a random base-58 ID.
+function NewID(): string {
+  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; // base58
+  const size = 11;
+
+  const idBuffer = randomBytes(size);
+  const idArray = Array.from(idBuffer);
+
+  const id = idArray.map((p) => alphabet[p % alphabet.length]);
+
+  return id.join("");
+}
 
 const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
-  id: index + "",
+  id: NewID(),
   name: `index ${index}`,
   dependencies: index === 6 ? ["1", "2"] : [],
   flagged: index === 6,
+  dump: index === 0,
   tasks:
     index === 0
       ? [

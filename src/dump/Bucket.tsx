@@ -13,11 +13,11 @@ import BucketHeader from "./BucketHeader";
 import { getBucketBackgroundColor } from "../common/colors";
 
 interface BucketProps {
-  bucketId: string;
+  bucket: Bucket;
 }
 
 const Bucket: React.FC<BucketProps> = (props) => {
-  const { bucketId: bucketId } = props;
+  const { bucket } = props;
   const {
     moveTask,
     getBucket,
@@ -28,8 +28,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
     getBuckets,
   } = useData();
 
-  const bucket = getBucket(bucketId);
-  const allOtherBuckets = getBuckets().filter((b: Bucket) => b.id !== bucketId);
+  const allOtherBuckets = getBuckets().filter(
+    (b: Bucket) => b.id !== bucket.id,
+  );
 
   const open = getTasksByState(bucket, TaskState.OPEN);
   const closed = getTasksByState(bucket, TaskState.CLOSED);
@@ -47,20 +48,20 @@ const Bucket: React.FC<BucketProps> = (props) => {
     {
       accept: [
         ...allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
-        getClosedBucketType(bucketId),
+        getClosedBucketType(bucket.id),
       ],
 
       drop: (item: DraggedTask) => {
         const fromBucketId = getBucketForTask(item.taskId)?.id || "";
         const task = getTask(item.taskId);
-        if (fromBucketId !== bucketId.toString()) {
+        if (fromBucketId !== bucket.id) {
           updateTask(item.taskId, {
             title: task?.title || "",
             state: TaskState.OPEN,
           });
-          moveTask(bucketId.toString(), item.taskId);
+          moveTask(bucket.id, item.taskId);
         } else {
-          changeTaskState(bucketId.toString(), item.taskId, TaskState.OPEN);
+          changeTaskState(bucket.id, item.taskId, TaskState.OPEN);
         }
       },
       collect: (monitor) => ({
@@ -76,7 +77,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       updateTask,
       moveTask,
       changeTaskState,
-      bucketId,
+      bucket,
       allOtherBuckets,
     ],
   );
@@ -86,11 +87,11 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const [bottomCollectedProps, bottomDropRef] = useDrop(
     {
-      accept: [getOpenBucketType(bucketId)],
+      accept: [getOpenBucketType(bucket.id)],
 
       drop: (item: DraggedTask) => {
         // only allow dropping if the task is already in this bucket but in another state.
-        changeTaskState(bucketId, item.taskId, TaskState.CLOSED);
+        changeTaskState(bucket.id, item.taskId, TaskState.CLOSED);
       },
 
       collect: (monitor) => ({
@@ -98,7 +99,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
         canDrop: monitor.canDrop(),
       }),
     },
-    [getOpenBucketType, bucketId, changeTaskState],
+    [getOpenBucketType, bucket, changeTaskState],
   );
 
   const { isOver: bottomIsOver, canDrop: bottomCanDrop } =
@@ -109,7 +110,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   return (
     <div className={`w-full`}>
-      <BucketHeader bucketId={bucketId} />
+      <BucketHeader bucket={bucket} />
       <div
         ref={topDropRef}
         className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${

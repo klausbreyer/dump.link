@@ -12,16 +12,16 @@ import {
   XCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { DraggedBucket, DropCollectedProps } from "../types";
+import { Bucket, DraggedBucket, DropCollectedProps } from "../types";
 import { useGlobalDragging } from "../hooks/useGlobalDragging";
 import { ArrowIcon } from "../common/icons";
 
 interface BoxProps {
-  bucketId: string;
+  bucket: Bucket;
 }
 
 const Box: React.FC<BoxProps> = (props) => {
-  const { bucketId } = props;
+  const { bucket } = props;
   const {
     removeBucketDependency,
     getBucket,
@@ -30,11 +30,9 @@ const Box: React.FC<BoxProps> = (props) => {
     getBucketsDependingOn,
   } = useData();
 
-  const bucket = getBucket(bucketId);
+  const availbleIds = getBucketsAvailbleFor(bucket.id);
 
-  const availbleIds = getBucketsAvailbleFor(bucketId);
-
-  const dependingIds = getBucketsDependingOn(bucketId);
+  const dependingIds = getBucketsDependingOn(bucket.id);
 
   const [collectedProps, dropRef] = useDrop(
     {
@@ -42,28 +40,28 @@ const Box: React.FC<BoxProps> = (props) => {
 
       drop: (item: DraggedBucket) => {
         const fromBucketId = item.bucketId;
-        addBucketDependency(fromBucketId, bucketId);
+        addBucketDependency(fromBucketId, bucket.id);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
     },
-    [availbleIds, bucketId, addBucketDependency],
+    [availbleIds, bucket, addBucketDependency],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
   const [{ isDragging }, dragRef] = useDrag(
     () => ({
-      type: bucketId,
-      item: { bucketId },
+      type: bucket.id,
+      item: { bucketId: bucket.id },
       collect: (monitor) => ({
         isDragging: !!monitor.isDragging(),
       }),
       end: (item, monitor) => {},
     }),
-    [bucketId],
+    [bucket],
   );
 
   const { globalDragging, setGlobalDragging } = useGlobalDragging();
@@ -75,13 +73,13 @@ const Box: React.FC<BoxProps> = (props) => {
 
   return (
     <div className={`w-full`}>
-      <BucketHeader bucketId={bucketId} />
+      <BucketHeader bucket={bucket} />
       <div className={`min-h-[2rem] ${bgTop} `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (
             <li
               key={id}
-              onClick={() => removeBucketDependency(id, bucketId)}
+              onClick={() => removeBucketDependency(id, bucket.id)}
               className={`flex items-center justify-start gap-1 p-0.5 cursor-pointer group hover:underline
                 ${getHeaderTextColor(getBucket(id))}
               `}

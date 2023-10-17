@@ -9,28 +9,28 @@ import {
   getHeaderHoverColor,
   getHeaderTextColor,
 } from "../common/colors";
+import { Bucket } from "../types";
 
 export interface BucketHeaderProps {
-  bucketId: string;
+  bucket: Bucket;
 }
 
 const BucketHeader: React.FC<BucketHeaderProps> = (props) => {
-  const { bucketId } = props;
+  const { bucket } = props;
 
-  const { getBucket, renameBucket, flagBucket } = useData();
+  const { renameBucket, flagBucket } = useData();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     if (newValue.length <= 48) {
-      renameBucket(bucketId, newValue);
+      renameBucket(bucket.id, newValue);
     } else {
-      renameBucket(bucketId, newValue.substring(0, 48)); // Abschneiden nach 48 Zeichen
+      renameBucket(bucket.id, newValue.substring(0, 48)); // Abschneiden nach 48 Zeichen
     }
   };
 
-  const bucket = getBucket(bucketId);
   const handleClick = () => {
-    flagBucket(bucketId, !bucket?.flagged);
+    flagBucket(bucket.id, !bucket?.flagged);
   };
 
   const bgTop = getBucketBackgroundColor(bucket, "top");

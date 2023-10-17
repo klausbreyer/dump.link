@@ -15,6 +15,7 @@ export type Task = {
 export type Bucket = {
   id: BucketID;
   name: string;
+  dump: boolean;
   tasks: Task[];
   flagged?: boolean;
   dependencies: string[]; // List of Bucket IDs this bucket depends on

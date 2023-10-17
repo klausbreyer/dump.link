@@ -94,7 +94,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
 
   return (
     <Container>
-      <div className="relative w-full h-[800px]  parent">
+      <div className="relative w-full min-h-[800px]  parent">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
             pairs.map((pair: [BucketID, BucketID], i) => {
@@ -152,7 +152,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
             >
               {cleanedBuckets[i].map((bucket, j) => (
                 <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
-                  <Box bucketId={bucket.id} />
+                  <Box bucket={bucket} />
                 </div>
               ))}
             </div>
@@ -160,7 +160,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
           <div className="flex flex-wrap items-center justify-center w-full gap-8 py-8 border-t border-black bg-slate-50">
             {notPairedBuckets.map((bucket, j) => (
               <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
-                <Box bucketId={bucket.id} />
+                <Box bucket={bucket} />
               </div>
             ))}
           </div>

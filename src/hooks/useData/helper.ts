@@ -1,4 +1,4 @@
-import { BucketID } from "../../types";
+import { Bucket, BucketID } from "../../types";
 
 /**
  * Given a list of chains, this function returns the longest chain.
@@ -85,3 +85,13 @@ export function difference<T>(arr1: T[], arr2: T[]): T[] {
 export function uniqueValues<T>(arr: T[][]): T[] {
   return [...new Set(arr.flatMap((subArray) => subArray))];
 }
+
+// Function to get the bucket with dump: true
+export const getDumpBucket = (buckets: Bucket[]): Bucket | undefined => {
+  return buckets.find((bucket) => bucket.dump === true);
+};
+
+// Function to get all the other buckets (excluding the one with dump: true)
+export const getOtherBuckets = (buckets: Bucket[]): Bucket[] => {
+  return buckets.filter((bucket) => bucket.dump !== true);
+};
