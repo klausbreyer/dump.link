@@ -150,7 +150,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
             >
               {cleanedBuckets[i].map((bucket, j) => (
                 <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
-                  <Box bucket={bucket} />
+                  <Box bucket={bucket} context="foliation" />
                 </div>
               ))}
             </div>
@@ -158,7 +158,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
           <div className="flex flex-wrap items-center justify-center w-full gap-8 py-8 border-t border-black bg-slate-50">
             {notPairedBuckets.map((bucket, j) => (
               <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
-                <Box bucket={bucket} />
+                <Box bucket={bucket} context="foliation" />
               </div>
             ))}
           </div>

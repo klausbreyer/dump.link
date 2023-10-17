@@ -140,7 +140,7 @@ const Graph: React.FC<GraphProps> = (props) => {
               }}
               key={bucket.id}
             >
-              <Box bucket={bucket} />
+              <Box bucket={bucket} context="graph" />
             </div>
           );
         })}

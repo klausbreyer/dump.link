@@ -5,6 +5,7 @@ import { getBucketBackgroundColor, getHeaderTextColor } from "../common/colors";
 import BucketHeader from "../dump/BucketHeader";
 import {
   ArrowRightIcon,
+  ArrowsUpDownIcon,
   Bars2Icon,
   ExclamationTriangleIcon,
   LinkIcon,
@@ -18,10 +19,11 @@ import { ArrowIcon } from "../common/icons";
 
 interface BoxProps {
   bucket: Bucket;
+  context: "graph" | "foliation";
 }
 
 const Box: React.FC<BoxProps> = (props) => {
-  const { bucket } = props;
+  const { bucket, context } = props;
   const {
     removeBucketDependency,
     getBucket,
@@ -53,7 +55,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
-  const [{ isDragging }, dragRef] = useDrag(
+  const [{ isDragging: graphIsDragging }, graphDragRef, previewRev] = useDrag(
     () => ({
       type: bucket.id,
       item: { bucketId: bucket.id },
@@ -67,13 +69,16 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const { globalDragging, setGlobalDragging } = useGlobalDragging();
   useEffect(() => {
-    setGlobalDragging(isDragging);
-  }, [isDragging, setGlobalDragging]);
+    setGlobalDragging(graphIsDragging);
+  }, [graphIsDragging, setGlobalDragging]);
 
   const bgTop = getBucketBackgroundColor(bucket, "top");
+  const showFoliationIcon =
+    context === "foliation" &&
+    (dependingIds.length > 0 || bucket.dependencies.length > 0);
 
   return (
-    <div className={`w-full`}>
+    <div className={`w-full`} ref={previewRev}>
       <BucketHeader bucket={bucket} />
       <div className={`min-h-[2rem] ${bgTop} `}>
         <ul className="p-1 text-sm">
@@ -85,14 +90,14 @@ const Box: React.FC<BoxProps> = (props) => {
                 ${getHeaderTextColor(getBucket(id))}
               `}
             >
-              <LinkIcon className="block w-5 h-5 group-hover:hidden" />
-              <XMarkIcon className="hidden w-5 h-5 group-hover:block" />
+              <LinkIcon className="block w-4 h-4 shrink-0 group-hover:hidden" />
+              <XMarkIcon className="hidden w-4 h-4 shrink-0 group-hover:block" />
               {getBucket(id)?.name}
             </li>
           ))}
           <li
-            ref={(node) => dragRef(dropRef(node))}
-            className={`flex border-2 h-8 items-center justify-between gap-1 p-1 cursor-pointer hover:underline
+            ref={dropRef}
+            className={`flex border-2 h-8 items-center justify-between gap-1 p-1
             ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
             ${isOver && " border-gray-400"}
             ${!canDrop && !isOver && " border-transparent"}
@@ -100,14 +105,20 @@ const Box: React.FC<BoxProps> = (props) => {
           >
             {!globalDragging && (
               <>
-                Drag Dependency
-                <ArrowIcon className="block w-3 h-3" />
+                <div>
+                  {showFoliationIcon && (
+                    <ArrowsUpDownIcon className="block w-5 h-5" />
+                  )}
+                </div>
+                <div ref={graphDragRef}>
+                  <ArrowIcon className="block w-3 h-3 cursor-move" />
+                </div>
               </>
             )}
             {globalDragging}
             {canDrop}
             {globalDragging && canDrop && <></>}
-            {globalDragging && !canDrop && !isDragging && (
+            {globalDragging && !canDrop && !graphIsDragging && (
               <>
                 Unavailble <ExclamationTriangleIcon className="w-5 h-5" />
               </>
