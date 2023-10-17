@@ -7,6 +7,7 @@ import {
   getAllPairs,
   getElementsAtIndex,
   getLongestChain,
+  getOtherBuckets,
   removeDuplicates,
   uniqueValues,
 } from "../hooks/useData/helper";
@@ -23,6 +24,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
   const { getDependencyChains, getBucket, getBuckets } = useData();
   const buckets = getBuckets();
 
+  const others = getOtherBuckets(buckets);
   const [, setRepaintcounter] = useState(0);
 
   const boxRefs = useRef<{ [key: BucketID]: React.RefObject<HTMLDivElement> }>(
@@ -33,14 +35,14 @@ const Foliation: React.FC<FoliationProps> = (props) => {
   const [allBoxesRendered, setAllBoxesRendered] = useState(false);
 
   useEffect(() => {
-    for (let i = 1; i <= 11; i++) {
-      if (!boxRefs.current[i]) {
-        boxRefs.current[i] = React.createRef();
+    for (const bucket of others) {
+      if (!boxRefs.current[bucket.id]) {
+        boxRefs.current[bucket.id] = React.createRef();
       }
     }
 
     setAllBoxesRendered(true);
-  }, []);
+  }, [others]);
 
   const repaint = () => {
     setRepaintcounter((prev) => prev + 1);
@@ -81,7 +83,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
 
   const uniquePaired = uniqueValues(cleanedLayers);
   const notPaired = difference(
-    buckets.map((b) => b.id),
+    others.map((b) => b.id),
     uniquePaired,
   );
 
@@ -99,20 +101,16 @@ const Foliation: React.FC<FoliationProps> = (props) => {
           {allBoxesRendered &&
             pairs.map((pair: [BucketID, BucketID], i) => {
               if (
-                !boxRefs?.current[parseInt(pair[0])]?.current ||
-                !boxRefs?.current[parseInt(pair[1])]?.current
+                !boxRefs?.current[pair[0]]?.current ||
+                !boxRefs?.current[pair[1]]?.current
               ) {
                 return null;
               }
 
               const fromRect =
-                boxRefs.current[
-                  parseInt(pair[0])
-                ].current!.getBoundingClientRect();
+                boxRefs.current[pair[0]].current!.getBoundingClientRect();
               const toRect =
-                boxRefs.current[
-                  parseInt(pair[1])
-                ].current!.getBoundingClientRect();
+                boxRefs.current[pair[1]].current!.getBoundingClientRect();
               const { from, to } = getBorderCenterCoordinates(fromRect, toRect);
               const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
 

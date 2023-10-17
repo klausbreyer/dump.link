@@ -17,7 +17,7 @@ function NewID(): string {
 const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
   id: NewID(),
   name: `index ${index}`,
-  dependencies: index === 6 ? ["1", "2"] : [],
+  dependencies: [],
   flagged: index === 6,
   dump: index === 0,
   tasks:
@@ -53,6 +53,8 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
         ]
       : [],
 }));
+
+initialBuckets[6].dependencies = [initialBuckets[1].id, initialBuckets[2].id];
 
 // initialBuckets = Array.from({ length: 11 }).map((_, index) => ({
 //   id: index + "",

@@ -1,6 +1,7 @@
 import React, { createContext, useReducer, useContext } from "react";
 import { Bucket, BucketID, Task, TaskID, TaskState } from "../../types";
 import initialBuckets from "./init";
+import { getOtherBuckets } from "./helper";
 type ActionType =
   | { type: "ADD_TASK"; bucketId: BucketID; task: Omit<Task, "id"> }
   | {
@@ -411,7 +412,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   // This function retrieves all dependency chains for all buckets.
   const getAllDependencyChains = () => {
     let allChains: BucketID[][] = [];
-    for (const bucket of state) {
+
+    const others = getOtherBuckets(state);
+
+    for (const bucket of others) {
       allChains = [...allChains, ...getDependencyChainsForBucket(bucket.id)];
     }
 

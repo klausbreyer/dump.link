@@ -4,6 +4,7 @@ import Box from "./Box";
 import { useData } from "../hooks/useData";
 import { Bucket, BucketID } from "../types";
 import Foliation from "../foliation";
+import { getOtherBuckets } from "../hooks/useData/helper";
 
 interface GraphProps {}
 
@@ -31,6 +32,7 @@ const Graph: React.FC<GraphProps> = (props) => {
   const { getBuckets } = useData();
 
   const buckets = getBuckets();
+  const others = getOtherBuckets(buckets);
   const [, setRepaintcounter] = useState(0);
 
   const boxRefs = useRef<{ [key: BucketID]: React.RefObject<HTMLDivElement> }>(
@@ -41,14 +43,14 @@ const Graph: React.FC<GraphProps> = (props) => {
   const [allBoxesRendered, setAllBoxesRendered] = useState(false);
 
   useEffect(() => {
-    for (let i = 1; i <= 11; i++) {
-      if (!boxRefs.current[i]) {
-        boxRefs.current[i] = React.createRef();
+    for (const bucket of others) {
+      if (!boxRefs.current[bucket.id]) {
+        boxRefs.current[bucket.id] = React.createRef();
       }
     }
 
     setAllBoxesRendered(true);
-  }, []);
+  }, [others]);
 
   const repaint = () => {
     setRepaintcounter((prev) => prev + 1);
@@ -65,10 +67,7 @@ const Graph: React.FC<GraphProps> = (props) => {
   // repaint after adding dependencies.
   useEffect(() => {
     repaint();
-  }, [buckets, allBoxesRendered]);
-
-  const shownBuckets = [...buckets].splice(1, 10);
-  console.log(shownBuckets);
+  }, [allBoxesRendered]);
 
   return (
     <Container>
@@ -78,19 +77,17 @@ const Graph: React.FC<GraphProps> = (props) => {
             buckets.map((bucket) =>
               bucket.dependencies.map((dependencyId, index) => {
                 if (
-                  !boxRefs?.current[parseInt(bucket.id)]?.current ||
-                  !boxRefs?.current[parseInt(dependencyId)]?.current
+                  !boxRefs?.current[bucket.id]?.current ||
+                  !boxRefs?.current[dependencyId]?.current
                 ) {
                   return null;
                 }
 
                 const fromRect =
-                  boxRefs.current[
-                    parseInt(bucket.id)
-                  ].current!.getBoundingClientRect();
+                  boxRefs.current[bucket.id].current!.getBoundingClientRect();
                 const toRect =
                   boxRefs.current[
-                    parseInt(dependencyId)
+                    dependencyId
                   ].current!.getBoundingClientRect();
                 const { from, to } = getBorderCenterCoordinates(
                   fromRect,
@@ -128,7 +125,7 @@ const Graph: React.FC<GraphProps> = (props) => {
           </defs>
         </svg>
 
-        {shownBuckets.map((bucket, i) => {
+        {others.map((bucket, i) => {
           const x = positions[i].left;
           const y = positions[i].top;
 
