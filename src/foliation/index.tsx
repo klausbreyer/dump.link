@@ -147,19 +147,19 @@ const Foliation: React.FC<FoliationProps> = (props) => {
         <div className="flex flex-col gap-8">
           {longestChain.map((_, i) => (
             <div
-              className="flex items-center justify-center w-full gap-8"
+              className="flex items-center justify-center w-full gap-8 "
               key={i}
             >
               {cleanedBuckets[i].map((bucket, j) => (
-                <div key={j} ref={boxRefs.current[bucket.id]}>
+                <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
                   <Box bucketId={bucket.id} />
                 </div>
               ))}
             </div>
           ))}
-          <div className="flex items-center justify-center w-full gap-8">
+          <div className="flex flex-wrap items-center justify-center w-full gap-8 py-8 border-t border-black bg-slate-50">
             {notPairedBuckets.map((bucket, j) => (
-              <div key={j} ref={boxRefs.current[bucket.id]}>
+              <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
                 <Box bucketId={bucket.id} />
               </div>
             ))}

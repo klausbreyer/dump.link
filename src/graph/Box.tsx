@@ -14,6 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { DraggedBucket, DropCollectedProps } from "../types";
 import { useGlobalDragging } from "../hooks/useGlobalDragging";
+import { ArrowIcon } from "../common/icons";
 
 interface BoxProps {
   bucketId: string;
@@ -100,8 +101,8 @@ const Box: React.FC<BoxProps> = (props) => {
           >
             {!globalDragging && (
               <>
-                Dependency to
-                <Bars2Icon className="block w-5 h-5" />
+                Drag Dependency
+                <ArrowIcon className="block w-3 h-3" />
               </>
             )}
             {globalDragging}
