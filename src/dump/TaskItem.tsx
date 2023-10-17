@@ -133,27 +133,29 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   return (
-    <div
-      ref={(node) => previewRev(dropRef(node))}
-      className={`z-10 flex gap-1 items-center
+    <div ref={(node) => previewRev(dropRef(node))}>
+      <div
+        // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
+        className={`flex gap-1 items-center
         ${isDragging ? "invisible" : "visible"}
         `}
-    >
-      <textarea
-        className={`w-full px-1 rounded-sm shadow-md resize-y z-10`}
-        placeholder="type more here"
-        value={val}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        onChange={handleChange}
-        rows={1}
-        ref={textAreaRef}
-      ></textarea>
-      {task !== null && (
-        <div ref={dragRef} className="cursor-move">
-          <Bars2Icon className="w-5 h-5" />
-        </div>
-      )}
+      >
+        <textarea
+          className={`w-full px-1 rounded-sm shadow-md resize-y`}
+          placeholder="type more here"
+          value={val}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          onChange={handleChange}
+          rows={1}
+          ref={textAreaRef}
+        ></textarea>
+        {task !== null && (
+          <div ref={dragRef} className="cursor-move">
+            <Bars2Icon className="w-5 h-5" />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

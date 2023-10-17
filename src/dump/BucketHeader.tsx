@@ -43,6 +43,7 @@ const BucketHeader: React.FC<BucketHeaderProps> = (props) => {
         type="text"
         className={`w-full px-1 bg-transparent shadow-md border-b-2 focus:outline-none ${border}
         `}
+        placeholder="unnamed"
         value={bucket?.name}
         onChange={handleChange}
       />
