@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext } from "react";
+import React, { createContext, useReducer, useContext, useEffect } from "react";
 import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../../types";
 import initialState from "./init";
 import {
@@ -55,6 +55,15 @@ type ActionType =
       type: "REMOVE_BUCKET_DEPENDENCY";
       bucketId: BucketID;
       dependencyId: BucketID;
+    }
+  | {
+      type: "MOVE_BUCKET_TO_LAYER";
+      bucketId: BucketID;
+      index: number;
+    }
+  | {
+      type: "UPDATE_LAYERS";
+      newLayers: (BucketID | null)[][];
     };
 
 type DataContextType = {
@@ -83,6 +92,8 @@ type DataContextType = {
   getDependencyChains: () => BucketID[][];
   //@todo: maybe we can get rid of the nulls. i dont know if I need them for positioning.
   getLayers: () => (BucketID | null)[][];
+  moveBucketToLayer: (bucketId: BucketID, index: number) => void;
+  updateLayers: (newLayers: (BucketID | null)[][]) => void; // Neuzugang: Funktion zum Überschreiben aller Layers
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -235,6 +246,43 @@ const dataReducer = (state: State, action: ActionType): State => {
         ),
       };
 
+    case "MOVE_BUCKET_TO_LAYER": {
+      const { bucketId, index } = action;
+      let newLayers = [...state.layers];
+
+      // Find and remove the bucketId from its current layer
+      for (let i = 0; i < newLayers.length; i++) {
+        const idx = newLayers[i].indexOf(bucketId);
+        if (idx > -1) {
+          newLayers[i].splice(idx, 1);
+          // If the layer is now empty, remove it
+          if (newLayers[i].length === 0) {
+            newLayers.splice(i, 1);
+          }
+          break; // Exit the loop once the bucketId is found and removed
+        }
+      }
+
+      // Add the bucketId to the desired layer based on the index
+      if (index === -1) {
+        newLayers.unshift([bucketId]);
+      } else if (index >= newLayers.length) {
+        newLayers.push([bucketId]);
+      } else {
+        newLayers[index].push(bucketId);
+      }
+
+      return {
+        ...state,
+        layers: newLayers,
+      };
+    }
+
+    case "UPDATE_LAYERS":
+      return {
+        ...state,
+        layers: action.newLayers,
+      };
     default:
       return state;
   }
@@ -410,8 +458,25 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const getLayers = (): (BucketID | null)[][] => {
-    return getDefaultLayers(getAllDependencyChains());
+    if (state.layers.length > 0) {
+      return state.layers;
+    }
+    return defaultLayers();
   };
+
+  const updateLayers = (newLayers: (BucketID | null)[][]) => {
+    dispatch({
+      type: "UPDATE_LAYERS",
+      newLayers,
+    });
+  };
+
+  function defaultLayers() {
+    const chains = getAllDependencyChains();
+    const layers = getDefaultLayers(chains);
+    updateLayers(layers);
+    return layers;
+  }
 
   const getTaskIndex = (task: Task | null): number | undefined => {
     if (!task) return undefined;
@@ -450,6 +515,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
+  const moveBucketToLayer = (bucketId: BucketID, index: number) => {
+    dispatch({
+      type: "MOVE_BUCKET_TO_LAYER",
+      bucketId,
+      index,
+    });
+  };
   console.log(state);
 
   return (
@@ -458,12 +530,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         state,
         addTask,
         moveTask,
+        updateLayers,
         changeTaskState,
         updateTask,
         getBucket,
         getTask,
         getBucketForTask,
         getTaskIndex,
+        moveBucketToLayer,
         reorderTask,
         getTaskType,
         renameBucket,

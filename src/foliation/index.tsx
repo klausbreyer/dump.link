@@ -33,8 +33,31 @@ interface FoliationProps {
 const Foliation: React.FC<FoliationProps> = (props) => {
   const { getDependencyChains, getBucket, getBuckets, getLayers } = useData();
   const buckets = getBuckets();
-
   const others = getOtherBuckets(buckets);
+  const chains = getDependencyChains();
+
+  const cleanedLayers = getLayers();
+  const cleanedBuckets = cleanedLayers.map((layer) =>
+    layer
+      .filter((id): id is BucketID => id !== null)
+      .map((id) => getBucket(id))
+      .filter((bucket): bucket is Bucket => bucket !== undefined),
+  );
+
+  const uniquePaired = uniqueValues(cleanedLayers);
+
+  const notPaired = difference(
+    others.map((b) => b.id),
+    uniquePaired,
+  );
+
+  const notPairedBuckets = notPaired
+    .filter((id): id is BucketID => id !== null)
+    .map((id) => getBucket(id))
+    .filter((bucket): bucket is Bucket => bucket !== undefined);
+
+  const pairs = getAllPairs(chains);
+
   const [, setRepaintcounter] = useState(0);
 
   const boxRefs = useRef<{ [key: BucketID]: React.RefObject<HTMLDivElement> }>(
@@ -69,32 +92,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
   // repaint after adding dependencies.
   useEffect(() => {
     repaint();
-  }, [buckets, allBoxesRendered]);
-
-  const chains = getDependencyChains();
-  const longestChain = getLongestChain(chains) || [];
-
-  const cleanedLayers = getLayers();
-  const cleanedBuckets = cleanedLayers.map((layer) =>
-    layer
-      .filter((id): id is BucketID => id !== null)
-      .map((id) => getBucket(id))
-      .filter((bucket): bucket is Bucket => bucket !== undefined),
-  );
-
-  const uniquePaired = uniqueValues(cleanedLayers);
-
-  const notPaired = difference(
-    others.map((b) => b.id),
-    uniquePaired,
-  );
-
-  const notPairedBuckets = notPaired
-    .filter((id): id is BucketID => id !== null)
-    .map((id) => getBucket(id))
-    .filter((bucket): bucket is Bucket => bucket !== undefined);
-
-  const pairs = getAllPairs(chains);
+  }, [buckets, allBoxesRendered, cleanedLayers]);
 
   console.dir(cleanedLayers);
 
@@ -149,9 +147,9 @@ const Foliation: React.FC<FoliationProps> = (props) => {
         <div className="flex flex-col gap-8">
           <Lane defaultHidden={true} index={-1} hoverable />
 
-          {longestChain.map((_, i) => (
+          {cleanedBuckets.map((lane, i) => (
             <Lane defaultHidden={false} index={i} hoverable={true} key={i}>
-              {cleanedBuckets[i].map((bucket, j) => (
+              {lane.map((bucket, j) => (
                 <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
                   <Box bucket={bucket} context="foliation" />
                 </div>
@@ -159,7 +157,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
             </Lane>
           ))}
 
-          <Lane defaultHidden={true} index={longestChain.length} hoverable />
+          <Lane defaultHidden={true} index={cleanedBuckets.length} hoverable />
           <Lane defaultHidden={false} hoverable={false}>
             {notPairedBuckets.map((bucket, j) => (
               <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
