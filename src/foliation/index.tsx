@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import FlexCol from "../common/FlexCol";
+import { useData } from "../hooks/useData";
 import {
   deduplicateInnerValues,
   difference,
@@ -8,8 +9,7 @@ import {
   getLongestChain,
   removeDuplicates,
   uniqueValues,
-  useData,
-} from "../hooks/useData";
+} from "../hooks/useData/helper";
 import Container from "../common/Container";
 import Box from "../graph/Box";
 import { Bucket, BucketID } from "../types";
