@@ -2,13 +2,13 @@ import React from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { createRoot } from "react-dom/client";
-import Dump from "./dump";
-import { DataProvider } from "./hooks/useData";
+import Dump from "./Dump";
+import { DataProvider } from "./context/data";
 import Navigation from "./Navigation";
 import { useHashChange } from "./hooks/useHashChange"; // Import the custom hook
-import Settings from "./settings";
-import Graph from "./graph";
-import Foliation from "./foliation";
+import Settings from "./Settings";
+import Graph from "./Graph";
+import Foliation from "./Foliation";
 import { GlobalDraggingProvider } from "./hooks/useGlobalDragging";
 
 const App = function App() {

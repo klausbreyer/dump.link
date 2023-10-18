@@ -1,4 +1,4 @@
-import { Bucket, State, TaskState } from "../../types";
+import { Bucket, State, TaskState } from "../types";
 import { randomBytes } from "crypto";
 
 // NewID generates a random base-58 ID.

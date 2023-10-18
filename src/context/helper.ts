@@ -1,4 +1,4 @@
-import { Bucket, BucketID, Task, TaskState } from "../../types";
+import { Bucket, BucketID, Task, TaskState } from "../types";
 
 /**
  * Given a list of chains, this function returns the longest chain.

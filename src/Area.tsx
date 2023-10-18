@@ -1,12 +1,12 @@
 import React from "react";
 import TaskItem from "./TaskItem";
-import FlexCol from "../common/FlexCol";
-import { useData } from "../hooks/useData";
+import FlexCol from "./common/FlexCol";
+import { useData } from "./context/data";
 import { useDrop } from "react-dnd";
-import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "../types";
-import CardList from "../common/CardList";
+import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "./types";
+import CardList from "./common/CardList";
 import BucketHeader from "./BucketHeader";
-import { getOpenBucketType } from "../hooks/useData/helper";
+import { getOpenBucketType } from "./context/helper";
 
 export interface AreaProps {
   bucket: Bucket;

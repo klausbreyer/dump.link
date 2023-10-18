@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import FlexCol from "../common/FlexCol";
-import { useData } from "../hooks/useData";
+import FlexCol from "./common/FlexCol";
+import { useData } from "./context/data";
 import {
   deduplicateInnerValues,
   difference,
@@ -11,18 +11,18 @@ import {
   getOtherBuckets,
   removeDuplicates,
   uniqueValues,
-} from "../hooks/useData/helper";
-import Container from "../common/Container";
-import Box from "../graph/Box";
+} from "./context/helper";
+import Container from "./common/Container";
+import Box from "./Box";
 import {
   Bucket,
   BucketID,
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
-} from "../types";
+} from "./types";
 import { useDrop } from "react-dnd";
-import { useGlobalDragging } from "../hooks/useGlobalDragging";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
 
 interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
@@ -33,7 +33,7 @@ interface LaneProps extends React.HTMLProps<HTMLDivElement> {
 
 const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const { getBucket, getBuckets } = useData();
+  const { getBucket, getBuckets, moveBucketToLayer } = useData();
   const buckets = getBuckets();
 
   const others = getOtherBuckets(buckets);
@@ -46,16 +46,18 @@ const Lane: React.FC<LaneProps> = (props) => {
 
       drop: (item: DraggedBucket) => {
         const bucket = getBucket(item.bucketId);
+
         if (!bucket) return;
-        if (!index) return;
-        console.log(bucket, index);
+        if (index === null || index === undefined) return;
+
+        moveBucketToLayer(bucket.id, index);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
     },
-    [others, index, getFoliationBucketType],
+    [others, index, getFoliationBucketType, moveBucketToLayer],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
@@ -65,16 +67,28 @@ const Lane: React.FC<LaneProps> = (props) => {
   const dropActive = hoverable && canDrop && !isOver;
   const dropOver = hoverable && canDrop && isOver;
 
+  const isUnconnected = index === null || index === undefined;
+
   return (
     <div
-      ref={dropRef}
-      className={`flex items-center justify-center min-h-[5rem] w-full gap-8
-        ${dropActive && "border-dashed border-2 border-gray-400"}
-        ${dropOver && "border-solid border-2 border-gray-400"}
+      className={`p-4 border-b border-black border-solid
+      ${isUnconnected && "bg-slate-100"}
+    `}
+    >
+      <div
+        ref={dropRef}
+        className={` border-2 flex items-center justify-center min-h-[5rem] w-full gap-8 relative
+        ${dropActive && "border-dashed border-gray-400"}
+        ${dropOver && "border-solid border-gray-400"}
+        ${!dropActive && !dropOver && "border-solid border-transparent"}
         ${showWhileDragging ? "opacity-100" : "opacity-0"}
       `}
-    >
-      {children}
+      >
+        <div className="absolute top-0 left-0 font-bold ">
+          {isUnconnected ? "Unconnected" : `Layer ${index + 1}`}
+        </div>
+        {children}
+      </div>
     </div>
   );
 };

@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import Container from "../common/Container";
+import Container from "./common/Container";
 import Box from "./Box";
-import { useData } from "../hooks/useData";
-import { Bucket, BucketID } from "../types";
-import Foliation from "../foliation";
-import { getOtherBuckets } from "../hooks/useData/helper";
+import { useData } from "./context/data";
+import { Bucket, BucketID } from "./types";
+import Foliation from "./Foliation";
+import { getOtherBuckets } from "./context/helper";
 
 interface GraphProps {}
 

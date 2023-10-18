@@ -23,7 +23,7 @@ export type Bucket = {
 
 export type State = {
   buckets: Bucket[];
-  layers: BucketID[][];
+  layers: (BucketID | null)[][];
 };
 
 export type DraggedTask = {
