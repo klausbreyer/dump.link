@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import { useData } from "../hooks/useData";
-import { getBucketBackgroundColor, getHeaderTextColor } from "../common/colors";
-import BucketHeader from "../dump/BucketHeader";
+import { useData } from "./context/data";
+import { getBucketBackgroundColor, getHeaderTextColor } from "./common/colors";
+import BucketHeader from "./BucketHeader";
 import {
   ArrowRightIcon,
   ArrowsUpDownIcon,
@@ -18,13 +18,10 @@ import {
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
-} from "../types";
-import { useGlobalDragging } from "../hooks/useGlobalDragging";
-import { ArrowIcon } from "../common/icons";
-import {
-  getFoliationBucketType,
-  getGraphBucketType,
-} from "../hooks/useData/helper";
+} from "./types";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import { ArrowIcon } from "./common/icons";
+import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
 
 interface BoxProps {
   bucket: Bucket;

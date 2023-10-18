@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import FlexCol from "../common/FlexCol";
-import { useData } from "../hooks/useData";
+import FlexCol from "./common/FlexCol";
+import { useData } from "./context/data";
 import {
   deduplicateInnerValues,
   difference,
@@ -11,18 +11,18 @@ import {
   getOtherBuckets,
   removeDuplicates,
   uniqueValues,
-} from "../hooks/useData/helper";
-import Container from "../common/Container";
-import Box from "../graph/Box";
+} from "./context/helper";
+import Container from "./common/Container";
+import Box from "./Box";
 import {
   Bucket,
   BucketID,
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
-} from "../types";
+} from "./types";
 import { useDrop } from "react-dnd";
-import { useGlobalDragging } from "../hooks/useGlobalDragging";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
 
 interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;

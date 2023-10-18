@@ -6,13 +6,13 @@ import React, {
   useState,
 } from "react";
 import { Bars2Icon } from "@heroicons/react/24/solid";
-import { useData } from "../hooks/useData";
+import { useData } from "./context/data";
 import { useDrag, useDrop } from "react-dnd";
-import { DraggedTask, DraggingType, TaskState } from "../types";
+import { DraggedTask, DraggingType, TaskState } from "./types";
 
-import { Task } from "../types";
-import { useGlobalDragging } from "../hooks/useGlobalDragging";
-import { getDumpBucket } from "../hooks/useData/helper";
+import { Task } from "./types";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import { getDumpBucket } from "./context/helper";
 interface TaskItemProps {
   task: Task | null;
 }

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
-import { useData } from "../hooks/useData";
-import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "../types";
+import { useData } from "./context/data";
+import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "./types";
 import TaskItem from "./TaskItem";
-import CardList from "../common/CardList";
+import CardList from "./common/CardList";
 import BucketHeader from "./BucketHeader";
-import { getBucketBackgroundColor } from "../common/colors";
+import { getBucketBackgroundColor } from "./common/colors";
 import {
   getClosedBucketType,
   getOpenBucketType,
   getTasksByState,
-} from "../hooks/useData/helper";
+} from "./context/helper";
 
 interface BucketProps {
   bucket: Bucket;

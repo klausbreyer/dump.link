@@ -2,14 +2,14 @@ import React, { ChangeEvent } from "react";
 import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 
-import { useData } from "../hooks/useData";
+import { useData } from "./context/data";
 import {
   getBucketBackgroundColor,
   getHeaderBorderColor,
   getHeaderHoverColor,
   getHeaderTextColor,
-} from "../common/colors";
-import { Bucket } from "../types";
+} from "./common/colors";
+import { Bucket } from "./types";
 
 export interface BucketHeaderProps {
   bucket: Bucket;

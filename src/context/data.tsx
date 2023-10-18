@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext, useEffect } from "react";
-import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../../types";
+import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../types";
 import initialState from "./init";
 import {
   deduplicateInnerValues,

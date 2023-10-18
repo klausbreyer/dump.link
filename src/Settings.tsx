@@ -1,5 +1,5 @@
 import React from "react";
-import FlexCol from "../common/FlexCol";
+import FlexCol from "./common/FlexCol";
 
 interface SettingsProps {
   // [key: string]: any;
