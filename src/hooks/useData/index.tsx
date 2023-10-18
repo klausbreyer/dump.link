@@ -93,6 +93,7 @@ type DataContextType = {
   //@todo: maybe we can get rid of the nulls. i dont know if I need them for positioning.
   getLayers: () => (BucketID | null)[][];
   moveBucketToLayer: (bucketId: BucketID, index: number) => void;
+  resetLayers: () => (BucketID | null)[][];
   updateLayers: (newLayers: (BucketID | null)[][]) => void; // Neuzugang: Funktion zum Überschreiben aller Layers
 };
 
@@ -249,27 +250,43 @@ const dataReducer = (state: State, action: ActionType): State => {
     case "MOVE_BUCKET_TO_LAYER": {
       const { bucketId, index } = action;
       let newLayers = [...state.layers];
+      let sourceLayerIndex = -1;
+      let layerRemoved = false;
 
       // Find and remove the bucketId from its current layer
       for (let i = 0; i < newLayers.length; i++) {
         const idx = newLayers[i].indexOf(bucketId);
         if (idx > -1) {
+          sourceLayerIndex = i;
           newLayers[i].splice(idx, 1);
           // If the layer is now empty, remove it
           if (newLayers[i].length === 0) {
             newLayers.splice(i, 1);
+            layerRemoved = true;
           }
           break; // Exit the loop once the bucketId is found and removed
         }
       }
 
-      // Add the bucketId to the desired layer based on the index
-      if (index === -1) {
+      // Adjust the target index only if the source layer has disappeared and the source index is before the target index
+      let adjustedIndex = index;
+      if (
+        layerRemoved &&
+        sourceLayerIndex !== -1 &&
+        sourceLayerIndex < adjustedIndex
+      ) {
+        adjustedIndex--;
+      }
+
+      console.log(adjustedIndex);
+
+      // Add the bucketId to the desired layer based on the adjusted index
+      if (adjustedIndex === -1) {
         newLayers.unshift([bucketId]);
-      } else if (index >= newLayers.length) {
+      } else if (adjustedIndex >= newLayers.length) {
         newLayers.push([bucketId]);
       } else {
-        newLayers[index].push(bucketId);
+        newLayers[adjustedIndex].push(bucketId);
       }
 
       return {
@@ -461,7 +478,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     if (state.layers.length > 0) {
       return state.layers;
     }
-    return defaultLayers();
+    return resetLayers();
   };
 
   const updateLayers = (newLayers: (BucketID | null)[][]) => {
@@ -471,7 +488,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  function defaultLayers() {
+  function resetLayers() {
     const chains = getAllDependencyChains();
     const layers = getDefaultLayers(chains);
     updateLayers(layers);
@@ -545,6 +562,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getLayers,
         getBucketsDependingOn,
         getBuckets,
+        resetLayers,
         addBucketDependency,
         removeBucketDependency,
         getBucketsAvailableFor,

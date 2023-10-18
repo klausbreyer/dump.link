@@ -31,7 +31,8 @@ interface FoliationProps {
 }
 
 const Foliation: React.FC<FoliationProps> = (props) => {
-  const { getDependencyChains, getBucket, getBuckets, getLayers } = useData();
+  const { getDependencyChains, getBucket, getBuckets, resetLayers, getLayers } =
+    useData();
   const buckets = getBuckets();
   const others = getOtherBuckets(buckets);
   const chains = getDependencyChains();
@@ -94,10 +95,14 @@ const Foliation: React.FC<FoliationProps> = (props) => {
     repaint();
   }, [buckets, allBoxesRendered, cleanedLayers]);
 
-  console.dir(cleanedLayers);
-
   return (
     <Container>
+      <button
+        className="p-1 rounded-sm bg-slate-500"
+        onClick={() => resetLayers()}
+      >
+        reset layers
+      </button>
       <div className="relative w-full min-h-[800px]  parent">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
@@ -144,7 +149,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
             </marker>
           </defs>
         </svg>
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col ">
           <Lane defaultHidden={true} index={-1} hoverable />
 
           {cleanedBuckets.map((lane, i) => (
