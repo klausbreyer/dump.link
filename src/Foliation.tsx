@@ -2,16 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import {
-  categorizeByFirstEntry,
-  deduplicateInnerValues,
+  identifySubgraphs,
   difference,
-  getAllPairs,
-  getDefaultLayers,
-  getElementsAtIndex,
-  getFoliationBucketType,
-  getLongestChain,
   getOtherBuckets,
-  removeDuplicates,
   uniqueValues,
 } from "./context/helper";
 import Container from "./common/Container";
@@ -19,7 +12,6 @@ import Box from "./Box";
 import {
   Bucket,
   BucketID,
-  Chain,
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
@@ -35,15 +27,14 @@ interface FoliationProps {
 }
 
 const Foliation: React.FC<FoliationProps> = (props) => {
-  const { getDependencyChains, getBucket, getBuckets, getLayers } = useData();
+  const { getDependencyChains, getBucket, getBuckets } = useData();
   const buckets = getBuckets();
-  const others = getOtherBuckets(buckets);
+
   const allChains = getDependencyChains();
-  const subgraphs = categorizeByFirstEntry(allChains);
+  const subgraphs = identifySubgraphs(allChains);
 
-  const cleanedLayers = getDefaultLayers(allChains);
-  const uniquePaired = uniqueValues(cleanedLayers);
-
+  const uniquePaired = uniqueValues(allChains);
+  const others = getOtherBuckets(buckets);
   const notPaired = difference(
     others.map((b) => b.id),
     uniquePaired,

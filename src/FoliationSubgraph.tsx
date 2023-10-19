@@ -2,16 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import {
-  categorizeByFirstEntry,
-  deduplicateInnerValues,
+  identifySubgraphs,
   difference,
   getAllPairs,
-  getDefaultLayers,
-  getElementsAtIndex,
   getFoliationBucketType,
-  getLongestChain,
   getOtherBuckets,
-  removeDuplicates,
   uniqueValues,
 } from "./context/helper";
 import Container from "./common/Container";
@@ -19,7 +14,6 @@ import Box from "./Box";
 import {
   Bucket,
   BucketID,
-  Chain,
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
@@ -30,22 +24,23 @@ import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import FoliationLane from "./FoliationLane";
 
 interface FoliationSubgraphProps {
-  chains: Chain[];
+  chains: BucketID[][];
 }
 
 const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
-  const { getBucket } = useData();
+  const { getBucket, getLayersForSubgraphChains } = useData();
   const { chains } = props;
-  const cleanedLayers = getDefaultLayers(chains);
 
-  const cleanedBuckets = cleanedLayers.map((layer) =>
+  const layersWithBucketIds = getLayersForSubgraphChains(chains);
+
+  const layersWithBuckets = layersWithBucketIds.map((layer) =>
     layer
       .filter((id): id is BucketID => id !== null)
       .map((id) => getBucket(id))
       .filter((bucket): bucket is Bucket => bucket !== undefined),
   );
 
-  const uniqueBuckets = uniqueValues(cleanedBuckets);
+  const uniqueBuckets = uniqueValues(layersWithBuckets);
   const pairs = getAllPairs(chains);
 
   const [, setRepaintcounter] = useState(0);
@@ -53,6 +48,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
   const boxRefs = useRef<{ [key: BucketID]: React.RefObject<HTMLDivElement> }>(
     {},
   );
+
   // check if all box refs are initialized.
   const [allBoxesRendered, setAllBoxesRendered] = useState(false);
 
@@ -64,7 +60,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
     }
 
     setAllBoxesRendered(true);
-  }, [cleanedBuckets]);
+  }, [layersWithBuckets]);
 
   const repaint = () => {
     setRepaintcounter((prev) => prev + 1);
@@ -132,7 +128,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
       <div className="flex flex-col ">
         <FoliationLane defaultHidden={true} index={-1} hoverable />
 
-        {cleanedBuckets.map((lane, i) => (
+        {layersWithBuckets.map((lane, i) => (
           <FoliationLane
             defaultHidden={false}
             index={i}
@@ -149,7 +145,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
 
         <FoliationLane
           defaultHidden={true}
-          index={cleanedBuckets.length}
+          index={layersWithBuckets.length}
           hoverable
         />
       </div>

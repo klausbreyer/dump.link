@@ -16,17 +16,15 @@ export type Bucket = {
   id: BucketID;
   name: string;
   dump: boolean;
+  layer?: number; //overwrite layer. only write when moved. then it keeps this position, no matter what.
   tasks: Task[];
-  flagged?: boolean;
+  flagged: boolean;
   dependencies: BucketID[]; // List of Bucket IDs this bucket depends on
 };
 
 export type State = {
   buckets: Bucket[];
-  layers: (BucketID | null)[][];
 };
-
-export type Chain = BucketID[];
 
 export type DraggedTask = {
   taskId: TaskID;

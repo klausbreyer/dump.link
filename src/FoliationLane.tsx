@@ -2,14 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import {
-  deduplicateInnerValues,
-  difference,
-  getAllPairs,
-  getElementsAtIndex,
   getFoliationBucketType,
-  getLongestChain,
   getOtherBuckets,
-  removeDuplicates,
   uniqueValues,
 } from "./context/helper";
 import Container from "./common/Container";
@@ -33,10 +27,14 @@ interface FoliationLaneProps extends React.HTMLProps<HTMLDivElement> {
 
 const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const { getBucket, getBuckets, moveBucketToLayer } = useData();
+  const { getBucket, getBuckets, updateBucketLayer } = useData();
   const buckets = getBuckets();
 
   const others = getOtherBuckets(buckets);
+
+  // Lane knows it index.
+  // based on a given $something it can find out what boxes can be dropped in this lane.
+  // const allowed =
 
   const { globalDragging } = useGlobalDragging();
 
@@ -50,14 +48,14 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
         if (!bucket) return;
         if (index === null || index === undefined) return;
 
-        moveBucketToLayer(bucket.id, index);
+        updateBucketLayer(bucket.id, index);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
     },
-    [others, index, getFoliationBucketType, moveBucketToLayer],
+    [others, index, getFoliationBucketType, updateBucketLayer],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;

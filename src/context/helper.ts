@@ -1,27 +1,5 @@
-import { Bucket, BucketID, Chain, Task, TaskState } from "../types";
+import { Bucket, BucketID, Task, TaskState } from "../types";
 
-/**
- * Given a list of chains, this function returns the longest chain.
- * If there are multiple chains of the same longest length, the first one encountered is returned.
- *
- * @param chains - An array of chains where each chain is an array of BucketIDs.
- * @returns The longest chain or undefined if the list of chains is empty.
- */
-export const getLongestChain = (
-  chains: BucketID[][],
-): BucketID[] | undefined => {
-  return chains.reduce((longest, current) => {
-    return current.length > longest.length ? current : longest;
-  }, [] as BucketID[]);
-};
-
-export function removeDuplicates(arr: any[]): any[] {
-  return [...new Set(arr)];
-}
-
-export function getElementsAtIndex(arrays: any[][], i: number): any[] {
-  return arrays.map((array) => array[i]);
-}
 /**
  * Given a list of chains, this function returns each unique pair from all the chains.
  *
@@ -41,6 +19,7 @@ export const getAllPairs = (chains: BucketID[][]): [BucketID, BucketID][] => {
     (pair) => pair.split(",") as [BucketID, BucketID],
   );
 };
+
 /**
  * Categorize arrays based on their first entry.
  * Arrays with the same first entry will be grouped into a common sub-array.
@@ -48,8 +27,8 @@ export const getAllPairs = (chains: BucketID[][]): [BucketID, BucketID][] => {
  * @param input - The input arrays to be categorized.
  * @returns The categorized arrays.
  */
-export function categorizeByFirstEntry(input: Chain[]): Chain[][] {
-  const categorization: { [key: BucketID]: Chain[] } = {};
+export function identifySubgraphs(input: BucketID[][]): BucketID[][][] {
+  const categorization: { [key: BucketID]: BucketID[][] } = {};
 
   // Iterate over each array and categorize them based on their first entry.
   for (const arr of input) {
@@ -61,47 +40,12 @@ export function categorizeByFirstEntry(input: Chain[]): Chain[][] {
   }
 
   // Convert the categorization object to the final result.
-  const result: Chain[][] = [];
+  const result: BucketID[][][] = [];
   for (const key in categorization) {
     result.push(categorization[key]);
   }
 
   return result;
-}
-
-/**
- * Deduplicates inner values of a two-dimensional array. For each unique BucketID in the sub-arrays,
- * only the BucketID with the highest index in the main array is retained. All other occurrences
- * are replaced with null.
- *
- * @param arr - The two-dimensional array to deduplicate.
- * @returns The array with inner values deduplicated.
- */
-export function deduplicateInnerValues(
-  arr: (BucketID | null)[][],
-): (BucketID | null)[][] {
-  const lastIndexMap = new Map<BucketID, number>();
-
-  // Find the last index of each BucketID
-  for (let i = 0; i < arr.length; i++) {
-    for (const id of arr[i]) {
-      if (id !== null) {
-        lastIndexMap.set(id, i);
-      }
-    }
-  }
-
-  // Replace values with null, if they are not in their last index
-  for (let i = 0; i < arr.length; i++) {
-    for (let j = 0; j < arr[i].length; j++) {
-      const id = arr[i][j];
-      if (id !== null && lastIndexMap.get(id) !== i) {
-        arr[i][j] = null;
-      }
-    }
-  }
-
-  return arr;
 }
 
 export function difference<T>(arr1: T[], arr2: T[]): T[] {
@@ -178,21 +122,12 @@ export const getFoliationBucketType = (bucketId: BucketID) => {
   return `FOLIATION_${bucketId}`;
 };
 
-/**
- *
- * @returns can return null, to fill the spots.
- */
-export const getDefaultLayers = (chains: Chain[]): (BucketID | null)[][] => {
-  const longestChain = getLongestChain(chains) || [];
-  const layers = longestChain.map((_, i) =>
-    getElementsAtIndex(chains, i).filter(Boolean),
-  );
-
-  //remove duplicates between layers
-  const cleanedLayers = deduplicateInnerValues(
-    // remove duplicates from each layer.
-    layers.map((layer) => removeDuplicates(layer)),
-  );
-
-  return cleanedLayers;
+export const findSubarrayIndex = (data: string[][], id: string): number => {
+  for (const subarray of data) {
+    const index = subarray.indexOf(id);
+    if (index !== -1) {
+      return index;
+    }
+  }
+  return -1; // Return -1 if the id is not found in any subarray
 };
