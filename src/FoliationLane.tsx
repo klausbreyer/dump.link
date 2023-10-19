@@ -60,7 +60,6 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
       ): number[] => {
         return bucketIds.map((id) => getLayerForBucketId(chains, id));
       };
-      console.log(index, idsInLayer);
 
       for (const idInLayer of idsInLayer) {
         const bucket = getBucket(idInLayer);
@@ -73,22 +72,27 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
         const dependentLayers = getLayersForBucketIds(chains, dependents);
         const dependencyLayers = getLayersForBucketIds(chains, dependencies);
 
-        const minLayer = Math.min(...dependentLayers);
-        const maxLayer = Math.min(...dependencyLayers);
+        const minLayer =
+          dependentLayers.length === 0
+            ? -Infinity
+            : Math.min(...dependentLayers);
+        const maxLayer =
+          dependencyLayers.length === 0
+            ? Infinity
+            : Math.max(...dependencyLayers);
 
-        console.log(
-          "idresult",
-          getBucket(idInLayer)?.name,
-          idInLayer,
-          minLayer,
-          maxLayer,
-        );
+        // console.log(
+        //   "idresult",
+        //   getBucket(idInLayer)?.name,
+        //   idInLayer,
+        //   minLayer,
+        //   maxLayer,
+        // );
         lookup.set(idInLayer, [minLayer, maxLayer]);
-        // when max is unlimited, there is no limit.
       }
     }
 
-    console.log(lookup);
+    console.dir(lookup);
 
     const others = getOtherBuckets(buckets);
     for (
@@ -96,16 +100,13 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
       layerIndex < layersWithBucketIds.length;
       layerIndex++
     ) {
-      // if (layerIndex === index) continue;
-
       const allowedOnLayer: BucketID[] = [];
-      const layer = layersWithBucketIds[layerIndex];
       for (const bucket of others) {
         const id = bucket.id;
         const res = lookup.get(id);
+
         if (!res) continue;
         const [min, max] = res;
-
         const currentLayer = getLayerForBucketId(chains, id);
 
         if (
