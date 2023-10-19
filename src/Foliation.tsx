@@ -40,6 +40,12 @@ const Foliation: React.FC<FoliationProps> = (props) => {
     uniquePaired,
   );
 
+  console.dir(
+    uniquePaired.map(
+      (id) => `${id} -> ${getBucket(id)?.id} , ${getBucket(id)?.layer}`,
+    ),
+  );
+
   const notPairedBuckets = notPaired
     .filter((id): id is BucketID => id !== null)
     .map((id) => getBucket(id))

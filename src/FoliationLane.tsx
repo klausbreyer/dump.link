@@ -38,93 +38,16 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
     getLayersForSubgraphChains,
     getLayerForBucketId,
     getBucketsDependingOn,
+    getAllowedBucketsByLayer,
   } = useData();
   const buckets = getBuckets();
 
-  console.log("chains", chains);
-
   const others = getOtherBuckets(buckets);
-
-  const layersWithBucketIds = getLayersForSubgraphChains(chains);
-
-  // @todo: this calculation does not belong here.
-
-  const allowedOnLayers: BucketID[][] = [];
-  // Check if index is valid
-  if (index !== undefined && index >= 0) {
-    const lookup: Map<BucketID, [number, number]> = new Map();
-    for (const idsInLayer of layersWithBucketIds) {
-      const getLayersForBucketIds = (
-        chains: any,
-        bucketIds: BucketID[],
-      ): number[] => {
-        return bucketIds.map((id) => getLayerForBucketId(chains, id));
-      };
-
-      for (const idInLayer of idsInLayer) {
-        const bucket = getBucket(idInLayer);
-        if (!bucket) continue;
-
-        const dependents = getBucketsDependingOn(idInLayer);
-        const dependencies = bucket.dependencies || [];
-
-        // Fetch layers for dependents and dependencies
-        const dependentLayers = getLayersForBucketIds(chains, dependents);
-        const dependencyLayers = getLayersForBucketIds(chains, dependencies);
-
-        const minLayer =
-          dependentLayers.length === 0
-            ? -Infinity
-            : Math.min(...dependentLayers);
-        const maxLayer =
-          dependencyLayers.length === 0
-            ? Infinity
-            : Math.max(...dependencyLayers);
-
-        // console.log(
-        //   "idresult",
-        //   getBucket(idInLayer)?.name,
-        //   idInLayer,
-        //   minLayer,
-        //   maxLayer,
-        // );
-        lookup.set(idInLayer, [minLayer, maxLayer]);
-      }
-    }
-
-    console.dir(lookup);
-
-    const others = getOtherBuckets(buckets);
-    for (
-      let layerIndex = 0;
-      layerIndex < layersWithBucketIds.length;
-      layerIndex++
-    ) {
-      const allowedOnLayer: BucketID[] = [];
-      for (const bucket of others) {
-        const id = bucket.id;
-        const res = lookup.get(id);
-
-        if (!res) continue;
-        const [min, max] = res;
-        const currentLayer = getLayerForBucketId(chains, id);
-
-        if (
-          currentLayer !== layerIndex &&
-          min <= layerIndex &&
-          max >= layerIndex
-        ) {
-          allowedOnLayer.push(id);
-        }
-      }
-      allowedOnLayers.push(allowedOnLayer);
-    }
-    console.dir(allowedOnLayers);
-  }
+  const allowedOnLayers = getAllowedBucketsByLayer(chains, index);
 
   const { globalDragging } = useGlobalDragging();
 
-  const getAccept = (index?: number) => {
+  const getAccept = () => {
     // all that is not depending on another.
     if (index === -1) {
       return getFirstValues(chains).map((bucketId) =>
@@ -139,10 +62,12 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
       );
     }
 
+    // unconnected buckets lane.
     if (index === undefined || !allowedOnLayers[index]) {
       return [];
     }
 
+    //default behaviour
     return allowedOnLayers[index].map((bucketId) =>
       getFoliationBucketType(bucketId),
     );
@@ -150,13 +75,16 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
 
   const [collectedProps, dropRef] = useDrop(
     {
-      accept: getAccept(index),
+      accept: getAccept(),
 
       drop: (item: DraggedBucket) => {
         const bucket = getBucket(item.bucketId);
 
         if (!bucket) return;
         if (index === null || index === undefined) return;
+
+        const old = getLayerForBucketId(chains, bucket.id);
+        console.log("drop", bucket.id, old, index);
 
         updateBucketLayer(bucket.id, index);
       },
@@ -171,6 +99,7 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
       getFoliationBucketType,
       updateBucketLayer,
       getAccept,
+      getLayerForBucketId,
       allowedOnLayers,
     ],
   );
@@ -199,6 +128,7 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
         ${showWhileDragging ? "opacity-100" : "opacity-0"}
       `}
       >
+        <div>{index}</div>
         {children}
       </div>
     </div>

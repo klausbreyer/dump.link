@@ -479,11 +479,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     }
 
-    // console.log(chains, resultMap, resultArray);
-
     return resultArray;
   };
-  type BucketID = string;
 
   const getLayerForBucketId = (
     chains: BucketID[][],
@@ -499,6 +496,101 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     // Return -1 if the bucketId is not found in any layer
     return -1;
+  };
+
+  const getAllowedBucketsByLayer = (
+    chains: any,
+    index: number | undefined,
+  ): BucketID[][] => {
+    const MIN_LAYER = -1;
+    const MAX_LAYER = Number.MAX_SAFE_INTEGER;
+
+    const buckets = getBuckets();
+    const layersWithBucketIds = getLayersForSubgraphChains(chains);
+    const getLayersForBucketIds = (
+      chains: any,
+      bucketIds: BucketID[],
+    ): number[] => {
+      return bucketIds.map((id) => getLayerForBucketId(chains, id));
+    };
+
+    const updateLookup = (
+      chains: any,
+      idsInLayer: BucketID[],
+      lookup: Map<BucketID, [number, number]>,
+    ) => {
+      for (const idInLayer of idsInLayer) {
+        const bucket = getBucket(idInLayer);
+        if (!bucket) continue;
+
+        const dependents = getBucketsDependingOn(idInLayer);
+        const dependencies = bucket.dependencies || [];
+
+        const dependentLayers = getLayersForBucketIds(chains, dependents);
+        const dependencyLayers = getLayersForBucketIds(chains, dependencies);
+
+        const minLayer = dependentLayers.length
+          ? Math.min(...dependentLayers)
+          : MIN_LAYER;
+        const maxLayer = dependencyLayers.length
+          ? Math.max(...dependencyLayers)
+          : MAX_LAYER;
+
+        lookup.set(idInLayer, [minLayer, maxLayer]);
+      }
+    };
+
+    const getAllowedBucketsOnLayer = (
+      chains: any,
+      layerIndex: number,
+      others: Bucket[],
+      lookup: Map<BucketID, [number, number]>,
+    ): BucketID[] => {
+      const allowedOnLayer: BucketID[] = [];
+      for (const bucket of others) {
+        const id = bucket.id;
+        const res = lookup.get(id);
+
+        if (!res) continue;
+        const [min, max] = res;
+        const currentLayer = getLayerForBucketId(chains, id);
+
+        if (
+          currentLayer !== layerIndex &&
+          min <= layerIndex &&
+          max >= layerIndex
+        ) {
+          allowedOnLayer.push(id);
+        }
+      }
+      return allowedOnLayer;
+    };
+
+    // Main logic
+    const allowedOnLayers: BucketID[][] = [];
+    if (index !== undefined && index >= 0) {
+      const lookup: Map<BucketID, [number, number]> = new Map();
+      for (const idsInLayer of layersWithBucketIds) {
+        updateLookup(chains, idsInLayer, lookup);
+      }
+
+      const others = getOtherBuckets(buckets);
+      for (
+        let layerIndex = 0;
+        layerIndex < layersWithBucketIds.length;
+        layerIndex++
+      ) {
+        const allowedOnLayer = getAllowedBucketsOnLayer(
+          chains,
+          layerIndex,
+          others,
+          lookup,
+        );
+        allowedOnLayers.push(allowedOnLayer);
+      }
+    }
+
+    return allowedOnLayers;
   };
 
   console.log(state);
@@ -523,6 +615,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         updateBucketLayer,
         getBucketsDependingOn,
         getBuckets,
+        getAllowedBucketsByLayer,
         addBucketDependency,
         getLayerForBucketId,
         removeBucketDependency,
@@ -562,6 +655,10 @@ type DataContextType = {
   updateBucketLayer: (bucketId: BucketID, newLayer: number) => void; // Added this line
   getLayersForSubgraphChains: (chains: BucketID[][]) => BucketID[][];
   getLayerForBucketId: (chains: BucketID[][], bucketId: BucketID) => number;
+  getAllowedBucketsByLayer: (
+    chains: any,
+    index: number | undefined,
+  ) => BucketID[][];
 };
 
 export const useData = () => {
