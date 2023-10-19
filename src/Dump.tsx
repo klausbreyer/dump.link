@@ -1,6 +1,6 @@
 import React from "react";
 import Area from "./Area";
-import Bucket from "./Bucket";
+import DumpBucket from "./DumpBucket";
 import FlexCol from "./common/FlexCol";
 import Container from "./common/Container";
 import { useData } from "./context/data";
@@ -31,12 +31,12 @@ const Dump: React.FC<DumpProps> = (props) => {
         <div className="grid grid-cols-2 col-span-2 gap-4 ">
           <FlexCol>
             {others.slice(0, 5).map((bucket) => (
-              <Bucket bucket={bucket} key={bucket.id} />
+              <DumpBucket bucket={bucket} key={bucket.id} />
             ))}
           </FlexCol>
           <FlexCol>
             {others.slice(-5).map((bucket) => (
-              <Bucket bucket={bucket} key={bucket.id} />
+              <DumpBucket bucket={bucket} key={bucket.id} />
             ))}
           </FlexCol>
         </div>

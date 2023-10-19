@@ -2,14 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import {
-  deduplicateInnerValues,
-  difference,
-  getAllPairs,
-  getElementsAtIndex,
+  getFirstValues,
   getFoliationBucketType,
-  getLongestChain,
+  getLastValues,
   getOtherBuckets,
-  removeDuplicates,
+  getTwoLowestUniqueNumbers,
   uniqueValues,
 } from "./context/helper";
 import Container from "./common/Container";
@@ -24,25 +21,61 @@ import {
 import { useDrop } from "react-dnd";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 
-interface LaneProps extends React.HTMLProps<HTMLDivElement> {
+interface FoliationLaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
   hoverable: boolean;
   defaultHidden: boolean;
   index?: number;
+  chains: BucketID[][];
 }
 
-const Lane: React.FC<LaneProps> = (props) => {
-  const { children, index, hoverable, defaultHidden } = props;
-  const { getBucket, getBuckets, moveBucketToLayer } = useData();
+const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
+  const { children, index, hoverable, defaultHidden, chains } = props;
+  const {
+    getBucket,
+    getBuckets,
+    updateBucketLayer,
+    getLayersForSubgraphChains,
+    getLayerForBucketId,
+    getBucketsDependingOn,
+    getAllowedBucketsByLayer,
+  } = useData();
   const buckets = getBuckets();
 
   const others = getOtherBuckets(buckets);
+  const allowedOnLayers = getAllowedBucketsByLayer(chains, index);
 
   const { globalDragging } = useGlobalDragging();
 
+  const getAccept = () => {
+    // all that is not depending on another.
+    if (index === -1) {
+      return getFirstValues(chains).map((bucketId) =>
+        getFoliationBucketType(bucketId),
+      );
+    }
+
+    // all that is not having any dependents
+    if (index === allowedOnLayers.length) {
+      return getLastValues(chains).map((bucketId) =>
+        getFoliationBucketType(bucketId),
+      );
+    }
+
+    // unconnected buckets lane.
+    if (index === undefined || !allowedOnLayers[index]) {
+      return [];
+    }
+
+    //default behaviour
+    return allowedOnLayers[index].map((bucketId) =>
+      getFoliationBucketType(bucketId),
+    );
+  };
+
   const [collectedProps, dropRef] = useDrop(
     {
-      accept: others.map((bucket) => getFoliationBucketType(bucket.id)),
+      accept: getAccept(),
 
       drop: (item: DraggedBucket) => {
         const bucket = getBucket(item.bucketId);
@@ -50,14 +83,25 @@ const Lane: React.FC<LaneProps> = (props) => {
         if (!bucket) return;
         if (index === null || index === undefined) return;
 
-        moveBucketToLayer(bucket.id, index);
+        const old = getLayerForBucketId(chains, bucket.id);
+        console.log("drop", bucket.id, old, index);
+
+        updateBucketLayer(bucket.id, index);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
     },
-    [others, index, getFoliationBucketType, moveBucketToLayer],
+    [
+      others,
+      index,
+      getFoliationBucketType,
+      updateBucketLayer,
+      getAccept,
+      getLayerForBucketId,
+      allowedOnLayers,
+    ],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
@@ -84,12 +128,10 @@ const Lane: React.FC<LaneProps> = (props) => {
         ${showWhileDragging ? "opacity-100" : "opacity-0"}
       `}
       >
-        <div className="absolute top-0 left-0 font-bold ">
-          {isUnconnected ? "Unconnected" : `Layer ${index + 1}`}
-        </div>
+        <div>{index}</div>
         {children}
       </div>
     </div>
   );
 };
-export default Lane;
+export default FoliationLane;

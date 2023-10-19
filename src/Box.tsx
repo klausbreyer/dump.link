@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { useData } from "./context/data";
 import { getBucketBackgroundColor, getHeaderTextColor } from "./common/colors";
-import BucketHeader from "./BucketHeader";
+import Header from "./Header";
 import {
   ArrowRightIcon,
   ArrowsUpDownIcon,
@@ -107,8 +107,11 @@ const Box: React.FC<BoxProps> = (props) => {
     (dependingIds.length > 0 || bucket.dependencies.length > 0);
 
   return (
-    <div className={`w-full`} ref={graphPreviewRev}>
-      <BucketHeader bucket={bucket} />
+    <div
+      className={`w-full`}
+      ref={(node) => foliationPreviewRev(graphPreviewRev(node))}
+    >
+      <Header bucket={bucket} />
       <div className={`min-h-[2rem] ${bgTop} `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (
@@ -134,16 +137,24 @@ const Box: React.FC<BoxProps> = (props) => {
           >
             {!globalDragging && (
               <>
-                <div>
-                  {showFoliationIcon && (
-                    <div ref={foliationDragRef}>
-                      <ArrowsUpDownIcon className="block w-5 h-5 cursor-move" />
-                    </div>
-                  )}
-                </div>
-                <div ref={graphDragRef}>
-                  <ArrowIcon className="block w-3 h-3 cursor-move" />
-                </div>
+                {showFoliationIcon && (
+                  <div
+                    ref={foliationDragRef}
+                    className="flex items-center justify-between w-full gap-2 cursor-move hover:underline"
+                  >
+                    Order
+                    <ArrowsUpDownIcon className="block w-5 h-5 " />
+                  </div>
+                )}
+                {!showFoliationIcon && (
+                  <div
+                    ref={graphDragRef}
+                    className="flex items-center justify-between w-full gap-2 cursor-move hover:underline"
+                  >
+                    Dependency
+                    <ArrowIcon className="block w-3 h-3 " />
+                  </div>
+                )}
               </>
             )}
             {globalDragging === DraggingType.GRAPH}

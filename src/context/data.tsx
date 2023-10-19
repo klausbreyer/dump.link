@@ -2,16 +2,14 @@ import React, { createContext, useReducer, useContext, useEffect } from "react";
 import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../types";
 import initialState from "./init";
 import {
-  deduplicateInnerValues,
+  findSubarrayIndex,
   getClosedBucketType,
-  getDefaultLayers,
-  getElementsAtIndex,
-  getLongestChain,
   getOpenBucketType,
   getOtherBuckets,
   hasCyclicDependencyWithBucket,
-  removeDuplicates,
+  uniqueValues,
 } from "./helper";
+
 type ActionType =
   | { type: "ADD_TASK"; bucketId: BucketID; task: Omit<Task, "id"> }
   | {
@@ -57,45 +55,10 @@ type ActionType =
       dependencyId: BucketID;
     }
   | {
-      type: "MOVE_BUCKET_TO_LAYER";
+      type: "UPDATE_BUCKET_LAYER";
       bucketId: BucketID;
-      index: number;
-    }
-  | {
-      type: "UPDATE_LAYERS";
-      newLayers: (BucketID | null)[][];
+      newLayer: number;
     };
-
-type DataContextType = {
-  state: State;
-  addTask: (bucketId: BucketID, task: Omit<Task, "id">) => void;
-  moveTask: (toBucketId: BucketID, task: Task) => void;
-  changeTaskState: (
-    bucketId: BucketID,
-    taskId: TaskID,
-    newState: TaskState,
-  ) => void;
-  updateTask: (taskId: TaskID, updatedTask: Omit<Task, "id">) => void;
-  getBucket: (bucketId: BucketID) => Bucket | undefined;
-  getTask: (taskId: TaskID) => Task | undefined;
-  getBucketForTask: (task: Task) => Bucket | undefined;
-  reorderTask: (movingTaskId: TaskID, newPosition: number) => void;
-  getTaskType: (task: Task | null | undefined) => string;
-  getBuckets: () => Bucket[];
-  getTaskIndex: (task: Task | null) => number | undefined;
-  renameBucket: (bucketId: BucketID, newName: string) => void;
-  flagBucket: (bucketId: BucketID, flag: boolean) => void;
-  addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
-  removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
-  getBucketsDependingOn: (dependencyId: BucketID) => BucketID[];
-  getBucketsAvailableFor: (givenBucketId: BucketID) => BucketID[];
-  getDependencyChains: () => BucketID[][];
-  //@todo: maybe we can get rid of the nulls. i dont know if I need them for positioning.
-  getLayers: () => (BucketID | null)[][];
-  moveBucketToLayer: (bucketId: BucketID, index: number) => void;
-  resetLayers: () => (BucketID | null)[][];
-  updateLayers: (newLayers: (BucketID | null)[][]) => void; // Neuzugang: Funktion zum Überschreiben aller Layers
-};
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 const dataReducer = (state: State, action: ActionType): State => {
@@ -247,59 +210,16 @@ const dataReducer = (state: State, action: ActionType): State => {
         ),
       };
 
-    case "MOVE_BUCKET_TO_LAYER": {
-      const { bucketId, index } = action;
-      let newLayers = [...state.layers];
-      let sourceLayerIndex = -1;
-      let layerRemoved = false;
-
-      // Find and remove the bucketId from its current layer
-      for (let i = 0; i < newLayers.length; i++) {
-        const idx = newLayers[i].indexOf(bucketId);
-        if (idx > -1) {
-          sourceLayerIndex = i;
-          newLayers[i].splice(idx, 1);
-          // If the layer is now empty, remove it
-          if (newLayers[i].length === 0) {
-            newLayers.splice(i, 1);
-            layerRemoved = true;
-          }
-          break; // Exit the loop once the bucketId is found and removed
-        }
-      }
-
-      // Adjust the target index only if the source layer has disappeared and the source index is before the target index
-      let adjustedIndex = index;
-      if (
-        layerRemoved &&
-        sourceLayerIndex !== -1 &&
-        sourceLayerIndex < adjustedIndex
-      ) {
-        adjustedIndex--;
-      }
-
-      console.log(adjustedIndex);
-
-      // Add the bucketId to the desired layer based on the adjusted index
-      if (adjustedIndex === -1) {
-        newLayers.unshift([bucketId]);
-      } else if (adjustedIndex >= newLayers.length) {
-        newLayers.push([bucketId]);
-      } else {
-        newLayers[adjustedIndex].push(bucketId);
-      }
-
+    case "UPDATE_BUCKET_LAYER":
       return {
         ...state,
-        layers: newLayers,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? { ...bucket, layer: action.newLayer }
+            : bucket,
+        ),
       };
-    }
 
-    case "UPDATE_LAYERS":
-      return {
-        ...state,
-        layers: action.newLayers,
-      };
     default:
       return state;
   }
@@ -474,27 +394,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       .filter((chain) => chain.length > 1);
   };
 
-  const getLayers = (): (BucketID | null)[][] => {
-    if (state.layers.length > 0) {
-      return state.layers;
-    }
-    return resetLayers();
-  };
-
-  const updateLayers = (newLayers: (BucketID | null)[][]) => {
-    dispatch({
-      type: "UPDATE_LAYERS",
-      newLayers,
-    });
-  };
-
-  function resetLayers() {
-    const chains = getAllDependencyChains();
-    const layers = getDefaultLayers(chains);
-    updateLayers(layers);
-    return layers;
-  }
-
   const getTaskIndex = (task: Task | null): number | undefined => {
     if (!task) return undefined;
     const bucket = getBucketForTask(task);
@@ -532,13 +431,168 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const moveBucketToLayer = (bucketId: BucketID, index: number) => {
+  const updateBucketLayer = (bucketId: BucketID, newLayer: number) => {
     dispatch({
-      type: "MOVE_BUCKET_TO_LAYER",
+      type: "UPDATE_BUCKET_LAYER",
       bucketId,
-      index,
+      newLayer,
     });
   };
+
+  const getLayersForSubgraphChains = (chains: BucketID[][]): BucketID[][] => {
+    // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
+    const resultMap: Map<number, BucketID[]> = new Map();
+
+    const ids = uniqueValues(chains);
+
+    // Process each id
+    ids.forEach((id) => {
+      const bucket = getBucket(id);
+      let index: number;
+
+      // Use bucket.layer if set, otherwise use findSubarrayIndex
+      if (bucket?.layer !== undefined) {
+        index = bucket.layer;
+      } else {
+        index = findSubarrayIndex(chains, id);
+      }
+
+      if (resultMap.has(index)) {
+        resultMap.get(index)!.push(id); // Add to the existing array
+      } else {
+        resultMap.set(index, [id]); // Create a new array with the id
+      }
+    });
+
+    // Convert the map to an array of arrays
+    const resultArray: BucketID[][] = [];
+    const keys = Array.from(resultMap.keys()).sort((a, b) => a - b); // Sorting the keys in ascending order
+
+    const minKey = keys[0];
+    const maxKey = keys[keys.length - 1];
+
+    for (let i = minKey; i <= maxKey; i++) {
+      if (resultMap.has(i)) {
+        resultArray.push(resultMap.get(i)!);
+      } else {
+        resultArray.push([]);
+      }
+    }
+
+    return resultArray;
+  };
+
+  const getLayerForBucketId = (
+    chains: BucketID[][],
+    bucketId: BucketID,
+  ): number => {
+    const layers = getLayersForSubgraphChains(chains);
+
+    for (let i = 0; i < layers.length; i++) {
+      if (layers[i].includes(bucketId)) {
+        return i;
+      }
+    }
+
+    // Return -1 if the bucketId is not found in any layer
+    return -1;
+  };
+
+  const getAllowedBucketsByLayer = (
+    chains: any,
+    index: number | undefined,
+  ): BucketID[][] => {
+    const MIN_LAYER = -1;
+    const MAX_LAYER = Number.MAX_SAFE_INTEGER;
+
+    const buckets = getBuckets();
+    const layersWithBucketIds = getLayersForSubgraphChains(chains);
+    const getLayersForBucketIds = (
+      chains: any,
+      bucketIds: BucketID[],
+    ): number[] => {
+      return bucketIds.map((id) => getLayerForBucketId(chains, id));
+    };
+
+    const updateLookup = (
+      chains: any,
+      idsInLayer: BucketID[],
+      lookup: Map<BucketID, [number, number]>,
+    ) => {
+      for (const idInLayer of idsInLayer) {
+        const bucket = getBucket(idInLayer);
+        if (!bucket) continue;
+
+        const dependents = getBucketsDependingOn(idInLayer);
+        const dependencies = bucket.dependencies || [];
+
+        const dependentLayers = getLayersForBucketIds(chains, dependents);
+        const dependencyLayers = getLayersForBucketIds(chains, dependencies);
+
+        const minLayer = dependentLayers.length
+          ? Math.min(...dependentLayers)
+          : MIN_LAYER;
+        const maxLayer = dependencyLayers.length
+          ? Math.max(...dependencyLayers)
+          : MAX_LAYER;
+
+        lookup.set(idInLayer, [minLayer, maxLayer]);
+      }
+    };
+
+    const getAllowedBucketsOnLayer = (
+      chains: any,
+      layerIndex: number,
+      others: Bucket[],
+      lookup: Map<BucketID, [number, number]>,
+    ): BucketID[] => {
+      const allowedOnLayer: BucketID[] = [];
+      for (const bucket of others) {
+        const id = bucket.id;
+        const res = lookup.get(id);
+
+        if (!res) continue;
+        const [min, max] = res;
+        const currentLayer = getLayerForBucketId(chains, id);
+
+        if (
+          currentLayer !== layerIndex &&
+          min <= layerIndex &&
+          max >= layerIndex
+        ) {
+          allowedOnLayer.push(id);
+        }
+      }
+      return allowedOnLayer;
+    };
+
+    // Main logic
+    const allowedOnLayers: BucketID[][] = [];
+    if (index !== undefined && index >= 0) {
+      const lookup: Map<BucketID, [number, number]> = new Map();
+      for (const idsInLayer of layersWithBucketIds) {
+        updateLookup(chains, idsInLayer, lookup);
+      }
+
+      const others = getOtherBuckets(buckets);
+      for (
+        let layerIndex = 0;
+        layerIndex < layersWithBucketIds.length;
+        layerIndex++
+      ) {
+        const allowedOnLayer = getAllowedBucketsOnLayer(
+          chains,
+          layerIndex,
+          others,
+          lookup,
+        );
+        allowedOnLayers.push(allowedOnLayer);
+      }
+    }
+
+    return allowedOnLayers;
+  };
+
   console.log(state);
 
   return (
@@ -547,23 +601,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         state,
         addTask,
         moveTask,
-        updateLayers,
         changeTaskState,
         updateTask,
         getBucket,
         getTask,
         getBucketForTask,
         getTaskIndex,
-        moveBucketToLayer,
+        getLayersForSubgraphChains,
         reorderTask,
         getTaskType,
         renameBucket,
         flagBucket,
-        getLayers,
+        updateBucketLayer,
         getBucketsDependingOn,
         getBuckets,
-        resetLayers,
+        getAllowedBucketsByLayer,
         addBucketDependency,
+        getLayerForBucketId,
         removeBucketDependency,
         getBucketsAvailableFor,
         getDependencyChains: getAllDependencyChains,
@@ -572,6 +626,39 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       {children}
     </DataContext.Provider>
   );
+};
+
+type DataContextType = {
+  state: State;
+  addTask: (bucketId: BucketID, task: Omit<Task, "id">) => void;
+  moveTask: (toBucketId: BucketID, task: Task) => void;
+  changeTaskState: (
+    bucketId: BucketID,
+    taskId: TaskID,
+    newState: TaskState,
+  ) => void;
+  updateTask: (taskId: TaskID, updatedTask: Omit<Task, "id">) => void;
+  getBucket: (bucketId: BucketID) => Bucket | undefined;
+  getTask: (taskId: TaskID) => Task | undefined;
+  getBucketForTask: (task: Task) => Bucket | undefined;
+  reorderTask: (movingTaskId: TaskID, newPosition: number) => void;
+  getTaskType: (task: Task | null | undefined) => string;
+  getBuckets: () => Bucket[];
+  getTaskIndex: (task: Task | null) => number | undefined;
+  renameBucket: (bucketId: BucketID, newName: string) => void;
+  flagBucket: (bucketId: BucketID, flag: boolean) => void;
+  addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
+  removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
+  getBucketsDependingOn: (dependencyId: BucketID) => BucketID[];
+  getBucketsAvailableFor: (givenBucketId: BucketID) => BucketID[];
+  getDependencyChains: () => BucketID[][];
+  updateBucketLayer: (bucketId: BucketID, newLayer: number) => void; // Added this line
+  getLayersForSubgraphChains: (chains: BucketID[][]) => BucketID[][];
+  getLayerForBucketId: (chains: BucketID[][], bucketId: BucketID) => number;
+  getAllowedBucketsByLayer: (
+    chains: any,
+    index: number | undefined,
+  ) => BucketID[][];
 };
 
 export const useData = () => {

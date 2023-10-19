@@ -11,11 +11,11 @@ import {
 } from "./common/colors";
 import { Bucket } from "./types";
 
-export interface BucketHeaderProps {
+export interface HeaderProps {
   bucket: Bucket;
 }
 
-const BucketHeader: React.FC<BucketHeaderProps> = (props) => {
+const Header: React.FC<HeaderProps> = (props) => {
   const { bucket } = props;
 
   const { renameBucket, flagBucket } = useData();
@@ -44,7 +44,7 @@ const BucketHeader: React.FC<BucketHeaderProps> = (props) => {
         className={`w-full px-1 bg-transparent shadow-md border-b-2 focus:outline-none ${border}
         `}
         placeholder="unnamed"
-        value={bucket?.name}
+        value={bucket?.id}
         onChange={handleChange}
       />
       <button
@@ -61,4 +61,4 @@ const BucketHeader: React.FC<BucketHeaderProps> = (props) => {
   );
 };
 
-export default BucketHeader;
+export default Header;

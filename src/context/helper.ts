@@ -1,28 +1,6 @@
 import { Bucket, BucketID, Task, TaskState } from "../types";
 
 /**
- * Given a list of chains, this function returns the longest chain.
- * If there are multiple chains of the same longest length, the first one encountered is returned.
- *
- * @param chains - An array of chains where each chain is an array of BucketIDs.
- * @returns The longest chain or undefined if the list of chains is empty.
- */
-export const getLongestChain = (
-  chains: BucketID[][],
-): BucketID[] | undefined => {
-  return chains.reduce((longest, current) => {
-    return current.length > longest.length ? current : longest;
-  }, [] as BucketID[]);
-};
-
-export function removeDuplicates(arr: any[]): any[] {
-  return [...new Set(arr)];
-}
-
-export function getElementsAtIndex(arrays: any[][], i: number): any[] {
-  return arrays.map((array) => array[i]);
-}
-/**
  * Given a list of chains, this function returns each unique pair from all the chains.
  *
  * @param chains - An array of chains where each chain is an array of BucketIDs.
@@ -42,41 +20,33 @@ export const getAllPairs = (chains: BucketID[][]): [BucketID, BucketID][] => {
   );
 };
 
-/**
- * Deduplicates inner values of a two-dimensional array. For each unique BucketID in the sub-arrays,
- * only the BucketID with the highest index in the main array is retained. All other occurrences
- * are replaced with null.
- *
- * @param arr - The two-dimensional array to deduplicate.
- * @returns The array with inner values deduplicated.
- */
-export function deduplicateInnerValues(
-  arr: (BucketID | null)[][],
-): (BucketID | null)[][] {
-  const lastIndexMap = new Map<BucketID, number>();
+export function divideIntoSubsets(input: BucketID[][]): BucketID[][][] {
+  const remaining = [...input];
+  const groups: BucketID[][][] = [];
 
-  // Find the last index of each BucketID
-  for (let i = 0; i < arr.length; i++) {
-    for (const id of arr[i]) {
-      if (id !== null) {
-        lastIndexMap.set(id, i);
+  while (remaining.length > 0) {
+    const currentGroup: BucketID[][] = [remaining[0]];
+    const valuesInCurrentGroup: Set<BucketID> = new Set(remaining[0]);
+    remaining.splice(0, 1);
+
+    let i = 0;
+    while (i < remaining.length) {
+      if (remaining[i].some((value) => valuesInCurrentGroup.has(value))) {
+        for (const value of remaining[i]) {
+          valuesInCurrentGroup.add(value);
+        }
+        currentGroup.push(remaining[i]);
+        remaining.splice(i, 1);
+      } else {
+        i++;
       }
     }
+
+    groups.push(currentGroup);
   }
 
-  // Replace values with null, if they are not in their last index
-  for (let i = 0; i < arr.length; i++) {
-    for (let j = 0; j < arr[i].length; j++) {
-      const id = arr[i][j];
-      if (id !== null && lastIndexMap.get(id) !== i) {
-        arr[i][j] = null;
-      }
-    }
-  }
-
-  return arr;
+  return groups;
 }
-
 export function difference<T>(arr1: T[], arr2: T[]): T[] {
   const set2 = new Set(arr2);
   return arr1.filter((item) => !set2.has(item));
@@ -150,23 +120,44 @@ export const getGraphBucketType = (bucketId: BucketID) => {
 export const getFoliationBucketType = (bucketId: BucketID) => {
   return `FOLIATION_${bucketId}`;
 };
-/**
- *
- * @returns can return null, to fill the spots.
- */
-export const getDefaultLayers = (
-  chains: BucketID[][],
-): (BucketID | null)[][] => {
-  const longestChain = getLongestChain(chains) || [];
-  const layers = longestChain.map((_, i) =>
-    getElementsAtIndex(chains, i).filter(Boolean),
-  );
 
-  //remove duplicates between layers
-  const cleanedLayers = deduplicateInnerValues(
-    // remove duplicates from each layer.
-    layers.map((layer) => removeDuplicates(layer)),
-  );
-
-  return cleanedLayers;
+export const findSubarrayIndex = (data: string[][], id: string): number => {
+  for (const subarray of data) {
+    const index = subarray.indexOf(id);
+    if (index !== -1) {
+      return index;
+    }
+  }
+  return -1; // Return -1 if the id is not found in any subarray
 };
+
+export function getTwoLowestUniqueNumbers(arr: number[]): number[] {
+  const uniqueNumbers = Array.from(new Set(arr));
+  const sortedUniqueNumbers = uniqueNumbers.sort((a, b) => a - b);
+  return sortedUniqueNumbers.slice(0, 2);
+}
+// Function to get the first value from each sub-array, deduplicated
+export function getFirstValues(arr: string[][]): string[] {
+  const firstValues: Set<string> = new Set();
+
+  for (const subArr of arr) {
+    if (subArr.length > 0) {
+      firstValues.add(subArr[0]);
+    }
+  }
+
+  return [...firstValues];
+}
+
+// Function to get the last value from each sub-array, deduplicated
+export function getLastValues(arr: string[][]): string[] {
+  const lastValues: Set<string> = new Set();
+
+  for (const subArr of arr) {
+    if (subArr.length > 0) {
+      lastValues.add(subArr[subArr.length - 1]);
+    }
+  }
+
+  return [...lastValues];
+}

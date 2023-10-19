@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
 import { useData } from "./context/data";
-import { Bucket, DraggedTask, DropCollectedProps, TaskState } from "./types";
+import {
+  Bucket as DumpBucket,
+  DraggedTask,
+  DropCollectedProps,
+  TaskState,
+} from "./types";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
-import BucketHeader from "./BucketHeader";
+import Header from "./Header";
 import { getBucketBackgroundColor } from "./common/colors";
 import {
   getClosedBucketType,
@@ -12,11 +17,11 @@ import {
   getTasksByState,
 } from "./context/helper";
 
-interface BucketProps {
-  bucket: Bucket;
+interface DumpBucketProps {
+  bucket: DumpBucket;
 }
 
-const Bucket: React.FC<BucketProps> = (props) => {
+const DumpBucket: React.FC<DumpBucketProps> = (props) => {
   const { bucket } = props;
   const {
     moveTask,
@@ -29,7 +34,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
   } = useData();
 
   const allOtherBuckets = getBuckets().filter(
-    (b: Bucket) => b.id !== bucket.id,
+    (b: DumpBucket) => b.id !== bucket.id,
   );
 
   const open = getTasksByState(bucket, TaskState.OPEN);
@@ -47,7 +52,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const [topCollectedProps, topDropRef] = useDrop(
     {
       accept: [
-        ...allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
+        ...allOtherBuckets.map((b: DumpBucket) => getOpenBucketType(b.id)),
         getClosedBucketType(bucket.id),
       ],
 
@@ -112,7 +117,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   return (
     <div className={`w-full`}>
-      <BucketHeader bucket={bucket} />
+      <Header bucket={bucket} />
       <div
         ref={topDropRef}
         className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${
@@ -161,4 +166,4 @@ const Bucket: React.FC<BucketProps> = (props) => {
   );
 };
 
-export default Bucket;
+export default DumpBucket;
