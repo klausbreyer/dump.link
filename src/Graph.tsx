@@ -71,7 +71,7 @@ const Graph: React.FC<GraphProps> = (props) => {
 
   return (
     <Container>
-      <div className="relative w-full min-h-[800px] parent">
+      <div className="relative w-full min-h-[800px] parent mt-6 ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
             buckets.map((bucket) =>
