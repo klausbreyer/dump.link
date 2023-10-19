@@ -447,7 +447,16 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     // Process each id
     ids.forEach((id) => {
-      const index = findSubarrayIndex(chains, id);
+      const bucket = getBucket(id);
+      let index: number;
+
+      // Use bucket.layer if set, otherwise use findSubarrayIndex
+      if (bucket?.layer !== undefined) {
+        index = bucket.layer;
+      } else {
+        index = findSubarrayIndex(chains, id);
+      }
+
       if (resultMap.has(index)) {
         resultMap.get(index)!.push(id); // Add to the existing array
       } else {
@@ -457,12 +466,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     // Convert the map to an array of arrays
     const resultArray: BucketID[][] = [];
-    const minKey = Math.min(...Array.from(resultMap.keys()));
-    const start = minKey < 0 ? 0 : minKey;
+    const keys = Array.from(resultMap.keys()).sort((a, b) => a - b); // Sorting the keys in ascending order
 
-    for (let i = start; i <= resultMap.size + start - 1; i++) {
-      if (resultMap.has(i - start)) {
-        resultArray.push(resultMap.get(i - start)!);
+    const minKey = keys[0];
+    const maxKey = keys[keys.length - 1];
+
+    for (let i = minKey; i <= maxKey; i++) {
+      if (resultMap.has(i)) {
+        resultArray.push(resultMap.get(i)!);
       } else {
         resultArray.push([]);
       }

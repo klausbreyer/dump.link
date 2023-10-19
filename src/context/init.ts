@@ -54,6 +54,7 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
       : [],
 }));
 
+initialBuckets[2].layer = 2;
 initialBuckets[6].dependencies = [initialBuckets[1].id, initialBuckets[2].id];
 initialBuckets[7].dependencies = [initialBuckets[8].id];
 initialBuckets[10].name = "Chowder";
@@ -76,7 +77,6 @@ initialBuckets[10].name = "Chowder";
 
 const state: State = {
   buckets: initialBuckets,
-  layers: [],
 };
 
 export default state;
