@@ -106,6 +106,8 @@ const Box: React.FC<BoxProps> = (props) => {
     context === "foliation" &&
     (dependingIds.length > 0 || bucket.dependencies.length > 0);
 
+  const showGraphIcon = context === "graph";
+
   return (
     <div
       className={`w-full`}
@@ -146,7 +148,7 @@ const Box: React.FC<BoxProps> = (props) => {
                     <ArrowsUpDownIcon className="block w-5 h-5 " />
                   </div>
                 )}
-                {!showFoliationIcon && (
+                {showGraphIcon && (
                   <div
                     ref={graphDragRef}
                     className="flex items-center justify-between w-full gap-2 cursor-move hover:underline"

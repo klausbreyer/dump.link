@@ -78,7 +78,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
   }, [chains, allBoxesRendered]);
 
   return (
-    <div className="w-full min-h-[800px] ">
+    <div className="w-full ">
       <svg className="absolute top-0 left-0 w-full h-full -z-10">
         {allBoxesRendered &&
           pairs.map((pair: [BucketID, BucketID], i) => {

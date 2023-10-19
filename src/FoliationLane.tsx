@@ -121,7 +121,7 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
     >
       <div
         ref={dropRef}
-        className={` border-2 flex items-center justify-center min-h-[5rem] w-full gap-8 relative
+        className={` border-2 flex-wrap flex items-center justify-center min-h-[5rem] w-full gap-8 relative
         ${dropActive && "border-dashed border-gray-400"}
         ${dropOver && "border-solid border-gray-400"}
         ${!dropActive && !dropOver && "border-solid border-transparent"}

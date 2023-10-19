@@ -53,7 +53,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
 
   return (
     <Container>
-      <div className="relative w-full min-h-[800px] parent">
+      <div className="relative w-full parent">
         <div className="grid w-full grid-cols-2 gap-8">
           {subgraphs.map((subgraph, i) => (
             <FoliationSubgraph chains={subgraph} key={i} />
