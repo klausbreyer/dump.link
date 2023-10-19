@@ -23,15 +23,26 @@ interface FoliationLaneProps extends React.HTMLProps<HTMLDivElement> {
   hoverable: boolean;
   defaultHidden: boolean;
   index?: number;
+  chains: BucketID[][];
 }
 
 const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
-  const { children, index, hoverable, defaultHidden } = props;
-  const { getBucket, getBuckets, updateBucketLayer } = useData();
+  const { children, index, hoverable, defaultHidden, chains } = props;
+  const {
+    getBucket,
+    getBuckets,
+    updateBucketLayer,
+    getLayersForSubgraphChains,
+  } = useData();
   const buckets = getBuckets();
 
   const others = getOtherBuckets(buckets);
 
+  // const layersWithBucketIds = getLayersForSubgraphChains(chains);
+
+  // console.log(index, layersWithBucketIds);
+
+  // a buckets layer index is not allowed to be smaller than the one it is depending on.
   // Lane knows it index.
   // based on a given $something it can find out what boxes can be dropped in this lane.
   // const allowed =
@@ -82,9 +93,6 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
         ${showWhileDragging ? "opacity-100" : "opacity-0"}
       `}
       >
-        <div className="absolute top-0 left-0 font-bold ">
-          {isUnconnected ? "Unconnected" : `Layer ${index + 1}`}
-        </div>
         {children}
       </div>
     </div>

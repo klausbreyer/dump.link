@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import {
-  identifySubgraphs,
+  divideIntoSubsets,
   difference,
   getOtherBuckets,
   uniqueValues,
@@ -31,8 +31,8 @@ const Foliation: React.FC<FoliationProps> = (props) => {
   const buckets = getBuckets();
 
   const allChains = getDependencyChains();
-  const subgraphs = identifySubgraphs(allChains);
 
+  const subgraphs = divideIntoSubsets(allChains);
   const uniquePaired = uniqueValues(allChains);
   const others = getOtherBuckets(buckets);
   const notPaired = difference(
@@ -53,7 +53,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
             <FoliationSubgraph chains={subgraph} key={i} />
           ))}
         </div>
-        <FoliationLane defaultHidden={false} hoverable={false}>
+        <FoliationLane chains={[]} defaultHidden={false} hoverable={false}>
           {notPairedBuckets.map((bucket, j) => (
             <div key={j} className="w-40">
               <Box bucket={bucket} context="foliation" />

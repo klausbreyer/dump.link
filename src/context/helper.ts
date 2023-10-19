@@ -20,34 +20,33 @@ export const getAllPairs = (chains: BucketID[][]): [BucketID, BucketID][] => {
   );
 };
 
-/**
- * Categorize arrays based on their first entry.
- * Arrays with the same first entry will be grouped into a common sub-array.
- *
- * @param input - The input arrays to be categorized.
- * @returns The categorized arrays.
- */
-export function identifySubgraphs(input: BucketID[][]): BucketID[][][] {
-  const categorization: { [key: BucketID]: BucketID[][] } = {};
+export function divideIntoSubsets(input: BucketID[][]): BucketID[][][] {
+  const remaining = [...input];
+  const groups: BucketID[][][] = [];
 
-  // Iterate over each array and categorize them based on their first entry.
-  for (const arr of input) {
-    const key = arr[0];
-    if (!categorization[key]) {
-      categorization[key] = [];
+  while (remaining.length > 0) {
+    const currentGroup: BucketID[][] = [remaining[0]];
+    const valuesInCurrentGroup: Set<BucketID> = new Set(remaining[0]);
+    remaining.splice(0, 1);
+
+    let i = 0;
+    while (i < remaining.length) {
+      if (remaining[i].some((value) => valuesInCurrentGroup.has(value))) {
+        for (const value of remaining[i]) {
+          valuesInCurrentGroup.add(value);
+        }
+        currentGroup.push(remaining[i]);
+        remaining.splice(i, 1);
+      } else {
+        i++;
+      }
     }
-    categorization[key].push(arr);
+
+    groups.push(currentGroup);
   }
 
-  // Convert the categorization object to the final result.
-  const result: BucketID[][][] = [];
-  for (const key in categorization) {
-    result.push(categorization[key]);
-  }
-
-  return result;
+  return groups;
 }
-
 export function difference<T>(arr1: T[], arr2: T[]): T[] {
   const set2 = new Set(arr2);
   return arr1.filter((item) => !set2.has(item));

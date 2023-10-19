@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import {
-  identifySubgraphs,
   difference,
   getAllPairs,
   getFoliationBucketType,
@@ -126,10 +125,16 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
         </defs>
       </svg>
       <div className="flex flex-col ">
-        <FoliationLane defaultHidden={true} index={-1} hoverable />
+        <FoliationLane
+          chains={chains}
+          defaultHidden={true}
+          index={-1}
+          hoverable
+        />
 
         {layersWithBuckets.map((lane, i) => (
           <FoliationLane
+            chains={chains}
             defaultHidden={false}
             index={i}
             hoverable={true}
@@ -144,6 +149,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
         ))}
 
         <FoliationLane
+          chains={chains}
           defaultHidden={true}
           index={layersWithBuckets.length}
           hoverable

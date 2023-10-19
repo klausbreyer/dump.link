@@ -479,7 +479,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     }
 
-    console.log(chains, ids, resultMap, resultArray);
+    // console.log(chains, resultMap, resultArray);
+
     return resultArray;
   };
 
