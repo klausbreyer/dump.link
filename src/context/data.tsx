@@ -483,6 +483,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     return resultArray;
   };
+  type BucketID = string;
+
+  const getLayerForBucketId = (
+    chains: BucketID[][],
+    bucketId: BucketID,
+  ): number => {
+    const layers = getLayersForSubgraphChains(chains);
+
+    for (let i = 0; i < layers.length; i++) {
+      if (layers[i].includes(bucketId)) {
+        return i;
+      }
+    }
+
+    // Return -1 if the bucketId is not found in any layer
+    return -1;
+  };
 
   console.log(state);
 
@@ -507,6 +524,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getBucketsDependingOn,
         getBuckets,
         addBucketDependency,
+        getLayerForBucketId,
         removeBucketDependency,
         getBucketsAvailableFor,
         getDependencyChains: getAllDependencyChains,
@@ -543,6 +561,7 @@ type DataContextType = {
   getDependencyChains: () => BucketID[][];
   updateBucketLayer: (bucketId: BucketID, newLayer: number) => void; // Added this line
   getLayersForSubgraphChains: (chains: BucketID[][]) => BucketID[][];
+  getLayerForBucketId: (chains: BucketID[][], bucketId: BucketID) => number;
 };
 
 export const useData = () => {

@@ -44,7 +44,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         className={`w-full px-1 bg-transparent shadow-md border-b-2 focus:outline-none ${border}
         `}
         placeholder="unnamed"
-        value={bucket?.name}
+        value={bucket?.id}
         onChange={handleChange}
       />
       <button

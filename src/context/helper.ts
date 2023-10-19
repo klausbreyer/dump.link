@@ -130,3 +130,34 @@ export const findSubarrayIndex = (data: string[][], id: string): number => {
   }
   return -1; // Return -1 if the id is not found in any subarray
 };
+
+export function getTwoLowestUniqueNumbers(arr: number[]): number[] {
+  const uniqueNumbers = Array.from(new Set(arr));
+  const sortedUniqueNumbers = uniqueNumbers.sort((a, b) => a - b);
+  return sortedUniqueNumbers.slice(0, 2);
+}
+// Function to get the first value from each sub-array, deduplicated
+export function getFirstValues(arr: string[][]): string[] {
+  const firstValues: Set<string> = new Set();
+
+  for (const subArr of arr) {
+    if (subArr.length > 0) {
+      firstValues.add(subArr[0]);
+    }
+  }
+
+  return [...firstValues];
+}
+
+// Function to get the last value from each sub-array, deduplicated
+export function getLastValues(arr: string[][]): string[] {
+  const lastValues: Set<string> = new Set();
+
+  for (const subArr of arr) {
+    if (subArr.length > 0) {
+      lastValues.add(subArr[subArr.length - 1]);
+    }
+  }
+
+  return [...lastValues];
+}
