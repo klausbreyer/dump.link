@@ -58,6 +58,11 @@ type ActionType =
       type: "UPDATE_BUCKET_LAYER";
       bucketId: BucketID;
       newLayer: number;
+    }
+  | {
+      type: "DELETE_TASK";
+      bucketId: BucketID;
+      taskId: TaskID;
     };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -74,6 +79,19 @@ const dataReducer = (state: State, action: ActionType): State => {
                   ...bucket.tasks,
                   { ...action.task, id: Date.now().toString() },
                 ],
+              }
+            : bucket,
+        ),
+      };
+
+    case "DELETE_TASK":
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? {
+                ...bucket,
+                tasks: bucket.tasks.filter((task) => task.id !== action.taskId),
               }
             : bucket,
         ),
@@ -593,6 +611,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return allowedOnLayers;
   };
 
+  const deleteTask = (bucketId: BucketID, taskId: TaskID) => {
+    dispatch({
+      type: "DELETE_TASK",
+      bucketId,
+      taskId,
+    });
+  };
+
   console.log(state);
 
   return (
@@ -600,6 +626,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       value={{
         state,
         addTask,
+        deleteTask,
         moveTask,
         changeTaskState,
         updateTask,
@@ -659,6 +686,7 @@ type DataContextType = {
     chains: any,
     index: number | undefined,
   ) => BucketID[][];
+  deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
 };
 
 export const useData = () => {

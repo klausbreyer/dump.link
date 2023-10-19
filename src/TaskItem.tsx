@@ -28,6 +28,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     getTaskType,
     getTaskIndex,
     getBucketForTask,
+    deleteTask,
     reorderTask,
     getBuckets,
   } = useData();
@@ -41,6 +42,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       textAreaRef.current.focus();
     }
   }, [task]);
+  const [askedToDelete, setAskedToDelete] = useState(false);
 
   const [{ isDragging }, dragRef, previewRev] = useDrag(
     () => ({
@@ -105,6 +107,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   };
 
   function handleBlur() {
+    // If the task is a new entry and the value is empty, return early.
     if (task === null) {
       if (!dumpBucket) return;
       if (val.length === 0) return;
@@ -112,13 +115,28 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       addTask(dumpBucket?.id, { title: val, state: TaskState.OPEN });
       setVal("");
 
-      // keep focus in this empty field. The new entry will be a new entry. This will stay the input text field.
       setTimeout(() => {
         textAreaRef?.current?.focus();
       }, 100);
       return;
     }
-    updateTask(task.id, { title: val, state: task?.state || TaskState.OPEN });
+
+    // If the value is empty, the task exists, and we haven't asked yet, ask for confirmation to delete.
+    if (val.trim() === "" && task && !askedToDelete) {
+      const isConfirmed = window.confirm(
+        "Are you sure you want to delete this task?",
+      );
+      if (isConfirmed) {
+        deleteTask(getBucketForTask(task)?.id || "", task.id);
+      } else {
+        // Mark that we've asked to delete, so we don't ask again.
+        setAskedToDelete(true);
+      }
+    } else {
+      // Otherwise, update the task and reset the askedToDelete flag.
+      updateTask(task.id, { title: val, state: task?.state || TaskState.OPEN });
+      setAskedToDelete(false);
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
