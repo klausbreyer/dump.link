@@ -1,5 +1,13 @@
 import React, { createContext, useReducer, useContext, useEffect } from "react";
-import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../types";
+import {
+  Bucket,
+  BucketID,
+  Chain,
+  State,
+  Task,
+  TaskID,
+  TaskState,
+} from "../types";
 import initialState from "./init";
 import {
   deduplicateInnerValues,
@@ -89,7 +97,7 @@ type DataContextType = {
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
   getBucketsDependingOn: (dependencyId: BucketID) => BucketID[];
   getBucketsAvailableFor: (givenBucketId: BucketID) => BucketID[];
-  getDependencyChains: () => BucketID[][];
+  getDependencyChains: () => Chain[];
   //@todo: maybe we can get rid of the nulls. i dont know if I need them for positioning.
   getLayers: () => (BucketID | null)[][];
   moveBucketToLayer: (bucketId: BucketID, index: number) => void;
@@ -430,7 +438,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       .map((bucket) => bucket.id); // Extract the bucket IDs
   };
 
-  const getDependencyChainsForBucket = (bucketId: BucketID): BucketID[][] => {
+  const getDependencyChainsForBucket = (bucketId: BucketID): Chain[] => {
     const bucket = state.buckets.find((b) => b.id === bucketId);
     if (!bucket) return [];
 
@@ -439,7 +447,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       return [[bucketId]];
     }
 
-    let chains: BucketID[][] = [];
+    let chains: Chain[] = [];
     for (const dependencyId of bucket.dependencies) {
       const dependencyChains = getDependencyChainsForBucket(dependencyId);
       for (const chain of dependencyChains) {
@@ -452,7 +460,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   // This function retrieves all dependency chains for all buckets.
   const getAllDependencyChains = () => {
-    let allChains: BucketID[][] = [];
+    let allChains: Chain[] = [];
 
     const others = getOtherBuckets(state.buckets);
 

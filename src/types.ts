@@ -26,6 +26,8 @@ export type State = {
   layers: (BucketID | null)[][];
 };
 
+export type Chain = BucketID[];
+
 export type DraggedTask = {
   taskId: TaskID;
 };

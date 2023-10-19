@@ -1,4 +1,4 @@
-import { Bucket, BucketID, Task, TaskState } from "../types";
+import { Bucket, BucketID, Chain, Task, TaskState } from "../types";
 
 /**
  * Given a list of chains, this function returns the longest chain.
@@ -41,6 +41,33 @@ export const getAllPairs = (chains: BucketID[][]): [BucketID, BucketID][] => {
     (pair) => pair.split(",") as [BucketID, BucketID],
   );
 };
+/**
+ * Categorize arrays based on their first entry.
+ * Arrays with the same first entry will be grouped into a common sub-array.
+ *
+ * @param input - The input arrays to be categorized.
+ * @returns The categorized arrays.
+ */
+export function categorizeByFirstEntry(input: Chain[]): Chain[][] {
+  const categorization: { [key: BucketID]: Chain[] } = {};
+
+  // Iterate over each array and categorize them based on their first entry.
+  for (const arr of input) {
+    const key = arr[0];
+    if (!categorization[key]) {
+      categorization[key] = [];
+    }
+    categorization[key].push(arr);
+  }
+
+  // Convert the categorization object to the final result.
+  const result: Chain[][] = [];
+  for (const key in categorization) {
+    result.push(categorization[key]);
+  }
+
+  return result;
+}
 
 /**
  * Deduplicates inner values of a two-dimensional array. For each unique BucketID in the sub-arrays,
@@ -150,13 +177,12 @@ export const getGraphBucketType = (bucketId: BucketID) => {
 export const getFoliationBucketType = (bucketId: BucketID) => {
   return `FOLIATION_${bucketId}`;
 };
+
 /**
  *
  * @returns can return null, to fill the spots.
  */
-export const getDefaultLayers = (
-  chains: BucketID[][],
-): (BucketID | null)[][] => {
+export const getDefaultLayers = (chains: Chain[]): (BucketID | null)[][] => {
   const longestChain = getLongestChain(chains) || [];
   const layers = longestChain.map((_, i) =>
     getElementsAtIndex(chains, i).filter(Boolean),
