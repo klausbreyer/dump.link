@@ -3,7 +3,7 @@ import Container from "./common/Container";
 import Box from "./Box";
 import { useData } from "./context/data";
 import { Bucket, BucketID } from "./types";
-import Foliation from "./Foliation";
+import FoliationLane from "./Foliation";
 import { getOtherBuckets } from "./context/helper";
 
 interface GraphProps {}

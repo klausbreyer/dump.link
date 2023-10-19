@@ -24,14 +24,14 @@ import {
 import { useDrop } from "react-dnd";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 
-interface LaneProps extends React.HTMLProps<HTMLDivElement> {
+interface FoliationLaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
   hoverable: boolean;
   defaultHidden: boolean;
   index?: number;
 }
 
-const Lane: React.FC<LaneProps> = (props) => {
+const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
   const { getBucket, getBuckets, moveBucketToLayer } = useData();
   const buckets = getBuckets();
@@ -92,4 +92,4 @@ const Lane: React.FC<LaneProps> = (props) => {
     </div>
   );
 };
-export default Lane;
+export default FoliationLane;

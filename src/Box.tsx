@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { useData } from "./context/data";
 import { getBucketBackgroundColor, getHeaderTextColor } from "./common/colors";
-import BucketHeader from "./BucketHeader";
+import Header from "./Header";
 import {
   ArrowRightIcon,
   ArrowsUpDownIcon,
@@ -108,7 +108,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
   return (
     <div className={`w-full`} ref={graphPreviewRev}>
-      <BucketHeader bucket={bucket} />
+      <Header bucket={bucket} />
       <div className={`min-h-[2rem] ${bgTop} `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (
