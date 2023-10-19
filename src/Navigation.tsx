@@ -24,19 +24,19 @@ const steps: Step[] = [
   },
   {
     id: "dump",
-    name: "Dump & Affinitize",
+    name: "Grouping",
     icon: <ArrowsPointingOutIcon className="w-6 h-6 text-slate-600" />,
   },
   {
     id: "graph",
-    name: "Directed Acyclic Graph",
+    name: "Sequencing",
     icon: (
       <ArrowLeftOnRectangleIcon className="w-6 h-6 -rotate-90 text-slate-600" />
     ),
   },
   {
     id: "foliation",
-    name: "Foliation",
+    name: "Ordering",
     icon: <ChartBarIcon className="w-6 h-6 rotate-90 text-slate-600 " />,
   },
 ];
