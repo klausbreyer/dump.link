@@ -5,7 +5,7 @@ import Container from "./common/Container";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import { getDumpBucket, getOtherBuckets } from "./context/helper";
-import DumpBucket from "./DumpBucket";
+import Bucket from "./Bucket";
 
 interface DumpProps {
   // [key: string]: any;
@@ -32,12 +32,12 @@ const Dump: React.FC<DumpProps> = (props) => {
         <div className="grid grid-cols-2 col-span-2 gap-4 ">
           <FlexCol>
             {others.slice(0, 5).map((bucket) => (
-              <DumpBucket bucket={bucket} key={bucket.id} />
+              <Bucket bucket={bucket} key={bucket.id} />
             ))}
           </FlexCol>
           <FlexCol>
             {others.slice(-5).map((bucket) => (
-              <DumpBucket bucket={bucket} key={bucket.id} />
+              <Bucket bucket={bucket} key={bucket.id} />
             ))}
           </FlexCol>
         </div>

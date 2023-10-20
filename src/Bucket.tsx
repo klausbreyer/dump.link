@@ -17,15 +17,15 @@ import TaskItem from "./TaskItem";
 import {
   DraggedTask,
   DropCollectedProps,
-  Bucket as DumpBucket,
+  Bucket as Bucket,
   TaskState,
 } from "./types";
 
-interface DumpBucketProps {
-  bucket: DumpBucket;
+interface BucketProps {
+  bucket: Bucket;
 }
 
-const DumpBucket: React.FC<DumpBucketProps> = (props) => {
+const Bucket: React.FC<BucketProps> = (props) => {
   const { bucket } = props;
   const {
     moveTask,
@@ -38,7 +38,7 @@ const DumpBucket: React.FC<DumpBucketProps> = (props) => {
   } = useData();
 
   const allOtherBuckets = getBuckets().filter(
-    (b: DumpBucket) => b.id !== bucket.id,
+    (b: Bucket) => b.id !== bucket.id,
   );
 
   const open = getTasksByState(bucket, TaskState.OPEN);
@@ -55,11 +55,11 @@ const DumpBucket: React.FC<DumpBucketProps> = (props) => {
 
   const [topCollectedProps, topDropRef] = useDrop(
     {
+      // accepts tasks from all others and from this self bucket, if it is from done.
       accept: [
-        ...allOtherBuckets.map((b: DumpBucket) => getOpenBucketType(b.id)),
-        getClosedBucketType(bucket.id),
+        ...allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
+        bucket.active ? getClosedBucketType(bucket.id) : "NO_OP",
       ],
-
       drop: (item: DraggedTask) => {
         const taskId = item.taskId;
         const task = getTask(taskId);
@@ -98,7 +98,7 @@ const DumpBucket: React.FC<DumpBucketProps> = (props) => {
 
   const [bottomCollectedProps, bottomDropRef] = useDrop(
     {
-      accept: [getOpenBucketType(bucket.id)],
+      accept: bucket.active ? getOpenBucketType(bucket.id) : [],
 
       drop: (item: DraggedTask) => {
         // only allow dropping if the task is already in this bucket but in another state.
@@ -170,4 +170,4 @@ const DumpBucket: React.FC<DumpBucketProps> = (props) => {
   );
 };
 
-export default DumpBucket;
+export default Bucket;
