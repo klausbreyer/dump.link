@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer } from "react";
+import React, { createContext, useContext, useEffect, useReducer } from "react";
 
 import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../types";
 import {
@@ -11,6 +11,7 @@ import {
   uniqueValues,
 } from "./helper";
 import initialState from "./init";
+import { loadFromLocalStorage, saveToLocalStorage } from "./storage";
 
 type ActionType =
   | { type: "ADD_TASK"; bucketId: BucketID; task: Omit<Task, "id"> }
@@ -267,7 +268,15 @@ type DataProviderProps = {
 };
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-  const [state, dispatch] = useReducer(dataReducer, initialState);
+  const persistedState = loadFromLocalStorage();
+  const [state, dispatch] = useReducer(
+    dataReducer,
+    persistedState || initialState,
+  );
+
+  useEffect(() => {
+    saveToLocalStorage(state);
+  }, [state]);
 
   const addTask = (bucketId: BucketID, task: Omit<Task, "id">) => {
     dispatch({
