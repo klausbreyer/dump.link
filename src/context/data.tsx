@@ -1,14 +1,11 @@
-import React, { createContext, useReducer, useContext, useEffect } from "react";
-import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../types";
-import initialState from "./init";
+import React, { createContext, useContext, useReducer } from 'react';
+
+import { Bucket, BucketID, State, Task, TaskID, TaskState } from '../types';
 import {
-  findSubarrayIndex,
-  getClosedBucketType,
-  getOpenBucketType,
-  getOtherBuckets,
-  hasCyclicDependencyWithBucket,
-  uniqueValues,
-} from "./helper";
+    divideIntoSubsets, findSubarrayIndex, getClosedBucketType, getOpenBucketType, getOtherBuckets,
+    hasCyclicDependencyWithBucket, uniqueValues
+} from './helper';
+import initialState from './init';
 
 type ActionType =
   | { type: "ADD_TASK"; bucketId: BucketID; task: Omit<Task, "id"> }
@@ -502,11 +499,21 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return resultArray;
   };
 
-  const getLayerForBucketId = (
-    chains: BucketID[][],
-    bucketId: BucketID,
-  ): number => {
-    const layers = getLayersForSubgraphChains(chains);
+  const getSubGraphForBucketId = (bucketId: BucketID): BucketID[][] => {
+    const allChains = getAllDependencyChains();
+
+    const subgraphs = divideIntoSubsets(allChains);
+    const index = subgraphs.findIndex(
+      (subgraph) => findSubarrayIndex(subgraph, bucketId) !== -1,
+    );
+    return subgraphs[index] ?? [];
+  };
+
+  const getLayerForBucketId = (bucketId: BucketID): number => {
+    const subgraph = getSubGraphForBucketId(bucketId);
+    console.log(subgraph);
+
+    const layers = getLayersForSubgraphChains(subgraph);
 
     for (let i = 0; i < layers.length; i++) {
       if (layers[i].includes(bucketId)) {
@@ -516,6 +523,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     // Return -1 if the bucketId is not found in any layer
     return -1;
+  };
+
+  const getLayersForBucketId = (bucketId: BucketID): BucketID[][] => {
+    const subgraph = getSubGraphForBucketId(bucketId);
+    const layers = getLayersForSubgraphChains(subgraph);
+    return layers;
   };
 
   const getAllowedBucketsByLayer = (
@@ -531,7 +544,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       chains: any,
       bucketIds: BucketID[],
     ): number[] => {
-      return bucketIds.map((id) => getLayerForBucketId(chains, id));
+      return bucketIds.map((id) => getLayerForBucketId(id));
     };
 
     const updateLookup = (
@@ -573,7 +586,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
         if (!res) continue;
         const [min, max] = res;
-        const currentLayer = getLayerForBucketId(chains, id);
+        const currentLayer = getLayerForBucketId(id);
 
         if (
           currentLayer !== layerIndex &&
@@ -635,6 +648,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getBucket,
         getTask,
         getBucketForTask,
+        getLayersForBucketId,
         getTaskIndex,
         getLayersForSubgraphChains,
         reorderTask,
@@ -645,6 +659,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getBucketsDependingOn,
         getBuckets,
         getAllowedBucketsByLayer,
+        getSubGraphForBucketId,
         addBucketDependency,
         getLayerForBucketId,
         removeBucketDependency,
@@ -683,12 +698,14 @@ type DataContextType = {
   getDependencyChains: () => BucketID[][];
   updateBucketLayer: (bucketId: BucketID, newLayer: number) => void; // Added this line
   getLayersForSubgraphChains: (chains: BucketID[][]) => BucketID[][];
-  getLayerForBucketId: (chains: BucketID[][], bucketId: BucketID) => number;
+  getLayersForBucketId: (bucketId: BucketID) => BucketID[][];
+  getLayerForBucketId: (bucketId: BucketID) => number;
   getAllowedBucketsByLayer: (
     chains: any,
     index: number | undefined,
   ) => BucketID[][];
   deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
+  getSubGraphForBucketId: (bucketId: BucketID) => BucketID[][];
 };
 
 export const useData = () => {

@@ -1,18 +1,13 @@
-import React, {
-  ChangeEvent,
-  KeyboardEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { Bars2Icon } from "@heroicons/react/24/solid";
-import { useData } from "./context/data";
-import { useDrag, useDrop } from "react-dnd";
-import { DraggedTask, DraggingType, TaskState } from "./types";
+import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { useDrag, useDrop } from 'react-dnd';
 
-import { Task } from "./types";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
-import { getDumpBucket } from "./context/helper";
+import { Bars2Icon } from '@heroicons/react/24/solid';
+
+import { useData } from './context/data';
+import { getDumpBucket } from './context/helper';
+import { useGlobalDragging } from './hooks/useGlobalDragging';
+import { DraggedTask, DraggingType, Task, TaskState } from './types';
+
 interface TaskItemProps {
   task: Task | null;
 }

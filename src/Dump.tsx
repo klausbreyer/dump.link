@@ -1,10 +1,11 @@
-import React from "react";
-import Area from "./Area";
-import DumpBucket from "./DumpBucket";
-import FlexCol from "./common/FlexCol";
-import Container from "./common/Container";
-import { useData } from "./context/data";
-import { getDumpBucket, getOtherBuckets } from "./context/helper";
+import React from 'react';
+
+import Area from './Area';
+import Container from './common/Container';
+import FlexCol from './common/FlexCol';
+import { useData } from './context/data';
+import { getDumpBucket, getOtherBuckets } from './context/helper';
+import DumpBucket from './DumpBucket';
 
 interface DumpProps {
   // [key: string]: any;

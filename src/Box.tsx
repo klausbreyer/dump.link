@@ -1,55 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { useDrag, useDrop } from "react-dnd";
-import { useData } from "./context/data";
-import { getBucketBackgroundColor, getHeaderTextColor } from "./common/colors";
-import Header from "./Header";
+import React, { useEffect } from 'react';
+import { useDrag, useDrop } from 'react-dnd';
+
 import {
-  ArrowRightIcon,
-  ArrowsUpDownIcon,
-  Bars2Icon,
-  ExclamationTriangleIcon,
-  LinkIcon,
-  PlusIcon,
-  XCircleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import {
-  Bucket,
-  BucketID,
-  DraggedBucket,
-  DraggingType,
-  DropCollectedProps,
-} from "./types";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
-import { ArrowIcon } from "./common/icons";
-import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
+    ArrowsUpDownIcon, ExclamationTriangleIcon, LinkIcon, XMarkIcon
+} from '@heroicons/react/24/outline';
+
+import { getBucketBackgroundColor, getHeaderTextColor } from './common/colors';
+import { ArrowIcon } from './common/icons';
+import { useData } from './context/data';
+import { getFoliationBucketType, getGraphBucketType } from './context/helper';
+import Header from './Header';
+import { useGlobalDragging } from './hooks/useGlobalDragging';
+import { Bucket, DraggedBucket, DraggingType, DropCollectedProps } from './types';
 
 interface BoxProps {
   bucket: Bucket;
   context: "graph" | "foliation" | "disabled";
-
-  chains: BucketID[][]; //@todo: ugly. this needs to be provided by data context.
 }
 
 const Box: React.FC<BoxProps> = (props) => {
-  const { bucket, context, chains } = props;
+  const { bucket, context } = props;
   const {
     removeBucketDependency,
     getBucket,
     addBucketDependency,
     getBucketsAvailableFor,
     getBucketsDependingOn,
-    getLayersForSubgraphChains,
+    getLayersForBucketId,
     getLayerForBucketId,
   } = useData();
 
   const availbleIds = getBucketsAvailableFor(bucket.id);
-
-  const layersWithBucketIds = getLayersForSubgraphChains(chains);
-  const ownLayer = getLayerForBucketId(chains, bucket.id);
-
+  const layersWithBucketIds = getLayersForBucketId(bucket.id);
+  const ownLayer = getLayerForBucketId(bucket.id);
   const ownLayerSize = layersWithBucketIds?.[ownLayer]?.length ?? 0;
-
   const dependingIds = getBucketsDependingOn(bucket.id);
 
   const [collectedProps, dropRef] = useDrop(

@@ -1,21 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useDrop } from "react-dnd";
-import { useData } from "./context/data";
-import {
-  Bucket as DumpBucket,
-  DraggedTask,
-  DropCollectedProps,
-  TaskState,
-} from "./types";
-import TaskItem from "./TaskItem";
-import CardList from "./common/CardList";
-import Header from "./Header";
-import { getBucketBackgroundColor } from "./common/colors";
-import {
-  getClosedBucketType,
-  getOpenBucketType,
-  getTasksByState,
-} from "./context/helper";
+import React, { useEffect, useState } from 'react';
+import { useDrop } from 'react-dnd';
+
+import CardList from './common/CardList';
+import { getBucketBackgroundColor } from './common/colors';
+import { useData } from './context/data';
+import { getClosedBucketType, getOpenBucketType, getTasksByState } from './context/helper';
+import Header from './Header';
+import TaskItem from './TaskItem';
+import { Bucket as DumpBucket, DraggedTask, DropCollectedProps, TaskState } from './types';
 
 interface DumpBucketProps {
   bucket: DumpBucket;

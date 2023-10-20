@@ -1,15 +1,15 @@
-import React from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { createRoot } from "react-dom/client";
-import Dump from "./Dump";
-import { DataProvider } from "./context/data";
-import Navigation from "./Navigation";
-import { useHashChange } from "./hooks/useHashChange"; // Import the custom hook
-import Settings from "./Settings";
-import Graph from "./Graph";
-import Foliation from "./Foliation";
-import { GlobalDraggingProvider } from "./hooks/useGlobalDragging";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { createRoot } from 'react-dom/client';
+
+import { DataProvider } from './context/data';
+import Dump from './Dump';
+import Foliation from './Foliation';
+import Graph from './Graph';
+import { GlobalDraggingProvider } from './hooks/useGlobalDragging';
+import { useHashChange } from './hooks/useHashChange'; // Import the custom hook
+import Navigation from './Navigation';
+import Settings from './Settings';
 
 const App = function App() {
   const currentHash = useHashChange();

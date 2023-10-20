@@ -1,26 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import FlexCol from "./common/FlexCol";
-import { useData } from "./context/data";
-import {
-  difference,
-  getAllPairs,
-  getFoliationBucketType,
-  getOtherBuckets,
-  uniqueValues,
-} from "./context/helper";
-import Container from "./common/Container";
-import Box from "./Box";
-import {
-  Bucket,
-  BucketID,
-  DraggedBucket,
-  DraggingType,
-  DropCollectedProps,
-} from "./types";
-import { getBorderCenterCoordinates, shortenLineEnd } from "./Graph";
-import { useDrop } from "react-dnd";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
-import FoliationLane from "./FoliationLane";
+import React, { useEffect, useRef, useState } from 'react';
+
+import Box from './Box';
+import { useData } from './context/data';
+import { getAllPairs, uniqueValues } from './context/helper';
+import FoliationLane from './FoliationLane';
+import { getBorderCenterCoordinates, shortenLineEnd } from './Graph';
+import { Bucket, BucketID } from './types';
 
 interface FoliationSubgraphProps {
   chains: BucketID[][];
@@ -135,7 +120,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
           >
             {lane.map((bucket, j) => (
               <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
-                <Box chains={chains} bucket={bucket} context={"foliation"} />
+                <Box bucket={bucket} context={"foliation"} />
               </div>
             ))}
           </FoliationLane>

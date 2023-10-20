@@ -1,25 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import FlexCol from "./common/FlexCol";
-import { useData } from "./context/data";
+import React from 'react';
+import { useDrop } from 'react-dnd';
+
+import { useData } from './context/data';
 import {
-  getFirstValues,
-  getFoliationBucketType,
-  getLastValues,
-  getOtherBuckets,
-  getTwoLowestUniqueNumbers,
-  uniqueValues,
-} from "./context/helper";
-import Container from "./common/Container";
-import Box from "./Box";
-import {
-  Bucket,
-  BucketID,
-  DraggedBucket,
-  DraggingType,
-  DropCollectedProps,
-} from "./types";
-import { useDrop } from "react-dnd";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
+    getFirstValues, getFoliationBucketType, getLastValues, getOtherBuckets
+} from './context/helper';
+import { useGlobalDragging } from './hooks/useGlobalDragging';
+import { BucketID, DraggedBucket, DraggingType, DropCollectedProps } from './types';
 
 interface FoliationLaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
@@ -36,8 +23,6 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
     getBuckets,
     updateBucketLayer,
     getLayersForSubgraphChains,
-    getLayerForBucketId,
-    getBucketsDependingOn,
     getAllowedBucketsByLayer,
   } = useData();
   const buckets = getBuckets();
@@ -85,35 +70,8 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
         if (!bucket) return;
         if (index === null || index === undefined) return;
 
-        const old = getLayerForBucketId(chains, bucket.id);
+        console.log("drop", bucket.id, index);
 
-        console.log("drop", bucket.id, old, index);
-
-        const lengthOfOldLayer = layersWithBucketIds?.[old]?.length;
-        console.log(layersWithBucketIds, "lengthOfOldLayer", lengthOfOldLayer);
-
-        const lengthOfNewLayer = layersWithBucketIds?.[index]?.length;
-        console.log(layersWithBucketIds, "lengthOfNewLayer", lengthOfNewLayer);
-
-        let layersToRemove = 0;
-        // for (const layer of layersWithBucketIds) {
-        //   if (layer.length === 0) {
-        //     countEmptyLayersInbetween++;
-        //   }
-        // }
-
-        if (lengthOfOldLayer === 1) {
-          layersToRemove++;
-        }
-
-        console.log("layersToRemove", layersToRemove);
-
-        let updated = index;
-        if (old === 0) {
-          console.log("CORRECT", layersToRemove);
-
-          updated = updated - layersToRemove;
-        }
         updateBucketLayer(bucket.id, index);
       },
       collect: (monitor) => ({
@@ -128,7 +86,6 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
       updateBucketLayer,
       layersWithBucketIds,
       getAccept,
-      getLayerForBucketId,
       allowedOnLayers,
     ],
   );

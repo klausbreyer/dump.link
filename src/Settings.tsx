@@ -1,5 +1,4 @@
-import React from "react";
-import FlexCol from "./common/FlexCol";
+import React from 'react';
 
 interface SettingsProps {
   // [key: string]: any;

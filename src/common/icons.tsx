@@ -1,4 +1,4 @@
-import React, { SVGProps } from "react";
+import React, { SVGProps } from 'react';
 
 export const ArrowIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
   return (

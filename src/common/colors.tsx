@@ -1,5 +1,5 @@
-import { getTasksByState } from "../context/helper";
-import { Bucket, TaskState } from "../types";
+import { getTasksByState } from '../context/helper';
+import { Bucket, TaskState } from '../types';
 
 // Hilfsfunktion, die den Status des Eimers bestimmt
 function getBucketStatus(
