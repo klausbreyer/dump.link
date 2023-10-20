@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import { Tab } from '@headlessui/react';
+import { Tab } from "@headlessui/react";
 import {
-    ArrowLeftOnRectangleIcon, ArrowsPointingOutIcon, ChartBarIcon, CogIcon
-} from '@heroicons/react/24/solid';
+  ArrowLeftOnRectangleIcon,
+  ArrowsPointingOutIcon,
+  ChartBarIcon,
+  CogIcon,
+} from "@heroicons/react/24/solid";
 
-import Container from './common/Container';
+import Container from "./common/Container";
 
 interface Step {
   id: string;

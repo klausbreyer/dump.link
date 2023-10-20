@@ -1,16 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useDrop } from 'react-dnd';
+import React from "react";
 
-import Box from './Box';
-import Container from './common/Container';
-import FlexCol from './common/FlexCol';
-import { useData } from './context/data';
-import { difference, divideIntoSubsets, getOtherBuckets, uniqueValues } from './context/helper';
-import FoliationLane from './FoliationLane';
-import FoliationSubgraph from './FoliationSubgraph';
-import { getBorderCenterCoordinates, shortenLineEnd } from './Graph';
-import { useGlobalDragging } from './hooks/useGlobalDragging';
-import { Bucket, BucketID, DraggedBucket, DraggingType, DropCollectedProps } from './types';
+import Box from "./Box";
+import Container from "./common/Container";
+import { useData } from "./context/data";
+import {
+  difference,
+  divideIntoSubsets,
+  getOtherBuckets,
+  uniqueValues,
+} from "./context/helper";
+import FoliationLane from "./FoliationLane";
+import FoliationSubgraph from "./FoliationSubgraph";
+import { Bucket, BucketID } from "./types";
 
 interface FoliationProps {
   // [key: string]: any;
@@ -30,21 +31,23 @@ const Foliation: React.FC<FoliationProps> = (props) => {
     uniquePaired,
   );
 
-  // console.dir(
-  //   uniquePaired.map(
-  //     (id) => `${id} -> ${getBucket(id)?.id} , ${getBucket(id)?.layer}`,
-  //   ),
-  // );
-
   const notPairedBuckets = notPaired
     .filter((id): id is BucketID => id !== null)
     .map((id) => getBucket(id))
     .filter((bucket): bucket is Bucket => bucket !== undefined);
 
+  function gridCols(n: number) {
+    if (n === 1) return "grid-cols-1";
+    if (n === 2) return "grid-cols-2";
+    if (n === 3) return "grid-cols-3";
+    if (n === 4) return "grid-cols-4";
+    if (n === 5) return "grid-cols-5";
+  }
+
   return (
     <Container>
       <div className="relative w-full parent">
-        <div className="grid w-full grid-cols-2 gap-8">
+        <div className={`grid w-full gap-8 ${gridCols(subgraphs.length)}`}>
           {subgraphs.map((subgraph, i) => (
             <FoliationSubgraph chains={subgraph} key={i} />
           ))}

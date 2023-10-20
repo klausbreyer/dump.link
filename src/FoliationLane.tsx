@@ -1,12 +1,20 @@
-import React from 'react';
-import { useDrop } from 'react-dnd';
+import React from "react";
+import { useDrop } from "react-dnd";
 
-import { useData } from './context/data';
+import { useData } from "./context/data";
 import {
-    getFirstValues, getFoliationBucketType, getLastValues, getOtherBuckets
-} from './context/helper';
-import { useGlobalDragging } from './hooks/useGlobalDragging';
-import { BucketID, DraggedBucket, DraggingType, DropCollectedProps } from './types';
+  getFirstValues,
+  getFoliationBucketType,
+  getLastValues,
+  getOtherBuckets,
+} from "./context/helper";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import {
+  BucketID,
+  DraggedBucket,
+  DraggingType,
+  DropCollectedProps,
+} from "./types";
 
 interface FoliationLaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
@@ -101,20 +109,19 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
 
   return (
     <div
-      className={`p-4 border-b border-black border-solid
+      className={`p-4 [&:not(:last-child)]:border-b border-black border-solid
       ${isUnconnected && "bg-slate-100"}
     `}
     >
       <div
         ref={dropRef}
-        className={` border-2 flex-wrap flex items-center justify-center min-h-[5rem] w-full gap-8 relative
+        className={`border-2 flex-wrap flex items-center justify-center min-h-[5rem] w-full gap-8 relative
         ${dropActive && "border-dashed border-gray-400"}
         ${dropOver && "border-solid border-gray-400"}
         ${!dropActive && !dropOver && "border-solid border-transparent"}
         ${showWhileDragging ? "opacity-100" : "opacity-0"}
       `}
       >
-        <div>{index}</div>
         {children}
       </div>
     </div>

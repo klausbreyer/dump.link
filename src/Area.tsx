@@ -1,11 +1,11 @@
-import React from 'react';
-import { useDrop } from 'react-dnd';
+import React from "react";
+import { useDrop } from "react-dnd";
 
-import CardList from './common/CardList';
-import { useData } from './context/data';
-import { getOpenBucketType } from './context/helper';
-import TaskItem from './TaskItem';
-import { Bucket, DraggedTask, DropCollectedProps } from './types';
+import CardList from "./common/CardList";
+import { useData } from "./context/data";
+import { getOpenBucketType } from "./context/helper";
+import TaskItem from "./TaskItem";
+import { Bucket, DraggedTask, DropCollectedProps } from "./types";
 
 export interface AreaProps {
   bucket: Bucket;

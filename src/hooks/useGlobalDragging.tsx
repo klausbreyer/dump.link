@@ -1,6 +1,6 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
-import { DraggingType } from '../types';
+import { DraggingType } from "../types";
 
 interface GlobalDraggingProviderProps {
   children: ReactNode;

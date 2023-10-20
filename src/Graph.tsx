@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 
-import Box from './Box';
-import Container from './common/Container';
-import { useData } from './context/data';
-import { getOtherBuckets } from './context/helper';
-import { BucketID } from './types';
+import Box from "./Box";
+import Container from "./common/Container";
+import { useData } from "./context/data";
+import { getOtherBuckets } from "./context/helper";
+import { BucketID } from "./types";
 
 interface GraphProps {}
 

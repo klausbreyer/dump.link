@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 
-import Box from './Box';
-import { useData } from './context/data';
-import { getAllPairs, uniqueValues } from './context/helper';
-import FoliationLane from './FoliationLane';
-import { getBorderCenterCoordinates, shortenLineEnd } from './Graph';
-import { Bucket, BucketID } from './types';
+import Box from "./Box";
+import { useData } from "./context/data";
+import { getAllPairs, uniqueValues } from "./context/helper";
+import FoliationLane from "./FoliationLane";
+import { getBorderCenterCoordinates, shortenLineEnd } from "./Graph";
+import { Bucket, BucketID } from "./types";
 
 interface FoliationSubgraphProps {
   chains: BucketID[][];

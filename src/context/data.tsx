@@ -1,11 +1,16 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer } from "react";
 
-import { Bucket, BucketID, State, Task, TaskID, TaskState } from '../types';
+import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../types";
 import {
-    divideIntoSubsets, findSubarrayIndex, getClosedBucketType, getOpenBucketType, getOtherBuckets,
-    hasCyclicDependencyWithBucket, uniqueValues
-} from './helper';
-import initialState from './init';
+  divideIntoSubsets,
+  findSubarrayIndex,
+  getClosedBucketType,
+  getOpenBucketType,
+  getOtherBuckets,
+  hasCyclicDependencyWithBucket,
+  uniqueValues,
+} from "./helper";
+import initialState from "./init";
 
 type ActionType =
   | { type: "ADD_TASK"; bucketId: BucketID; task: Omit<Task, "id"> }

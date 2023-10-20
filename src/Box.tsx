@@ -1,17 +1,25 @@
-import React, { useEffect } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import React, { useEffect } from "react";
+import { useDrag, useDrop } from "react-dnd";
 
 import {
-    ArrowsUpDownIcon, ExclamationTriangleIcon, LinkIcon, XMarkIcon
-} from '@heroicons/react/24/outline';
+  ArrowsUpDownIcon,
+  ExclamationTriangleIcon,
+  LinkIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
-import { getBucketBackgroundColor, getHeaderTextColor } from './common/colors';
-import { ArrowIcon } from './common/icons';
-import { useData } from './context/data';
-import { getFoliationBucketType, getGraphBucketType } from './context/helper';
-import Header from './Header';
-import { useGlobalDragging } from './hooks/useGlobalDragging';
-import { Bucket, DraggedBucket, DraggingType, DropCollectedProps } from './types';
+import { getBucketBackgroundColor, getHeaderTextColor } from "./common/colors";
+import { ArrowIcon } from "./common/icons";
+import { useData } from "./context/data";
+import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
+import Header from "./Header";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import {
+  Bucket,
+  DraggedBucket,
+  DraggingType,
+  DropCollectedProps,
+} from "./types";
 
 interface BoxProps {
   bucket: Bucket;

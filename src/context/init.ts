@@ -1,6 +1,6 @@
-import { randomBytes } from 'crypto';
+import { randomBytes } from "crypto";
 
-import { Bucket, State, TaskState } from '../types';
+import { Bucket, State, TaskState } from "../types";
 
 // NewID generates a random base-58 ID.
 function NewID(): string {
