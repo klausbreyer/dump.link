@@ -21,6 +21,7 @@ let initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
   dependencies: [],
   flagged: index === 6,
   dump: index === 0,
+  active: false,
   tasks:
     index === 0
       ? [

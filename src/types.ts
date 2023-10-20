@@ -15,6 +15,7 @@ export type Task = {
 export type Bucket = {
   id: BucketID;
   name: string;
+  active: boolean;
   dump: boolean;
   layer?: number; //overwrite layer. only write when moved. then it keeps this position, no matter what.
   tasks: Task[];

@@ -65,6 +65,11 @@ type ActionType =
       type: "DELETE_TASK";
       bucketId: BucketID;
       taskId: TaskID;
+    }
+  | {
+      type: "SET_BUCKET_ACTIVE";
+      bucketId: BucketID;
+      active: boolean;
     };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -238,6 +243,16 @@ const dataReducer = (state: State, action: ActionType): State => {
         buckets: state.buckets.map((bucket) =>
           bucket.id === action.bucketId
             ? { ...bucket, layer: action.newLayer }
+            : bucket,
+        ),
+      };
+
+    case "SET_BUCKET_ACTIVE":
+      return {
+        ...state,
+        buckets: state.buckets.map((bucket) =>
+          bucket.id === action.bucketId
+            ? { ...bucket, active: action.active }
             : bucket,
         ),
       };
@@ -631,6 +646,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return allowedOnLayers;
   };
 
+  const setBucketActive = (bucketId: BucketID, active: boolean) => {
+    dispatch({
+      type: "SET_BUCKET_ACTIVE",
+      bucketId: bucketId,
+      active: active,
+    });
+  };
+
   const deleteTask = (bucketId: BucketID, taskId: TaskID) => {
     dispatch({
       type: "DELETE_TASK",
@@ -668,6 +691,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         addBucketDependency,
         getLayerForBucketId,
         removeBucketDependency,
+        setBucketActive,
         getBucketsAvailableFor,
         getDependencyChains: getAllDependencyChains,
       }}
@@ -701,7 +725,7 @@ type DataContextType = {
   getBucketsDependingOn: (dependencyId: BucketID) => BucketID[];
   getBucketsAvailableFor: (givenBucketId: BucketID) => BucketID[];
   getDependencyChains: () => BucketID[][];
-  updateBucketLayer: (bucketId: BucketID, newLayer: number) => void; // Added this line
+  updateBucketLayer: (bucketId: BucketID, newLayer: number) => void;
   getLayersForSubgraphChains: (chains: BucketID[][]) => BucketID[][];
   getLayersForBucketId: (bucketId: BucketID) => BucketID[][];
   getLayerForBucketId: (bucketId: BucketID) => number;
@@ -711,6 +735,7 @@ type DataContextType = {
   ) => BucketID[][];
   deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
   getSubGraphForBucketId: (bucketId: BucketID) => BucketID[][];
+  setBucketActive: (bucketId: BucketID, active: boolean) => void;
 };
 
 export const useData = () => {
