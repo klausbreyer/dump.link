@@ -1,80 +1,85 @@
-import { getTasksByState } from "../context/helper";
-import { Bucket, TaskState } from "../types";
+import { getBucketState, getTasksByState } from "../context/helper";
+import { Bucket, TaskState, BucketState } from "../types";
 
-// Hilfsfunktion, die den Status des Eimers bestimmt
-function getBucketStatus(
-  bucket: Bucket | undefined,
-): "flagged" | "open" | "closed" | "empty" {
-  if (bucket?.flagged) {
-    return "flagged";
+export function getHeaderBorderColor(bucket: Bucket): string {
+  if (bucket.flagged) {
+    return "border-rose-500 focus:border-rose-800 hover:border-rose-800";
   }
-
-  const openCount = getTasksByState(bucket, TaskState.OPEN).length;
-  const closedCount = getTasksByState(bucket, TaskState.CLOSED).length;
-
-  if (openCount === 0) {
-    if (closedCount > 0) {
-      return "closed";
-    } else {
-      return "empty";
-    }
-  } else {
-    return "open";
-  }
-}
-
-export function getHeaderBorderColor(bucket: Bucket | undefined): string {
   const statusToColor = {
-    flagged: "border-rose-500 focus:border-rose-700 hover:border-rose-700",
-    open: "border-amber-500 focus:border-amber-700 hover:border-amber-700",
-    closed: "border-green-500 focus:border-green-700 hover:border-green-700",
-    empty: "border-slate-500 focus:border-slate-700 hover:border-slate-700",
+    [BucketState.UNSOLVED]:
+      "border-orange-500 focus:border-orange-800 hover:border-orange-800",
+    [BucketState.SOLVED]:
+      "border-yellow-500 focus:border-yellow-800 hover:border-yellow-800",
+    [BucketState.DONE]:
+      "border-green-500 focus:border-green-800 hover:border-green-800",
+    [BucketState.EMPTY]:
+      "border-slate-500 focus:border-slate-800 hover:border-slate-800",
+    [BucketState.INACTIVE]:
+      "border-slate-500 focus:border-slate-800 hover:border-slate-800",
   };
 
-  return statusToColor[getBucketStatus(bucket)];
+  return statusToColor[getBucketState(bucket)];
 }
 
-export function getHeaderTextColor(bucket: Bucket | undefined): string {
+export function getHeaderTextColor(bucket: Bucket): string {
+  if (bucket.flagged) {
+    return "text-rose-800";
+  }
   const statusToColor = {
-    flagged: "text-rose-700",
-    open: "text-amber-700",
-    closed: "text-green-700",
-    empty: "text-slate-700",
+    [BucketState.UNSOLVED]: "text-orange-800",
+    [BucketState.SOLVED]: "text-yellow-800",
+    [BucketState.DONE]: "text-green-800",
+    [BucketState.EMPTY]: "text-slate-800",
+    [BucketState.INACTIVE]: "text-slate-800",
   };
 
-  return statusToColor[getBucketStatus(bucket)];
+  return statusToColor[getBucketState(bucket)];
 }
 
-export function getHeaderHoverColor(bucket: Bucket | undefined): string {
+export function getHeaderHoverColor(bucket: Bucket): string {
+  if (bucket.flagged) {
+    return "text-rose-800";
+  }
   const statusToColor = {
     flagged: "hover:bg-rose-300",
-    open: "hover:bg-amber-300",
-    closed: "hover:bg-green-300",
-    empty: "hover:bg-slate-300",
+    [BucketState.UNSOLVED]: "hover:bg-orange-300",
+    [BucketState.SOLVED]: "hover:bg-yellow-300",
+    [BucketState.DONE]: "hover:bg-green-300",
+    [BucketState.EMPTY]: "hover:bg-slate-300",
+    [BucketState.INACTIVE]: "hover:bg-slate-300",
   };
 
-  return statusToColor[getBucketStatus(bucket)];
+  return statusToColor[getBucketState(bucket)];
 }
 
-export function getBucketBackgroundColor(
-  bucket: Bucket | undefined,
-  position = "top",
-): string {
-  const topColorMapping = {
-    flagged: "bg-rose-200",
-    open: "bg-amber-200",
-    closed: "bg-green-200",
-    empty: "bg-slate-200",
+export function getBucketBackgroundColorTop(bucket: Bucket): string {
+  if (bucket.flagged) {
+    return "bg-rose-200";
+  }
+
+  const statusToColor = {
+    [BucketState.UNSOLVED]: "bg-orange-200",
+    [BucketState.SOLVED]: "bg-yellow-200",
+    [BucketState.DONE]: "bg-green-200",
+    [BucketState.EMPTY]: "bg-slate-200",
+    [BucketState.INACTIVE]: "bg-slate-200",
   };
 
-  const bottomColorMapping = {
-    flagged: "bg-rose-300",
-    open: "bg-amber-300",
-    closed: "bg-green-300",
-    empty: "bg-slate-300",
+  return statusToColor[getBucketState(bucket)];
+}
+
+export function getBucketBackgroundColorBottom(bucket: Bucket): string {
+  if (bucket.flagged) {
+    return "bg-rose-300";
+  }
+
+  const statusToColor = {
+    [BucketState.UNSOLVED]: "bg-orange-300",
+    [BucketState.SOLVED]: "bg-yellow-300",
+    [BucketState.DONE]: "bg-green-300",
+    [BucketState.EMPTY]: "bg-slate-300",
+    [BucketState.INACTIVE]: "bg-slate-300",
   };
 
-  return position === "top"
-    ? topColorMapping[getBucketStatus(bucket)]
-    : bottomColorMapping[getBucketStatus(bucket)];
+  return statusToColor[getBucketState(bucket)];
 }

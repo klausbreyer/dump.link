@@ -8,7 +8,10 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-import { getBucketBackgroundColor, getHeaderTextColor } from "./common/colors";
+import {
+  getBucketBackgroundColorTop,
+  getHeaderTextColor,
+} from "./common/colors";
 import { ArrowIcon } from "./common/icons";
 import { useData } from "./context/data";
 import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
@@ -103,7 +106,8 @@ const Box: React.FC<BoxProps> = (props) => {
     );
   }, [foliationIsDragging, setGlobalDragging]);
 
-  const bgTop = getBucketBackgroundColor(bucket, "top");
+  const bgTop = getBucketBackgroundColorTop(bucket);
+  const bgHeader = getHeaderTextColor(bucket);
   const wouldBeLastInZero = ownLayer !== 0 || ownLayerSize > 1;
   const showFoliationIcon =
     context === "foliation" &&
@@ -124,7 +128,7 @@ const Box: React.FC<BoxProps> = (props) => {
               key={id}
               onClick={() => removeBucketDependency(id, bucket.id)}
               className={`flex items-center justify-start gap-1 p-0.5 cursor-pointer group hover:underline
-                ${getHeaderTextColor(getBucket(id))}
+                ${bgHeader}
               `}
             >
               <LinkIcon className="block w-4 h-4 shrink-0 group-hover:hidden" />

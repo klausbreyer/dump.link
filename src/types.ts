@@ -46,3 +46,10 @@ export enum DraggingType {
   FOLIATION = "FOLIATION",
   NONE = "",
 }
+export enum BucketState {
+  INACTIVE = "inactive",
+  UNSOLVED = "unsolved",
+  SOLVED = "solved",
+  DONE = "done",
+  EMPTY = "empty",
+}

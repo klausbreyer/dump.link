@@ -3,11 +3,11 @@ import React, { ChangeEvent } from "react";
 import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 
+import StateSwitch from "./StateSwitch";
+import BucketButton from "./common/BucketButton";
 import {
-  getBucketBackgroundColor,
+  getBucketBackgroundColorTop,
   getHeaderBorderColor,
-  getHeaderHoverColor,
-  getHeaderTextColor,
 } from "./common/colors";
 import { useData } from "./context/data";
 import { Bucket } from "./types";
@@ -34,12 +34,11 @@ const Header: React.FC<HeaderProps> = (props) => {
     flagBucket(bucket.id, !bucket?.flagged);
   };
 
-  const bgTop = getBucketBackgroundColor(bucket, "top");
+  const bgTop = getBucketBackgroundColorTop(bucket);
   const border = getHeaderBorderColor(bucket);
-  const hover = getHeaderHoverColor(bucket);
-  const text = getHeaderTextColor(bucket);
+
   return (
-    <div className={`w-full ${bgTop} p-1 flex gap-1 `}>
+    <div className={`w-full ${bgTop} p-1 flex gap-1 flex-row items-center `}>
       <input
         type="text"
         className={`w-full px-1 bg-transparent shadow-md border-b-2 focus:outline-none ${border}
@@ -48,16 +47,14 @@ const Header: React.FC<HeaderProps> = (props) => {
         value={bucket?.name}
         onChange={handleChange}
       />
-      <button
-        onClick={handleClick}
-        className={` p-0.5 bg-transparent border-2 focus:outline-none ${border} ${hover} ${text}`}
-      >
+      <StateSwitch bucket={bucket} />
+      <BucketButton onClick={handleClick} bucket={bucket}>
         {bucket?.flagged ? (
           <FlagIconSolid className="w-5 h-5 " />
         ) : (
           <FlagIconOutline className="w-5 h-5 " />
         )}
-      </button>
+      </BucketButton>
     </div>
   );
 };

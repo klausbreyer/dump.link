@@ -1,4 +1,4 @@
-import { Bucket, BucketID, Task, TaskState } from "../types";
+import { Bucket, BucketID, BucketState, Task, TaskState } from "../types";
 
 /**
  * Given a list of chains, this function returns each unique pair from all the chains.
@@ -160,4 +160,38 @@ export function getLastValues(arr: string[][]): string[] {
   }
 
   return [...lastValues];
+}
+
+export function getBucketState(bucket: Bucket): BucketState {
+  // Check if all tasks are closed
+  const allTasksClosed = bucket.tasks.every(
+    (task) => task.state === TaskState.CLOSED,
+  );
+  const hasClosedTasks = bucket.tasks.some(
+    (task) => task.state === TaskState.CLOSED,
+  );
+
+  // Handle buckets with no tasks
+  if (bucket.tasks.length === 0) {
+    return BucketState.EMPTY;
+  }
+
+  if (allTasksClosed && hasClosedTasks && bucket.active) {
+    return BucketState.SOLVED;
+  }
+
+  if (allTasksClosed && hasClosedTasks && !bucket.active) {
+    return BucketState.DONE;
+  }
+
+  if (!allTasksClosed && bucket.active) {
+    return BucketState.UNSOLVED;
+  }
+
+  if (!allTasksClosed && !bucket.active) {
+    return BucketState.INACTIVE;
+  }
+
+  // This line should theoretically never be reached, but it's here for completeness
+  throw new Error("Undefined bucket state.");
 }

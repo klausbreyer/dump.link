@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
 
 import CardList from "./common/CardList";
-import { getBucketBackgroundColor } from "./common/colors";
+import {
+  getBucketBackgroundColorBottom,
+  getBucketBackgroundColorTop,
+} from "./common/colors";
 import { useData } from "./context/data";
 import {
   getClosedBucketType,
@@ -12,9 +15,9 @@ import {
 import Header from "./Header";
 import TaskItem from "./TaskItem";
 import {
-  Bucket as DumpBucket,
   DraggedTask,
   DropCollectedProps,
+  Bucket as DumpBucket,
   TaskState,
 } from "./types";
 
@@ -113,8 +116,8 @@ const DumpBucket: React.FC<DumpBucketProps> = (props) => {
   const { isOver: bottomIsOver, canDrop: bottomCanDrop } =
     bottomCollectedProps as DropCollectedProps;
 
-  const bgTop = getBucketBackgroundColor(bucket, "top");
-  const bgBottom = getBucketBackgroundColor(bucket, "bottom");
+  const bgTop = getBucketBackgroundColorTop(bucket);
+  const bgBottom = getBucketBackgroundColorBottom(bucket);
 
   return (
     <div className={`w-full`}>
