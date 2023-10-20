@@ -15,6 +15,7 @@ import {
 } from "@heroicons/react/24/outline";
 import {
   Bucket,
+  BucketID,
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
@@ -25,20 +26,29 @@ import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
 
 interface BoxProps {
   bucket: Bucket;
-  context: "graph" | "foliation";
+  context: "graph" | "foliation" | "disabled";
+
+  chains: BucketID[][]; //@todo: ugly. this needs to be provided by data context.
 }
 
 const Box: React.FC<BoxProps> = (props) => {
-  const { bucket, context } = props;
+  const { bucket, context, chains } = props;
   const {
     removeBucketDependency,
     getBucket,
     addBucketDependency,
     getBucketsAvailableFor,
     getBucketsDependingOn,
+    getLayersForSubgraphChains,
+    getLayerForBucketId,
   } = useData();
 
   const availbleIds = getBucketsAvailableFor(bucket.id);
+
+  const layersWithBucketIds = getLayersForSubgraphChains(chains);
+  const ownLayer = getLayerForBucketId(chains, bucket.id);
+
+  const ownLayerSize = layersWithBucketIds?.[ownLayer]?.length ?? 0;
 
   const dependingIds = getBucketsDependingOn(bucket.id);
 
@@ -102,9 +112,10 @@ const Box: React.FC<BoxProps> = (props) => {
   }, [foliationIsDragging, setGlobalDragging]);
 
   const bgTop = getBucketBackgroundColor(bucket, "top");
+  const wouldBeLastInZero = ownLayer !== 0 || ownLayerSize > 1;
   const showFoliationIcon =
     context === "foliation" &&
-    (dependingIds.length > 0 || bucket.dependencies.length > 0);
+    (dependingIds.length > 0 || bucket.dependencies.length > 0); //check that unconnected boxes are not draggable
 
   const showGraphIcon = context === "graph";
 
@@ -139,13 +150,19 @@ const Box: React.FC<BoxProps> = (props) => {
           >
             {!globalDragging && (
               <>
-                {showFoliationIcon && (
+                {showFoliationIcon && wouldBeLastInZero && (
                   <div
                     ref={foliationDragRef}
                     className="flex items-center justify-between w-full gap-2 cursor-move hover:underline"
                   >
                     Order
                     <ArrowsUpDownIcon className="block w-5 h-5 " />
+                  </div>
+                )}
+                {showFoliationIcon && !wouldBeLastInZero && (
+                  <div className="flex items-center justify-between w-full gap-2 ">
+                    Last Origin
+                    <ExclamationTriangleIcon className="block w-5 h-5 " />
                   </div>
                 )}
                 {showGraphIcon && (

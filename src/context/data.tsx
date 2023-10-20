@@ -229,6 +229,8 @@ const dataReducer = (state: State, action: ActionType): State => {
       };
 
     case "UPDATE_BUCKET_LAYER":
+      console.log(action);
+
       return {
         ...state,
         buckets: state.buckets.map((bucket) =>

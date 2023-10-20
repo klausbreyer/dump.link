@@ -45,6 +45,8 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
   const others = getOtherBuckets(buckets);
   const allowedOnLayers = getAllowedBucketsByLayer(chains, index);
 
+  const layersWithBucketIds = getLayersForSubgraphChains(chains);
+
   const { globalDragging } = useGlobalDragging();
 
   const getAccept = () => {
@@ -84,8 +86,34 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
         if (index === null || index === undefined) return;
 
         const old = getLayerForBucketId(chains, bucket.id);
+
         console.log("drop", bucket.id, old, index);
 
+        const lengthOfOldLayer = layersWithBucketIds?.[old]?.length;
+        console.log(layersWithBucketIds, "lengthOfOldLayer", lengthOfOldLayer);
+
+        const lengthOfNewLayer = layersWithBucketIds?.[index]?.length;
+        console.log(layersWithBucketIds, "lengthOfNewLayer", lengthOfNewLayer);
+
+        let layersToRemove = 0;
+        // for (const layer of layersWithBucketIds) {
+        //   if (layer.length === 0) {
+        //     countEmptyLayersInbetween++;
+        //   }
+        // }
+
+        if (lengthOfOldLayer === 1) {
+          layersToRemove++;
+        }
+
+        console.log("layersToRemove", layersToRemove);
+
+        let updated = index;
+        if (old === 0) {
+          console.log("CORRECT", layersToRemove);
+
+          updated = updated - layersToRemove;
+        }
         updateBucketLayer(bucket.id, index);
       },
       collect: (monitor) => ({
@@ -98,6 +126,7 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
       index,
       getFoliationBucketType,
       updateBucketLayer,
+      layersWithBucketIds,
       getAccept,
       getLayerForBucketId,
       allowedOnLayers,

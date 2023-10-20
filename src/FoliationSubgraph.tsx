@@ -125,13 +125,6 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
         </defs>
       </svg>
       <div className="flex flex-col ">
-        <FoliationLane
-          chains={chains}
-          defaultHidden={true}
-          index={-1}
-          hoverable
-        />
-
         {layersWithBuckets.map((lane, i) => (
           <FoliationLane
             chains={chains}
@@ -142,7 +135,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
           >
             {lane.map((bucket, j) => (
               <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
-                <Box bucket={bucket} context="foliation" />
+                <Box chains={chains} bucket={bucket} context={"foliation"} />
               </div>
             ))}
           </FoliationLane>

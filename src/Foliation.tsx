@@ -40,11 +40,11 @@ const Foliation: React.FC<FoliationProps> = (props) => {
     uniquePaired,
   );
 
-  console.dir(
-    uniquePaired.map(
-      (id) => `${id} -> ${getBucket(id)?.id} , ${getBucket(id)?.layer}`,
-    ),
-  );
+  // console.dir(
+  //   uniquePaired.map(
+  //     (id) => `${id} -> ${getBucket(id)?.id} , ${getBucket(id)?.layer}`,
+  //   ),
+  // );
 
   const notPairedBuckets = notPaired
     .filter((id): id is BucketID => id !== null)
@@ -62,7 +62,7 @@ const Foliation: React.FC<FoliationProps> = (props) => {
         <FoliationLane chains={[]} defaultHidden={false} hoverable={false}>
           {notPairedBuckets.map((bucket, j) => (
             <div key={j} className="w-40">
-              <Box bucket={bucket} context="foliation" />
+              <Box chains={[]} bucket={bucket} context="foliation" />
             </div>
           ))}
         </FoliationLane>
