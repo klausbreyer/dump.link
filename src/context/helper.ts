@@ -131,6 +131,24 @@ export const findSubarrayIndex = (data: string[][], id: string): number => {
   return -1; // Return -1 if the id is not found in any subarray
 };
 
+export const isLastInSubarray = (data: string[][], id: string): boolean => {
+  for (const subarray of data) {
+    if (subarray[subarray.length - 1] === id) {
+      return true;
+    }
+  }
+  return false; // Return false if the id is not the last in any subarray
+};
+
+export const SubArrayLength = (data: string[][], id: string): number => {
+  for (const subarray of data) {
+    if (subarray.includes(id)) {
+      return subarray.length;
+    }
+  }
+  return -1; // Return -1 if the id is not found in any subarray
+};
+
 export function getTwoLowestUniqueNumbers(arr: number[]): number[] {
   const uniqueNumbers = Array.from(new Set(arr));
   const sortedUniqueNumbers = uniqueNumbers.sort((a, b) => a - b);

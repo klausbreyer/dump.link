@@ -2,12 +2,14 @@ import React, { createContext, useContext, useEffect, useReducer } from "react";
 
 import { Bucket, BucketID, State, Task, TaskID } from "../types";
 import {
+  SubArrayLength,
   divideIntoSubsets,
   findSubarrayIndex,
   getClosedBucketType,
   getOpenBucketType,
   getOtherBuckets,
   hasCyclicDependencyWithBucket,
+  isLastInSubarray,
   uniqueValues,
 } from "./helper";
 import initialState from "./init";
@@ -483,11 +485,16 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const getLayers = (): BucketID[][] => {
     const chains = getAllDependencyChains();
+    const longestChainLength = chains.reduce((a, b) =>
+      a.length > b.length ? a : b,
+    ).length;
+
     // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
-    const resultMap: Map<number, BucketID[]> = new Map();
+    const layersMap: Map<number, BucketID[]> = new Map();
 
     const ids = uniqueValues(chains);
 
+    const middleOrphans: BucketID[] = [];
     // Process each id
     ids.forEach((id) => {
       const bucket = getBucket(id);
@@ -500,29 +507,42 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         index = findSubarrayIndex(chains, id);
       }
 
-      if (resultMap.has(index)) {
-        resultMap.get(index)!.push(id); // Add to the existing array
+      // We save all the middle orphans for the last row. but not when it is from the longest chain, because it then will not create the last layer.
+      if (
+        isLastInSubarray(chains, id) &&
+        SubArrayLength(chains, id) < longestChainLength
+      ) {
+        middleOrphans.push(id);
+        return;
+      }
+
+      if (layersMap.has(index)) {
+        layersMap.get(index)!.push(id); // Add to the existing array
       } else {
-        resultMap.set(index, [id]); // Create a new array with the id
+        layersMap.set(index, [id]); // Create a new array with the id
       }
     });
 
     // Convert the map to an array of arrays
-    const resultArray: BucketID[][] = [];
-    const keys = Array.from(resultMap.keys()).sort((a, b) => a - b); // Sorting the keys in ascending order
+    const layersArray: BucketID[][] = [];
+    const keys = Array.from(layersMap.keys()).sort((a, b) => a - b); // Sorting the keys in ascending order
 
     const minKey = keys[0];
     const maxKey = keys[keys.length - 1];
 
     for (let i = minKey; i <= maxKey; i++) {
-      if (resultMap.has(i)) {
-        resultArray.push(resultMap.get(i)!);
+      if (layersMap.has(i)) {
+        layersArray.push(layersMap.get(i)!);
       } else {
-        resultArray.push([]);
+        layersArray.push([]);
       }
     }
 
-    return resultArray;
+    layersArray[layersArray.length - 1] = [
+      ...layersArray[layersArray.length - 1],
+      ...middleOrphans,
+    ];
+    return layersArray;
   };
 
   const getLayerForBucketId = (bucketId: BucketID): number => {

@@ -125,7 +125,7 @@ const Box: React.FC<BoxProps> = (props) => {
   return (
     <div
       id={bucket.id}
-      className={`w-full rounded-md overflow-hidden`}
+      className={`w-full rounded-md overflow-hidden opacity-95`}
       ref={(node) => foliationPreviewRev(graphPreviewRev(node))}
     >
       <Header bucket={bucket} context={context} />
