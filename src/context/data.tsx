@@ -237,8 +237,6 @@ const dataReducer = (state: State, action: ActionType): State => {
       };
 
     case "UPDATE_BUCKET_LAYER":
-      console.log(action);
-
       return {
         ...state,
         buckets: state.buckets.map((bucket) =>
@@ -569,8 +567,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         const maxLayer = dependencyLayers.length
           ? Math.min(...dependencyLayers)
           : MAX_LAYER;
-
-        console.log(idInLayer, minLayer, maxLayer, dependencyLayers);
 
         lookup.set(idInLayer, [minLayer, maxLayer]);
       }

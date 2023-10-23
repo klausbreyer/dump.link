@@ -24,21 +24,11 @@ const Ordering: React.FC<OrderingProps> = (props) => {
 
   const chains = getAllDependencyChains();
 
-  const uniquePaired = uniqueValues(chains);
-  const others = getOtherBuckets(buckets);
-  const notPaired = difference(
-    others.map((b) => b.id),
-    uniquePaired,
-  );
+  const layers = getLayers();
+  console.log(chains);
+  console.log(layers);
 
-  const notPairedBuckets = notPaired
-    .filter((id): id is BucketID => id !== null)
-    .map((id) => getBucket(id))
-    .filter((bucket): bucket is Bucket => bucket !== undefined);
-
-  const layersWithBucketIds = getLayers();
-
-  const layersWithBuckets = layersWithBucketIds.map((layer) =>
+  const layersWithBuckets = layers.map((layer) =>
     layer
       .filter((id): id is BucketID => id !== null)
       .map((id) => getBucket(id))
