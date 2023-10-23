@@ -20,7 +20,7 @@ interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
   hoverable: boolean;
   defaultHidden: boolean;
-  index?: number;
+  index: number;
   chains: BucketID[][];
 }
 
@@ -108,14 +108,17 @@ const Lane: React.FC<LaneProps> = (props) => {
     >
       <div
         ref={dropRef}
-        className={`border-2 flex-wrap flex items-center justify-center min-h-[5rem] w-full gap-8 relative
+        className={`border-2 min-h-[5rem] w-fullrelative
         ${dropActive && "border-dashed border-gray-400"}
         ${dropOver && "border-solid border-gray-400"}
         ${!dropActive && !dropOver && "border-solid border-transparent"}
         ${showWhileDragging ? "opacity-100" : "opacity-0"}
       `}
       >
-        {children}
+        <div className="text-sm">{index + 1}</div>
+        <div className="flex flex-wrap items-center justify-center gap-8 ">
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -84,92 +84,76 @@ const Ordering: React.FC<OrderingProps> = (props) => {
   }, [buckets, allBoxesRendered]);
   return (
     <Container>
-      <div className="relative w-full parent">
-        <div className="w-full ">
-          <svg className="absolute top-0 left-0 w-full h-full -z-10">
-            {allBoxesRendered &&
-              pairs.map((pair: [BucketID, BucketID], i) => {
-                if (
-                  !boxRefs?.current[pair[0]]?.current ||
-                  !boxRefs?.current[pair[1]]?.current
-                ) {
-                  return null;
-                }
+      <div className="relative w-full parent ">
+        <svg className="absolute top-0 left-0 w-full h-full -z-10">
+          {allBoxesRendered &&
+            pairs.map((pair: [BucketID, BucketID], i) => {
+              if (
+                !boxRefs?.current[pair[0]]?.current ||
+                !boxRefs?.current[pair[1]]?.current
+              ) {
+                return null;
+              }
 
-                const fromRect =
-                  boxRefs.current[pair[0]].current!.getBoundingClientRect();
-                const toRect =
-                  boxRefs.current[pair[1]].current!.getBoundingClientRect();
-                const { from, to } = getBorderCenterCoordinates(
-                  fromRect,
-                  toRect,
-                );
-                const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
+              const fromRect =
+                boxRefs.current[pair[0]].current!.getBoundingClientRect();
+              const toRect =
+                boxRefs.current[pair[1]].current!.getBoundingClientRect();
+              const { from, to } = getBorderCenterCoordinates(fromRect, toRect);
+              const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
 
-                return (
-                  <g key={i}>
-                    <line
-                      x1={from.x}
-                      y1={from.y}
-                      x2={shortenedTo.x}
-                      y2={shortenedTo.y}
-                      stroke="black"
-                      strokeWidth="2"
-                      markerEnd="url(#smallArrowhead)"
-                    />
-                  </g>
-                );
-              })}
+              return (
+                <g key={i}>
+                  <line
+                    x1={from.x}
+                    y1={from.y}
+                    x2={shortenedTo.x}
+                    y2={shortenedTo.y}
+                    stroke="black"
+                    strokeWidth="2"
+                    markerEnd="url(#smallArrowhead)"
+                  />
+                </g>
+              );
+            })}
 
-            <defs>
-              <marker
-                id="smallArrowhead"
-                markerWidth="6"
-                markerHeight="4"
-                refX="0"
-                refY="2"
-                orient="auto"
-              >
-                <polygon points="0 0, 6 2, 0 4" />
-              </marker>
-            </defs>
-          </svg>
-          <div className="flex flex-col ">
-            {layersWithBuckets.map((lane, i) => (
-              <Lane
-                chains={chains}
-                defaultHidden={false}
-                index={i}
-                hoverable={true}
-                key={i}
-              >
-                {lane.map((bucket, j) => (
-                  <div
-                    key={j}
-                    ref={boxRefs.current[bucket.id]}
-                    className="w-40"
-                  >
-                    <Box bucket={bucket} context={TabContext.Ordering} />
-                  </div>
-                ))}
-              </Lane>
-            ))}
-
+          <defs>
+            <marker
+              id="smallArrowhead"
+              markerWidth="6"
+              markerHeight="4"
+              refX="0"
+              refY="2"
+              orient="auto"
+            >
+              <polygon points="0 0, 6 2, 0 4" />
+            </marker>
+          </defs>
+        </svg>
+        <div className="flex flex-col ">
+          {layersWithBuckets.map((lane, i) => (
             <Lane
               chains={chains}
-              defaultHidden={true}
-              index={layersWithBuckets.length}
-              hoverable
-            />
-          </div>
-        </div>
-        <Lane chains={[]} defaultHidden={false} hoverable={false}>
-          {notPairedBuckets.map((bucket, j) => (
-            <div key={j} className="w-40">
-              <Box bucket={bucket} context={TabContext.Ordering} />
-            </div>
+              defaultHidden={false}
+              index={i}
+              hoverable={true}
+              key={i}
+            >
+              {lane.map((bucket, j) => (
+                <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
+                  <Box bucket={bucket} context={TabContext.Ordering} />
+                </div>
+              ))}
+            </Lane>
           ))}
-        </Lane>
+
+          <Lane
+            chains={chains}
+            defaultHidden={true}
+            index={layersWithBuckets.length}
+            hoverable
+          />
+        </div>
       </div>
     </Container>
   );
