@@ -45,8 +45,6 @@ export const GlobalDraggingProvider: React.FC<GlobalDraggingProviderProps> = ({
     [],
   );
 
-  console.log(state);
-
   return (
     <GlobalDraggingContext.Provider
       value={{ globalDragging: state, setGlobalDragging }}

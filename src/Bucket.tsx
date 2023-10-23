@@ -122,7 +122,14 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const bgTop = getBucketBackgroundColorTop(bucket);
   const bgBottom = getBucketBackgroundColorBottom(bucket);
 
-  const showCantDrop =
+  const topCantDropWarning =
+    !topCanDrop &&
+    globalDragging.type === DraggingType.TASK &&
+    open.length === 0 &&
+    globalDragging.bucketId === bucket.id;
+
+  const bottomCantDropWarning =
+    !bottomCanDrop &&
     globalDragging.type === DraggingType.TASK &&
     closed.length === 0 &&
     globalDragging.bucketId === bucket.id;
@@ -143,6 +150,12 @@ const Bucket: React.FC<BucketProps> = (props) => {
           {open.map((task) => (
             <TaskItem task={task} key={task.id} />
           ))}
+          {topCantDropWarning && (
+            <div className="flex items-center justify-center gap-2 text-center">
+              <ExclamationTriangleIcon className="w-5 h-5" />
+              Can't drop - this bucket is done! Undone?
+            </div>
+          )}
         </CardList>
       </div>
       <div
@@ -172,10 +185,10 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 : `Hide Tasks`}
             </div>
           )}
-          {showCantDrop && (
+          {bottomCantDropWarning && (
             <div className="flex items-center justify-center gap-2 text-center">
               <ExclamationTriangleIcon className="w-5 h-5" />
-              Can't drop - this bucket is inactive!
+              Can't drop - this bucket is inactive! Start?
             </div>
           )}
         </CardList>
