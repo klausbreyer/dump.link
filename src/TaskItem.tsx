@@ -12,7 +12,8 @@ import { Bars2Icon } from "@heroicons/react/24/solid";
 import { useData } from "./context/data";
 import { getDumpBucket } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
-import { DraggedTask, DraggingType, Task, TaskState } from "./types";
+import { DraggedTask, DraggingType, Task } from "./types";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 interface TaskItemProps {
   task: Task | null;
@@ -113,7 +114,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       if (!dumpBucket) return;
       if (val.length === 0) return;
 
-      addTask(dumpBucket?.id, { title: val, state: TaskState.OPEN });
+      addTask(dumpBucket?.id, { title: val, closed: false });
       setVal("");
 
       setTimeout(() => {
@@ -135,7 +136,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       }
     } else {
       // Otherwise, update the task and reset the askedToDelete flag.
-      updateTask(task.id, { title: val, state: task?.state || TaskState.OPEN });
+      updateTask(task.id, { title: val, closed: task?.closed === true });
       setAskedToDelete(false);
     }
   }
@@ -172,6 +173,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         {task !== null && (
           <div ref={dragRef} className="cursor-move">
             <Bars2Icon className="w-5 h-5" />
+          </div>
+        )}
+        {task === null && (
+          <div>
+            <PencilSquareIcon className="w-5 h-5" />
           </div>
         )}
       </div>

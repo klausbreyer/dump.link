@@ -1,4 +1,4 @@
-import { Bucket, BucketID, BucketState, Task, TaskState } from "../types";
+import { Bucket, BucketID, BucketState, Task } from "../types";
 
 /**
  * Given a list of chains, this function returns each unique pair from all the chains.
@@ -97,12 +97,12 @@ export const hasCyclicDependencyWithBucket = (
   return traverse(dependencyId, new Set([bucket.id]));
 };
 
-export function getTasksByState(
+export function getTasksByClosed(
   bucket: Bucket | undefined,
-  state: TaskState,
+  closed: boolean,
 ): Task[] {
   const tasks = bucket?.tasks || [];
-  return tasks.filter((task) => task.state === state);
+  return tasks.filter((task) => task.closed === closed);
 }
 
 export const getClosedBucketType = (bucketId: BucketID) => {
@@ -164,12 +164,8 @@ export function getLastValues(arr: string[][]): string[] {
 
 export function getBucketState(bucket: Bucket): BucketState {
   // Check if all tasks are closed
-  const allTasksClosed = bucket.tasks.every(
-    (task) => task.state === TaskState.CLOSED,
-  );
-  const hasClosedTasks = bucket.tasks.some(
-    (task) => task.state === TaskState.CLOSED,
-  );
+  const allTasksClosed = bucket.tasks.every((task) => task.closed);
+  const hasClosedTasks = bucket.tasks.some((task) => task.closed);
 
   // Handle buckets with no tasks
   if (bucket.tasks.length === 0) {

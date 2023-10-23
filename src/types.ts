@@ -1,15 +1,10 @@
-export enum TaskState {
-  OPEN = "open",
-  CLOSED = "closed",
-}
-
 export type BucketID = string;
 export type TaskID = string;
 
 export type Task = {
   id: TaskID;
   title: string;
-  state: TaskState;
+  closed: boolean;
 };
 
 export type Bucket = {

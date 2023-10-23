@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 
-import { Bucket, State, TaskState } from "../types";
+import { Bucket, State } from "../types";
 
 // NewID generates a random base-58 ID.
 function NewID(): string {
@@ -28,21 +28,21 @@ let initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
           {
             id: Date.now().toString() + index,
             title: "Your first task",
-            state: TaskState.OPEN,
+            closed: false,
           },
         ]
       : index === 1
       ? Array.from({ length: 3 }).map((_, i) => ({
           id: Date.now().toString() + index + i,
           title: `Task ${i} in Bucket ${index}`,
-          state: TaskState.OPEN,
+          closed: false,
         }))
       : index === 2
       ? [
           {
             id: Date.now().toString() + index,
             title: "Done Task in Bucket 2",
-            state: TaskState.CLOSED,
+            closed: true,
           },
         ]
       : index === 6
@@ -50,7 +50,7 @@ let initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
           {
             id: Date.now().toString() + index,
             title: "Open Task in Bucket 6",
-            state: TaskState.CLOSED,
+            closed: true,
           },
         ]
       : [],
@@ -75,7 +75,7 @@ initialBuckets[10].name = "Chowder";
 //           {
 //             id: Date.now().toString() + index,
 //             title: "Your first task",
-//             state: TaskState.OPEN,
+//             closed: false,
 //           },
 //         ]
 //       : [],

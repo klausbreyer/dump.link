@@ -1,4 +1,4 @@
-import { getBucketState, getTasksByState } from "../context/helper";
+import { getBucketState, getTasksByClosed } from "../context/helper";
 import { Bucket, TaskState, BucketState } from "../types";
 
 export function getHeaderBorderColor(bucket: Bucket): string {

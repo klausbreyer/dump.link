@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 
-import { Bucket, BucketID, State, Task, TaskID, TaskState } from "../types";
+import { Bucket, BucketID, State, Task, TaskID } from "../types";
 import {
   divideIntoSubsets,
   findSubarrayIndex,
@@ -25,7 +25,7 @@ type ActionType =
       type: "CHANGE_TASK_STATE";
       bucketId: BucketID;
       taskId: TaskID;
-      newState: TaskState;
+      closed: boolean;
     }
   | {
       type: "UPDATE_TASK";
@@ -135,7 +135,7 @@ const dataReducer = (state: State, action: ActionType): State => {
                 ...bucket,
                 tasks: bucket.tasks.map((task) =>
                   task.id === action.taskId
-                    ? { ...task, state: action.newState }
+                    ? { ...task, closed: action.closed }
                     : task,
                 ),
               }
@@ -269,10 +269,7 @@ type DataProviderProps = {
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const persistedState = loadFromLocalStorage();
-  const [state, dispatch] = useReducer(
-    dataReducer,
-    persistedState || initialState,
-  );
+  const [state, dispatch] = useReducer(dataReducer, initialState);
 
   useEffect(() => {
     saveToLocalStorage(state);
@@ -298,13 +295,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const changeTaskState = (
     bucketId: BucketID,
     taskId: TaskID,
-    newState: TaskState,
+    closed: boolean,
   ) => {
     dispatch({
       type: "CHANGE_TASK_STATE",
       bucketId: bucketId,
       taskId: taskId,
-      newState: newState,
+      closed: closed,
     });
   };
 
@@ -364,7 +361,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       return "NO_OP";
     }
 
-    if (bucket && task.state === TaskState.CLOSED) {
+    if (bucket && task.closed) {
       return getClosedBucketType(bucket.id);
     }
 
@@ -717,7 +714,7 @@ type DataContextType = {
   changeTaskState: (
     bucketId: BucketID,
     taskId: TaskID,
-    newState: TaskState,
+    closed: boolean,
   ) => void;
   updateTask: (taskId: TaskID, updatedTask: Omit<Task, "id">) => void;
   getBucket: (bucketId: BucketID) => Bucket | undefined;
