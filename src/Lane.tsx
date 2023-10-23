@@ -30,7 +30,7 @@ const Lane: React.FC<LaneProps> = (props) => {
     getBucket,
     getBuckets,
     updateBucketLayer,
-    getLayersForSubgraphChains,
+    getLayers,
     getAllowedBucketsByLayer,
   } = useData();
   const buckets = getBuckets();
@@ -38,7 +38,7 @@ const Lane: React.FC<LaneProps> = (props) => {
   const others = getOtherBuckets(buckets);
   const allowedOnLayers = getAllowedBucketsByLayer(chains, index);
 
-  const layersWithBucketIds = getLayersForSubgraphChains(chains);
+  const layersWithBucketIds = getLayers(chains);
 
   const { globalDragging } = useGlobalDragging();
 

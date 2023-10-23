@@ -38,14 +38,11 @@ const Box: React.FC<BoxProps> = (props) => {
     addBucketDependency,
     getBucketsAvailableFor,
     getBucketsDependingOn,
-    getLayersForBucketId,
     getLayerForBucketId,
   } = useData();
 
   const availbleIds = getBucketsAvailableFor(bucket.id);
-  const layersWithBucketIds = getLayersForBucketId(bucket.id);
   const ownLayer = getLayerForBucketId(bucket.id);
-  const ownLayerSize = layersWithBucketIds?.[ownLayer]?.length ?? 0;
   const dependingIds = getBucketsDependingOn(bucket.id);
 
   const { globalDragging, setGlobalDragging } = useGlobalDragging();

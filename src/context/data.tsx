@@ -350,6 +350,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       flag,
     });
   };
+
   const getTaskType = (task: Task | null | undefined) => {
     if (!task) {
       return "NO_OP";
@@ -482,7 +483,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const getLayersForSubgraphChains = (chains: BucketID[][]): BucketID[][] => {
+  const getLayers = (): BucketID[][] => {
+    const chains = getAllDependencyChains();
     // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
     const resultMap: Map<number, BucketID[]> = new Map();
 
@@ -525,21 +527,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return resultArray;
   };
 
-  const getSubGraphForBucketId = (bucketId: BucketID): BucketID[][] => {
-    const allChains = getAllDependencyChains();
-
-    const subgraphs = divideIntoSubsets(allChains);
-    const index = subgraphs.findIndex(
-      (subgraph) => findSubarrayIndex(subgraph, bucketId) !== -1,
-    );
-    return subgraphs[index] ?? [];
-  };
-
   const getLayerForBucketId = (bucketId: BucketID): number => {
-    const subgraph = getSubGraphForBucketId(bucketId);
-    console.log(subgraph);
-
-    const layers = getLayersForSubgraphChains(subgraph);
+    const layers = getLayers();
 
     for (let i = 0; i < layers.length; i++) {
       if (layers[i].includes(bucketId)) {
@@ -551,11 +540,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return -1;
   };
 
-  const getLayersForBucketId = (bucketId: BucketID): BucketID[][] => {
-    const subgraph = getSubGraphForBucketId(bucketId);
-    const layers = getLayersForSubgraphChains(subgraph);
-    return layers;
-  };
   const getAllowedBucketsByLayer = (
     chains: any,
     index: number | undefined,
@@ -564,7 +548,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     const MAX_LAYER = Number.MAX_SAFE_INTEGER;
 
     const buckets = getBuckets();
-    const layersWithBucketIds = getLayersForSubgraphChains(chains);
+    const layersWithBucketIds = getLayers();
     const lookup: Map<BucketID, [number, number]> = new Map();
 
     for (const idsInLayer of layersWithBucketIds) {
@@ -652,9 +636,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getBucket,
         getTask,
         getBucketForTask,
-        getLayersForBucketId,
         getTaskIndex,
-        getLayersForSubgraphChains,
+        getLayers,
         reorderTask,
         getTaskType,
         renameBucket,
@@ -663,13 +646,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getBucketsDependingOn,
         getBuckets,
         getAllowedBucketsByLayer,
-        getSubGraphForBucketId,
         addBucketDependency,
         getLayerForBucketId,
         removeBucketDependency,
         setBucketActive,
         getBucketsAvailableFor,
-        getDependencyChains: getAllDependencyChains,
+        getAllDependencyChains,
       }}
     >
       {children}
@@ -700,17 +682,15 @@ type DataContextType = {
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
   getBucketsDependingOn: (dependencyId: BucketID) => BucketID[];
   getBucketsAvailableFor: (givenBucketId: BucketID) => BucketID[];
-  getDependencyChains: () => BucketID[][];
+  getAllDependencyChains: () => BucketID[][];
   updateBucketLayer: (bucketId: BucketID, newLayer: number) => void;
-  getLayersForSubgraphChains: (chains: BucketID[][]) => BucketID[][];
-  getLayersForBucketId: (bucketId: BucketID) => BucketID[][];
+  getLayers: (chains: BucketID[][]) => BucketID[][];
   getLayerForBucketId: (bucketId: BucketID) => number;
   getAllowedBucketsByLayer: (
     chains: any,
     index: number | undefined,
   ) => BucketID[][];
   deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
-  getSubGraphForBucketId: (bucketId: BucketID) => BucketID[][];
   setBucketActive: (bucketId: BucketID, active: boolean) => void;
 };
 
