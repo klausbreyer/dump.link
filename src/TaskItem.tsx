@@ -14,6 +14,7 @@ import { getDumpBucket } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import { DraggedTask, DraggingType, Task } from "./types";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import usePasteListener from "./hooks/usePasteListener";
 
 interface TaskItemProps {
   task: Task | null;
@@ -37,6 +38,16 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const dumpBucket = getDumpBucket(getBuckets());
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  usePasteListener(textAreaRef, (title: string) => {
+    if (!task && dumpBucket) {
+      addTask(dumpBucket.id, { title: title, closed: false });
+    }
+    if (task) {
+      const bucket = getBucketForTask(task);
+      if (!bucket) return;
+      addTask(bucket.id, { title: title, closed: false });
+    }
+  });
   const [val, setVal] = useState<string>(task?.title || "");
 
   useEffect(() => {
