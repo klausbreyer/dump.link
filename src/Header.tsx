@@ -7,7 +7,7 @@ import StateSwitch from "./StateSwitch";
 import BucketButton from "./common/BucketButton";
 import {
   getBucketBackgroundColorTop,
-  getHeaderBorderColor,
+  getActiveBorderColor,
 } from "./common/colors";
 import { useData } from "./context/data";
 import { Bucket, Tabs } from "./types";
@@ -37,14 +37,15 @@ const Header: React.FC<HeaderProps> = (props) => {
   };
 
   const bgTop = getBucketBackgroundColorTop(bucket);
-  const border = getHeaderBorderColor(bucket);
+  const border = getActiveBorderColor(bucket);
 
   const showExpanded = context !== Tabs.Sequencing && context !== Tabs.Ordering;
 
+  // to account for NaN on unstarted buckets
   const percentageCompleted = getBucketPercentage(bucket) || 0;
 
   return (
-    <div className={`w-full  ${bgTop}`}>
+    <div className={`w-full ${bgTop}`}>
       <div
         className="w-full cursor-help "
         title={`${percentageCompleted}% completed`}

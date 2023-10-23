@@ -4,12 +4,11 @@ import { Bucket } from "../types";
 import {
   getBucketBackgroundColorBottom,
   getFlaggedHeaderTextColor,
-  getHeaderBorderColor,
-  getHeaderHoverColor,
+  getActiveBorderColor,
   getHeaderTextColor,
 } from "./colors";
 
-export interface BucketButton {
+export interface BucketButtonProps {
   children: React.ReactNode;
   bucket: Bucket;
   onClick: () => void;
@@ -17,12 +16,12 @@ export interface BucketButton {
 }
 
 const BucketButton: React.FC<
-  BucketButton & React.ButtonHTMLAttributes<HTMLButtonElement>
+  BucketButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>
 > = (props) => {
   const { bucket, onClick, children, className, flag = false, ...rest } = props;
 
-  const border = getHeaderBorderColor(bucket);
-  const hover = getHeaderHoverColor(bucket);
+  const border = getActiveBorderColor(bucket);
+  const hover = getBucketBackgroundColorBottom(bucket);
   const text = getHeaderTextColor(bucket);
 
   const flagColor = getFlaggedHeaderTextColor();
