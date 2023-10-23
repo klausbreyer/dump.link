@@ -16,6 +16,7 @@ import {
   getActiveBorderColor,
   getInactiveBorderColor,
 } from "./common/colors";
+import { TabContext } from "./types";
 
 interface Step {
   id: string;
@@ -26,24 +27,24 @@ interface Step {
 
 const steps: Step[] = [
   {
-    id: "settings",
+    id: TabContext.Settings,
     name: "Settings",
     icon: <CogIcon className="w-6 h-6 text-slate-600" />,
   },
   {
-    id: "dump",
+    id: TabContext.Grouping,
     name: "Grouping",
     icon: <ArrowsPointingOutIcon className="w-6 h-6 text-slate-600" />,
   },
   {
-    id: "graph",
+    id: TabContext.Sequencing,
     name: "Sequencing",
     icon: (
       <ArrowLeftOnRectangleIcon className="w-6 h-6 -rotate-90 text-slate-600" />
     ),
   },
   {
-    id: "foliation",
+    id: TabContext.Ordering,
     name: "Ordering",
     icon: <ChartBarIcon className="w-6 h-6 rotate-90 text-slate-600 " />,
   },
@@ -63,7 +64,13 @@ const Navigation: React.FC<NavigationProps> = (props) => {
 
   const handleTabClick = (step: Step) => {
     setCurrentTab(step.id);
-    window.location.hash = step.id; // Set the URL hash to the step's id
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("p", step.id);
+    window.history.pushState({}, "", "?" + params.toString());
+
+    // Dispatch a custom event after changing the URL
+    window.dispatchEvent(new Event("urlchanged"));
   };
 
   useEffect(() => {

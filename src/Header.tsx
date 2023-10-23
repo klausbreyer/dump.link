@@ -10,12 +10,12 @@ import {
   getActiveBorderColor,
 } from "./common/colors";
 import { useData } from "./context/data";
-import { Bucket, Tabs } from "./types";
+import { Bucket, TabContext } from "./types";
 import { getBucketPercentage } from "./context/helper";
 
 export interface HeaderProps {
   bucket: Bucket;
-  context: Tabs;
+  context: TabContext;
 }
 
 const Header: React.FC<HeaderProps> = (props) => {
@@ -39,7 +39,8 @@ const Header: React.FC<HeaderProps> = (props) => {
   const bgTop = getBucketBackgroundColorTop(bucket);
   const border = getActiveBorderColor(bucket);
 
-  const showExpanded = context !== Tabs.Sequencing && context !== Tabs.Ordering;
+  const showExpanded =
+    context !== TabContext.Sequencing && context !== TabContext.Ordering;
 
   // to account for NaN on unstarted buckets
   const percentageCompleted = getBucketPercentage(bucket) || 0;

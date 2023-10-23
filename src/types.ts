@@ -55,8 +55,9 @@ export enum BucketState {
   EMPTY = "empty",
 }
 
-export enum Tabs {
+export enum TabContext {
   Grouping = "Grouping",
   Sequencing = "Sequencing",
   Ordering = "Ordering",
+  Settings = "Settings",
 }

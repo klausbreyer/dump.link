@@ -11,7 +11,7 @@ import {
 } from "./context/helper";
 import Lane from "./Lane";
 import Subgraph from "./Subgraph";
-import { Bucket, BucketID, Tabs } from "./types";
+import { Bucket, BucketID, TabContext } from "./types";
 
 interface OrderingProps {
   // [key: string]: any;
@@ -55,7 +55,7 @@ const Ordering: React.FC<OrderingProps> = (props) => {
         <Lane chains={[]} defaultHidden={false} hoverable={false}>
           {notPairedBuckets.map((bucket, j) => (
             <div key={j} className="w-40">
-              <Box bucket={bucket} context={Tabs.Ordering} />
+              <Box bucket={bucket} context={TabContext.Ordering} />
             </div>
           ))}
         </Lane>

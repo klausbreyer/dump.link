@@ -4,7 +4,7 @@ import Box from "./Box";
 import Container from "./common/Container";
 import { useData } from "./context/data";
 import { getOtherBuckets } from "./context/helper";
-import { BucketID, Tabs } from "./types";
+import { BucketID, TabContext } from "./types";
 
 interface SequencingProps {}
 
@@ -140,7 +140,7 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
               }}
               key={bucket.id}
             >
-              <Box bucket={bucket} context={Tabs.Sequencing} />
+              <Box bucket={bucket} context={TabContext.Sequencing} />
             </div>
           );
         })}

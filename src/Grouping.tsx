@@ -7,11 +7,9 @@ import { useData } from "./context/data";
 import { getDumpBucket, getOtherBuckets } from "./context/helper";
 import Bucket from "./Bucket";
 
-interface DumpProps {
-  // [key: string]: any;
-}
+interface GroupingProps {}
 
-const Dump: React.FC<DumpProps> = (props) => {
+const Grouping: React.FC<GroupingProps> = (props) => {
   const { getBuckets } = useData();
   const buckets = getBuckets();
 
@@ -46,4 +44,4 @@ const Dump: React.FC<DumpProps> = (props) => {
   );
 };
 
-export default Dump;
+export default Grouping;

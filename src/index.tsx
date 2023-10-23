@@ -3,30 +3,31 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { createRoot } from "react-dom/client";
 
 import { DataProvider } from "./context/data";
-import Dump from "./Dump";
+import Grouping from "./Grouping";
 import Ordering from "./Ordering";
 import Sequencing from "./Sequencing";
 import { GlobalDraggingProvider } from "./hooks/useGlobalDragging";
-import { useHashChange } from "./hooks/useHashChange"; // Import the custom hook
 import Navigation from "./Navigation";
 import Settings from "./Settings";
+import { useQueryParamChange } from "./hooks/useQueryParamChange";
+import { TabContext } from "./types";
 
 const App = function App() {
-  const currentHash = useHashChange();
+  const currentQueryParam = useQueryParamChange("p");
 
-  const renderComponentBasedOnHash = () => {
-    switch (currentHash) {
-      case "settings":
+  const renderComponentBasedOnQueryParam = () => {
+    switch (currentQueryParam) {
+      case TabContext.Settings:
         return <Settings />;
-      case "dump":
-        return <Dump />;
-      case "graph":
+      case TabContext.Grouping:
+        return <Grouping />;
+      case TabContext.Sequencing:
         return <Sequencing />;
-      case "foliation":
+      case TabContext.Ordering:
         return <Ordering />;
-      // Add more cases here for other hash values and their corresponding components
+      // Add more cases here for other query param values and their corresponding components
       default:
-        return <Dump />;
+        return <Grouping />;
     }
   };
 
@@ -35,7 +36,7 @@ const App = function App() {
       <DataProvider>
         <DndProvider backend={HTML5Backend}>
           <Navigation />
-          {renderComponentBasedOnHash()}
+          {renderComponentBasedOnQueryParam()}
         </DndProvider>
       </DataProvider>
     </GlobalDraggingProvider>
