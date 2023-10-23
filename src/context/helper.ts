@@ -191,3 +191,14 @@ export function getBucketState(bucket: Bucket): BucketState {
   // This line should theoretically never be reached, but it's here for completeness
   throw new Error("Undefined bucket state.");
 }
+
+//calculate percentage of tasks in bucket closed
+export function getBucketPercentage(bucket: Bucket): number {
+  const closedTasks = bucket.tasks.filter((task) => task.closed);
+  const percentage = Math.round(
+    (closedTasks.length / bucket.tasks.length) * 100,
+  );
+
+  percentage > 0 ? percentage : percentage;
+  return percentage;
+}

@@ -11,6 +11,7 @@ import {
 } from "./common/colors";
 import { useData } from "./context/data";
 import { Bucket, Tabs } from "./types";
+import { getBucketPercentage } from "./context/helper";
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -39,28 +40,42 @@ const Header: React.FC<HeaderProps> = (props) => {
   const border = getHeaderBorderColor(bucket);
 
   const showExpanded = context !== Tabs.Sequencing && context !== Tabs.Ordering;
+
+  const percentageCompleted = getBucketPercentage(bucket) || 0;
+
   return (
-    <div className={`w-full ${bgTop} p-1 flex gap-1 flex-row items-center `}>
-      <input
-        type="text"
-        className={`w-full px-1 bg-transparent shadow-sm rounded-sm border-b-2 focus:outline-none ${border}
+    <div className={`w-full  ${bgTop}`}>
+      <div
+        className="w-full cursor-help "
+        title={`${percentageCompleted}% completed`}
+      >
+        <div
+          className={`border-b-4 ${border} `}
+          style={{ width: `${percentageCompleted}%` }}
+        ></div>
+      </div>
+      <div className={` p-1 flex gap-1 flex-row  `}>
+        <input
+          type="text"
+          className={`w-full h-7 px-1 bg-transparent shadow-sm rounded-sm border-b focus:outline-none ${border}
         `}
-        placeholder="unnamed"
-        value={bucket?.name}
-        onChange={handleChange}
-      />
-      {showExpanded && (
-        <>
-          <StateSwitch bucket={bucket} />
-          <BucketButton onClick={handleClick} bucket={bucket} flag>
-            {bucket?.flagged ? (
-              <FlagIconSolid className="w-5 h-5 " />
-            ) : (
-              <FlagIconOutline className="w-5 h-5 " />
-            )}
-          </BucketButton>
-        </>
-      )}
+          placeholder="unnamed"
+          value={bucket?.name}
+          onChange={handleChange}
+        />
+        {showExpanded && (
+          <>
+            <StateSwitch bucket={bucket} />
+            <BucketButton onClick={handleClick} bucket={bucket} flag>
+              {bucket?.flagged ? (
+                <FlagIconSolid className="w-5 h-5 " />
+              ) : (
+                <FlagIconOutline className="w-5 h-5 " />
+              )}
+            </BucketButton>
+          </>
+        )}
+      </div>
     </div>
   );
 };

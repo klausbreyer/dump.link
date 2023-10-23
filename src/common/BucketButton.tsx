@@ -35,7 +35,7 @@ const BucketButton: React.FC<
   return (
     <button
       onClick={() => onClick()}
-      className={` active:transform active:scale-95 transition-transform duration-150 h-7 p-0.5 rounded-sm border-b-2 shadow-sm focus:outline-none ${colors} ${className} `}
+      className={`active:transform active:scale-95 transition-transform duration-150 h-7 p-0.5 rounded-sm border-b shadow-sm focus:outline-none ${colors} ${className} `}
       {...rest}
     >
       {children}

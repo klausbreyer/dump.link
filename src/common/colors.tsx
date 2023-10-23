@@ -8,11 +8,16 @@ export function getFlaggedHeaderTextColor(): string {
 
 export function getHeaderBorderColor(bucket: Bucket): string {
   const statusToColor = {
-    [BucketState.UNSOLVED]: "border-orange-500 hover:border-orange-800",
-    [BucketState.SOLVED]: "border-yellow-500 hover:border-yellow-800",
-    [BucketState.DONE]: "border-green-500 hover:border-green-800",
-    [BucketState.EMPTY]: "border-slate-500 hover:border-slate-800",
-    [BucketState.INACTIVE]: "border-slate-500 hover:border-slate-800",
+    [BucketState.UNSOLVED]:
+      "border-orange-500 hover:border-orange-800 focus:border-orange-800",
+    [BucketState.SOLVED]:
+      "border-yellow-500 hover:border-yellow-800 focus:border-yellow-800",
+    [BucketState.DONE]:
+      "border-green-500 hover:border-green-800 focus:border-green-800",
+    [BucketState.EMPTY]:
+      "border-slate-500 hover:border-slate-800 focus:border-slate-800",
+    [BucketState.INACTIVE]:
+      "border-slate-500 hover:border-slate-800 focus:border-slate-800",
   };
 
   return statusToColor[getBucketState(bucket)];
