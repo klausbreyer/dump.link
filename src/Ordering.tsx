@@ -36,7 +36,7 @@ const Ordering: React.FC<OrderingProps> = (props) => {
     .map((id) => getBucket(id))
     .filter((bucket): bucket is Bucket => bucket !== undefined);
 
-  const layersWithBucketIds = getLayers(chains);
+  const layersWithBucketIds = getLayers();
 
   const layersWithBuckets = layersWithBucketIds.map((layer) =>
     layer
@@ -132,13 +132,7 @@ const Ordering: React.FC<OrderingProps> = (props) => {
         </svg>
         <div className="flex flex-col ">
           {layersWithBuckets.map((lane, i) => (
-            <Lane
-              chains={chains}
-              defaultHidden={false}
-              index={i}
-              hoverable={true}
-              key={i}
-            >
+            <Lane defaultHidden={false} index={i} hoverable={true} key={i}>
               {lane.map((bucket, j) => (
                 <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
                   <Box bucket={bucket} context={TabContext.Ordering} />
@@ -148,7 +142,6 @@ const Ordering: React.FC<OrderingProps> = (props) => {
           ))}
 
           <Lane
-            chains={chains}
             defaultHidden={true}
             index={layersWithBuckets.length}
             hoverable

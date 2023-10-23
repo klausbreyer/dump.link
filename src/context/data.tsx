@@ -541,7 +541,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const getAllowedBucketsByLayer = (
-    chains: any,
     index: number | undefined,
   ): BucketID[][] => {
     const MIN_LAYER = -1;
@@ -684,12 +683,9 @@ type DataContextType = {
   getBucketsAvailableFor: (givenBucketId: BucketID) => BucketID[];
   getAllDependencyChains: () => BucketID[][];
   updateBucketLayer: (bucketId: BucketID, newLayer: number) => void;
-  getLayers: (chains: BucketID[][]) => BucketID[][];
+  getLayers: () => BucketID[][];
   getLayerForBucketId: (bucketId: BucketID) => number;
-  getAllowedBucketsByLayer: (
-    chains: any,
-    index: number | undefined,
-  ) => BucketID[][];
+  getAllowedBucketsByLayer: (index: number | undefined) => BucketID[][];
   deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
   setBucketActive: (bucketId: BucketID, active: boolean) => void;
 };

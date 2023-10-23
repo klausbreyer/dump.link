@@ -21,24 +21,23 @@ interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   hoverable: boolean;
   defaultHidden: boolean;
   index: number;
-  chains: BucketID[][];
 }
 
 const Lane: React.FC<LaneProps> = (props) => {
-  const { children, index, hoverable, defaultHidden, chains } = props;
+  const { children, index, hoverable, defaultHidden } = props;
   const {
     getBucket,
     getBuckets,
     updateBucketLayer,
     getLayers,
+    getAllDependencyChains,
     getAllowedBucketsByLayer,
   } = useData();
   const buckets = getBuckets();
 
+  const chains = getAllDependencyChains();
   const others = getOtherBuckets(buckets);
-  const allowedOnLayers = getAllowedBucketsByLayer(chains, index);
-
-  const layersWithBucketIds = getLayers(chains);
+  const allowedOnLayers = getAllowedBucketsByLayer(index);
 
   const { globalDragging } = useGlobalDragging();
 
@@ -80,15 +79,7 @@ const Lane: React.FC<LaneProps> = (props) => {
         canDrop: monitor.canDrop(),
       }),
     },
-    [
-      others,
-      index,
-      getFoliationBucketType,
-      updateBucketLayer,
-      layersWithBucketIds,
-      getAccept,
-      allowedOnLayers,
-    ],
+    [others, index, updateBucketLayer, getAccept],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
