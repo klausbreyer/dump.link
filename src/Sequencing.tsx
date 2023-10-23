@@ -16,15 +16,15 @@ type BoxSide = "top" | "right" | "bottom" | "left";
 
 // clockwise.
 const positions: { top: number; left: number }[] = [
-  { top: 5, left: 50 }, // 12
+  { top: 10, left: 50 }, // 12
   { top: 15.112, left: 75.8091 },
-  { top: 38.1115, left: 90.4338 }, // 3
-  { top: 62.8885, left: 90.4338 }, // 3
+  { top: 35.1115, left: 90.4338 }, // 3
+  { top: 65.8885, left: 90.4338 }, // 3
   { top: 85.8885, left: 75.8091 },
   { top: 95, left: 50 }, // 6
   { top: 85.8885, left: 25.1909 },
-  { top: 62.8885, left: 10.5662 }, //9
-  { top: 38.1115, left: 10.5662 }, //9
+  { top: 65.8885, left: 10.5662 }, //9
+  { top: 35.1115, left: 10.5662 }, //9
   { top: 15.112, left: 25.1909 },
 ];
 
@@ -67,11 +67,11 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
   // repaint after adding dependencies.
   useEffect(() => {
     repaint();
-  }, [allBoxesRendered]);
+  }, [allBoxesRendered, buckets]);
 
   return (
     <Container>
-      <div className="relative w-full min-h-[800px] parent mt-6 ">
+      <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
             buckets.map((bucket) =>
