@@ -567,8 +567,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           ? Math.min(...dependentLayers)
           : MIN_LAYER;
         const maxLayer = dependencyLayers.length
-          ? Math.max(...dependencyLayers)
+          ? Math.min(...dependencyLayers)
           : MAX_LAYER;
+
+        console.log(idInLayer, minLayer, maxLayer, dependencyLayers);
 
         lookup.set(idInLayer, [minLayer, maxLayer]);
       }

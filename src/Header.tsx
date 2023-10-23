@@ -62,7 +62,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           className={`w-full h-7 px-1 bg-transparent shadow-sm rounded-sm border-b focus:outline-none ${border}
         `}
           placeholder="unnamed"
-          value={bucket?.name}
+          value={bucket?.id}
           onChange={handleChange}
         />
         {showExpanded && (
