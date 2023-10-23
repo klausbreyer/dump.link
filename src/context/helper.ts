@@ -121,7 +121,7 @@ export const getFoliationBucketType = (bucketId: BucketID) => {
   return `FOLIATION_${bucketId}`;
 };
 
-export const findSubarrayIndex = (data: string[][], id: string): number => {
+export const findSubarrayIndex = (data: BucketID[][], id: BucketID): number => {
   for (const subarray of data) {
     const index = subarray.indexOf(id);
     if (index !== -1) {
@@ -131,7 +131,7 @@ export const findSubarrayIndex = (data: string[][], id: string): number => {
   return -1; // Return -1 if the id is not found in any subarray
 };
 
-export const isLastInSubarray = (data: string[][], id: string): boolean => {
+export const isLastInSubarray = (data: BucketID[][], id: BucketID): boolean => {
   for (const subarray of data) {
     if (subarray[subarray.length - 1] === id) {
       return true;
@@ -140,13 +140,16 @@ export const isLastInSubarray = (data: string[][], id: string): boolean => {
   return false; // Return false if the id is not the last in any subarray
 };
 
-export const SubArrayLength = (data: string[][], id: string): number => {
+export const SubArrayLength = (data: BucketID[][], id: BucketID): number => {
   for (const subarray of data) {
     if (subarray.includes(id)) {
       return subarray.length;
     }
   }
   return -1; // Return -1 if the id is not found in any subarray
+};
+export const getLargestSubArray = (data: BucketID[][]): BucketID[] => {
+  return data.reduce((a, b) => (a.length > b.length ? a : b));
 };
 
 export function getTwoLowestUniqueNumbers(arr: number[]): number[] {

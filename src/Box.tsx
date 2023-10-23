@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 import {
+  ArrowsPointingOutIcon,
   ArrowsUpDownIcon,
   ExclamationTriangleIcon,
   LinkIcon,
@@ -24,6 +25,7 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
+import BucketButton from "./common/BucketButton";
 
 interface BoxProps {
   bucket: Bucket;
@@ -39,15 +41,10 @@ const Box: React.FC<BoxProps> = (props) => {
     getBucketsAvailableFor,
     getLayers,
     getBucketsDependingOn,
-    getLayerForBucketId,
   } = useData();
 
   const availbleIds = getBucketsAvailableFor(bucket.id);
-  const ownLayer = getLayerForBucketId(bucket.id);
   const dependingIds = getBucketsDependingOn(bucket.id);
-  const layersWithBucketIds = getLayers();
-
-  const ownLayerSize = layersWithBucketIds?.[ownLayer]?.length ?? 0;
 
   const { globalDragging, setGlobalDragging } = useGlobalDragging();
 
@@ -115,21 +112,21 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const bgTop = getBucketBackgroundColorTop(bucket);
   const bgHeader = getHeaderTextColor(bucket);
-  const wouldBeLastInZero = ownLayer !== 0 || ownLayerSize > 1;
-  const showFoliationIcon =
-    context === TabContext.Ordering &&
-    (dependingIds.length > 0 || bucket.dependencies.length > 0); //check that unconnected boxes are not draggable
-
-  const showGraphIcon = context === TabContext.Sequencing;
 
   return (
     <div
       id={bucket.id}
-      className={`w-full rounded-md overflow-hidden opacity-95`}
+      className={`w-full rounded-md overflow-hidden opacity-95 ${bgTop} `}
       ref={(node) => foliationPreviewRev(graphPreviewRev(node))}
     >
-      <Header bucket={bucket} context={context} />
-      <div className={`min-h-[2rem] ${bgTop} `}>
+      <Header
+        bucket={bucket}
+        context={context}
+        foliationDrag={foliationDragRef}
+        graphDrag={graphDragRef}
+      />
+
+      <div className={`min-h-[2rem] `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (
             <li
@@ -152,34 +149,6 @@ const Box: React.FC<BoxProps> = (props) => {
             ${!canDrop && !isOver && " border-transparent"}
             `}
           >
-            {!globalDragging.type && (
-              <>
-                {showFoliationIcon && wouldBeLastInZero && (
-                  <div
-                    ref={foliationDragRef}
-                    className="flex items-center justify-between w-full gap-2 cursor-move hover:underline"
-                  >
-                    Order
-                    <ArrowsUpDownIcon className="block w-5 h-5 " />
-                  </div>
-                )}
-                {showFoliationIcon && !wouldBeLastInZero && (
-                  <div className="flex items-center justify-between w-full gap-2 ">
-                    <ExclamationTriangleIcon className="block w-5 h-5 " />
-                    Last Origin
-                  </div>
-                )}
-                {showGraphIcon && (
-                  <div
-                    ref={graphDragRef}
-                    className="flex items-center justify-between w-full gap-2 cursor-move hover:underline"
-                  >
-                    Dependency
-                    <ArrowIcon className="block w-3 h-3 " />
-                  </div>
-                )}
-              </>
-            )}
             {globalDragging.type === DraggingType.GRAPH}
             {canDrop}
             {globalDragging.type === DraggingType.GRAPH && canDrop && <></>}

@@ -6,6 +6,7 @@ import {
   divideIntoSubsets,
   findSubarrayIndex,
   getClosedBucketType,
+  getLargestSubArray,
   getOpenBucketType,
   getOtherBuckets,
   hasCyclicDependencyWithBucket,
@@ -485,9 +486,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const getLayers = (): BucketID[][] => {
     const chains = getAllDependencyChains();
-    const longestChainLength = chains.reduce((a, b) =>
-      a.length > b.length ? a : b,
-    ).length;
+    const longestNaturalChain = getLargestSubArray(chains).length;
 
     // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
     const layersMap: Map<number, BucketID[]> = new Map();
@@ -504,17 +503,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       if (bucket?.layer !== undefined) {
         index = bucket.layer;
       } else {
+        if (
+          isLastInSubarray(chains, id) &&
+          SubArrayLength(chains, id) < longestNaturalChain
+        ) {
+          middleOrphans.push(id);
+          return;
+        }
+
         index = findSubarrayIndex(chains, id);
       }
 
       // We save all the middle orphans for the last row. but not when it is from the longest chain, because it then will not create the last layer.
-      if (
-        isLastInSubarray(chains, id) &&
-        SubArrayLength(chains, id) < longestChainLength
-      ) {
-        middleOrphans.push(id);
-        return;
-      }
 
       if (layersMap.has(index)) {
         layersMap.get(index)!.push(id); // Add to the existing array
@@ -538,10 +538,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     }
 
-    layersArray[layersArray.length - 1] = [
-      ...layersArray[layersArray.length - 1],
-      ...middleOrphans,
-    ];
+    const pos = longestNaturalChain - 1;
+    layersArray[pos] = [...layersArray[pos], ...middleOrphans];
     return layersArray;
   };
 

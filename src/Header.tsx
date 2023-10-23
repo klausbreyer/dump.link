@@ -1,6 +1,10 @@
 import React, { ChangeEvent } from "react";
 
-import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
+import {
+  ArrowsPointingOutIcon,
+  ExclamationTriangleIcon,
+  FlagIcon as FlagIconOutline,
+} from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 
 import StateSwitch from "./StateSwitch";
@@ -12,16 +16,30 @@ import {
 import { useData } from "./context/data";
 import { Bucket, TabContext } from "./types";
 import { getBucketPercentage } from "./context/helper";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import { ArrowIcon } from "./common/icons";
+import { ConnectDragSource } from "react-dnd";
 
 export interface HeaderProps {
   bucket: Bucket;
   context: TabContext;
+
+  foliationDrag?: ConnectDragSource;
+  graphDrag?: ConnectDragSource;
 }
 
 const Header: React.FC<HeaderProps> = (props) => {
-  const { bucket, context } = props;
+  const { bucket, context, foliationDrag, graphDrag } = props;
 
-  const { renameBucket, flagBucket } = useData();
+  const {
+    renameBucket,
+    flagBucket,
+    getLayerForBucketId,
+    getLayers,
+    getBucketsDependingOn,
+  } = useData();
+
+  const { globalDragging } = useGlobalDragging();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -36,11 +54,13 @@ const Header: React.FC<HeaderProps> = (props) => {
     flagBucket(bucket.id, !bucket?.flagged);
   };
 
+  const ownLayer = getLayerForBucketId(bucket.id);
+  const layersWithBucketIds = getLayers();
+  const ownLayerSize = layersWithBucketIds?.[ownLayer]?.length ?? 0;
+
   const bgTop = getBucketBackgroundColorTop(bucket);
   const border = getActiveBorderColor(bucket);
-
-  const showExpanded =
-    context !== TabContext.Sequencing && context !== TabContext.Ordering;
+  const wouldBeLastInZero = ownLayer !== 0 || ownLayerSize > 1;
 
   // to account for NaN on unstarted buckets
   const percentageCompleted = getBucketPercentage(bucket) || 0;
@@ -62,10 +82,10 @@ const Header: React.FC<HeaderProps> = (props) => {
           className={`w-full h-7 px-1 bg-transparent shadow-sm rounded-sm border-b focus:outline-none ${border}
         `}
           placeholder="unnamed"
-          value={bucket?.id}
+          value={bucket?.name}
           onChange={handleChange}
         />
-        {showExpanded && (
+        {context === TabContext.Grouping && (
           <>
             <StateSwitch bucket={bucket} />
             <BucketButton onClick={handleClick} bucket={bucket} flag>
@@ -75,6 +95,31 @@ const Header: React.FC<HeaderProps> = (props) => {
                 <FlagIconOutline className="w-5 h-5 " />
               )}
             </BucketButton>
+          </>
+        )}
+        {context === TabContext.Sequencing && (
+          <>
+            <BucketButton bucket={bucket} ref={graphDrag}>
+              <div className="flex items-center justify-start text-center cursor-move w-7 h-7">
+                <ArrowIcon className="block w-3 h-3 mx-auto " />
+              </div>
+            </BucketButton>
+          </>
+        )}
+        {!globalDragging.type && (
+          <>
+            {wouldBeLastInZero && (
+              <BucketButton bucket={bucket} ref={foliationDrag}>
+                <div className="flex items-center justify-start gap-2 font-bold cursor-move">
+                  <ArrowsPointingOutIcon className="block w-5 h-5 " />
+                </div>
+              </BucketButton>
+            )}
+            {!wouldBeLastInZero && (
+              <div className="flex items-center justify-start gap-2 font-bold cursor-move">
+                <ExclamationTriangleIcon className="block w-5 h-5 " />
+              </div>
+            )}
           </>
         )}
       </div>

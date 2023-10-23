@@ -29,7 +29,6 @@ const Lane: React.FC<LaneProps> = (props) => {
     getBucket,
     getBuckets,
     updateBucketLayer,
-    getLayers,
     getAllDependencyChains,
     getAllowedBucketsByLayer,
   } = useData();

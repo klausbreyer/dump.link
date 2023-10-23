@@ -11,13 +11,14 @@ import {
 export interface BucketButtonProps {
   children: React.ReactNode;
   bucket: Bucket;
-  onClick: () => void;
+  onClick?: () => void;
   flag?: boolean;
 }
 
-const BucketButton: React.FC<
+const BucketButton = React.forwardRef<
+  HTMLButtonElement,
   BucketButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>
-> = (props) => {
+>((props, ref) => {
   const { bucket, onClick, children, className, flag = false, ...rest } = props;
 
   const border = getActiveBorderColor(bucket);
@@ -33,13 +34,14 @@ const BucketButton: React.FC<
 
   return (
     <button
-      onClick={() => onClick()}
+      ref={ref}
+      onClick={onClick ? () => onClick() : () => {}}
       className={`active:transform active:scale-95 transition-transform duration-150 h-7 p-0.5 rounded-sm border-b shadow-sm focus:outline-none ${colors} ${className} `}
       {...rest}
     >
       {children}
     </button>
   );
-};
+});
 
 export default BucketButton;
