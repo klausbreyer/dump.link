@@ -48,7 +48,7 @@ const Area: React.FC<AreaProps> = (props) => {
   return (
     <div
       ref={dropRef}
-      className={`w-full h-full bg-slate-200 ${
+      className={`w-full rounded-md overflow-hidden h-full bg-slate-200 ${
         canDrop && !isOver ? "border-dashed border-2 border-gray-400" : ""
       } ${isOver ? "border-solid border-2 border-gray-400" : ""}`}
     >

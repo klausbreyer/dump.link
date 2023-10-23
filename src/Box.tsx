@@ -22,11 +22,12 @@ import {
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
+  Tabs,
 } from "./types";
 
 interface BoxProps {
   bucket: Bucket;
-  context: "graph" | "foliation" | "disabled";
+  context: Tabs;
 }
 
 const Box: React.FC<BoxProps> = (props) => {
@@ -115,17 +116,17 @@ const Box: React.FC<BoxProps> = (props) => {
   const bgHeader = getHeaderTextColor(bucket);
   const wouldBeLastInZero = ownLayer !== 0 || ownLayerSize > 1;
   const showFoliationIcon =
-    context === "foliation" &&
+    context === Tabs.Ordering &&
     (dependingIds.length > 0 || bucket.dependencies.length > 0); //check that unconnected boxes are not draggable
 
-  const showGraphIcon = context === "graph";
+  const showGraphIcon = context === Tabs.Sequencing;
 
   return (
     <div
-      className={`w-full`}
+      className={`w-full rounded-md overflow-hidden`}
       ref={(node) => foliationPreviewRev(graphPreviewRev(node))}
     >
-      <Header bucket={bucket} />
+      <Header bucket={bucket} context={context} />
       <div className={`min-h-[2rem] ${bgTop} `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (

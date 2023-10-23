@@ -54,3 +54,9 @@ export enum BucketState {
   DONE = "done",
   EMPTY = "empty",
 }
+
+export enum Tabs {
+  Grouping = "Grouping",
+  Sequencing = "Sequencing",
+  Ordering = "Ordering",
+}

@@ -5,7 +5,7 @@ import { useData } from "./context/data";
 import { getAllPairs, uniqueValues } from "./context/helper";
 import Lane from "./Lane";
 import { getBorderCenterCoordinates, shortenLineEnd } from "./Sequencing";
-import { Bucket, BucketID } from "./types";
+import { Bucket, BucketID, Tabs } from "./types";
 
 interface SubgraphProps {
   chains: BucketID[][];
@@ -120,7 +120,7 @@ const Subgraph: React.FC<SubgraphProps> = (props) => {
           >
             {lane.map((bucket, j) => (
               <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
-                <Box bucket={bucket} context={"foliation"} />
+                <Box bucket={bucket} context={Tabs.Ordering} />
               </div>
             ))}
           </Lane>

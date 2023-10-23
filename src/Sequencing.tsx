@@ -4,7 +4,7 @@ import Box from "./Box";
 import Container from "./common/Container";
 import { useData } from "./context/data";
 import { getOtherBuckets } from "./context/helper";
-import { BucketID } from "./types";
+import { BucketID, Tabs } from "./types";
 
 interface SequencingProps {}
 
@@ -132,7 +132,7 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
           return (
             <div
               ref={boxRefs.current[bucket.id]}
-              className="absolute w-40 bg-blue-500"
+              className="absolute w-40 "
               style={{
                 top: `${y}%`,
                 left: `${x}%`,
@@ -140,7 +140,7 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
               }}
               key={bucket.id}
             >
-              <Box bucket={bucket} context="graph" />
+              <Box bucket={bucket} context={Tabs.Sequencing} />
             </div>
           );
         })}

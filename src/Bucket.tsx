@@ -19,6 +19,7 @@ import {
   DropCollectedProps,
   Bucket as Bucket,
   DraggingType,
+  Tabs,
 } from "./types";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
@@ -134,9 +135,13 @@ const Bucket: React.FC<BucketProps> = (props) => {
     closed.length === 0 &&
     globalDragging.bucketId === bucket.id;
 
+  const flaggedStyles = bucket.flagged
+    ? "border-2 border-solid border-rose-500"
+    : "border-2 border-solid border-transparent";
+
   return (
-    <div className={`w-full`}>
-      <Header bucket={bucket} />
+    <div className={`w-full rounded-md overflow-hidden ${flaggedStyles}`}>
+      <Header context={Tabs.Grouping} bucket={bucket} />
       <div
         ref={topDropRef}
         className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${
