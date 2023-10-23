@@ -566,15 +566,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     const buckets = getBuckets();
     const layersWithBucketIds = getLayersForSubgraphChains(chains);
-    const getLayersForBucketIds = (
-      chains: any,
-      bucketIds: BucketID[],
-    ): number[] => {
+    const getLayersForBucketIds = (bucketIds: BucketID[]): number[] => {
       return bucketIds.map((id) => getLayerForBucketId(id));
     };
 
     const updateLookup = (
-      chains: any,
       idsInLayer: BucketID[],
       lookup: Map<BucketID, [number, number]>,
     ) => {
@@ -585,8 +581,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         const dependents = getBucketsDependingOn(idInLayer);
         const dependencies = bucket.dependencies || [];
 
-        const dependentLayers = getLayersForBucketIds(chains, dependents);
-        const dependencyLayers = getLayersForBucketIds(chains, dependencies);
+        const dependentLayers = getLayersForBucketIds(dependents);
+        const dependencyLayers = getLayersForBucketIds(dependencies);
 
         const minLayer = dependentLayers.length
           ? Math.min(...dependentLayers)
@@ -600,7 +596,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     };
 
     const getAllowedBucketsOnLayer = (
-      chains: any,
       layerIndex: number,
       others: Bucket[],
       lookup: Map<BucketID, [number, number]>,
@@ -616,8 +611,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
         if (
           currentLayer !== layerIndex &&
-          min <= layerIndex &&
-          max >= layerIndex
+          min < layerIndex &&
+          max > layerIndex
         ) {
           allowedOnLayer.push(id);
         }
@@ -630,7 +625,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     if (index !== undefined && index >= 0) {
       const lookup: Map<BucketID, [number, number]> = new Map();
       for (const idsInLayer of layersWithBucketIds) {
-        updateLookup(chains, idsInLayer, lookup);
+        updateLookup(idsInLayer, lookup);
       }
 
       const others = getOtherBuckets(buckets);
@@ -640,7 +635,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         layerIndex++
       ) {
         const allowedOnLayer = getAllowedBucketsOnLayer(
-          chains,
           layerIndex,
           others,
           lookup,

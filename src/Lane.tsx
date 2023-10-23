@@ -43,13 +43,6 @@ const Lane: React.FC<LaneProps> = (props) => {
   const { globalDragging } = useGlobalDragging();
 
   const getAccept = () => {
-    // all that is not depending on another.
-    if (index === -1) {
-      return getFirstValues(chains).map((bucketId) =>
-        getFoliationBucketType(bucketId),
-      );
-    }
-
     // all that is not having any dependents
     if (index === allowedOnLayers.length) {
       return getLastValues(chains).map((bucketId) =>

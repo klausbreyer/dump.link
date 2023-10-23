@@ -133,8 +133,9 @@ const Navigation: React.FC<NavigationProps> = (props) => {
           </ol>
         </Tab.Group>
         <div className="flex w-full cursor-help">
-          {relevantBuckets.map((bucket) => (
+          {relevantBuckets.map((bucket, i) => (
             <div
+              key={i}
               title={`${bucket.name}: ${getBucketPercentage(
                 bucket,
               )}% completed`}
@@ -144,8 +145,9 @@ const Navigation: React.FC<NavigationProps> = (props) => {
               style={{ width: `${getBucketPercentage(bucket)}%` }}
             ></div>
           ))}
-          {relevantBuckets.map((bucket) => (
+          {relevantBuckets.map((bucket, i) => (
             <div
+              key={i}
               title={`${bucket.name}: ${
                 100 - getBucketPercentage(bucket)
               }% missing`}
