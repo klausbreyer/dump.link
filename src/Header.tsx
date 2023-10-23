@@ -106,7 +106,7 @@ const Header: React.FC<HeaderProps> = (props) => {
             </BucketButton>
           </>
         )}
-        {!globalDragging.type && (
+        {context === TabContext.Ordering && !globalDragging.type && (
           <>
             {wouldBeLastInZero && (
               <BucketButton bucket={bucket} ref={foliationDrag}>
@@ -116,7 +116,10 @@ const Header: React.FC<HeaderProps> = (props) => {
               </BucketButton>
             )}
             {!wouldBeLastInZero && (
-              <div className="flex items-center justify-start gap-2 font-bold cursor-move">
+              <div
+                title="One dependency needs to stay in the first layer"
+                className="flex items-center justify-start gap-2 font-bold cursor-help"
+              >
                 <ExclamationTriangleIcon className="block w-5 h-5 " />
               </div>
             )}

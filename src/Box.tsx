@@ -126,7 +126,7 @@ const Box: React.FC<BoxProps> = (props) => {
         graphDrag={graphDragRef}
       />
 
-      <div className={`min-h-[2rem] `}>
+      <div className={`min-h-[1rem] `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (
             <li
@@ -141,25 +141,27 @@ const Box: React.FC<BoxProps> = (props) => {
               {getBucket(id)?.name}
             </li>
           ))}
-          <li
-            ref={dropRef}
-            className={`flex border-2 h-8 items-center justify-between gap-1 p-1
+          {TabContext.Sequencing === context && (
+            <li
+              ref={dropRef}
+              className={`flex border-2 h-8 items-center justify-between gap-1 p-1
             ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
             ${isOver && " border-gray-400"}
             ${!canDrop && !isOver && " border-transparent"}
             `}
-          >
-            {globalDragging.type === DraggingType.GRAPH}
-            {canDrop}
-            {globalDragging.type === DraggingType.GRAPH && canDrop && <></>}
-            {globalDragging.type === DraggingType.GRAPH &&
-              !canDrop &&
-              !graphIsDragging && (
-                <>
-                  Unavailble <ExclamationTriangleIcon className="w-5 h-5" />
-                </>
-              )}
-          </li>
+            >
+              {globalDragging.type === DraggingType.GRAPH}
+              {canDrop}
+              {globalDragging.type === DraggingType.GRAPH && canDrop && <></>}
+              {globalDragging.type === DraggingType.GRAPH &&
+                !canDrop &&
+                !graphIsDragging && (
+                  <>
+                    Unavailble <ExclamationTriangleIcon className="w-5 h-5" />
+                  </>
+                )}
+            </li>
+          )}
         </ul>
       </div>
     </div>
