@@ -17,6 +17,7 @@ import {
   getInactiveBorderColor,
 } from "./common/colors";
 import { TabContext } from "./types";
+import { useQueryParamChange } from "./hooks/useQueryParamChange";
 
 interface Step {
   id: string;
@@ -53,8 +54,8 @@ const steps: Step[] = [
 interface NavigationProps {}
 
 const Navigation: React.FC<NavigationProps> = (props) => {
-  const initialTab =
-    window.location.hash.length > 0 ? window.location.hash.slice(1) : "dump";
+  const currentQueryParam = useQueryParamChange("p");
+  const initialTab = currentQueryParam || TabContext.Grouping;
   const [currentTab, setCurrentTab] = useState<string | null>(initialTab);
 
   const { getBuckets } = useData();
