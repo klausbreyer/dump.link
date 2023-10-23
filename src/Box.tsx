@@ -47,6 +47,8 @@ const Box: React.FC<BoxProps> = (props) => {
   const ownLayerSize = layersWithBucketIds?.[ownLayer]?.length ?? 0;
   const dependingIds = getBucketsDependingOn(bucket.id);
 
+  const { globalDragging, setGlobalDragging } = useGlobalDragging();
+
   const [collectedProps, dropRef] = useDrop(
     {
       accept: availbleIds.map((id) => getGraphBucketType(id)),
@@ -79,9 +81,11 @@ const Box: React.FC<BoxProps> = (props) => {
       [bucket, getGraphBucketType],
     );
 
-  const { globalDragging, setGlobalDragging } = useGlobalDragging();
   useEffect(() => {
-    setGlobalDragging(graphIsDragging ? DraggingType.GRAPH : DraggingType.NONE);
+    setGlobalDragging(
+      graphIsDragging ? DraggingType.GRAPH : DraggingType.NONE,
+      bucket.id,
+    );
   }, [graphIsDragging, setGlobalDragging]);
 
   const [
@@ -103,6 +107,7 @@ const Box: React.FC<BoxProps> = (props) => {
   useEffect(() => {
     setGlobalDragging(
       foliationIsDragging ? DraggingType.FOLIATION : DraggingType.NONE,
+      bucket.id,
     );
   }, [foliationIsDragging, setGlobalDragging]);
 
@@ -144,7 +149,7 @@ const Box: React.FC<BoxProps> = (props) => {
             ${!canDrop && !isOver && " border-transparent"}
             `}
           >
-            {!globalDragging && (
+            {!globalDragging.type && (
               <>
                 {showFoliationIcon && wouldBeLastInZero && (
                   <div
@@ -172,10 +177,10 @@ const Box: React.FC<BoxProps> = (props) => {
                 )}
               </>
             )}
-            {globalDragging === DraggingType.GRAPH}
+            {globalDragging.type === DraggingType.GRAPH}
             {canDrop}
-            {globalDragging === DraggingType.GRAPH && canDrop && <></>}
-            {globalDragging === DraggingType.GRAPH &&
+            {globalDragging.type === DraggingType.GRAPH && canDrop && <></>}
+            {globalDragging.type === DraggingType.GRAPH &&
               !canDrop &&
               !graphIsDragging && (
                 <>

@@ -1,14 +1,25 @@
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useCallback,
+} from "react";
 
-import { DraggingType } from "../types";
+import { BucketID, DraggingType } from "../types";
 
 interface GlobalDraggingProviderProps {
   children: ReactNode;
 }
 
+type GlobalDraggingState = {
+  type: DraggingType;
+  bucketId: BucketID;
+};
+
 interface GlobalDraggingContextType {
-  globalDragging: DraggingType;
-  setGlobalDragging: React.Dispatch<React.SetStateAction<DraggingType>>;
+  globalDragging: GlobalDraggingState;
+  setGlobalDragging: (type: DraggingType, entity: BucketID) => void;
 }
 
 export const GlobalDraggingContext = createContext<
@@ -18,11 +29,27 @@ export const GlobalDraggingContext = createContext<
 export const GlobalDraggingProvider: React.FC<GlobalDraggingProviderProps> = ({
   children,
 }): JSX.Element => {
-  const [globalDragging, setGlobalDragging] = useState(DraggingType.NONE);
+  const [state, setState] = useState<GlobalDraggingState>({
+    type: DraggingType.NONE,
+    bucketId: "",
+  });
+
+  const setGlobalDragging = useCallback(
+    (type: DraggingType, entity: BucketID) => {
+      setState((prevState) => ({
+        ...prevState,
+        type: type,
+        bucketId: entity,
+      }));
+    },
+    [],
+  );
+
+  console.log(state);
 
   return (
     <GlobalDraggingContext.Provider
-      value={{ globalDragging, setGlobalDragging }}
+      value={{ globalDragging: state, setGlobalDragging }}
     >
       {children}
     </GlobalDraggingContext.Provider>

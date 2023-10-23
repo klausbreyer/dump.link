@@ -72,8 +72,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const { setGlobalDragging } = useGlobalDragging();
   useEffect(() => {
-    setGlobalDragging(isDragging ? DraggingType.TASK : DraggingType.NONE);
-  }, [isDragging, setGlobalDragging]);
+    if (!task) return;
+    const bucket = getBucketForTask(task);
+    if (!bucket) return;
+    setGlobalDragging(
+      isDragging ? DraggingType.TASK : DraggingType.NONE,
+      bucket.id,
+    );
+  }, [isDragging, task, getBucketForTask, setGlobalDragging]);
 
   const [, dropRef] = useDrop(
     () => ({

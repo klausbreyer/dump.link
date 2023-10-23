@@ -14,7 +14,14 @@ import {
 } from "./context/helper";
 import Header from "./Header";
 import TaskItem from "./TaskItem";
-import { DraggedTask, DropCollectedProps, Bucket as Bucket } from "./types";
+import {
+  DraggedTask,
+  DropCollectedProps,
+  Bucket as Bucket,
+  DraggingType,
+} from "./types";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 interface BucketProps {
   bucket: Bucket;
@@ -38,6 +45,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const open = getTasksByClosed(bucket, false);
   const closed = getTasksByClosed(bucket, true);
+  const { globalDragging } = useGlobalDragging();
 
   useEffect(() => {
     if (closed.length === 1) {
@@ -114,6 +122,11 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const bgTop = getBucketBackgroundColorTop(bucket);
   const bgBottom = getBucketBackgroundColorBottom(bucket);
 
+  const showCantDrop =
+    globalDragging.type === DraggingType.TASK &&
+    closed.length === 0 &&
+    globalDragging.bucketId === bucket.id;
+
   return (
     <div className={`w-full`}>
       <Header bucket={bucket} />
@@ -157,6 +170,12 @@ const Bucket: React.FC<BucketProps> = (props) => {
               {!closedExpanded
                 ? `Show all ${closed.length} Tasks`
                 : `Hide Tasks`}
+            </div>
+          )}
+          {showCantDrop && (
+            <div className="flex items-center justify-center gap-2 text-center">
+              <ExclamationTriangleIcon className="w-5 h-5" />
+              Can't drop - this bucket is inactive!
             </div>
           )}
         </CardList>

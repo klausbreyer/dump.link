@@ -9,15 +9,15 @@ import {
   getOtherBuckets,
   uniqueValues,
 } from "./context/helper";
-import FoliationLane from "./FoliationLane";
-import FoliationSubgraph from "./FoliationSubgraph";
+import Lane from "./Lane";
+import Subgraph from "./Subgraph";
 import { Bucket, BucketID } from "./types";
 
-interface FoliationProps {
+interface OrderingProps {
   // [key: string]: any;
 }
 
-const Foliation: React.FC<FoliationProps> = (props) => {
+const Ordering: React.FC<OrderingProps> = (props) => {
   const { getDependencyChains, getBucket, getBuckets } = useData();
   const buckets = getBuckets();
 
@@ -49,19 +49,19 @@ const Foliation: React.FC<FoliationProps> = (props) => {
       <div className="relative w-full parent">
         <div className={`grid w-full gap-8 ${gridCols(subgraphs.length)}`}>
           {subgraphs.map((subgraph, i) => (
-            <FoliationSubgraph chains={subgraph} key={i} />
+            <Subgraph chains={subgraph} key={i} />
           ))}
         </div>
-        <FoliationLane chains={[]} defaultHidden={false} hoverable={false}>
+        <Lane chains={[]} defaultHidden={false} hoverable={false}>
           {notPairedBuckets.map((bucket, j) => (
             <div key={j} className="w-40">
               <Box bucket={bucket} context="foliation" />
             </div>
           ))}
-        </FoliationLane>
+        </Lane>
       </div>
     </Container>
   );
 };
 
-export default Foliation;
+export default Ordering;

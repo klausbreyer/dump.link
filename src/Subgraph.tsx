@@ -3,15 +3,15 @@ import React, { useEffect, useRef, useState } from "react";
 import Box from "./Box";
 import { useData } from "./context/data";
 import { getAllPairs, uniqueValues } from "./context/helper";
-import FoliationLane from "./FoliationLane";
-import { getBorderCenterCoordinates, shortenLineEnd } from "./Graph";
+import Lane from "./Lane";
+import { getBorderCenterCoordinates, shortenLineEnd } from "./Sequencing";
 import { Bucket, BucketID } from "./types";
 
-interface FoliationSubgraphProps {
+interface SubgraphProps {
   chains: BucketID[][];
 }
 
-const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
+const Subgraph: React.FC<SubgraphProps> = (props) => {
   const { getBucket, getLayersForSubgraphChains } = useData();
   const { chains } = props;
 
@@ -111,7 +111,7 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
       </svg>
       <div className="flex flex-col ">
         {layersWithBuckets.map((lane, i) => (
-          <FoliationLane
+          <Lane
             chains={chains}
             defaultHidden={false}
             index={i}
@@ -123,10 +123,10 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
                 <Box bucket={bucket} context={"foliation"} />
               </div>
             ))}
-          </FoliationLane>
+          </Lane>
         ))}
 
-        <FoliationLane
+        <Lane
           chains={chains}
           defaultHidden={true}
           index={layersWithBuckets.length}
@@ -136,4 +136,4 @@ const FoliationSubgraph: React.FC<FoliationSubgraphProps> = (props) => {
     </div>
   );
 };
-export default FoliationSubgraph;
+export default Subgraph;

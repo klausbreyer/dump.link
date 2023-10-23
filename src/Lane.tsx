@@ -16,7 +16,7 @@ import {
   DropCollectedProps,
 } from "./types";
 
-interface FoliationLaneProps extends React.HTMLProps<HTMLDivElement> {
+interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
   hoverable: boolean;
   defaultHidden: boolean;
@@ -24,7 +24,7 @@ interface FoliationLaneProps extends React.HTMLProps<HTMLDivElement> {
   chains: BucketID[][];
 }
 
-const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
+const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden, chains } = props;
   const {
     getBucket,
@@ -101,7 +101,7 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
   const showWhileDragging =
-    defaultHidden === false || globalDragging === DraggingType.FOLIATION;
+    defaultHidden === false || globalDragging.type === DraggingType.FOLIATION;
   const dropActive = hoverable && canDrop && !isOver;
   const dropOver = hoverable && canDrop && isOver;
 
@@ -127,4 +127,4 @@ const FoliationLane: React.FC<FoliationLaneProps> = (props) => {
     </div>
   );
 };
-export default FoliationLane;
+export default Lane;

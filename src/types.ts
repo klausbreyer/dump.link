@@ -41,6 +41,12 @@ export enum DraggingType {
   FOLIATION = "FOLIATION",
   NONE = "",
 }
+
+export type GlobalDraggingState = {
+  type: DraggingType;
+  entity: string | null;
+};
+
 export enum BucketState {
   INACTIVE = "inactive",
   UNSOLVED = "unsolved",

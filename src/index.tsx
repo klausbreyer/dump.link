@@ -4,8 +4,8 @@ import { createRoot } from "react-dom/client";
 
 import { DataProvider } from "./context/data";
 import Dump from "./Dump";
-import Foliation from "./Foliation";
-import Graph from "./Graph";
+import Ordering from "./Ordering";
+import Sequencing from "./Sequencing";
 import { GlobalDraggingProvider } from "./hooks/useGlobalDragging";
 import { useHashChange } from "./hooks/useHashChange"; // Import the custom hook
 import Navigation from "./Navigation";
@@ -21,9 +21,9 @@ const App = function App() {
       case "dump":
         return <Dump />;
       case "graph":
-        return <Graph />;
+        return <Sequencing />;
       case "foliation":
-        return <Foliation />;
+        return <Ordering />;
       // Add more cases here for other hash values and their corresponding components
       default:
         return <Dump />;

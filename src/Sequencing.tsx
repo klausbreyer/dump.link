@@ -6,7 +6,7 @@ import { useData } from "./context/data";
 import { getOtherBuckets } from "./context/helper";
 import { BucketID } from "./types";
 
-interface GraphProps {}
+interface SequencingProps {}
 
 type Coordinates = {
   x: number;
@@ -28,7 +28,7 @@ const positions: { top: number; left: number }[] = [
   { top: 15.112, left: 25.1909 },
 ];
 
-const Graph: React.FC<GraphProps> = (props) => {
+const Sequencing: React.FC<SequencingProps> = (props) => {
   const { getBuckets } = useData();
 
   const buckets = getBuckets();
@@ -149,7 +149,7 @@ const Graph: React.FC<GraphProps> = (props) => {
   );
 };
 
-export default Graph;
+export default Sequencing;
 
 // @todo. extract in own file.
 export const shortenLineEnd = (
