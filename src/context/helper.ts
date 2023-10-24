@@ -66,6 +66,10 @@ export const getOtherBuckets = (buckets: Bucket[]): Bucket[] => {
   return buckets.filter((bucket) => bucket.dump !== true);
 };
 
+export const countTasks = (buckets: Bucket[]): number => {
+  return buckets.reduce((total, bucket) => total + bucket.tasks.length, 0);
+};
+
 /**
  * Checks if adding a dependency to the given bucket would result in a cyclic relationship.
  *
@@ -149,6 +153,8 @@ export const SubArrayLength = (data: BucketID[][], id: BucketID): number => {
   return -1; // Return -1 if the id is not found in any subarray
 };
 export const getLargestSubArray = (data: BucketID[][]): BucketID[] => {
+  if (data.length === 0) return [];
+
   return data.reduce((a, b) => (a.length > b.length ? a : b));
 };
 

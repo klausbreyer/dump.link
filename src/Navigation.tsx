@@ -10,7 +10,12 @@ import {
 
 import Container from "./common/Container";
 import { useData } from "./context/data";
-import { getBucketPercentage, getOtherBuckets } from "./context/helper";
+import {
+  countTasks,
+  getAllPairs,
+  getBucketPercentage,
+  getOtherBuckets,
+} from "./context/helper";
 import {
   getBucketBackgroundColorTop,
   getActiveBorderColor,
@@ -28,11 +33,6 @@ interface Step {
 
 const steps: Step[] = [
   {
-    id: TabContext.Settings,
-    name: "Settings",
-    icon: <CogIcon className="w-6 h-6 text-slate-600" />,
-  },
-  {
     id: TabContext.Grouping,
     name: "Grouping",
     icon: <ArrowsPointingOutIcon className="w-6 h-6 text-slate-600" />,
@@ -49,6 +49,11 @@ const steps: Step[] = [
     name: "Ordering",
     icon: <ChartBarIcon className="w-6 h-6 rotate-90 text-slate-600 " />,
   },
+  {
+    id: TabContext.Settings,
+    name: "Settings",
+    icon: <CogIcon className="w-6 h-6 text-slate-600" />,
+  },
 ];
 
 interface NavigationProps {}
@@ -58,10 +63,16 @@ const Navigation: React.FC<NavigationProps> = (props) => {
   const initialTab = currentQueryParam || TabContext.Grouping;
   const [currentTab, setCurrentTab] = useState<string | null>(initialTab);
 
-  const { getBuckets } = useData();
+  const { getBuckets, getAllDependencyChains } = useData();
   const buckets = getBuckets();
   const otherBuckets = getOtherBuckets(buckets);
   const relevantBuckets = otherBuckets.filter((b) => b.tasks.length > 0);
+
+  const chains = getAllDependencyChains();
+  const pairs = getAllPairs(chains);
+
+  const showSequencing = countTasks(otherBuckets) > 0;
+  const showOrdering = pairs.length > 0;
 
   const handleTabClick = (step: Step) => {
     setCurrentTab(step.id);
@@ -101,7 +112,12 @@ const Navigation: React.FC<NavigationProps> = (props) => {
               <Tab
                 as="li"
                 key={step.name}
-                className="relative md:flex md:flex-1"
+                className={`relative md:flex md:flex-1 ${
+                  (step.id === TabContext.Sequencing && !showSequencing) ||
+                  (step.id === TabContext.Ordering && !showOrdering)
+                    ? "opacity-50 pointer-events-none"
+                    : ""
+                }`}
               >
                 <Tab.List className="flex items-center w-full">
                   <button

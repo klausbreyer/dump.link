@@ -270,7 +270,10 @@ type DataProviderProps = {
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const persistedState = loadFromLocalStorage();
-  const [state, dispatch] = useReducer(dataReducer, initialState);
+  const [state, dispatch] = useReducer(
+    dataReducer,
+    persistedState || initialState,
+  );
 
   useEffect(() => {
     saveToLocalStorage(state);
@@ -486,6 +489,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const getLayers = (): BucketID[][] => {
     const chains = getAllDependencyChains();
+    if (chains.length === 0) {
+      return [];
+    }
     const longestNaturalChain = getLargestSubArray(chains).length;
 
     // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
