@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { Bucket, BucketID, BucketState, Task } from "../types";
 
 /**
@@ -69,6 +70,19 @@ export const getOtherBuckets = (buckets: Bucket[]): Bucket[] => {
 export const countTasks = (buckets: Bucket[]): number => {
   return buckets.reduce((total, bucket) => total + bucket.tasks.length, 0);
 };
+
+// NewID generates a random base-58 ID.
+export function NewID(): string {
+  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; // base58
+  const size = 11;
+
+  const idBuffer = randomBytes(size);
+  const idArray = Array.from(idBuffer);
+
+  const id = idArray.map((p) => alphabet[p % alphabet.length]);
+
+  return id.join("");
+}
 
 /**
  * Checks if adding a dependency to the given bucket would result in a cyclic relationship.

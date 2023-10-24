@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useReducer } from "react";
 
 import { Bucket, BucketID, State, Task, TaskID } from "../types";
 import {
+  NewID,
   SubArrayLength,
   divideIntoSubsets,
   findSubarrayIndex,
@@ -86,10 +87,7 @@ const dataReducer = (state: State, action: ActionType): State => {
           bucket.id === action.bucketId
             ? {
                 ...bucket,
-                tasks: [
-                  ...bucket.tasks,
-                  { ...action.task, id: Date.now().toString() },
-                ],
+                tasks: [...bucket.tasks, { ...action.task, id: NewID() }],
               }
             : bucket,
         ),

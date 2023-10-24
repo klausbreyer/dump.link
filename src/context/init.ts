@@ -1,19 +1,7 @@
 import { randomBytes } from "crypto";
 
 import { Bucket, State } from "../types";
-
-// NewID generates a random base-58 ID.
-function NewID(): string {
-  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; // base58
-  const size = 11;
-
-  const idBuffer = randomBytes(size);
-  const idArray = Array.from(idBuffer);
-
-  const id = idArray.map((p) => alphabet[p % alphabet.length]);
-
-  return id.join("");
-}
+import { NewID } from "./helper";
 
 let initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
   id: NewID(),
