@@ -113,8 +113,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
                 as="li"
                 key={step.name}
                 className={`relative md:flex md:flex-1 ${
-                  (step.id === TabContext.Sequencing && !showSequencing) ||
-                  (step.id === TabContext.Ordering && !showOrdering)
+                  step.id === TabContext.Ordering && !showOrdering
                     ? "opacity-50 pointer-events-none"
                     : ""
                 }`}

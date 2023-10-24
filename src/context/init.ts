@@ -7,7 +7,7 @@ let initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
   id: NewID(),
   name: ``,
   dependencies: [],
-  flagged: index === 6,
+  flagged: false,
   dump: index === 0,
   active: false,
   tasks:
