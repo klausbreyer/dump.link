@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1229px" height="1229px" viewBox="0 0 1229 1229" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>sequencing</title>
+    <g id="sequencing" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Rectangle-Copy-11" fill="#000000" x="191" y="55" width="175" height="208"></rect>
+        <rect id="Rectangle-Copy-12" fill="#000000" x="514" y="0" width="175" height="208"></rect>
+        <rect id="Rectangle-Copy-13" fill="#000000" x="858" y="55" width="175" height="208"></rect>
+        <rect id="Rectangle-Copy-14" fill="#000000" x="1054" y="317" width="175" height="207"></rect>
+        <rect id="Rectangle-Copy-15" fill="#000000" x="1054" y="663" width="175" height="208"></rect>
+        <rect id="Rectangle-Copy-16" fill="#000000" x="858" y="917" width="175" height="209"></rect>
+        <rect id="Rectangle-Copy-17" fill="#000000" x="514" y="1021" width="175" height="208"></rect>
+        <rect id="Rectangle-Copy-18" fill="#000000" x="191" y="917" width="175" height="209"></rect>
+        <rect id="Rectangle-Copy-19" fill="#000000" x="0" y="317" width="175" height="207"></rect>
+        <rect id="Rectangle-Copy-20" fill="#000000" x="0" y="683" width="175" height="208"></rect>
+        <path id="Line" d="M279.458763,264 L268.953926,323.452909 L251.288,310.34 L179.556088,406.980096 L176.575993,410.994947 L168.54629,405.034755 L171.526386,401.019904 L243.259,304.38 L225.593533,291.267876 L279.458763,264 Z" fill="#000000" fill-rule="nonzero"></path>
+        <path id="Line-Copy" d="M606.5,204.003686 L633.5,258.003686 L611.5,258.003 L611.5,1023.99631 L601.5,1023.99631 L601.5,258.003 L579.5,258.003686 L606.5,204.003686 Z" fill="#000000" fill-rule="nonzero"></path>
+        <path id="Line-Copy-2" d="M859.459574,159.002326 L870.126775,218.426318 L849.02,212.219 L611.337284,1020.4084 L609.926559,1025.20526 L600.332841,1022.38381 L601.743567,1017.58695 L839.426,209.397 L818.320701,203.190482 L859.459574,159.002326 Z" fill="#000000" fill-rule="nonzero"></path>
+        <path id="Line-Copy-3" d="M861.05465,1014.11135 L866.347508,1022.59579 L862.105289,1025.24222 L738.003,1102.661 L749.647811,1121.32655 L689.541139,1127 L721.066381,1075.51059 L732.71,1094.176 L856.812432,1016.75778 L861.05465,1014.11135 Z" fill="#000000" fill-rule="nonzero"></path>
+        <path id="Line-Copy-4" d="M365.540014,999.02725 L369.539946,1002.02734 L474.261,1080.572 L487.461369,1062.97212 L514.460145,1116.97273 L455.06039,1106.17138 L468.26,1088.571 L363.539764,1010.0272 L359.539832,1007.02711 L365.540014,999.02725 Z" fill="#000000" fill-rule="nonzero"></path>
+    </g>
+</svg>

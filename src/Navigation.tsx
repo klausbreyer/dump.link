@@ -18,6 +18,7 @@ import {
 } from "./context/helper";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
+import { GroupingIcon, OrderingIcon, SequencingIcon } from "./common/icons";
 
 interface Step {
   id: string;
@@ -30,19 +31,18 @@ const steps: Step[] = [
   {
     id: TabContext.Grouping,
     name: "Grouping",
-    icon: <ArrowsPointingOutIcon className="w-6 h-6 text-slate-600" />,
+    icon: <GroupingIcon className="w-6 h-6 text-slate-600" />,
   },
   {
     id: TabContext.Sequencing,
     name: "Sequencing",
-    icon: (
-      <ArrowLeftOnRectangleIcon className="w-6 h-6 -rotate-90 text-slate-600" />
-    ),
+  
+    icon: <SequencingIcon className="w-6 h-6 text-slate-600" />,
   },
   {
     id: TabContext.Ordering,
     name: "Ordering",
-    icon: <ChartBarIcon className="w-6 h-6 rotate-90 text-slate-600 " />,
+    icon: <OrderingIcon className="w-6 h-6 text-slate-600 " />,
   },
   {
     id: TabContext.Settings,
