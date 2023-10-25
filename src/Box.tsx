@@ -110,8 +110,6 @@ const Box: React.FC<BoxProps> = (props) => {
   const bgTop = getBucketBackgroundColorTop(bucket);
   const bgHeader = getHeaderTextColor(bucket);
 
-  const flaggedStyles = getBucketFlaggedStyle(bucket);
-
   return (
     <div
       id={bucket.id}
@@ -125,7 +123,7 @@ const Box: React.FC<BoxProps> = (props) => {
         graphDrag={graphDragRef}
       />
 
-      <div className={`min-h-[1rem] ${flaggedStyles}  `}>
+      <div className={`min-h-[1rem]  `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (
             <>
@@ -137,7 +135,9 @@ const Box: React.FC<BoxProps> = (props) => {
                 ${bgHeader}
               `}
                 >
-                  {getBucket(id)?.name !== "" ? getBucket(id)?.name : "unnamed"}
+                  {getBucket(id)?.name !== ""
+                    ? getBucket(id)?.name
+                    : "Untitled"}
                   <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0 group-hover:hidden" />
                   <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
                 </li>
@@ -149,7 +149,9 @@ const Box: React.FC<BoxProps> = (props) => {
                 ${bgHeader}
               `}
                 >
-                  {getBucket(id)?.name !== "" ? getBucket(id)?.name : "unnamed"}
+                  {getBucket(id)?.name !== ""
+                    ? getBucket(id)?.name
+                    : "Untitled"}
                   <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0" />
                 </li>
               )}

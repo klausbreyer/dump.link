@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
-import { getActiveBorderColor } from "./common/colors";
+import { getInputBorderColor } from "./common/colors";
 import { useData } from "./context/data";
 import {
   getAllPairs,
@@ -36,7 +36,7 @@ const steps: Step[] = [
   {
     id: TabContext.Sequencing,
     name: "Sequencing",
-  
+
     icon: <SequencingIcon className="w-6 h-6 text-slate-600" />,
   },
   {
@@ -162,7 +162,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
               title={`${bucket.name}: ${getBucketPercentage(
                 bucket,
               )}% completed`}
-              className={` border-b-8 ${getActiveBorderColor(bucket)} `}
+              className={` border-b-8 ${getInputBorderColor(bucket)} `}
               style={{ width: `${getBucketPercentage(bucket)}%` }}
             ></div>
           ))}
