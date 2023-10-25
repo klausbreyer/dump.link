@@ -145,7 +145,7 @@ const Box: React.FC<BoxProps> = (props) => {
               {TabContext.Sequencing !== context && (
                 <li
                   key={id}
-                  className={`flex items-center justify-end gap-1 p-0.5 cursor-pointer
+                  className={`flex items-center justify-end gap-1 p-0.5
                 ${bgHeader}
               `}
                 >

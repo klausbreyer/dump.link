@@ -225,16 +225,39 @@ const dataReducer = (state: State, action: ActionType): State => {
     case "REMOVE_BUCKET_DEPENDENCY":
       return {
         ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? {
-                ...bucket,
-                dependencies: bucket.dependencies.filter(
-                  (id) => id !== action.dependencyId,
-                ),
-              }
-            : bucket,
-        ),
+        buckets: state.buckets.map((bucket) => {
+          // First, remove the dependency from the current bucket
+          if (bucket.id === action.bucketId) {
+            const newDependencies = bucket.dependencies.filter(
+              (id) => id !== action.dependencyId,
+            );
+            return {
+              ...bucket,
+              dependencies: newDependencies,
+            };
+          }
+
+          // Then, check if the bucket is represented by action.dependencyId
+          // and if other buckets have exactly one dependency to this bucket
+          if (bucket.id === action.dependencyId) {
+            const otherBucketsHaveSingleDependency = state.buckets.some(
+              (otherBucket) =>
+                otherBucket.dependencies.length === 1 &&
+                otherBucket.dependencies.includes(action.dependencyId) &&
+                otherBucket.id !== action.bucketId,
+            );
+
+            return {
+              ...bucket,
+              layer: otherBucketsHaveSingleDependency
+                ? bucket.layer
+                : undefined,
+            };
+          }
+
+          // If the bucket is neither the target of the action nor the dependency, leave it unchanged
+          return bucket;
+        }),
       };
 
     case "UPDATE_BUCKET_LAYER":
@@ -643,7 +666,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  console.log(state);
+  console.log("state", state);
 
   return (
     <DataContext.Provider
