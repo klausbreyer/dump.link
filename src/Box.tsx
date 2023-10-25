@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 import {
+  ArrowLeftOnRectangleIcon,
   ArrowsPointingOutIcon,
   ArrowsUpDownIcon,
   ExclamationTriangleIcon,
@@ -26,6 +27,7 @@ import {
   TabContext,
 } from "./types";
 import BucketButton from "./common/BucketButton";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/solid";
 
 interface BoxProps {
   bucket: Bucket;
@@ -132,13 +134,13 @@ const Box: React.FC<BoxProps> = (props) => {
             <li
               key={id}
               onClick={() => removeBucketDependency(id, bucket.id)}
-              className={`flex items-center justify-start gap-1 p-0.5 cursor-pointer group hover:underline
+              className={`flex items-center justify-end gap-1 p-0.5 cursor-pointer group hover:underline
                 ${bgHeader}
               `}
             >
-              <LinkIcon className="block w-4 h-4 shrink-0 group-hover:hidden" />
-              <XMarkIcon className="hidden w-4 h-4 shrink-0 group-hover:block" />
               {getBucket(id)?.name}
+              <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0 group-hover:hidden" />
+              <XMarkIcon className="hidden w-4 h-4 shrink-0 group-hover:block" />
             </li>
           ))}
           {TabContext.Sequencing === context && (
