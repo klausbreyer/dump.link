@@ -1,10 +1,12 @@
 import React from "react";
+import { useData } from "./context/data";
 
 interface SettingsProps {
   // [key: string]: any;
 }
 
 const Settings: React.FC<SettingsProps> = (props) => {
+  const { getBuckets } = useData();
   const handleClearLocalStorage = () => {
     localStorage.clear();
     alert("Local storage cleared!"); // Optional: to notify the user
@@ -27,6 +29,12 @@ const Settings: React.FC<SettingsProps> = (props) => {
       >
         Reset localStorage
       </button>
+      <br />
+      <br />
+      <h1 className="text-xl">State</h1>
+      <textarea className="w-full border h-80 ">
+        {JSON.stringify(getBuckets())}
+      </textarea>
     </div>
   );
 };
