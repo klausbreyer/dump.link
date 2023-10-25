@@ -131,14 +131,13 @@ const Box: React.FC<BoxProps> = (props) => {
                 <li
                   key={id}
                   onClick={() => removeBucketDependency(id, bucket.id)}
-                  className={`flex items-center justify-end gap-1 p-0.5 cursor-pointer group hover:underline
+                  className={`flex items-center justify-between gap-1 p-0.5 cursor-pointer group hover:underline
                 ${bgHeader}
               `}
                 >
                   {getBucket(id)?.name !== ""
                     ? getBucket(id)?.name
                     : "Untitled"}
-                  <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0 group-hover:hidden" />
                   <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
                 </li>
               )}
