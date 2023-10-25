@@ -9,20 +9,15 @@ import {
 } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
+import { getActiveBorderColor, getInactiveBorderColor } from "./common/colors";
 import { useData } from "./context/data";
 import {
-  countTasks,
   getAllPairs,
   getBucketPercentage,
   getOtherBuckets,
 } from "./context/helper";
-import {
-  getBucketBackgroundColorTop,
-  getActiveBorderColor,
-  getInactiveBorderColor,
-} from "./common/colors";
-import { TabContext } from "./types";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
+import { TabContext } from "./types";
 
 interface Step {
   id: string;
@@ -51,7 +46,7 @@ const steps: Step[] = [
   },
   {
     id: TabContext.Settings,
-    name: "Settings",
+    name: "Prototype Settings",
     icon: <CogIcon className="w-6 h-6 text-slate-600" />,
   },
 ];
@@ -71,7 +66,6 @@ const Navigation: React.FC<NavigationProps> = (props) => {
   const chains = getAllDependencyChains();
   const pairs = getAllPairs(chains);
 
-  const showSequencing = countTasks(otherBuckets) > 0;
   const showOrdering = pairs.length > 0;
 
   const handleTabClick = (step: Step) => {
