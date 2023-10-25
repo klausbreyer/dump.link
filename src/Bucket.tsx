@@ -174,18 +174,15 @@ const Bucket: React.FC<BucketProps> = (props) => {
           `}
         >
           <CardList>
-            {closedExpanded
-              ? closed.map((task) => <TaskItem task={task} key={task.id} />)
-              : closed
-                  .slice(0, 1)
-                  .map((task) => <TaskItem task={task} key={task.id} />)}
-            {closed.length > 1 && (
+            {closedExpanded &&
+              closed.map((task) => <TaskItem task={task} key={task.id} />)}
+            {closed.length > 0 && (
               <div
                 onClick={() => setClosedExpanded(!closedExpanded)}
                 className="w-full text-sm text-center cursor-pointer hover:underline"
               >
                 {!closedExpanded
-                  ? `Show all ${closed.length} Tasks`
+                  ? `Show closed Tasks (${closed.length})`
                   : `Hide Tasks`}
               </div>
             )}
