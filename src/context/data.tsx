@@ -575,19 +575,21 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         const bucket = getBucket(idInLayer);
         if (!bucket) continue;
 
-        const dependents = getBucketsDependingOn(idInLayer);
-        const dependencies = bucket.dependencies || [];
+        const dependentOn = getBucketsDependingOn(idInLayer);
+        const dependencyFor = bucket.dependencies || [];
 
-        const dependentLayers = dependents.map((id) => getLayerForBucketId(id));
-        const dependencyLayers = dependencies.map((id) =>
+        const dependentOnLayers = dependentOn.map((id) =>
+          getLayerForBucketId(id),
+        );
+        const dependencyForLayers = dependencyFor.map((id) =>
           getLayerForBucketId(id),
         );
 
-        const minLayer = dependentLayers.length
-          ? Math.min(...dependentLayers)
+        const minLayer = dependentOnLayers.length
+          ? Math.max(...dependentOnLayers)
           : MIN_LAYER;
-        const maxLayer = dependencyLayers.length
-          ? Math.min(...dependencyLayers)
+        const maxLayer = dependencyForLayers.length
+          ? Math.min(...dependencyForLayers)
           : MAX_LAYER;
 
         lookup.set(idInLayer, [minLayer, maxLayer]);

@@ -25,8 +25,6 @@ const Ordering: React.FC<OrderingProps> = (props) => {
   const chains = getAllDependencyChains();
 
   const layers = getLayers();
-  console.log(chains);
-  console.log(layers);
 
   const layersWithBuckets = layers.map((layer) =>
     layer
