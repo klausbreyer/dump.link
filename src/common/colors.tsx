@@ -6,35 +6,42 @@ export function getFlaggedHeaderTextColor(): string {
   return "text-rose-500";
 }
 
-export function getActiveBorderColor(bucket: Bucket): string {
+export function getInputBorderColor(bucket: Bucket): string {
   const statusToColor = {
     [BucketState.UNSOLVED]:
-      "border-orange-500 hover:border-orange-800 focus:border-orange-800",
+      "border-orange-600 hover:border-orange-800 focus:border-orange-800",
     [BucketState.SOLVED]:
-      "border-yellow-500 hover:border-yellow-800 focus:border-yellow-800",
+      "border-yellow-600 hover:border-yellow-800 focus:border-yellow-800",
     [BucketState.DONE]:
-      "border-green-500 hover:border-green-800 focus:border-green-800",
+      "border-green-600 hover:border-green-800 focus:border-green-800",
     [BucketState.EMPTY]:
-      "border-slate-500 hover:border-slate-800 focus:border-slate-800",
+      "border-slate-600 hover:border-slate-800 focus:border-slate-800",
     [BucketState.INACTIVE]:
-      "border-slate-500 hover:border-slate-800 focus:border-slate-800",
+      "border-slate-600 hover:border-slate-800 focus:border-slate-800",
   };
 
   return statusToColor[getBucketState(bucket)];
 }
 
-export function getInactiveBorderColor(bucket: Bucket): string {
+export function getHeaderBorderColor(bucket: Bucket): string {
   const statusToColor = {
-    [BucketState.UNSOLVED]:
-      "border-orange-300 hover:border-orange-800 focus:border-orange-800",
-    [BucketState.SOLVED]:
-      "border-yellow-300 hover:border-yellow-800 focus:border-yellow-800",
-    [BucketState.DONE]:
-      "border-green-300 hover:border-green-800 focus:border-green-800",
-    [BucketState.EMPTY]:
-      "border-slate-300 hover:border-slate-800 focus:border-slate-800",
-    [BucketState.INACTIVE]:
-      "border-slate-300 hover:border-slate-800 focus:border-slate-800",
+    [BucketState.UNSOLVED]: "border-orange-600",
+    [BucketState.SOLVED]: "border-yellow-600",
+    [BucketState.DONE]: "border-green-600",
+    [BucketState.EMPTY]: "border-slate-600",
+    [BucketState.INACTIVE]: "border-slate-600",
+  };
+
+  return statusToColor[getBucketState(bucket)];
+}
+
+export function getActiveColor(bucket: Bucket): string {
+  const statusToColor = {
+    [BucketState.UNSOLVED]: "bg-orange-500 ",
+    [BucketState.SOLVED]: "bg-yellow-500 ",
+    [BucketState.DONE]: "bg-green-500 ",
+    [BucketState.EMPTY]: "bg-slate-500 ",
+    [BucketState.INACTIVE]: "bg-slate-500 ",
   };
 
   return statusToColor[getBucketState(bucket)];
@@ -75,10 +82,21 @@ export function getBucketBackgroundColorBottom(bucket: Bucket): string {
 
   return statusToColor[getBucketState(bucket)];
 }
+export function getButtonBackground(bucket: Bucket): string {
+  const statusToColor = {
+    [BucketState.UNSOLVED]: "bg-orange-300 hover:bg-orange-400",
+    [BucketState.SOLVED]: "bg-yellow-300 hover:bg-yellow-400",
+    [BucketState.DONE]: "bg-green-300 hover:bg-green-400",
+    [BucketState.EMPTY]: "bg-slate-300 hover:bg-slate-400",
+    [BucketState.INACTIVE]: "bg-slate-300 hover:bg-slate-400",
+  };
+
+  return statusToColor[getBucketState(bucket)];
+}
 
 export function getBucketFlaggedStyle(bucket: Bucket): string {
   if (!bucket.flagged) {
     return "";
   }
-  return "border-b-4 border-solid border-rose-500";
+  return " bg-rose-500 ";
 }

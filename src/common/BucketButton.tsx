@@ -4,8 +4,9 @@ import { Bucket } from "../types";
 import {
   getBucketBackgroundColorBottom,
   getFlaggedHeaderTextColor,
-  getActiveBorderColor,
+  getInputBorderColor,
   getHeaderTextColor,
+  getButtonBackground,
 } from "./colors";
 
 export interface BucketButtonProps {
@@ -21,8 +22,8 @@ const BucketButton = React.forwardRef<
 >((props, ref) => {
   const { bucket, onClick, children, className, flag = false, ...rest } = props;
 
-  const border = getActiveBorderColor(bucket);
-  const hover = getBucketBackgroundColorBottom(bucket);
+  const border = getInputBorderColor(bucket);
+  const hover = getButtonBackground(bucket);
   const text = getHeaderTextColor(bucket);
 
   const flagColor = getFlaggedHeaderTextColor();
@@ -36,7 +37,7 @@ const BucketButton = React.forwardRef<
     <button
       ref={ref}
       onClick={onClick ? () => onClick() : () => {}}
-      className={`active:transform active:scale-95 transition-transform duration-150 h-7 p-0.5 rounded-sm border-b shadow-sm focus:outline-none ${colors} ${className} `}
+      className={`active:transform active:scale-95 transition-transform duration-150 h-7 p-0.5 rounded-sm border-b-2 shadow-sm focus:outline-none ${colors} ${className} `}
       {...rest}
     >
       {children}

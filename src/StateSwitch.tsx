@@ -10,7 +10,6 @@ import { EjectIcon } from "./common/icons";
 import BucketButton from "./common/BucketButton";
 
 export interface SwitchProps {
-  active: string;
   hover: string;
   Icon: React.ComponentType<any>;
   callback: () => void;
@@ -18,7 +17,7 @@ export interface SwitchProps {
 }
 
 const Switch: React.FC<SwitchProps> = (props) => {
-  const { active, hover, Icon, bucket, callback } = props;
+  const { hover, Icon, bucket, callback } = props;
   return (
     <div>
       <BucketButton
@@ -26,12 +25,7 @@ const Switch: React.FC<SwitchProps> = (props) => {
         bucket={bucket}
         className="h-full overflow-y-hidden text-sm text-center group"
       >
-        <div className="flex gap-1 group-hover:hidden">
-          {/* workaround to keep height and not flicker. */}
-          <Icon className={`h-5 w-0 invisible`} />
-          {active}
-        </div>
-        <div className="hidden gap-1 cursor-pointer group-hover:flex">
+        <div className="flex gap-1 cursor-pointer">
           <Icon className={`h-5 w-5`} />
           {hover}
         </div>
@@ -53,7 +47,6 @@ const StateSwitch: React.FC<StateSwitchProps> = (props) => {
   if (state === BucketState.INACTIVE) {
     return (
       <Switch
-        active={"inactive"}
         bucket={bucket}
         hover={"start"}
         Icon={PlayIcon}
@@ -66,7 +59,6 @@ const StateSwitch: React.FC<StateSwitchProps> = (props) => {
   if (state === BucketState.UNSOLVED) {
     return (
       <Switch
-        active={"unsolved"}
         bucket={bucket}
         hover={"pause"}
         Icon={PauseIcon}
@@ -77,7 +69,6 @@ const StateSwitch: React.FC<StateSwitchProps> = (props) => {
   if (state === BucketState.SOLVED) {
     return (
       <Switch
-        active={"solved"}
         bucket={bucket}
         hover={"done"}
         Icon={EjectIcon}
@@ -88,7 +79,6 @@ const StateSwitch: React.FC<StateSwitchProps> = (props) => {
   if (state === BucketState.DONE) {
     return (
       <Switch
-        active={"done"}
         bucket={bucket}
         hover={"undone"}
         Icon={BackwardIcon}

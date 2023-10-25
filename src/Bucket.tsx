@@ -123,7 +123,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const bgTop = getBucketBackgroundColorTop(bucket);
   const bgBottom = getBucketBackgroundColorBottom(bucket);
-  const flaggedStyles = getBucketFlaggedStyle(bucket);
 
   const topCantDropWarning =
     !topCanDrop &&
@@ -139,7 +138,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   return (
     <div className={`w-full rounded-md overflow-hidden `}>
-      <div className={` ${flaggedStyles}`}>
+      <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
         <Header context={TabContext.Grouping} bucket={bucket} />
         <div

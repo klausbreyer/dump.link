@@ -11,14 +11,39 @@ import StateSwitch from "./StateSwitch";
 import BucketButton from "./common/BucketButton";
 import {
   getBucketBackgroundColorTop,
-  getActiveBorderColor,
+  getInputBorderColor,
+  getActiveColor,
+  getHeaderBorderColor,
+  getBucketFlaggedStyle,
 } from "./common/colors";
 import { useData } from "./context/data";
-import { Bucket, TabContext } from "./types";
-import { getBucketPercentage } from "./context/helper";
+import { Bucket, BucketState, TabContext } from "./types";
+import { getBucketPercentage, getBucketState } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import { ArrowIcon } from "./common/icons";
 import { ConnectDragSource } from "react-dnd";
+
+const getState = (bucket: Bucket) => {
+  const state = getBucketState(bucket);
+  if (state === BucketState.INACTIVE) {
+    return "inactive";
+  }
+  if (state === BucketState.UNSOLVED) {
+    return "unsolved";
+  }
+  if (state === BucketState.SOLVED) {
+    return "solved";
+  }
+  if (state === BucketState.DONE) {
+    return "done";
+  }
+
+  if (state === BucketState.EMPTY) {
+    return "empty";
+  }
+
+  return null;
+};
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -54,34 +79,44 @@ const Header: React.FC<HeaderProps> = (props) => {
     flagBucket(bucket.id, !bucket?.flagged);
   };
 
+  const state = getState(bucket);
   const ownLayer = getLayerForBucketId(bucket.id);
   const layersWithBucketIds = getLayers();
   const ownLayerSize = layersWithBucketIds?.[ownLayer]?.length ?? 0;
 
   const bgTop = getBucketBackgroundColorTop(bucket);
-  const border = getActiveBorderColor(bucket);
+  const inputBorder = getInputBorderColor(bucket);
+  const darkBorder = getHeaderBorderColor(bucket);
+  const active = getActiveColor(bucket);
 
   const wouldBeLastInZero = ownLayer !== 0 || ownLayerSize > 1;
   // to account for NaN on unstarted buckets
   const percentageCompleted = getBucketPercentage(bucket) || 0;
+  const flaggedStyles = getBucketFlaggedStyle(bucket);
 
   return (
     <div className={`w-full ${bgTop}`}>
       <div
-        className="w-full cursor-help "
+        className={`relative w-full h-4 border-b ${darkBorder} cursor-help `}
         title={`${percentageCompleted}% completed`}
       >
         <div
-          className={`border-b-4 ${border} `}
+          className={`h-full ${active} absolute top-0 left-0 `}
           style={{ width: `${percentageCompleted}%` }}
         ></div>
+        <div
+          className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center h-full text-sm "
+          style={{ fontSize: "10px" }}
+        >
+          {state}
+        </div>
       </div>
       <div className={` p-1 flex gap-1 flex-row  `}>
         <input
           type="text"
-          className={`w-full h-7 px-1 bg-transparent shadow-sm rounded-sm border-b focus:outline-none ${border}
+          className={`w-full h-7 px-1 shadow-sm rounded-sm border-b-2 focus:outline-none  ${flaggedStyles} ${inputBorder}
         `}
-          placeholder="unnamed"
+          placeholder="Untitled Task Group"
           value={bucket?.name}
           onChange={handleChange}
         />
