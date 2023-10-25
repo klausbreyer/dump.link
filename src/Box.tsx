@@ -3,22 +3,18 @@ import { useDrag, useDrop } from "react-dnd";
 
 import {
   ArrowLeftOnRectangleIcon,
-  ArrowsPointingOutIcon,
-  ArrowsUpDownIcon,
   ExclamationTriangleIcon,
-  LinkIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
+import Header from "./Header";
 import {
   getBucketBackgroundColorTop,
   getBucketFlaggedStyle,
   getHeaderTextColor,
 } from "./common/colors";
-import { ArrowIcon } from "./common/icons";
 import { useData } from "./context/data";
 import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
-import Header from "./Header";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
   Bucket,
@@ -27,8 +23,6 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
-import BucketButton from "./common/BucketButton";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/solid";
 
 interface BoxProps {
   bucket: Bucket;
@@ -134,17 +128,32 @@ const Box: React.FC<BoxProps> = (props) => {
       <div className={`min-h-[1rem] ${flaggedStyles}  `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (
-            <li
-              key={id}
-              onClick={() => removeBucketDependency(id, bucket.id)}
-              className={`flex items-center justify-end gap-1 p-0.5 cursor-pointer group hover:underline
+            <>
+              {TabContext.Sequencing === context && (
+                <li
+                  key={id}
+                  onClick={() => removeBucketDependency(id, bucket.id)}
+                  className={`flex items-center justify-end gap-1 p-0.5 cursor-pointer group hover:underline
                 ${bgHeader}
               `}
-            >
-              {getBucket(id)?.name}
-              <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0 group-hover:hidden" />
-              <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
-            </li>
+                >
+                  {getBucket(id)?.name !== "" ? getBucket(id)?.name : "unnamed"}
+                  <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0 group-hover:hidden" />
+                  <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
+                </li>
+              )}
+              {TabContext.Sequencing !== context && (
+                <li
+                  key={id}
+                  className={`flex items-center justify-end gap-1 p-0.5 cursor-pointer
+                ${bgHeader}
+              `}
+                >
+                  {getBucket(id)?.name !== "" ? getBucket(id)?.name : "unnamed"}
+                  <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0" />
+                </li>
+              )}
+            </>
           ))}
           {TabContext.Sequencing === context && (
             <li
