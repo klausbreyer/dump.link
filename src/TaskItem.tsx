@@ -15,6 +15,7 @@ import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import { DraggedTask, DraggingType, Task } from "./types";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import usePasteListener from "./hooks/usePasteListener";
+import config from "./config";
 
 interface TaskItemProps {
   task: Task | null;
@@ -39,6 +40,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const dumpBucket = getDumpBucket(getBuckets());
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   usePasteListener(textAreaRef, (title: string) => {
+    title = title.substring(0, config.MAX_LENGTH);
+
     if (!task && dumpBucket) {
       addTask(dumpBucket.id, { title: title, closed: false });
     }
@@ -48,6 +51,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       addTask(bucket.id, { title: title, closed: false });
     }
   });
+
   const [val, setVal] = useState<string>(task?.title || "");
 
   useEffect(() => {
@@ -118,10 +122,19 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
-    if (newValue.length <= 48) {
-      setVal(newValue);
-    } else {
-      setVal(newValue.substring(0, 48)); // Abschneiden nach 48 Zeichen
+    setVal(newValue);
+
+    // Check if the value is empty and prompt for deletion immediately
+    if (newValue.trim() === "" && task && !askedToDelete) {
+      const isConfirmed = window.confirm(
+        "Are you sure you want to delete this task?",
+      );
+      if (isConfirmed) {
+        deleteTask(getBucketForTask(task)?.id || "", task.id);
+      } else {
+        // Mark that we've asked to delete, so we don't ask again.
+        setAskedToDelete(true);
+      }
     }
   };
 

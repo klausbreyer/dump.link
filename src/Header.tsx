@@ -7,21 +7,22 @@ import {
 } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 
+import { ConnectDragSource } from "react-dnd";
 import StateSwitch from "./StateSwitch";
 import BucketButton from "./common/BucketButton";
 import {
-  getBucketBackgroundColorTop,
-  getInputBorderColor,
   getActiveColor,
-  getHeaderBorderColor,
+  getBucketBackgroundColorTop,
   getBucketFlaggedStyle,
+  getHeaderBorderColor,
+  getInputBorderColor,
 } from "./common/colors";
+import { ArrowIcon } from "./common/icons";
+import config from "./config";
 import { useData } from "./context/data";
-import { Bucket, BucketState, TabContext } from "./types";
 import { getBucketPercentage, getBucketState } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
-import { ArrowIcon } from "./common/icons";
-import { ConnectDragSource } from "react-dnd";
+import { Bucket, BucketState, TabContext } from "./types";
 
 const getState = (bucket: Bucket) => {
   const state = getBucketState(bucket);
@@ -56,22 +57,17 @@ export interface HeaderProps {
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context, foliationDrag, graphDrag } = props;
 
-  const {
-    renameBucket,
-    flagBucket,
-    getLayerForBucketId,
-    getLayers,
-    getBucketsDependingOn,
-  } = useData();
+  const { renameBucket, flagBucket, getLayerForBucketId, getLayers } =
+    useData();
 
   const { globalDragging } = useGlobalDragging();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    if (newValue.length <= 48) {
+    if (newValue.length <= config.MAX_LENGTH) {
       renameBucket(bucket.id, newValue);
     } else {
-      renameBucket(bucket.id, newValue.substring(0, 48)); // Abschneiden nach 48 Zeichen
+      renameBucket(bucket.id, newValue.substring(0, config.MAX_LENGTH));
     }
   };
 
