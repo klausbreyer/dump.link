@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1229px" height="1229px" viewBox="0 0 1229 1229" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>sequencing</title>
+    <g id="sequencing" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Rectangle-Copy-16" fill="#000000" x="869" y="579" width="360" height="228"></rect>
+        <rect id="Rectangle-Copy-18" fill="#000000" x="455" y="208" width="360" height="228"></rect>
+        <rect id="Rectangle-Copy-17" fill="#000000" x="0" y="785" width="360" height="233"></rect>
+        <path id="Line-Copy-2" d="M547,412 L468.266295,684.84795 L393.258,615.726 L177.313195,850.061895 L160.371645,868.446233 L123.602968,834.563134 L140.544518,816.178796 L356.489,581.842 L281.481417,512.721806 L547,412 Z" fill="#000000" fill-rule="nonzero"></path>
+        <path id="Line-Copy-3" d="M942.808431,683.895322 L960.104678,730.808431 L936.648124,739.456555 L580.967,870.591 L616.251064,966.294361 L334,935 L528.386127,727.975766 L563.67,823.678 L919.351876,692.543445 L942.808431,683.895322 Z" fill="#000000" fill-rule="nonzero"></path>
+    </g>
+</svg>
