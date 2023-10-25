@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
-import { getActiveBorderColor, getInactiveBorderColor } from "./common/colors";
+import { getActiveBorderColor } from "./common/colors";
 import { useData } from "./context/data";
 import {
   getAllPairs,
@@ -148,21 +148,13 @@ const Navigation: React.FC<NavigationProps> = (props) => {
               title={`${bucket.name}: ${getBucketPercentage(
                 bucket,
               )}% completed`}
-              className={` border-b-8 flex flex-row text-sm ${getActiveBorderColor(
-                bucket,
-              )} `}
+              className={` border-b-8 ${getActiveBorderColor(bucket)} `}
               style={{ width: `${getBucketPercentage(bucket)}%` }}
             ></div>
           ))}
           {relevantBuckets.map((bucket, i) => (
             <div
               key={i}
-              title={`${bucket.name}: ${
-                100 - getBucketPercentage(bucket)
-              }% missing`}
-              className={`border-b-8 flex flex-row text-sm ${getInactiveBorderColor(
-                bucket,
-              )} `}
               style={{ width: `${100 - getBucketPercentage(bucket)}%` }}
             ></div>
           ))}
