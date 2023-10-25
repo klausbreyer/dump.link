@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useData } from "./context/data";
 
 interface SettingsProps {
@@ -6,10 +6,25 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = (props) => {
-  const { getBuckets } = useData();
+  const { state } = useData();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const handleClearLocalStorage = () => {
     localStorage.clear();
     alert("Local storage cleared!"); // Optional: to notify the user
+    redirectToNewURL();
+  };
+
+  const handleSaveToLocalStorage = () => {
+    const content = textareaRef.current?.value;
+    if (content) {
+      localStorage.setItem("appData", content);
+      alert("Data saved to local storage!"); // Optional: to notify the user
+      redirectToNewURL();
+    }
+  };
+
+  const redirectToNewURL = () => {
     // Get the current location object
     const { protocol, host, pathname } = window.location;
 
@@ -32,9 +47,18 @@ const Settings: React.FC<SettingsProps> = (props) => {
       <br />
       <br />
       <h1 className="text-xl">State</h1>
-      <textarea className="w-full border h-80 ">
-        {JSON.stringify(getBuckets())}
-      </textarea>
+      <textarea
+        ref={textareaRef}
+        className="w-full border h-80"
+        defaultValue={JSON.stringify(state)}
+      ></textarea>
+      <br />
+      <button
+        className="p-1 mt-4 bg-blue-200 rounded-md shadow-lg hover:bg-blue-300"
+        onClick={handleSaveToLocalStorage}
+      >
+        Save to localStorage
+      </button>
     </div>
   );
 };
