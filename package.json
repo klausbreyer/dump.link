@@ -20,7 +20,7 @@
   },
   "scripts": {
     "start": "rm -rf .parcel-cache && rm -rf watch && parcel public/index.html --dist-dir watch",
-    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build public/index.html"
+    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build public/index.html --public-url '.' "
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
