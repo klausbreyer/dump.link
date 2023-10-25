@@ -75,3 +75,10 @@ export function getBucketBackgroundColorBottom(bucket: Bucket): string {
 
   return statusToColor[getBucketState(bucket)];
 }
+
+export function getBucketFlaggedStyle(bucket: Bucket): string {
+  if (!bucket.flagged) {
+    return "";
+  }
+  return "border-b-4 border-solid border-rose-500";
+}

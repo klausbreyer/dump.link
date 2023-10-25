@@ -60,8 +60,8 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   const bgTop = getBucketBackgroundColorTop(bucket);
   const border = getActiveBorderColor(bucket);
-  const wouldBeLastInZero = ownLayer !== 0 || ownLayerSize > 1;
 
+  const wouldBeLastInZero = ownLayer !== 0 || ownLayerSize > 1;
   // to account for NaN on unstarted buckets
   const percentageCompleted = getBucketPercentage(bucket) || 0;
 

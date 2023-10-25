@@ -5,6 +5,7 @@ import CardList from "./common/CardList";
 import {
   getBucketBackgroundColorBottom,
   getBucketBackgroundColorTop,
+  getBucketFlaggedStyle,
 } from "./common/colors";
 import { useData } from "./context/data";
 import {
@@ -122,6 +123,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const bgTop = getBucketBackgroundColorTop(bucket);
   const bgBottom = getBucketBackgroundColorBottom(bucket);
+  const flaggedStyles = getBucketFlaggedStyle(bucket);
 
   const topCantDropWarning =
     !topCanDrop &&
@@ -135,68 +137,67 @@ const Bucket: React.FC<BucketProps> = (props) => {
     closed.length === 0 &&
     globalDragging.bucketId === bucket.id;
 
-  const flaggedStyles = bucket.flagged
-    ? "border-2 border-solid border-rose-500"
-    : "border-2 border-solid border-transparent";
-
   return (
-    <div className={`  w-full rounded-md overflow-hidden ${flaggedStyles}`}>
-      <Header context={TabContext.Grouping} bucket={bucket} />
-      <div
-        ref={topDropRef}
-        className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${
-          topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
-        }
+    <div className={`w-full rounded-md overflow-hidden `}>
+      <div className={` ${flaggedStyles}`}>
+        {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
+        <Header context={TabContext.Grouping} bucket={bucket} />
+        <div
+          ref={topDropRef}
+          className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${
+            topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
+          }
           ${topIsOver && " border-gray-400"}
           ${!topCanDrop && !topIsOver && " border-transparent"}
           `}
-      >
-        <CardList>
-          {open.map((task) => (
-            <TaskItem task={task} key={task.id} />
-          ))}
-          {topCantDropWarning && (
-            <div className="flex items-center justify-center gap-2 text-center">
-              <ExclamationTriangleIcon className="w-5 h-5" />
-              Can't drop - this bucket is done! Undone?
-            </div>
-          )}
-        </CardList>
-      </div>
-      <div
-        ref={bottomDropRef}
-        className={`min-h-[3rem] ${bgBottom} bg-amber-300  border-solid border-2 ${
-          bottomCanDrop &&
-          !bottomIsOver &&
-          "border-dashed border-2 border-gray-400"
-        }
+        >
+          <CardList>
+            {open.map((task) => (
+              <TaskItem task={task} key={task.id} />
+            ))}
+            {topCantDropWarning && (
+              <div className="flex items-center justify-center gap-2 text-center">
+                <ExclamationTriangleIcon className="w-5 h-5" />
+                Can't drop - this bucket is done! Undone?
+              </div>
+            )}
+          </CardList>
+        </div>
+        <div
+          ref={bottomDropRef}
+          className={`min-h-[3rem] ${bgBottom} bg-amber-300  border-solid border-2 ${
+            bottomCanDrop &&
+            !bottomIsOver &&
+            "border-dashed border-2 border-gray-400"
+          }
           ${bottomIsOver && " border-gray-400"}
           ${!bottomCanDrop && !bottomIsOver && " border-transparent"}
           `}
-      >
-        <CardList>
-          {closedExpanded
-            ? closed.map((task) => <TaskItem task={task} key={task.id} />)
-            : closed
-                .slice(0, 1)
-                .map((task) => <TaskItem task={task} key={task.id} />)}
-          {closed.length > 1 && (
-            <div
-              onClick={() => setClosedExpanded(!closedExpanded)}
-              className="w-full text-sm text-center cursor-pointer hover:underline"
-            >
-              {!closedExpanded
-                ? `Show all ${closed.length} Tasks`
-                : `Hide Tasks`}
-            </div>
-          )}
-          {bottomCantDropWarning && (
-            <div className="flex items-center justify-center gap-2 text-center">
-              <ExclamationTriangleIcon className="w-5 h-5" />
-              Can't drop - this bucket is inactive! Start?
-            </div>
-          )}
-        </CardList>
+        >
+          <CardList>
+            {closedExpanded
+              ? closed.map((task) => <TaskItem task={task} key={task.id} />)
+              : closed
+                  .slice(0, 1)
+                  .map((task) => <TaskItem task={task} key={task.id} />)}
+            {closed.length > 1 && (
+              <div
+                onClick={() => setClosedExpanded(!closedExpanded)}
+                className="w-full text-sm text-center cursor-pointer hover:underline"
+              >
+                {!closedExpanded
+                  ? `Show all ${closed.length} Tasks`
+                  : `Hide Tasks`}
+              </div>
+            )}
+            {bottomCantDropWarning && (
+              <div className="flex items-center justify-center gap-2 text-center">
+                <ExclamationTriangleIcon className="w-5 h-5" />
+                Can't drop - this bucket is inactive! Start?
+              </div>
+            )}
+          </CardList>
+        </div>
       </div>
     </div>
   );

@@ -8,7 +8,14 @@ const Settings: React.FC<SettingsProps> = (props) => {
   const handleClearLocalStorage = () => {
     localStorage.clear();
     alert("Local storage cleared!"); // Optional: to notify the user
-    location.reload();
+    // Get the current location object
+    const { protocol, host, pathname } = window.location;
+
+    // Construct the new URL without query parameters or hash
+    const newURL = `${protocol}//${host}${pathname}`;
+
+    // Redirect to the new URL
+    window.location.href = newURL;
   };
 
   return (

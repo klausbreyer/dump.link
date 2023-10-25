@@ -12,6 +12,7 @@ import {
 
 import {
   getBucketBackgroundColorTop,
+  getBucketFlaggedStyle,
   getHeaderTextColor,
 } from "./common/colors";
 import { ArrowIcon } from "./common/icons";
@@ -115,6 +116,8 @@ const Box: React.FC<BoxProps> = (props) => {
   const bgTop = getBucketBackgroundColorTop(bucket);
   const bgHeader = getHeaderTextColor(bucket);
 
+  const flaggedStyles = getBucketFlaggedStyle(bucket);
+
   return (
     <div
       id={bucket.id}
@@ -128,7 +131,7 @@ const Box: React.FC<BoxProps> = (props) => {
         graphDrag={graphDragRef}
       />
 
-      <div className={`min-h-[1rem] `}>
+      <div className={`min-h-[1rem] ${flaggedStyles}  `}>
         <ul className="p-1 text-sm">
           {dependingIds?.map((id) => (
             <li
@@ -140,7 +143,7 @@ const Box: React.FC<BoxProps> = (props) => {
             >
               {getBucket(id)?.name}
               <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0 group-hover:hidden" />
-              <XMarkIcon className="hidden w-4 h-4 shrink-0 group-hover:block" />
+              <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
             </li>
           ))}
           {TabContext.Sequencing === context && (
