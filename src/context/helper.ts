@@ -99,11 +99,15 @@ export const hasCyclicDependencyWithBucket = (
 ): boolean => {
   // Recursive function to traverse the dependency graph
   const traverse = (currentId: BucketID, visited: Set<string>): boolean => {
-    if (visited.has(currentId)) return true;
+    if (visited.has(currentId)) return false;
     visited.add(currentId);
 
     const currentBucket = allBuckets.find((b) => b.id === currentId);
     if (!currentBucket) return false;
+
+    // If we reach the bucket.id while traversing from the dependencyId,
+    // it indicates a cycle
+    if (currentBucket.id === bucket.id) return true;
 
     for (const depId of currentBucket.dependencies) {
       if (traverse(depId, visited)) return true;
@@ -111,8 +115,8 @@ export const hasCyclicDependencyWithBucket = (
     return false;
   };
 
-  // Start the traversal with the proposed dependency and the given bucket's ID
-  return traverse(dependencyId, new Set([bucket.id]));
+  // Start the traversal with the dependencyId
+  return traverse(dependencyId, new Set());
 };
 
 export function getTasksByClosed(
