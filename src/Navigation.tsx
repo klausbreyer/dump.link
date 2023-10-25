@@ -108,14 +108,28 @@ const Navigation: React.FC<NavigationProps> = (props) => {
                 key={step.name}
                 className={`relative md:flex md:flex-1 ${
                   step.id === TabContext.Ordering && !showOrdering
-                    ? "opacity-50 pointer-events-none"
+                    ? "opacity-50"
                     : ""
                 }`}
               >
                 <Tab.List className="flex items-center w-full">
                   <button
-                    onClick={() => handleTabClick(step)}
+                    onClick={() =>
+                      step.id === TabContext.Ordering && !showOrdering
+                        ? () => {}
+                        : handleTabClick(step)
+                    }
+                    title={
+                      step.id === TabContext.Ordering && !showOrdering
+                        ? `Create some dependencies in the ${TabContext.Ordering} Tab first.`
+                        : step.name
+                    }
                     className={`flex items-center w-full px-6 py-2 text-sm font-medium
+                    ${
+                      step.id === TabContext.Ordering && !showOrdering
+                        ? "cursor-help"
+                        : ""
+                    }
                 ${
                   currentTab === step.id
                     ? "bg-slate-200"
