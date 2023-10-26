@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { Bucket, BucketID, BucketState, Task } from "../types";
+import { Bucket, BucketID, BucketState, Task, TaskID } from "../types";
 
 /**
  * Given a list of chains, this function returns each unique pair from all the chains.
@@ -161,6 +161,17 @@ export const isLastInSubarray = (data: BucketID[][], id: BucketID): boolean => {
   }
   return false; // Return false if the id is not the last in any subarray
 };
+
+/**
+ * Finds the index of a task by its ID in a given bucket.
+ * @param bucket - The bucket containing the tasks.
+ * @param taskId - The ID of the task to find.
+ * @returns The index of the task if found, otherwise -1.
+ */
+export const getTaskIdIndex = (bucket: Bucket, taskId: TaskID): number => {
+  return bucket.tasks.findIndex((task) => task.id === taskId);
+};
+
 /**
  * Checks if the given id is present in only one sub-array.
  *

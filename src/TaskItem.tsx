@@ -32,7 +32,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     deleteTask,
     reorderTask,
   } = useData();
-
+  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   usePasteListener(textAreaRef, (title: string) => {
     title = title.substring(0, config.MAX_LENGTH);
@@ -116,7 +116,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }, [val]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
+    let newValue = e.target.value;
+
+    // Check for max length
+    if (newValue.length > config.MAX_LENGTH) {
+      newValue = newValue.substring(0, config.MAX_LENGTH);
+    }
+
     setVal(newValue);
 
     // Check if the value is empty and prompt for deletion immediately
@@ -133,7 +139,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     }
   };
 
+  function handleFocus() {
+    setIsTextAreaFocused(true);
+  }
+
   function handleBlur() {
+    setIsTextAreaFocused(false);
     // If the task is a new entry and the value is empty, return early.
     if (task === null) {
       if (val.length === 0) return;
@@ -184,16 +195,32 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         ${isDragging ? "invisible" : "visible"}
         `}
       >
-        <textarea
-          className={`w-full px-1 rounded-sm shadow-md resize-y`}
-          placeholder="type more here"
-          value={val}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          onChange={handleChange}
-          rows={1}
-          ref={textAreaRef}
-        ></textarea>
+        <div className="relative w-full">
+          <textarea
+            className={`w-full px-1 rounded-sm shadow-md resize-y relative
+                      ${
+                        val.length >= config.MAX_LENGTH
+                          ? "focus:outline outline-2 outline-rose-500"
+                          : "focus:outline outline-2 outline-indigo-500"
+                      }`}
+            placeholder="type more here"
+            value={val}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+            onChange={handleChange}
+            rows={1}
+            ref={textAreaRef}
+          ></textarea>
+          <div
+            className={`absolute text-slate-800 text-xxs bottom-1.5 right-1 ${
+              isTextAreaFocused ? "block" : "hidden"
+            }`}
+          >
+            {val.length}/{config.MAX_LENGTH}
+          </div>
+        </div>
+
         {task !== null && (
           <div ref={dragRef} className="cursor-move">
             <Bars2Icon className="w-5 h-5" />

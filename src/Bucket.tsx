@@ -25,7 +25,11 @@ import {
   BucketState,
 } from "./types";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
+import { ChevronUpIcon } from "@heroicons/react/24/solid";
 
 interface BucketProps {
   bucket: Bucket;
@@ -48,7 +52,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
   );
 
   const open = getTasksByClosed(bucket, false);
-  const closed = [...getTasksByClosed(bucket, true)].reverse();
+  const closed = getTasksByClosed(bucket, true);
   const bucketState = getBucketState(bucket);
   const { globalDragging } = useGlobalDragging();
 
@@ -172,7 +176,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
         </div>
         <div
           ref={bottomDropRef}
-          className={`min-h-[3rem] ${bgBottom} bg-amber-300  border-solid border-2 ${
+          className={`min-h-[2.3rem] ${bgBottom} bg-amber-300  border-solid border-2 ${
             bottomCanDrop &&
             !bottomIsOver &&
             "border-dashed border-2 border-gray-400"
@@ -182,18 +186,25 @@ const Bucket: React.FC<BucketProps> = (props) => {
           `}
         >
           <CardList>
+            {closedExpanded && (
+              <div
+                onClick={() => setClosedExpanded(!closedExpanded)}
+                className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
+              >
+                <ChevronUpIcon className="w-3 h-3" /> Hide Tasks
+              </div>
+            )}
             {closedExpanded &&
               closed.map((task) => (
                 <TaskItem task={task} key={task.id} bucket={bucket} />
               ))}
-            {closed.length > 0 && (
+            {closed.length > 0 && !closedExpanded && (
               <div
                 onClick={() => setClosedExpanded(!closedExpanded)}
-                className="w-full text-sm text-center cursor-pointer hover:underline"
+                className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
               >
-                {!closedExpanded
-                  ? `Show closed Tasks (${closed.length})`
-                  : `Hide Tasks`}
+                <ChevronDownIcon className="w-3 h-3" />
+                {`Show closed Tasks (${closed.length})`}
               </div>
             )}
             {bottomCantDropWarning && (

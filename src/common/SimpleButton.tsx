@@ -1,7 +1,7 @@
 import React from "react";
 
 type ButtonColor =
-  | "blue"
+  | "indigo"
   | "slate"
   | "yellow"
   | "orange"
@@ -29,7 +29,7 @@ const SimpleButton = React.forwardRef<
 
   // Map color names to Tailwind classes
   const colorMap: Record<ButtonColor, string> = {
-    blue: "bg-blue-200 hover:bg-blue-300 border-blue-700",
+    indigo: "bg-indigo-200 hover:bg-indigo-300 border-indigo-700",
     slate: "bg-slate-200 hover:bg-slate-300 border-slate-700",
     yellow: "bg-yellow-200 hover:bg-yellow-300 border-yellow-700",
     orange: "bg-orange-200 hover:bg-orange-300 border-orange-700",

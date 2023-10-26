@@ -97,10 +97,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           className={`h-full ${active} absolute top-0 left-0 `}
           style={{ width: `${percentageCompleted}%` }}
         ></div>
-        <div
-          className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center h-full text-sm "
-          style={{ fontSize: "10px" }}
-        >
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center h-full text-sm text-xxs ">
           {state}
         </div>
       </div>

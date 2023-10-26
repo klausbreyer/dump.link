@@ -51,7 +51,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
         defaultValue={JSON.stringify(state)}
       ></textarea>
       <br />
-      <SimpleButton color="blue" onClick={handleSaveToLocalStorage}>
+      <SimpleButton color="indigo" onClick={handleSaveToLocalStorage}>
         Save to localStorage
       </SimpleButton>
     </div>
