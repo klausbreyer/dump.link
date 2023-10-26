@@ -3,18 +3,12 @@ import { useDrop } from "react-dnd";
 
 import { useData } from "./context/data";
 import {
-  getFirstValues,
   getFoliationBucketType,
   getLastValues,
   getOtherBuckets,
 } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
-import {
-  BucketID,
-  DraggedBucket,
-  DraggingType,
-  DropCollectedProps,
-} from "./types";
+import { DraggedBucket, DraggingType, DropCollectedProps } from "./types";
 
 interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;

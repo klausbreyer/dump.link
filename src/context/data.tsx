@@ -569,8 +569,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     const minKey = keys[0];
     const maxKey = keys[keys.length - 1];
 
-    // console.dir(layersMap);
-
     for (let i = minKey; i <= maxKey; i++) {
       if (layersMap.has(i)) {
         layersArray.push(layersMap.get(i)!);
@@ -600,12 +598,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const getAllowedBucketsByLayer = (
     index: number | undefined,
   ): BucketID[][] => {
+    // Immediate return if index is undefined or negative
+    if (index === undefined || index < 0) {
+      return [];
+    }
+
     const MIN_LAYER = -1;
     const MAX_LAYER = Number.MAX_SAFE_INTEGER;
 
     const buckets = getBuckets();
     const layersWithBucketIds = getLayers();
     const lookup: Map<BucketID, [number, number]> = new Map();
+
+    // Pre-compute layer-to-bucketID mapping
+    const layerForBucketId: Map<BucketID, number> = new Map();
+    layersWithBucketIds.forEach((ids, layerIndex) => {
+      ids.forEach((id) => layerForBucketId.set(id, layerIndex));
+    });
 
     for (const idsInLayer of layersWithBucketIds) {
       for (const idInLayer of idsInLayer) {
@@ -615,17 +624,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         const dependentOn = getBucketsDependingOn(idInLayer);
         const dependencyFor = bucket.dependencies || [];
 
-        const dependentOnLayers = dependentOn.map((id) =>
-          getLayerForBucketId(id),
+        const dependentOnLayers = new Set<number>(
+          dependentOn.map((id) => layerForBucketId.get(id) || MIN_LAYER),
         );
-        const dependencyForLayers = dependencyFor.map((id) =>
-          getLayerForBucketId(id),
+        const dependencyForLayers = new Set<number>(
+          dependencyFor.map((id) => layerForBucketId.get(id) || MAX_LAYER),
         );
 
-        const minLayer = dependentOnLayers.length
+        const minLayer = dependentOnLayers.size
           ? Math.max(...dependentOnLayers)
           : MIN_LAYER;
-        const maxLayer = dependencyForLayers.length
+        const maxLayer = dependencyForLayers.size
           ? Math.min(...dependencyForLayers)
           : MAX_LAYER;
 
@@ -641,7 +650,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         .map((bucket) => bucket.id)
         .filter((id) => {
           const [min, max] = lookup.get(id) || [MIN_LAYER, MAX_LAYER];
-          const currentLayer = getLayerForBucketId(id);
+          const currentLayer = layerForBucketId.get(id) || MIN_LAYER;
           return (
             currentLayer !== layerIndex && min < layerIndex && max > layerIndex
           );
@@ -650,15 +659,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     // Main logic
     const allowedOnLayers: BucketID[][] = [];
-    if (index !== undefined && index >= 0) {
-      const others = getOtherBuckets(buckets);
-      for (
-        let layerIndex = 0;
-        layerIndex < layersWithBucketIds.length;
-        layerIndex++
-      ) {
-        allowedOnLayers.push(getAllowedBucketsOnLayer(layerIndex, others));
-      }
+    const others = getOtherBuckets(buckets);
+    for (
+      let layerIndex = 0;
+      layerIndex < layersWithBucketIds.length;
+      layerIndex++
+    ) {
+      allowedOnLayers.push(getAllowedBucketsOnLayer(layerIndex, others));
     }
 
     return allowedOnLayers;
