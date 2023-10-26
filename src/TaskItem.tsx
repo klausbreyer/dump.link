@@ -32,10 +32,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     deleteTask,
     reorderTask,
   } = useData();
+
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   usePasteListener(textAreaRef, (title: string) => {
-    title = title.substring(0, config.MAX_LENGTH);
+    title = title.substring(0, config.TASK_MAX_LENGTH);
 
     if (!task) {
       addTask(bucket.id, { title: title, closed: false });
@@ -119,8 +120,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     let newValue = e.target.value;
 
     // Check for max length
-    if (newValue.length > config.MAX_LENGTH) {
-      newValue = newValue.substring(0, config.MAX_LENGTH);
+    if (newValue.length > config.TASK_MAX_LENGTH) {
+      newValue = newValue.substring(0, config.TASK_MAX_LENGTH);
     }
 
     setVal(newValue);
@@ -199,7 +200,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           <textarea
             className={`w-full px-1 rounded-sm shadow-md resize-y relative
                       ${
-                        val.length >= config.MAX_LENGTH
+                        val.length >= config.TASK_MAX_LENGTH
                           ? "focus:outline outline-2 outline-rose-500"
                           : "focus:outline outline-2 outline-indigo-500"
                       }`}
@@ -213,11 +214,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             ref={textAreaRef}
           ></textarea>
           <div
-            className={`absolute text-slate-800 text-xxs bottom-1.5 right-1 ${
+            className={`absolute text-slate-800 text-xxs bottom-1.5 right-2 ${
               isTextAreaFocused ? "block" : "hidden"
             }`}
           >
-            {val.length}/{config.MAX_LENGTH}
+            {val.length}/{config.TASK_MAX_LENGTH}
           </div>
         </div>
 

@@ -1,3 +1,4 @@
 export default {
-  MAX_LENGTH: 140,
+  TASK_MAX_LENGTH: 140,
+  BUCKET_MAX_LENGTH: 40,
 };

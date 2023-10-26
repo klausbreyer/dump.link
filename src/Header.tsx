@@ -1,13 +1,11 @@
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useState } from "react";
 
 import {
-  ArrowsPointingOutIcon,
   ExclamationTriangleIcon,
   FlagIcon as FlagIconOutline,
 } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 
-import { ConnectDragSource } from "react-dnd";
 import StateSwitch from "./StateSwitch";
 import BucketButton from "./common/BucketButton";
 import {
@@ -17,7 +15,6 @@ import {
   getHeaderBorderColor,
   getInputBorderColor,
 } from "./common/colors";
-import { ArrowIcon } from "./common/icons";
 import config from "./config";
 import { useData } from "./context/data";
 import { getBucketPercentage, getBucketState } from "./context/helper";
@@ -54,6 +51,7 @@ export interface HeaderProps {
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
 
+  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
   const { renameBucket, flagBucket, getLayerForBucketId, getLayers } =
     useData();
 
@@ -61,17 +59,23 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    if (newValue.length <= config.MAX_LENGTH) {
+    if (newValue.length <= config.BUCKET_MAX_LENGTH) {
       renameBucket(bucket.id, newValue);
     } else {
-      renameBucket(bucket.id, newValue.substring(0, config.MAX_LENGTH));
+      renameBucket(bucket.id, newValue.substring(0, config.BUCKET_MAX_LENGTH));
     }
   };
 
   const handleClick = () => {
     flagBucket(bucket.id, !bucket?.flagged);
   };
+  function handleFocus() {
+    setIsTextAreaFocused(true);
+  }
 
+  function handleBlur() {
+    setIsTextAreaFocused(false);
+  }
   const state = getState(bucket);
   const ownLayer = getLayerForBucketId(bucket.id);
   const layersWithBucketIds = getLayers();
@@ -102,14 +106,25 @@ const Header: React.FC<HeaderProps> = (props) => {
         </div>
       </div>
       <div className={` p-1 flex gap-1 flex-row  `}>
-        <input
-          type="text"
-          className={`w-full h-7 px-1 shadow-sm rounded-sm border-b-2 focus:outline-none  ${flaggedStyles} ${inputBorder}
+        <div className="relative w-full">
+          <input
+            type="text"
+            className={`w-full h-7 px-1 shadow-sm rounded-sm border-b-2 focus:outline-none  ${flaggedStyles} ${inputBorder}
         `}
-          placeholder="Untitled Task Group"
-          value={bucket?.id + " " + bucket?.name}
-          onChange={handleChange}
-        />
+            placeholder="Untitled Task Group"
+            value={bucket?.name}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+          />
+          <div
+            className={`absolute text-slate-800 text-xxs bottom-1.5 right-2 ${
+              isTextAreaFocused ? "block" : "hidden"
+            }`}
+          >
+            {bucket?.name.length}/{config.BUCKET_MAX_LENGTH}
+          </div>
+        </div>
         {context === TabContext.Grouping && (
           <>
             <StateSwitch bucket={bucket} />
