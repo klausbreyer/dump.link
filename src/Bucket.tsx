@@ -9,6 +9,7 @@ import {
 } from "./common/colors";
 import { useData } from "./context/data";
 import {
+  getBucketState,
   getClosedBucketType,
   getOpenBucketType,
   getTasksByClosed,
@@ -21,6 +22,7 @@ import {
   Bucket as Bucket,
   DraggingType,
   TabContext,
+  BucketState,
 } from "./types";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
@@ -46,7 +48,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
   );
 
   const open = getTasksByClosed(bucket, false);
-  const closed = getTasksByClosed(bucket, true);
+  const closed = [...getTasksByClosed(bucket, true)].reverse();
+  const bucketState = getBucketState(bucket);
   const { globalDragging } = useGlobalDragging();
 
   useEffect(() => {
@@ -136,6 +139,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
     closed.length === 0 &&
     globalDragging.bucketId === bucket.id;
 
+  const showNewTaskItem =
+    bucketState === BucketState.SOLVED || bucketState === BucketState.UNSOLVED;
+
   return (
     <div className={`w-full rounded-md overflow-hidden `}>
       <div className={` `}>
@@ -152,7 +158,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
         >
           <CardList>
             {open.map((task) => (
-              <TaskItem task={task} key={task.id} />
+              <TaskItem task={task} key={task.id} bucket={bucket} />
             ))}
             {topCantDropWarning && (
               <div className="flex items-center justify-center gap-2 text-center">
@@ -160,6 +166,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 Can't drop - this bucket is done! Undone?
               </div>
             )}
+
+            {showNewTaskItem && <TaskItem bucket={bucket} task={null} />}
           </CardList>
         </div>
         <div
@@ -175,7 +183,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
         >
           <CardList>
             {closedExpanded &&
-              closed.map((task) => <TaskItem task={task} key={task.id} />)}
+              closed.map((task) => (
+                <TaskItem task={task} key={task.id} bucket={bucket} />
+              ))}
             {closed.length > 0 && (
               <div
                 onClick={() => setClosedExpanded(!closedExpanded)}

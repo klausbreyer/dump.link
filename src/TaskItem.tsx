@@ -9,23 +9,20 @@ import { useDrag, useDrop } from "react-dnd";
 
 import { Bars2Icon } from "@heroicons/react/24/solid";
 
-import { useData } from "./context/data";
-import { getDumpBucket } from "./context/helper";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
-import { DraggedTask, DraggingType, Task } from "./types";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
-import usePasteListener from "./hooks/usePasteListener";
 import config from "./config";
+import { useData } from "./context/data";
+import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import usePasteListener from "./hooks/usePasteListener";
+import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 
 interface TaskItemProps {
   task: Task | null;
+  bucket: Bucket;
 }
 
-// memo is necessary to prevent flickering.
-// it works by comparing the props of the component.
-// if they are the same, it does not re-render.
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
-  const { task } = props;
+  const { task, bucket } = props;
   const {
     addTask,
     updateTask,
@@ -34,16 +31,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     getBucketForTask,
     deleteTask,
     reorderTask,
-    getBuckets,
   } = useData();
 
-  const dumpBucket = getDumpBucket(getBuckets());
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   usePasteListener(textAreaRef, (title: string) => {
     title = title.substring(0, config.MAX_LENGTH);
 
-    if (!task && dumpBucket) {
-      addTask(dumpBucket.id, { title: title, closed: false });
+    if (!task) {
+      addTask(bucket.id, { title: title, closed: false });
     }
     if (task) {
       const bucket = getBucketForTask(task);
@@ -141,10 +136,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   function handleBlur() {
     // If the task is a new entry and the value is empty, return early.
     if (task === null) {
-      if (!dumpBucket) return;
       if (val.length === 0) return;
 
-      addTask(dumpBucket?.id, { title: val, closed: false });
+      addTask(bucket.id, { title: val, closed: false });
       setVal("");
 
       setTimeout(() => {
