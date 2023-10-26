@@ -2,20 +2,16 @@ import React, { useEffect, useRef, useState } from "react";
 
 import Box from "./Box";
 import Lane from "./Lane";
-import { getBorderCenterCoordinates, shortenLineEnd } from "./Sequencing";
 import Container from "./common/Container";
-import { useData } from "./context/data";
 import {
-  difference,
-  getAllPairs,
-  getOtherBuckets,
-  uniqueValues,
-} from "./context/helper";
+  getBorderCenterCoordinates,
+  shortenLineEnd,
+} from "./common/coordinates";
+import { useData } from "./context/data";
+import { getAllPairs, uniqueValues } from "./context/helper";
 import { Bucket, BucketID, TabContext } from "./types";
 
-interface OrderingProps {
-  // [key: string]: any;
-}
+interface OrderingProps {}
 
 const Ordering: React.FC<OrderingProps> = (props) => {
   const { getAllDependencyChains, getBucket, getBuckets, getLayers } =

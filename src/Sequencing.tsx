@@ -6,14 +6,14 @@ import { useData } from "./context/data";
 import { getOtherBuckets } from "./context/helper";
 import { BucketID, TabContext } from "./types";
 import { useDragLayer } from "react-dnd";
+import {
+  Coordinates,
+  getBorderCenterCoordinates,
+  shortenLineEnd,
+} from "./common/coordinates";
+import FollowArrow from "./FollowArrow";
 
 interface SequencingProps {}
-
-type Coordinates = {
-  x: number;
-  y: number;
-};
-type BoxSide = "top" | "right" | "bottom" | "left";
 
 // clockwise.
 const positions: { top: number; left: number }[] = [
@@ -211,150 +211,3 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
 };
 
 export default Sequencing;
-
-// @todo. extract in own file.
-export const shortenLineEnd = (
-  from: Coordinates,
-  to: Coordinates,
-  shortenAmount: number,
-): Coordinates => {
-  const direction = {
-    x: to.x - from.x,
-    y: to.y - from.y,
-  };
-
-  const length = Math.sqrt(direction.x ** 2 + direction.y ** 2);
-  const normalizedDirection = {
-    x: direction.x / length,
-    y: direction.y / length,
-  };
-
-  return {
-    x: to.x - normalizedDirection.x * shortenAmount,
-    y: to.y - normalizedDirection.y * shortenAmount,
-  };
-};
-
-export const getBorderCenterCoordinates = (
-  fromRect: DOMRect,
-  toRect: DOMRect,
-): { from: Coordinates; to: Coordinates } => {
-  let from: Coordinates = { x: 0, y: 0 };
-  let to: Coordinates = { x: 0, y: 0 };
-
-  const parentElement = document.querySelector(".parent");
-  if (!parentElement) {
-    throw new Error("Parent element not found");
-  }
-  const parentRect = parentElement.getBoundingClientRect();
-
-  const centersFrom: Record<BoxSide, Coordinates> = {
-    top: { x: fromRect.left + fromRect.width / 2, y: fromRect.top },
-    right: { x: fromRect.right, y: fromRect.top + fromRect.height / 2 },
-    bottom: { x: fromRect.left + fromRect.width / 2, y: fromRect.bottom },
-    left: { x: fromRect.left, y: fromRect.top + fromRect.height / 2 },
-  };
-
-  const centersTo: Record<BoxSide, Coordinates> = {
-    top: { x: toRect.left + toRect.width / 2, y: toRect.top },
-    right: { x: toRect.right, y: toRect.top + toRect.height / 2 },
-    bottom: { x: toRect.left + toRect.width / 2, y: toRect.bottom },
-    left: { x: toRect.left, y: toRect.top + toRect.height / 2 },
-  };
-
-  let minDistance = Infinity;
-  let chosenFrom: Coordinates = { x: 0, y: 0 };
-  let chosenTo: Coordinates = { x: 0, y: 0 };
-
-  for (const sideFrom of ["top", "right", "bottom", "left"] as BoxSide[]) {
-    for (const sideTo of ["top", "right", "bottom", "left"] as BoxSide[]) {
-      const dist = Math.sqrt(
-        Math.pow(centersFrom[sideFrom].x - centersTo[sideTo].x, 2) +
-          Math.pow(centersFrom[sideFrom].y - centersTo[sideTo].y, 2),
-      );
-
-      if (dist < minDistance) {
-        minDistance = dist;
-        chosenFrom = centersFrom[sideFrom];
-        chosenTo = centersTo[sideTo];
-      }
-    }
-  }
-
-  return {
-    from: {
-      x: chosenFrom.x - parentRect.left,
-      y: chosenFrom.y - parentRect.top,
-    },
-    to: {
-      x: chosenTo.x - parentRect.left,
-      y: chosenTo.y - parentRect.top,
-    },
-  };
-};
-
-interface FollowArrowProps {
-  active: boolean;
-  startRef: React.RefObject<HTMLDivElement>;
-  currentMousePosition: Coordinates | null;
-}
-const FollowArrow: React.FC<FollowArrowProps> = ({
-  active,
-  startRef,
-  currentMousePosition,
-}) => {
-  const getStartCenter = (): Coordinates => {
-    const rect = startRef.current?.getBoundingClientRect();
-
-    if (!rect) return { x: 0, y: 0 };
-
-    const parentElement = document.querySelector(".parent");
-    if (!parentElement) {
-      throw new Error("Parent element not found");
-    }
-    const parentRect = parentElement.getBoundingClientRect();
-
-    return {
-      x: rect.left + rect.width / 2 - parentRect.left,
-      y: rect.top + rect.height / 2 - parentRect.top,
-    };
-  };
-
-  const start = getStartCenter();
-
-  // Addiere den Versatz zur Startposition, um die aktuelle Mausposition zu erhalten.
-  const end = currentMousePosition
-    ? {
-        x: start.x + currentMousePosition.x,
-        y: start.y + currentMousePosition.y,
-      }
-    : null;
-
-  return (
-    <svg className="absolute top-0 left-0 w-full h-full -z-10">
-      {active && end && (
-        <line
-          x1={start.x}
-          y1={start.y}
-          x2={end.x}
-          y2={end.y}
-          stroke="black"
-          strokeWidth="2"
-          markerEnd="url(#smallArrowhead)"
-        />
-      )}
-      <defs>
-        <marker
-          id="smallArrowhead"
-          markerWidth="6"
-          markerHeight="4"
-          refX="0"
-          refY="2"
-          orient="auto"
-        >
-          <polygon points="0 0, 6 2, 0 4" />
-        </marker>
-      </defs>
-    </svg>
-  );
-};

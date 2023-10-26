@@ -178,6 +178,7 @@ const Box: React.FC<BoxProps> = (props) => {
           <ul className="p-1 text-sm">
             {dependingIds?.map((id) => (
               <BucketItem
+                key={id}
                 id={id}
                 context={context}
                 callback={() => removeBucketDependency(id, bucket.id)}
@@ -218,7 +219,6 @@ const BucketItem: React.FC<BucketItemProps> = (props) => {
   if (TabContext.Sequencing === context) {
     return (
       <li
-        key={bucket.id}
         onClick={() => callback()}
         className={`flex cursor-pointer hover:underline items-center justify-between group gap-1 p-0.5 ${bgHeader}`}
       >
@@ -230,7 +230,6 @@ const BucketItem: React.FC<BucketItemProps> = (props) => {
   if (TabContext.Ordering === context) {
     return (
       <li
-        key={bucket.id}
         className={`flex cursor-pointer items-center justify-between group gap-1 p-0.5 ${bgHeader}`}
       >
         <span className="">{bucketName}</span>
