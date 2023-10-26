@@ -12,6 +12,7 @@ import {
   getOtherBuckets,
   hasCyclicDependencyWithBucket,
   isLastInSubarray,
+  isOnlyInOneSubArray,
   uniqueValues,
 } from "./helper";
 import initialState from "./init";
@@ -531,6 +532,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         index = bucket.layer;
       } else {
         if (
+          isOnlyInOneSubArray(chains, id) &&
           isLastInSubarray(chains, id) &&
           SubArrayLength(chains, id) < longestNaturalChain
         ) {
@@ -565,7 +567,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     }
 
-    const pos = longestNaturalChain - 1;
+    console.dir(chains, middleOrphans);
+
+    const pos = Math.min(longestNaturalChain - 1, layersArray.length - 1);
     layersArray[pos] = [...layersArray[pos], ...middleOrphans];
     return layersArray;
   };

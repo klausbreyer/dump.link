@@ -161,7 +161,33 @@ export const isLastInSubarray = (data: BucketID[][], id: BucketID): boolean => {
   }
   return false; // Return false if the id is not the last in any subarray
 };
+/**
+ * Checks if the given id is present in only one sub-array.
+ *
+ * @param data - The 2D array to search through
+ * @param id - The id to look for
+ * @returns True if the id is present in only one sub-array, false otherwise
+ */
+export const isOnlyInOneSubArray = (
+  data: BucketID[][],
+  id: BucketID,
+): boolean => {
+  let count = 0; // Counter to keep track of how many times the id appears across all sub-arrays
 
+  for (const subarray of data) {
+    if (subarray.includes(id)) {
+      count++;
+    }
+
+    // If count is greater than 1, we can break early as the id is in more than one sub-array
+    if (count > 1) {
+      return false;
+    }
+  }
+
+  // Return true only if the id appears in exactly one sub-array
+  return count === 1;
+};
 export const SubArrayLength = (data: BucketID[][], id: BucketID): number => {
   for (const subarray of data) {
     if (subarray.includes(id)) {

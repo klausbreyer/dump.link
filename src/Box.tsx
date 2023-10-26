@@ -179,10 +179,9 @@ const Box: React.FC<BoxProps> = (props) => {
             {dependingIds?.map((id) => (
               <BucketItem
                 key={id}
-                id={id}
                 context={context}
                 callback={() => removeBucketDependency(id, bucket.id)}
-                bucket={bucket}
+                bucket={getBucket(id)}
               />
             ))}
             {TabContext.Sequencing === context && (
@@ -204,14 +203,14 @@ const Box: React.FC<BoxProps> = (props) => {
 export default Box;
 
 interface BucketItemProps {
-  bucket: Bucket;
-  id: BucketID;
+  bucket: Bucket | undefined;
   context: TabContext;
   callback: () => void;
 }
 
 const BucketItem: React.FC<BucketItemProps> = (props) => {
-  const { bucket, context, callback, id } = props;
+  const { bucket, context, callback } = props;
+  if (!bucket) return null;
   const bucketName = bucket?.name || "Untitled";
 
   const bgHeader = getHeaderTextColor(bucket);
