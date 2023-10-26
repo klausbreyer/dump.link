@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrag, useDragLayer, useDrop } from "react-dnd";
 
 import {
   ArrowLeftOnRectangleIcon,
@@ -29,6 +29,9 @@ import {
 interface BoxProps {
   bucket: Bucket;
   context: TabContext;
+
+  onDragStart?: (offset: { x: number; y: number }) => void;
+  onDragEnd?: () => void;
 }
 
 const Box: React.FC<BoxProps> = (props) => {
@@ -43,6 +46,24 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const availbleIds = getBucketsAvailableFor(bucket.id);
   const dependingIds = getBucketsDependingOn(bucket.id);
+
+  const layerProps = useDragLayer((monitor) => ({
+    item: monitor.getItem(),
+    differenceFromInitialOffset: monitor.getDifferenceFromInitialOffset(),
+    isDragging: monitor.isDragging(),
+  }));
+
+  // useEffect(() => {
+  //   if (layerProps.isDragging && props.onDragStart) {
+  //     props.onDragStart(layerProps.differenceFromInitialOffset!);
+  //   }
+  // }, [layerProps.isDragging, layerProps.differenceFromInitialOffset]);
+
+  // useEffect(() => {
+  //   if (!layerProps.isDragging && layerProps.item && props.onDragEnd) {
+  //     props.onDragEnd();
+  //   }
+  // }, [layerProps.isDragging]);
 
   const { globalDragging, setGlobalDragging } = useGlobalDragging();
 
@@ -65,30 +86,44 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
-  const [{ isDragging: graphIsDragging }, graphDragRef, graphPreviewRev] =
-    useDrag(
-      () => ({
-        type: getGraphBucketType(bucket.id),
-        item: { bucketId: bucket.id },
-        collect: (monitor) => ({
-          isDragging: !!monitor.isDragging(),
-        }),
-        end: (item, monitor) => {},
+  const [
+    { isDragging: graphIsDragging },
+    sequencingDragRef,
+    sequencingPreviewRev,
+  ] = useDrag(
+    //@todo: can this anoymous function be gone?
+    () => ({
+      type: getGraphBucketType(bucket.id),
+      item: { bucketId: bucket.id },
+
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
       }),
-      [bucket, getGraphBucketType],
-    );
+      end: (item, monitor) => {
+        props.onDragEnd && props.onDragEnd();
+      },
+    }),
+    [bucket, getGraphBucketType],
+  );
 
   useEffect(() => {
     setGlobalDragging(
       graphIsDragging ? DraggingType.GRAPH : DraggingType.NONE,
       bucket.id,
     );
+
+    if (graphIsDragging && props.onDragStart) {
+      props.onDragStart(layerProps.differenceFromInitialOffset!);
+    }
+    if (!graphIsDragging && props.onDragEnd) {
+      props.onDragEnd();
+    }
   }, [graphIsDragging, setGlobalDragging]);
 
   const [
     { isDragging: foliationIsDragging },
     orderingDragRef,
-    foliationPreviewRev,
+    orderingPreviewRev,
   ] = useDrag(
     () => ({
       type: getFoliationBucketType(bucket.id),
@@ -112,7 +147,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const dragref =
     context === TabContext.Sequencing
-      ? graphDragRef
+      ? sequencingDragRef
       : context === TabContext.Ordering
       ? orderingDragRef
       : (x: any) => x;
@@ -133,7 +168,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
       `}
       ref={(node) =>
-        dragref(dropRef(foliationPreviewRev(graphPreviewRev(node))))
+        dragref(dropRef(orderingPreviewRev(sequencingPreviewRev(node))))
       }
     >
       <div className={`${bgTop}`}>
