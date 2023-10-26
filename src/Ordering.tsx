@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Box from "./Box";
 import Lane from "./Lane";
 import Container from "./common/Container";
+import SimpleButton from "./common/SimpleButton";
 import {
   getBorderCenterCoordinates,
   shortenLineEnd,
@@ -14,8 +15,13 @@ import { Bucket, BucketID, TabContext } from "./types";
 interface OrderingProps {}
 
 const Ordering: React.FC<OrderingProps> = (props) => {
-  const { getAllDependencyChains, getBucket, getBuckets, getLayers } =
-    useData();
+  const {
+    getAllDependencyChains,
+    getBucket,
+    getBuckets,
+    getLayers,
+    resetLayersForAllBuckets,
+  } = useData();
   const buckets = getBuckets();
 
   const chains = getAllDependencyChains();
@@ -66,8 +72,23 @@ const Ordering: React.FC<OrderingProps> = (props) => {
   useEffect(() => {
     repaint();
   }, [buckets, allBoxesRendered]);
+
   return (
     <Container>
+      <div className="flex justify-end w-full">
+        <SimpleButton
+          color="slate"
+          onClick={() =>
+            confirm(
+              "Are you certain you wish to revert your customized layers to their default settings?",
+            )
+              ? resetLayersForAllBuckets()
+              : null
+          }
+        >
+          Restore defaults
+        </SimpleButton>
+      </div>
       <div className="relative w-full parent ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&

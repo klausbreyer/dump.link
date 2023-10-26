@@ -69,8 +69,6 @@ const Lane: React.FC<LaneProps> = (props) => {
         if (!bucket) return;
         if (index === null || index === undefined) return;
 
-        console.log("drop", bucket.id, index);
-
         updateBucketLayer(bucket.id, index);
       },
       collect: (monitor) => ({

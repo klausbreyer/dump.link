@@ -108,8 +108,6 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
 
   const handleDragStart = (bucketId: BucketID) => {
     const ref = boxRefs.current[bucketId];
-    console.log(bucketId, ref.current?.getBoundingClientRect());
-
     if (ref && ref.current) {
       setActiveRef(ref);
       setArrowActive(true);

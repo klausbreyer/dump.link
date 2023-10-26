@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { useData } from "./context/data";
+import SimpleButton from "./common/SimpleButton";
 
 interface SettingsProps {
   // [key: string]: any;
@@ -38,12 +39,9 @@ const Settings: React.FC<SettingsProps> = (props) => {
   return (
     <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
       <h1 className="text-xl">Settings</h1>
-      <button
-        className="p-1 rounded-md shadow-lg bg-rose-200 hover:bg-rose-300"
-        onClick={handleClearLocalStorage}
-      >
+      <SimpleButton color="red" onClick={handleClearLocalStorage}>
         Reset localStorage
-      </button>
+      </SimpleButton>
       <br />
       <br />
       <h1 className="text-xl">State</h1>
@@ -53,12 +51,9 @@ const Settings: React.FC<SettingsProps> = (props) => {
         defaultValue={JSON.stringify(state)}
       ></textarea>
       <br />
-      <button
-        className="p-1 mt-4 bg-blue-200 rounded-md shadow-lg hover:bg-blue-300"
-        onClick={handleSaveToLocalStorage}
-      >
+      <SimpleButton color="blue" onClick={handleSaveToLocalStorage}>
         Save to localStorage
-      </button>
+      </SimpleButton>
     </div>
   );
 };
