@@ -49,13 +49,10 @@ const getState = (bucket: Bucket) => {
 export interface HeaderProps {
   bucket: Bucket;
   context: TabContext;
-
-  foliationDrag?: ConnectDragSource;
-  graphDrag?: ConnectDragSource;
 }
 
 const Header: React.FC<HeaderProps> = (props) => {
-  const { bucket, context, foliationDrag, graphDrag } = props;
+  const { bucket, context } = props;
 
   const { renameBucket, flagBucket, getLayerForBucketId, getLayers } =
     useData();
@@ -128,24 +125,9 @@ const Header: React.FC<HeaderProps> = (props) => {
             </BucketButton>
           </>
         )}
-        {context === TabContext.Sequencing && (
-          <>
-            <BucketButton bucket={bucket} ref={graphDrag}>
-              <div className="flex items-center justify-start text-center cursor-move w-7 h-7">
-                <ArrowIcon className="block w-3 h-3 mx-auto " />
-              </div>
-            </BucketButton>
-          </>
-        )}
+
         {context === TabContext.Ordering && !globalDragging.type && (
           <>
-            {wouldBeLastInZero && (
-              <BucketButton bucket={bucket} ref={foliationDrag}>
-                <div className="flex items-center justify-start gap-2 font-bold cursor-move">
-                  <ArrowsPointingOutIcon className="block w-5 h-5 " />
-                </div>
-              </BucketButton>
-            )}
             {!wouldBeLastInZero && (
               <div
                 title="One dependency needs to stay in the first layer"

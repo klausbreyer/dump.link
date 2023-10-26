@@ -35,6 +35,8 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
   const others = getOtherBuckets(buckets);
   const [, setRepaintcounter] = useState(0);
 
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
   const boxRefs = useRef<{ [key: BucketID]: React.RefObject<HTMLDivElement> }>(
     {},
   );
@@ -69,6 +71,19 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
     repaint();
   }, [allBoxesRendered, buckets]);
 
+  const [arrowActive, setArrowActive] = useState(false);
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      setArrowActive(false);
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
   return (
     <Container>
       <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
@@ -124,6 +139,7 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
             </marker>
           </defs>
         </svg>
+        <FollowArrow active={arrowActive} buttonRef={buttonRef} />
 
         {others.map((bucket, i) => {
           const x = positions[i].left;
@@ -144,6 +160,9 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
             </div>
           );
         })}
+        <button ref={buttonRef} onMouseDown={() => setArrowActive(true)}>
+          follow mouse
+        </button>
       </div>
     </Container>
   );
@@ -230,4 +249,85 @@ export const getBorderCenterCoordinates = (
       y: chosenTo.y - parentRect.top,
     },
   };
+};
+
+export const useMouseTracking = (parentSelector: string): Coordinates => {
+  const [mousePosition, setMousePosition] = useState<Coordinates>({
+    x: 0,
+    y: 0,
+  });
+
+  useEffect(() => {
+    const parentElement = document.querySelector(parentSelector);
+    if (!parentElement) {
+      throw new Error("Parent element not found");
+    }
+    const parentRect = parentElement.getBoundingClientRect();
+
+    const updateMousePosition = (ev: MouseEvent) => {
+      setMousePosition({
+        x: ev.clientX - parentRect.left,
+        y: ev.clientY - parentRect.top,
+      });
+    };
+
+    document.addEventListener("mousemove", updateMousePosition);
+
+    return () => {
+      document.removeEventListener("mousemove", updateMousePosition);
+    };
+  }, [parentSelector]);
+
+  return mousePosition;
+};
+
+type FollowArrowProps = {
+  active: boolean;
+  buttonRef: React.RefObject<HTMLButtonElement>;
+};
+
+const FollowArrow: React.FC<FollowArrowProps> = ({ active, buttonRef }) => {
+  const mousePosition = useMouseTracking(".parent");
+
+  const getButtonCenter = (): Coordinates => {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    const parentElement = document.querySelector(".parent");
+    if (!parentElement) {
+      throw new Error("Parent element not found");
+    }
+    const parentRect = parentElement.getBoundingClientRect();
+
+    return {
+      x: rect ? rect.left + rect.width / 2 - parentRect.left : 0,
+      y: rect ? rect.top + rect.height / 2 - parentRect.top : 0,
+    };
+  };
+
+  return (
+    <svg className="absolute top-0 left-0 w-full h-full -z-10">
+      {active && (
+        <line
+          x1={getButtonCenter().x}
+          y1={getButtonCenter().y}
+          x2={mousePosition.x}
+          y2={mousePosition.y}
+          stroke="black"
+          strokeWidth="2"
+          markerEnd="url(#smallArrowhead)"
+        />
+      )}
+      <defs>
+        <marker
+          id="smallArrowhead"
+          markerWidth="6"
+          markerHeight="4"
+          refX="0"
+          refY="2"
+          orient="auto"
+        >
+          <polygon points="0 0, 6 2, 0 4" />
+        </marker>
+      </defs>
+    </svg>
+  );
 };

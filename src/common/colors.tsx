@@ -23,6 +23,18 @@ export function getInputBorderColor(bucket: Bucket): string {
   return statusToColor[getBucketState(bucket)];
 }
 
+export function getHoverBorderColor(bucket: Bucket): string {
+  const statusToColor = {
+    [BucketState.UNSOLVED]: "hover:border-orange-600",
+    [BucketState.SOLVED]: "hover:border-yellow-600",
+    [BucketState.DONE]: "hover:border-green-600",
+    [BucketState.EMPTY]: "hover:border-slate-600",
+    [BucketState.INACTIVE]: "hover:border-slate-600",
+  };
+
+  return statusToColor[getBucketState(bucket)];
+}
+
 export function getHeaderBorderColor(bucket: Bucket): string {
   const statusToColor = {
     [BucketState.UNSOLVED]: "border-orange-600",

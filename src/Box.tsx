@@ -12,12 +12,14 @@ import {
   getBucketBackgroundColorTop,
   getBucketFlaggedStyle,
   getHeaderTextColor,
+  getHoverBorderColor,
 } from "./common/colors";
 import { useData } from "./context/data";
 import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
   Bucket,
+  BucketID,
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
@@ -36,7 +38,6 @@ const Box: React.FC<BoxProps> = (props) => {
     getBucket,
     addBucketDependency,
     getBucketsAvailableFor,
-    getLayers,
     getBucketsDependingOn,
   } = useData();
 
@@ -86,7 +87,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const [
     { isDragging: foliationIsDragging },
-    foliationDragRef,
+    orderingDragRef,
     foliationPreviewRev,
   ] = useDrag(
     () => ({
@@ -108,79 +109,97 @@ const Box: React.FC<BoxProps> = (props) => {
   }, [foliationIsDragging, setGlobalDragging]);
 
   const bgTop = getBucketBackgroundColorTop(bucket);
-  const bgHeader = getHeaderTextColor(bucket);
+
+  const dragref =
+    context === TabContext.Sequencing
+      ? graphDragRef
+      : context === TabContext.Ordering
+      ? orderingDragRef
+      : (x: any) => x;
+
+  const showUnavailable =
+    globalDragging.type === DraggingType.GRAPH && !canDrop && !graphIsDragging;
+
+  const hoverBorder = getHoverBorderColor(bucket);
 
   return (
     <div
       id={bucket.id}
-      className={`w-full rounded-md overflow-hidden opacity-95 ${bgTop} `}
-      ref={(node) => foliationPreviewRev(graphPreviewRev(node))}
-    >
-      <Header
-        bucket={bucket}
-        context={context}
-        foliationDrag={foliationDragRef}
-        graphDrag={graphDragRef}
-      />
-
-      <div className={`min-h-[1rem]  `}>
-        <ul className="p-1 text-sm">
-          {dependingIds?.map((id) => (
-            <>
-              {TabContext.Sequencing === context && (
-                <li
-                  key={id}
-                  onClick={() => removeBucketDependency(id, bucket.id)}
-                  className={`flex items-center justify-between gap-1 p-0.5 cursor-pointer group hover:underline
-                ${bgHeader}
-              `}
-                >
-                  {getBucket(id)?.name !== ""
-                    ? getBucket(id)?.name
-                    : "Untitled"}
-                  <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
-                </li>
-              )}
-              {TabContext.Sequencing !== context && (
-                <li
-                  key={id}
-                  className={`flex items-center justify-end gap-1 p-0.5
-                ${bgHeader}
-              `}
-                >
-                  {getBucket(id)?.name !== ""
-                    ? getBucket(id)?.name
-                    : "Untitled"}
-                  <ArrowLeftOnRectangleIcon className="block w-5 h-5 rotate-180 shrink-0" />
-                </li>
-              )}
-            </>
-          ))}
-          {TabContext.Sequencing === context && (
-            <li
-              ref={dropRef}
-              className={`flex border-2 h-8 items-center justify-between gap-1 p-1
-            ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
+      className={` cursor-move w-full rounded-md overflow-hidden opacity-95  border-2
+      ${hoverBorder}
+           ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
             ${isOver && " border-gray-400"}
             ${!canDrop && !isOver && " border-transparent"}
-            `}
-            >
-              {globalDragging.type === DraggingType.GRAPH}
-              {canDrop}
-              {globalDragging.type === DraggingType.GRAPH && canDrop && <></>}
-              {globalDragging.type === DraggingType.GRAPH &&
-                !canDrop &&
-                !graphIsDragging && (
+
+      `}
+      ref={(node) =>
+        dragref(dropRef(foliationPreviewRev(graphPreviewRev(node))))
+      }
+    >
+      <div className={`${bgTop}`}>
+        <Header bucket={bucket} context={context} />
+
+        <div className={`min-h-[1rem]  `}>
+          <ul className="p-1 text-sm">
+            {dependingIds?.map((id) => (
+              <BucketItem
+                id={id}
+                context={context}
+                callback={() => removeBucketDependency(id, bucket.id)}
+                bucket={bucket}
+              />
+            ))}
+            {TabContext.Sequencing === context && (
+              <li className="flex items-center justify-between h-8 gap-1 p-1">
+                {showUnavailable && (
                   <>
-                    Unavailble <ExclamationTriangleIcon className="w-5 h-5" />
+                    Unavailable <ExclamationTriangleIcon className="w-5 h-5" />
                   </>
                 )}
-            </li>
-          )}
-        </ul>
+              </li>
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Box;
+
+interface BucketItemProps {
+  bucket: Bucket;
+  id: BucketID;
+  context: TabContext;
+  callback: () => void;
+}
+
+const BucketItem: React.FC<BucketItemProps> = (props) => {
+  const { bucket, context, callback, id } = props;
+  const bucketName = bucket?.name || "Untitled";
+
+  const bgHeader = getHeaderTextColor(bucket);
+
+  if (TabContext.Sequencing === context) {
+    return (
+      <li
+        key={bucket.id}
+        onClick={() => callback()}
+        className={`flex cursor-pointer hover:underline items-center justify-between group gap-1 p-0.5 ${bgHeader}`}
+      >
+        <span className="">{bucketName}</span>
+        <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
+      </li>
+    );
+  }
+  if (TabContext.Ordering === context) {
+    return (
+      <li
+        key={bucket.id}
+        className={`flex cursor-pointer items-center justify-between group gap-1 p-0.5 ${bgHeader}`}
+      >
+        <span className="">{bucketName}</span>
+      </li>
+    );
+  }
+};
