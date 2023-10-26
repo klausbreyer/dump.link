@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           className={`w-full h-7 px-1 shadow-sm rounded-sm border-b-2 focus:outline-none  ${flaggedStyles} ${inputBorder}
         `}
           placeholder="Untitled Task Group"
-          value={bucket?.name}
+          value={bucket?.id + " " + bucket?.name}
           onChange={handleChange}
         />
         {context === TabContext.Grouping && (

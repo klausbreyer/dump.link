@@ -4,8 +4,7 @@ import { Bucket, BucketID, State, Task, TaskID } from "../types";
 import {
   NewID,
   SubArrayLength,
-  divideIntoSubsets,
-  findSubarrayIndex,
+  findLargestSubarrayIndex,
   getClosedBucketType,
   getLargestSubArray,
   getOpenBucketType,
@@ -537,8 +536,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       const bucket = getBucket(id);
       let index: number;
 
-      // Use bucket.layer if set, otherwise use findSubarrayIndex
       if (bucket?.layer !== undefined) {
+        // Use bucket.layer if set, otherwise use findSubarrayIndex
         index = bucket.layer;
       } else {
         if (
@@ -547,10 +546,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           SubArrayLength(chains, id) < longestNaturalChain
         ) {
           middleOrphans.push(id);
+
           return;
         }
 
-        index = findSubarrayIndex(chains, id);
+        index = findLargestSubarrayIndex(chains, id);
       }
 
       // We save all the middle orphans for the last row. but not when it is from the longest chain, because it then will not create the last layer.
@@ -568,6 +568,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     const minKey = keys[0];
     const maxKey = keys[keys.length - 1];
+
+    // console.dir(layersMap);
 
     for (let i = minKey; i <= maxKey; i++) {
       if (layersMap.has(i)) {

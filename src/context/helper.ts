@@ -143,14 +143,26 @@ export const getFoliationBucketType = (bucketId: BucketID) => {
   return `FOLIATION_${bucketId}`;
 };
 
-export const findSubarrayIndex = (data: BucketID[][], id: BucketID): number => {
+/**
+ * Finds the largest index within subarrays for a given id.
+ * @param data - The 2D array containing subarrays.
+ * @param id - The id to search for.
+ * @returns The largest index of the id within the subarrays, or -1 if not found.
+ */
+export const findLargestSubarrayIndex = (
+  data: BucketID[][],
+  id: BucketID,
+): number => {
+  let largestIndex = -1;
+
   for (const subarray of data) {
     const index = subarray.indexOf(id);
-    if (index !== -1) {
-      return index;
+    if (index > largestIndex) {
+      largestIndex = index;
     }
   }
-  return -1; // Return -1 if the id is not found in any subarray
+
+  return largestIndex;
 };
 
 export const isLastInSubarray = (data: BucketID[][], id: BucketID): boolean => {
