@@ -98,7 +98,7 @@ const Header: React.FC<HeaderProps> = (props) => {
   return (
     <div className={`w-full ${bgTop}`}>
       <div
-        className={`relative w-full h-4 border-b ${darkBorder} cursor-help `}
+        className={`relative w-full h-4 border-b ${darkBorder} `}
         title={`${percentageCompleted}% completed`}
       >
         <div
@@ -142,19 +142,6 @@ const Header: React.FC<HeaderProps> = (props) => {
                 <FlagIconOutline className="w-5 h-5 " />
               )}
             </BucketButton>
-          </>
-        )}
-
-        {context === TabContext.Ordering && !globalDragging.type && (
-          <>
-            {!wouldBeLastInZero && (
-              <div
-                title="One dependency needs to stay in the first layer"
-                className="flex items-center justify-start gap-2 font-bold cursor-help"
-              >
-                <ExclamationTriangleIcon className="block w-5 h-5 " />
-              </div>
-            )}
           </>
         )}
       </div>

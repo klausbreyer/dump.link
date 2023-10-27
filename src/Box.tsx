@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 
 import {
-  ArrowLeftOnRectangleIcon,
   ExclamationTriangleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -10,7 +9,6 @@ import {
 import Header from "./Header";
 import {
   getBucketBackgroundColorTop,
-  getBucketFlaggedStyle,
   getHeaderTextColor,
   getHoverBorderColor,
 } from "./common/colors";
@@ -19,7 +17,6 @@ import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
   Bucket,
-  BucketID,
   DraggedBucket,
   DraggingType,
   DropCollectedProps,
@@ -41,29 +38,29 @@ const Box: React.FC<BoxProps> = (props) => {
     getBucket,
     addBucketDependency,
     getBucketsAvailableFor,
+    getLayerForBucketId,
     getBucketsDependingOn,
   } = useData();
 
   const availbleIds = getBucketsAvailableFor(bucket.id);
   const dependingIds = getBucketsDependingOn(bucket.id);
 
+  const currentLayer = getLayerForBucketId(bucket.id);
+  const dependenciesLayers = bucket.dependencies.map((id) => {
+    return getLayerForBucketId(id);
+  });
+
+  const isMovable: boolean = !dependenciesLayers.some((layer) => {
+    return layer > currentLayer;
+  });
+
+  console.log(currentLayer, dependenciesLayers, isMovable);
+
   const layerProps = useDragLayer((monitor) => ({
     item: monitor.getItem(),
     differenceFromInitialOffset: monitor.getDifferenceFromInitialOffset(),
     isDragging: monitor.isDragging(),
   }));
-
-  // useEffect(() => {
-  //   if (layerProps.isDragging && props.onDragStart) {
-  //     props.onDragStart(layerProps.differenceFromInitialOffset!);
-  //   }
-  // }, [layerProps.isDragging, layerProps.differenceFromInitialOffset]);
-
-  // useEffect(() => {
-  //   if (!layerProps.isDragging && layerProps.item && props.onDragEnd) {
-  //     props.onDragEnd();
-  //   }
-  // }, [layerProps.isDragging]);
 
   const { globalDragging, setGlobalDragging } = useGlobalDragging();
 
@@ -91,8 +88,7 @@ const Box: React.FC<BoxProps> = (props) => {
     sequencingDragRef,
     sequencingPreviewRev,
   ] = useDrag(
-    //@todo: can this anoymous function be gone?
-    () => ({
+    {
       type: getGraphBucketType(bucket.id),
       item: { bucketId: bucket.id },
 
@@ -102,7 +98,7 @@ const Box: React.FC<BoxProps> = (props) => {
       end: (item, monitor) => {
         props.onDragEnd && props.onDragEnd();
       },
-    }),
+    },
     [bucket, getGraphBucketType],
   );
 
@@ -155,12 +151,13 @@ const Box: React.FC<BoxProps> = (props) => {
   const showUnavailable =
     globalDragging.type === DraggingType.GRAPH && !canDrop && !graphIsDragging;
 
-  const hoverBorder = getHoverBorderColor(bucket);
+  const hoverBorder = isMovable && getHoverBorderColor(bucket);
 
   return (
     <div
       id={bucket.id}
-      className={` cursor-move w-full rounded-md overflow-hidden opacity-95  border-2
+      className={` w-full rounded-md overflow-hidden opacity-95  border-2
+       ${isMovable ? "cursor-move" : ""}
       ${hoverBorder}
            ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
             ${isOver && " border-gray-400"}
@@ -230,7 +227,7 @@ const BucketItem: React.FC<BucketItemProps> = (props) => {
   if (TabContext.Ordering === context) {
     return (
       <li
-        className={`flex cursor-pointer items-center justify-between group gap-1 p-0.5 ${bgHeader}`}
+        className={`flex items-center justify-between group gap-1 p-0.5 ${bgHeader}`}
       >
         <span className="">{bucketName}</span>
       </li>

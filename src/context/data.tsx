@@ -418,6 +418,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return dependentBuckets;
   };
 
+  /**
+   * Returns a list of BucketID that can be associated with the given bucket.
+   *
+   * Specifically, the function filters out:
+   * 1. The bucket specified by `givenBucketId` itself.
+   * 2. Buckets that are direct dependencies of the bucket specified by `givenBucketId`.
+   * 3. Buckets that would create a cyclic dependency if associated with the bucket specified by `givenBucketId`.
+   *
+   * @param givenBucketId - The ID of the bucket for which to find available buckets.
+   * @returns A list of BucketID that can be associated with the given bucket.
+   */
   const getBucketsAvailableFor = (givenBucketId: BucketID): BucketID[] => {
     return state.buckets
       .filter(
