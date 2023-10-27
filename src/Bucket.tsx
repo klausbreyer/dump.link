@@ -198,17 +198,24 @@ const Bucket: React.FC<BucketProps> = (props) => {
               closed.map((task) => (
                 <TaskItem task={task} key={task.id} bucket={bucket} />
               ))}
-            {closed.length > 0 && !closedExpanded && (
+            {closed.length === 0 &&
+              !closedExpanded &&
+              !bottomCantDropWarning && (
+                <div className="flex items-center justify-center w-full gap-1 text-sm text-center ">
+                  {`Closed Tasks (${closed.length})`}
+                </div>
+              )}
+            {closed.length > 0 && !closedExpanded && !bottomCantDropWarning && (
               <div
                 onClick={() => setClosedExpanded(!closedExpanded)}
                 className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
               >
                 <ChevronDownIcon className="w-3 h-3" />
-                {`Show closed Tasks (${closed.length})`}
+                {`closed Tasks (${closed.length})`}
               </div>
             )}
             {bottomCantDropWarning && (
-              <div className="flex items-center justify-center gap-2 text-center">
+              <div className="flex items-center justify-center gap-2 text-sm text-center">
                 <ExclamationTriangleIcon className="w-5 h-5" />
                 Can't drop - this bucket is inactive! Start?
               </div>
