@@ -159,7 +159,7 @@ const Box: React.FC<BoxProps> = (props) => {
     <div
       id={bucket.id}
       className={` w-full rounded-md overflow-hidden opacity-95  border-2
-       ${isMovable ? "cursor-move" : ""}
+       ${isMovable || context === TabContext.Sequence ? "cursor-move" : ""}
       ${hoverBorder}
            ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
             ${isOver && " border-gray-400"}
