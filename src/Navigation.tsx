@@ -27,18 +27,18 @@ interface Step {
 const steps: Step[] = [
   {
     id: TabContext.Grouping,
-    name: "Grouping",
+    name: "Group",
     icon: <GroupingIcon className="w-6 h-6 text-slate-600" />,
   },
   {
     id: TabContext.Sequencing,
-    name: "Sequencing",
+    name: "Sequence",
 
     icon: <SequencingIcon className="w-6 h-6 text-slate-600" />,
   },
   {
     id: TabContext.Ordering,
-    name: "Ordering",
+    name: "Arrange",
     icon: <OrderingIcon className="w-6 h-6 text-slate-600 " />,
   },
   {
