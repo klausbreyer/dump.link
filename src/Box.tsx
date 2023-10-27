@@ -185,10 +185,11 @@ const Box: React.FC<BoxProps> = (props) => {
               />
             ))}
             {TabContext.Sequencing === context && (
-              <li className="flex items-center justify-between h-8 gap-1 p-1">
+              <li className="flex items-center justify-center h-8 gap-1 p-1 text-sm">
                 {showUnavailable && (
                   <>
-                    Unavailable <ExclamationTriangleIcon className="w-5 h-5" />
+                    <ExclamationTriangleIcon className="w-5 h-5" />
+                    Cycle Detected
                   </>
                 )}
               </li>
