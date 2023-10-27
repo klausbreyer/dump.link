@@ -97,11 +97,14 @@ export function getBucketBackgroundColorBottom(bucket: Bucket): string {
 
 export function getButtonBackground(bucket: Bucket): string {
   const statusToColor = {
-    [BucketState.UNSOLVED]: "bg-orange-300 hover:bg-orange-400",
-    [BucketState.SOLVED]: "bg-yellow-300 hover:bg-yellow-400",
-    [BucketState.DONE]: "bg-green-300 hover:bg-green-400",
-    [BucketState.EMPTY]: "bg-slate-300 hover:bg-slate-400",
-    [BucketState.INACTIVE]: "bg-slate-300 hover:bg-slate-400",
+    [BucketState.UNSOLVED]:
+      "bg-orange-300 hover:bg-orange-400 focus:bg-orange-400",
+    [BucketState.SOLVED]:
+      "bg-yellow-300 hover:bg-yellow-400 focus:bg-yellow-400",
+    [BucketState.DONE]: "bg-green-300 hover:bg-green-400 focus:bg-green-400",
+    [BucketState.EMPTY]: "bg-slate-300 hover:bg-slate-400 focus:bg-slate-400",
+    [BucketState.INACTIVE]:
+      "bg-slate-300 hover:bg-slate-400 focus:bg-slate-400",
   };
 
   return statusToColor[getBucketState(bucket)];
