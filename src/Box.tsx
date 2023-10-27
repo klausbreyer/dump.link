@@ -212,7 +212,7 @@ interface BucketItemProps {
 const BucketItem: React.FC<BucketItemProps> = (props) => {
   const { bucket, context, callback } = props;
   if (!bucket) return null;
-  const bucketName = bucket?.name || "Untitled";
+  const bucketName = bucket?.name || "Unnamed";
 
   const bgHeader = getHeaderTextColor(bucket);
 

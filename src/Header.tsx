@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = (props) => {
             type="text"
             className={`w-full h-7 px-1 shadow-sm rounded-sm border-b-2 focus:outline-none  ${flaggedStyles} ${inputBorder}
         `}
-            placeholder="Untitled Task Group"
+            placeholder="Unnamed"
             value={bucket?.name}
             onChange={handleChange}
             onBlur={handleBlur}
