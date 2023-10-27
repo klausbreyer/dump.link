@@ -47,6 +47,27 @@ const getState = (bucket: Bucket) => {
   return null;
 };
 
+const getTasksNumber = (bucket: Bucket) => {
+  const state = getBucketState(bucket);
+  if (state === BucketState.INACTIVE) {
+    return getTasksByClosed(bucket, false).length;
+  }
+  if (state === BucketState.UNSOLVED) {
+    return getTasksByClosed(bucket, false).length;
+  }
+  if (state === BucketState.SOLVED) {
+    return getTasksByClosed(bucket, true).length;
+  }
+  if (state === BucketState.DONE) {
+    return getTasksByClosed(bucket, true).length;
+  }
+
+  if (state === BucketState.EMPTY) {
+    return null;
+  }
+
+  return null;
+};
 export interface HeaderProps {
   bucket: Bucket;
   context: TabContext;
@@ -107,9 +128,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         ></div>
         <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center h-full gap-1 text-sm text-xxs">
           <span>{state}</span>
-          <span>
-            ({getTasksByClosed(bucket, true).length}/{bucket.tasks.length})
-          </span>
+          <span>({getTasksNumber(bucket)})</span>
         </div>
       </div>
       <div className={` p-1 flex gap-1 flex-row  `}>
