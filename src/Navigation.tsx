@@ -156,9 +156,9 @@ const Navigation: React.FC<NavigationProps> = (props) => {
           {relevantBuckets.map((bucket, i) => (
             <div
               key={i}
-              title={`${getTasksByClosed(bucket, true).length}/${
-                bucket.tasks.length
-              }: ${bucket.name}`}
+              title={` ${bucket.name} (${
+                getTasksByClosed(bucket, true).length
+              }/${bucket.tasks.length})`}
               className={`h-3 ${getBucketBackgroundColorBottom(bucket)} `}
               style={{ width: `${getBucketPercentage(bucket)}%` }}
             ></div>
