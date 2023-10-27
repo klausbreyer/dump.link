@@ -296,3 +296,21 @@ export function getBucketPercentage(bucket: Bucket): number {
   percentage > 0 ? percentage : percentage;
   return percentage;
 }
+
+// Function to sort buckets by your provided states
+export function sortByState(buckets: Bucket[]): Bucket[] {
+  // Define the order of your states, using the enum values directly as keys
+  const order: { [K in BucketState]: number } = {
+    [BucketState.DONE]: 1,
+    [BucketState.SOLVED]: 2,
+    [BucketState.UNSOLVED]: 3,
+    [BucketState.INACTIVE]: 4,
+    [BucketState.EMPTY]: 5,
+  };
+
+  return buckets.sort((a, b) => {
+    const stateA = getBucketState(a);
+    const stateB = getBucketState(b);
+    return order[stateA] - order[stateB];
+  });
+}

@@ -17,7 +17,11 @@ import {
 } from "./common/colors";
 import config from "./config";
 import { useData } from "./context/data";
-import { getBucketPercentage, getBucketState } from "./context/helper";
+import {
+  getBucketPercentage,
+  getBucketState,
+  getTasksByClosed,
+} from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import { Bucket, BucketState, TabContext } from "./types";
 
@@ -101,8 +105,11 @@ const Header: React.FC<HeaderProps> = (props) => {
           className={`h-full ${active} absolute top-0 left-0 `}
           style={{ width: `${percentageCompleted}%` }}
         ></div>
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center h-full text-sm text-xxs ">
-          {state}
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center h-full gap-1 text-sm text-xxs">
+          <span>{state}</span>
+          <span>
+            ({getTasksByClosed(bucket, true).length}/{bucket.tasks.length})
+          </span>
         </div>
       </div>
       <div className={` p-1 flex gap-1 flex-row  `}>

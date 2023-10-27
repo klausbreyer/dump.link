@@ -39,7 +39,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const { bucket } = props;
   const {
     moveTask,
-    getBucket,
     updateTask,
     getTask,
     changeTaskState,

@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from "react";
 
 import { Tab } from "@headlessui/react";
-import {
-  ArrowLeftOnRectangleIcon,
-  ArrowsPointingOutIcon,
-  ChartBarIcon,
-  CogIcon,
-} from "@heroicons/react/24/solid";
+import { CogIcon } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
-import { getInputBorderColor } from "./common/colors";
+import { getBucketBackgroundColorBottom } from "./common/colors";
+import { GroupingIcon, OrderingIcon, SequencingIcon } from "./common/icons";
 import { useData } from "./context/data";
 import {
   getAllPairs,
   getBucketPercentage,
   getOtherBuckets,
+  getTasksByClosed,
+  sortByState,
 } from "./context/helper";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
-import { GroupingIcon, OrderingIcon, SequencingIcon } from "./common/icons";
 
 interface Step {
   id: string;
@@ -60,7 +57,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
 
   const { getBuckets, getAllDependencyChains } = useData();
   const buckets = getBuckets();
-  const otherBuckets = getOtherBuckets(buckets);
+  const otherBuckets = sortByState(getOtherBuckets(buckets));
   const relevantBuckets = otherBuckets.filter((b) => b.tasks.length > 0);
 
   const chains = getAllDependencyChains();
@@ -159,10 +156,10 @@ const Navigation: React.FC<NavigationProps> = (props) => {
           {relevantBuckets.map((bucket, i) => (
             <div
               key={i}
-              title={`${bucket.name}: ${getBucketPercentage(
-                bucket,
-              )}% completed`}
-              className={` border-b-8 ${getInputBorderColor(bucket)} `}
+              title={`${getTasksByClosed(bucket, true).length}/${
+                bucket.tasks.length
+              }: ${bucket.name}`}
+              className={`h-3 ${getBucketBackgroundColorBottom(bucket)} `}
               style={{ width: `${getBucketPercentage(bucket)}%` }}
             ></div>
           ))}
