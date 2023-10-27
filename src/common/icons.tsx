@@ -36,9 +36,7 @@ export const EjectIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
     </svg>
   );
 };
-export const GroupingIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props,
-) => {
+export const GroupIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       width="1229"
@@ -126,9 +124,7 @@ export const GroupingIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   );
 };
 
-export const OrderingIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props,
-) => {
+export const ArrangeIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       width="1229"
@@ -170,7 +166,7 @@ export const OrderingIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   );
 };
 
-export const SequencingIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+export const SequenceIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
   props,
 ) => {
   return (

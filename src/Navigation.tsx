@@ -5,7 +5,7 @@ import { CogIcon } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
 import { getBucketBackgroundColorBottom } from "./common/colors";
-import { GroupingIcon, OrderingIcon, SequencingIcon } from "./common/icons";
+import { GroupIcon, ArrangeIcon, SequenceIcon } from "./common/icons";
 import { useData } from "./context/data";
 import {
   getAllPairs,
@@ -26,20 +26,20 @@ interface Step {
 
 const steps: Step[] = [
   {
-    id: TabContext.Grouping,
+    id: TabContext.Group,
     name: "Group",
-    icon: <GroupingIcon className="w-6 h-6 text-slate-600" />,
+    icon: <GroupIcon className="w-6 h-6 text-slate-600" />,
   },
   {
-    id: TabContext.Sequencing,
+    id: TabContext.Sequence,
     name: "Sequence",
 
-    icon: <SequencingIcon className="w-6 h-6 text-slate-600" />,
+    icon: <SequenceIcon className="w-6 h-6 text-slate-600" />,
   },
   {
-    id: TabContext.Ordering,
+    id: TabContext.Arrange,
     name: "Arrange",
-    icon: <OrderingIcon className="w-6 h-6 text-slate-600 " />,
+    icon: <ArrangeIcon className="w-6 h-6 text-slate-600 " />,
   },
   {
     id: TabContext.Settings,
@@ -52,7 +52,7 @@ interface NavigationProps {}
 
 const Navigation: React.FC<NavigationProps> = (props) => {
   const currentQueryParam = useQueryParamChange("p");
-  const initialTab = currentQueryParam || TabContext.Grouping;
+  const initialTab = currentQueryParam || TabContext.Group;
   const [currentTab, setCurrentTab] = useState<string | null>(initialTab);
 
   const { getBuckets, getAllDependencyChains } = useData();
@@ -63,7 +63,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
   const chains = getAllDependencyChains();
   const pairs = getAllPairs(chains);
 
-  const showOrdering = pairs.length > 0;
+  const showArrange = pairs.length > 0;
 
   const handleTabClick = (step: Step) => {
     setCurrentTab(step.id);
@@ -104,7 +104,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
                 as="li"
                 key={step.name}
                 className={`relative md:flex md:flex-1 ${
-                  step.id === TabContext.Ordering && !showOrdering
+                  step.id === TabContext.Arrange && !showArrange
                     ? "opacity-50"
                     : ""
                 }`}
@@ -112,18 +112,18 @@ const Navigation: React.FC<NavigationProps> = (props) => {
                 <Tab.List className="flex items-center w-full">
                   <button
                     onClick={() =>
-                      step.id === TabContext.Ordering && !showOrdering
+                      step.id === TabContext.Arrange && !showArrange
                         ? () => {}
                         : handleTabClick(step)
                     }
                     title={
-                      step.id === TabContext.Ordering && !showOrdering
-                        ? `Create some dependencies in the ${TabContext.Ordering} Tab first.`
+                      step.id === TabContext.Arrange && !showArrange
+                        ? `Create some dependencies in the ${TabContext.Arrange} Tab first.`
                         : step.name
                     }
                     className={`flex items-center w-full px-6 py-2 text-sm font-medium
                     ${
-                      step.id === TabContext.Ordering && !showOrdering
+                      step.id === TabContext.Arrange && !showArrange
                         ? "cursor-help"
                         : ""
                     }

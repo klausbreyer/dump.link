@@ -3,7 +3,7 @@ import { useDrop } from "react-dnd";
 
 import { useData } from "./context/data";
 import {
-  getFoliationBucketType,
+  getArrangeBucketType,
   getLastValues,
   getOtherBuckets,
 } from "./context/helper";
@@ -38,7 +38,7 @@ const Lane: React.FC<LaneProps> = (props) => {
     // all that is not having any dependents
     if (index === allowedOnLayers.length) {
       return getLastValues(chains).map((bucketId) =>
-        getFoliationBucketType(bucketId),
+        getArrangeBucketType(bucketId),
       );
     }
 
@@ -49,7 +49,7 @@ const Lane: React.FC<LaneProps> = (props) => {
 
     //default behaviour
     return allowedOnLayers[index].map((bucketId) =>
-      getFoliationBucketType(bucketId),
+      getArrangeBucketType(bucketId),
     );
   };
 
@@ -76,7 +76,7 @@ const Lane: React.FC<LaneProps> = (props) => {
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
   const showWhileDragging =
-    defaultHidden === false || globalDragging.type === DraggingType.FOLIATION;
+    defaultHidden === false || globalDragging.type === DraggingType.ARRANGE;
   const dropActive = hoverable && canDrop && !isOver;
   const dropOver = hoverable && canDrop && isOver;
 

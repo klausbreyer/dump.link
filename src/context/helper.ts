@@ -135,12 +135,12 @@ export const getOpenBucketType = (bucketId: BucketID) => {
   return `OPEN_BUCKET_${bucketId}`;
 };
 
-export const getGraphBucketType = (bucketId: BucketID) => {
-  return `GRAPH_${bucketId}`;
+export const getSequenceBucketType = (bucketId: BucketID) => {
+  return `SEQUENCE_${bucketId}`;
 };
 
-export const getFoliationBucketType = (bucketId: BucketID) => {
-  return `FOLIATION_${bucketId}`;
+export const getArrangeBucketType = (bucketId: BucketID) => {
+  return `ARRANGE_${bucketId}`;
 };
 
 /**

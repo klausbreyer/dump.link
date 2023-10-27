@@ -132,7 +132,7 @@ const Header: React.FC<HeaderProps> = (props) => {
             {bucket?.name.length}/{config.BUCKET_MAX_LENGTH}
           </div>
         </div>
-        {context === TabContext.Grouping && (
+        {context === TabContext.Group && (
           <>
             <StateSwitch bucket={bucket} />
             <BucketButton onClick={handleClick} bucket={bucket} flag>

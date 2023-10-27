@@ -13,7 +13,7 @@ import {
   getHoverBorderColor,
 } from "./common/colors";
 import { useData } from "./context/data";
-import { getFoliationBucketType, getGraphBucketType } from "./context/helper";
+import { getArrangeBucketType, getSequenceBucketType } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
   Bucket,
@@ -66,7 +66,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const [collectedProps, dropRef] = useDrop(
     {
-      accept: availbleIds.map((id) => getGraphBucketType(id)),
+      accept: availbleIds.map((id) => getSequenceBucketType(id)),
 
       drop: (item: DraggedBucket) => {
         const fromBucket = getBucket(item.bucketId);
@@ -78,18 +78,18 @@ const Box: React.FC<BoxProps> = (props) => {
         canDrop: monitor.canDrop(),
       }),
     },
-    [availbleIds, bucket, addBucketDependency, getGraphBucketType],
+    [availbleIds, bucket, addBucketDependency, getSequenceBucketType],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
   const [
-    { isDragging: graphIsDragging },
-    sequencingDragRef,
-    sequencingPreviewRev,
+    { isDragging: sequenceIsDragging },
+    sequenceDragRef,
+    sequencePreviewRev,
   ] = useDrag(
     {
-      type: getGraphBucketType(bucket.id),
+      type: getSequenceBucketType(bucket.id),
       item: { bucketId: bucket.id },
 
       collect: (monitor) => ({
@@ -99,42 +99,42 @@ const Box: React.FC<BoxProps> = (props) => {
         props.onDragEnd && props.onDragEnd();
       },
     },
-    [bucket, getGraphBucketType],
+    [bucket, getSequenceBucketType],
   );
 
   useEffect(() => {
     setGlobalDragging(
-      graphIsDragging ? DraggingType.GRAPH : DraggingType.NONE,
+      sequenceIsDragging ? DraggingType.SEQUENCE : DraggingType.NONE,
       bucket.id,
     );
 
-    if (graphIsDragging && props.onDragStart) {
+    if (sequenceIsDragging && props.onDragStart) {
       props.onDragStart(layerProps.differenceFromInitialOffset!);
     }
-    if (!graphIsDragging && props.onDragEnd) {
+    if (!sequenceIsDragging && props.onDragEnd) {
       props.onDragEnd();
     }
-  }, [graphIsDragging, setGlobalDragging]);
+  }, [sequenceIsDragging, setGlobalDragging]);
 
   const [
     { isDragging: foliationIsDragging },
-    orderingDragRef,
-    orderingPreviewRev,
+    arrangeDragRef,
+    arrangePreviewRev,
   ] = useDrag(
     () => ({
-      type: getFoliationBucketType(bucket.id),
+      type: getArrangeBucketType(bucket.id),
       item: { bucketId: bucket.id },
       collect: (monitor) => ({
         isDragging: !!monitor.isDragging(),
       }),
       end: (item, monitor) => {},
     }),
-    [bucket, getFoliationBucketType],
+    [bucket, getArrangeBucketType],
   );
 
   useEffect(() => {
     setGlobalDragging(
-      foliationIsDragging ? DraggingType.FOLIATION : DraggingType.NONE,
+      foliationIsDragging ? DraggingType.ARRANGE : DraggingType.NONE,
       bucket.id,
     );
   }, [foliationIsDragging, setGlobalDragging]);
@@ -142,14 +142,16 @@ const Box: React.FC<BoxProps> = (props) => {
   const bgTop = getBucketBackgroundColorTop(bucket);
 
   const dragref =
-    context === TabContext.Sequencing
-      ? sequencingDragRef
-      : context === TabContext.Ordering
-      ? orderingDragRef
+    context === TabContext.Sequence
+      ? sequenceDragRef
+      : context === TabContext.Arrange
+      ? arrangeDragRef
       : (x: any) => x;
 
   const showUnavailable =
-    globalDragging.type === DraggingType.GRAPH && !canDrop && !graphIsDragging;
+    globalDragging.type === DraggingType.SEQUENCE &&
+    !canDrop &&
+    !sequenceIsDragging;
 
   const hoverBorder = isMovable && getHoverBorderColor(bucket);
 
@@ -165,7 +167,7 @@ const Box: React.FC<BoxProps> = (props) => {
 
       `}
       ref={(node) =>
-        dragref(dropRef(orderingPreviewRev(sequencingPreviewRev(node))))
+        dragref(dropRef(arrangePreviewRev(sequencePreviewRev(node))))
       }
     >
       <div className={`${bgTop}`}>
@@ -181,7 +183,7 @@ const Box: React.FC<BoxProps> = (props) => {
                 bucket={getBucket(id)}
               />
             ))}
-            {TabContext.Sequencing === context && (
+            {TabContext.Sequence === context && (
               <li className="flex items-center justify-center h-8 gap-1 p-1 text-sm">
                 {showUnavailable && (
                   <>
@@ -213,7 +215,7 @@ const BucketItem: React.FC<BucketItemProps> = (props) => {
 
   const bgHeader = getHeaderTextColor(bucket);
 
-  if (TabContext.Sequencing === context) {
+  if (TabContext.Sequence === context) {
     return (
       <li
         onClick={() => callback()}
@@ -224,7 +226,7 @@ const BucketItem: React.FC<BucketItemProps> = (props) => {
       </li>
     );
   }
-  if (TabContext.Ordering === context) {
+  if (TabContext.Arrange === context) {
     return (
       <li
         className={`flex items-center justify-between group gap-1 p-0.5 ${bgHeader}`}

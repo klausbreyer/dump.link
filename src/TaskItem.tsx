@@ -6,10 +6,9 @@ import React, {
   useState,
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
-
 import { Bars2Icon } from "@heroicons/react/24/solid";
-
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
+
 import config from "./config";
 import { useData } from "./context/data";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";

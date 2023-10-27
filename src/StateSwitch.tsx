@@ -6,8 +6,8 @@ import { useData } from "./context/data";
 import { getBucketState } from "./context/helper";
 import { Bucket, BucketState } from "./types";
 
-import { EjectIcon } from "./common/icons";
 import BucketButton from "./common/BucketButton";
+import { EjectIcon } from "./common/icons";
 
 export interface SwitchProps {
   hover: string;

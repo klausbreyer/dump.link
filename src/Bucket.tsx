@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
 
+import {
+  ChevronDownIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
+import { ChevronUpIcon } from "@heroicons/react/24/solid";
+import Header from "./Header";
+import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import {
   getBucketBackgroundColorBottom,
   getBucketBackgroundColorTop,
-  getBucketFlaggedStyle,
 } from "./common/colors";
 import { useData } from "./context/data";
 import {
@@ -14,22 +20,15 @@ import {
   getOpenBucketType,
   getTasksByClosed,
 } from "./context/helper";
-import Header from "./Header";
-import TaskItem from "./TaskItem";
-import {
-  DraggedTask,
-  DropCollectedProps,
-  Bucket as Bucket,
-  DraggingType,
-  TabContext,
-  BucketState,
-} from "./types";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
-  ChevronDownIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
-import { ChevronUpIcon } from "@heroicons/react/24/solid";
+  Bucket,
+  BucketState,
+  DraggedTask,
+  DraggingType,
+  DropCollectedProps,
+  TabContext,
+} from "./types";
 
 interface BucketProps {
   bucket: Bucket;
@@ -149,7 +148,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
     <div className={`w-full rounded-md overflow-hidden `}>
       <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
-        <Header context={TabContext.Grouping} bucket={bucket} />
+        <Header context={TabContext.Group} bucket={bucket} />
         <div
           ref={topDropRef}
           className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${

@@ -35,13 +35,6 @@ export type DropCollectedProps = {
   canDrop: boolean;
 };
 
-export enum DraggingType {
-  TASK = "TASK",
-  GRAPH = "GRAPH",
-  FOLIATION = "FOLIATION",
-  NONE = "",
-}
-
 export type GlobalDraggingState = {
   type: DraggingType;
   entity: string | null;
@@ -56,8 +49,15 @@ export enum BucketState {
 }
 
 export enum TabContext {
-  Grouping = "Grouping",
-  Sequencing = "Sequencing",
-  Ordering = "Ordering",
+  Group = "Group",
+  Sequence = "Sequence",
+  Arrange = "Arrange",
   Settings = "Settings",
+}
+
+export enum DraggingType {
+  TASK = "TASK",
+  SEQUENCE = TabContext.Sequence,
+  ARRANGE = TabContext.Arrange,
+  NONE = "",
 }

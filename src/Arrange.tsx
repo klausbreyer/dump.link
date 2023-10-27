@@ -12,9 +12,9 @@ import { useData } from "./context/data";
 import { getAllPairs, uniqueValues } from "./context/helper";
 import { Bucket, BucketID, TabContext } from "./types";
 
-interface OrderingProps {}
+interface ArrangeProps {}
 
-const Ordering: React.FC<OrderingProps> = (props) => {
+const Arrange: React.FC<ArrangeProps> = (props) => {
   const {
     getAllDependencyChains,
     getBucket,
@@ -22,12 +22,9 @@ const Ordering: React.FC<OrderingProps> = (props) => {
     getLayers,
     resetLayersForAllBuckets,
   } = useData();
+
   const buckets = getBuckets();
-
   const chains = getAllDependencyChains();
-
-  console.log("chains", chains);
-
   const layers = getLayers();
 
   const layersWithBuckets = layers.map((layer) =>
@@ -40,13 +37,11 @@ const Ordering: React.FC<OrderingProps> = (props) => {
   const uniqueBuckets = uniqueValues(layersWithBuckets);
   const pairs = getAllPairs(chains);
 
-  const [, setRepaintcounter] = useState(0);
-
   const boxRefs = useRef<{ [key: BucketID]: React.RefObject<HTMLDivElement> }>(
     {},
   );
 
-  // check if all box refs are initialized.
+  const [, setRepaintcounter] = useState(0);
   const [allBoxesRendered, setAllBoxesRendered] = useState(false);
 
   useEffect(() => {
@@ -70,7 +65,6 @@ const Ordering: React.FC<OrderingProps> = (props) => {
     };
   }, []);
 
-  // repaint after adding dependencies or after initialization
   useEffect(() => {
     repaint();
   }, [buckets, allBoxesRendered]);
@@ -142,7 +136,7 @@ const Ordering: React.FC<OrderingProps> = (props) => {
             <Lane defaultHidden={false} index={i} hoverable={true} key={i}>
               {lane.map((bucket, j) => (
                 <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
-                  <Box bucket={bucket} context={TabContext.Ordering} />
+                  <Box bucket={bucket} context={TabContext.Arrange} />
                 </div>
               ))}
             </Lane>
@@ -159,4 +153,4 @@ const Ordering: React.FC<OrderingProps> = (props) => {
   );
 };
 
-export default Ordering;
+export default Arrange;

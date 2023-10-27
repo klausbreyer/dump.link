@@ -13,7 +13,7 @@ import {
 } from "./common/coordinates";
 import FollowArrow from "./FollowArrow";
 
-interface SequencingProps {}
+interface SequenceProps {}
 
 // clockwise.
 const positions: { top: number; left: number }[] = [
@@ -29,7 +29,7 @@ const positions: { top: number; left: number }[] = [
   { top: 15.112, left: 25.1909 },
 ];
 
-const Sequencing: React.FC<SequencingProps> = (props) => {
+const Sequence: React.FC<SequenceProps> = (props) => {
   const { getBuckets } = useData();
 
   const buckets = getBuckets();
@@ -193,7 +193,7 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
             >
               <Box
                 bucket={bucket}
-                context={TabContext.Sequencing}
+                context={TabContext.Sequence}
                 onDragStart={() => handleDragStart(bucket.id)}
                 onDragEnd={() => {
                   setArrowActive(false);
@@ -208,4 +208,4 @@ const Sequencing: React.FC<SequencingProps> = (props) => {
   );
 };
 
-export default Sequencing;
+export default Sequence;

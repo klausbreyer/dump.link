@@ -3,9 +3,9 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { createRoot } from "react-dom/client";
 
 import { DataProvider } from "./context/data";
-import Grouping from "./Grouping";
-import Ordering from "./Ordering";
-import Sequencing from "./Sequencing";
+import Group from "./Group";
+import Arrange from "./Arrange";
+import Sequence from "./Sequence";
 import { GlobalDraggingProvider } from "./hooks/useGlobalDragging";
 import Navigation from "./Navigation";
 import Settings from "./Settings";
@@ -19,15 +19,15 @@ const App = function App() {
     switch (currentQueryParam) {
       case TabContext.Settings:
         return <Settings />;
-      case TabContext.Grouping:
-        return <Grouping />;
-      case TabContext.Sequencing:
-        return <Sequencing />;
-      case TabContext.Ordering:
-        return <Ordering />;
+      case TabContext.Group:
+        return <Group />;
+      case TabContext.Sequence:
+        return <Sequence />;
+      case TabContext.Arrange:
+        return <Arrange />;
       // Add more cases here for other query param values and their corresponding components
       default:
-        return <Grouping />;
+        return <Group />;
     }
   };
 
