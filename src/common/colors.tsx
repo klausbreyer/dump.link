@@ -49,11 +49,11 @@ export function getHeaderBorderColor(bucket: Bucket): string {
 
 export function getActiveColor(bucket: Bucket): string {
   const statusToColor = {
-    [BucketState.UNSOLVED]: "bg-orange-500 ",
-    [BucketState.SOLVED]: "bg-yellow-500 ",
-    [BucketState.DONE]: "bg-green-500 ",
-    [BucketState.EMPTY]: "bg-slate-500 ",
-    [BucketState.INACTIVE]: "bg-slate-500 ",
+    [BucketState.UNSOLVED]: "bg-orange-300 ",
+    [BucketState.SOLVED]: "bg-yellow-300 ",
+    [BucketState.DONE]: "bg-green-300 ",
+    [BucketState.EMPTY]: "bg-slate-300 ",
+    [BucketState.INACTIVE]: "bg-slate-300 ",
   };
 
   return statusToColor[getBucketState(bucket)];
@@ -73,11 +73,11 @@ export function getHeaderTextColor(bucket: Bucket): string {
 
 export function getBucketBackgroundColorTop(bucket: Bucket): string {
   const statusToColor = {
-    [BucketState.UNSOLVED]: "bg-orange-200",
-    [BucketState.SOLVED]: "bg-yellow-200",
-    [BucketState.DONE]: "bg-green-200",
-    [BucketState.EMPTY]: "bg-slate-200",
-    [BucketState.INACTIVE]: "bg-slate-200",
+    [BucketState.UNSOLVED]: "bg-orange-100",
+    [BucketState.SOLVED]: "bg-yellow-100",
+    [BucketState.DONE]: "bg-green-100",
+    [BucketState.EMPTY]: "bg-slate-100",
+    [BucketState.INACTIVE]: "bg-slate-100",
   };
 
   return statusToColor[getBucketState(bucket)];
@@ -90,6 +90,18 @@ export function getBucketBackgroundColorBottom(bucket: Bucket): string {
     [BucketState.DONE]: "bg-green-300 hover:bg-green-400",
     [BucketState.EMPTY]: "bg-slate-300 hover:bg-slate-400",
     [BucketState.INACTIVE]: "bg-slate-300 hover:bg-slate-400",
+  };
+
+  return statusToColor[getBucketState(bucket)];
+}
+
+export function getBucketBackgroundColorBottomHover(bucket: Bucket): string {
+  const statusToColor = {
+    [BucketState.UNSOLVED]: "bg-orange-400",
+    [BucketState.SOLVED]: "bg-yellow-400",
+    [BucketState.DONE]: "bg-green-400",
+    [BucketState.EMPTY]: "bg-slate-400",
+    [BucketState.INACTIVE]: "bg-slate-400",
   };
 
   return statusToColor[getBucketState(bucket)];

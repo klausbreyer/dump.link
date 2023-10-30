@@ -28,23 +28,23 @@ const steps: Step[] = [
   {
     id: TabContext.Group,
     name: "Group",
-    icon: <GroupIcon className="w-6 h-6 text-slate-600" />,
+    icon: <GroupIcon className="w-6 h-6 text-sky-600" />,
   },
   {
     id: TabContext.Sequence,
     name: "Sequence",
 
-    icon: <SequenceIcon className="w-6 h-6 text-slate-600" />,
+    icon: <SequenceIcon className="w-6 h-6 text-sky-600" />,
   },
   {
     id: TabContext.Arrange,
     name: "Arrange",
-    icon: <ArrangeIcon className="w-6 h-6 text-slate-600 " />,
+    icon: <ArrangeIcon className="w-6 h-6 text-sky-600 " />,
   },
   {
     id: TabContext.Settings,
     name: "Prototype Settings",
-    icon: <CogIcon className="w-6 h-6 text-slate-600" />,
+    icon: <CogIcon className="w-6 h-6 text-sky-600" />,
   },
 ];
 
@@ -129,15 +129,15 @@ const Navigation: React.FC<NavigationProps> = (props) => {
                     }
                 ${
                   currentTab === step.id
-                    ? "bg-slate-200"
-                    : "hover:bg-slate-100 focus:bg-slate-100"
+                    ? "bg-sky-100"
+                    : "hover:bg-sky-50 focus:bg-sky-50"
                 }
-                focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2`}
+                focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2`}
                   >
-                    <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-slate-600">
+                    <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-sky-600">
                       {step.icon}
                     </span>
-                    <span className="ml-4 text-sm font-medium text-slate-600">
+                    <span className="ml-4 text-sm font-medium text-black">
                       {step.name}
                     </span>
                   </button>

@@ -11,6 +11,7 @@ import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import {
   getBucketBackgroundColorBottom,
+  getBucketBackgroundColorBottomHover,
   getBucketBackgroundColorTop,
 } from "./common/colors";
 import { useData } from "./context/data";
@@ -128,6 +129,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const bgTop = getBucketBackgroundColorTop(bucket);
   const bgBottom = getBucketBackgroundColorBottom(bucket);
+  const bgBottomHover = getBucketBackgroundColorBottomHover(bucket);
 
   const topCantDropWarning =
     !topCanDrop &&
@@ -174,10 +176,10 @@ const Bucket: React.FC<BucketProps> = (props) => {
         </div>
         <div
           ref={bottomDropRef}
-          className={`min-h-[2.3rem] ${bgBottom} bg-amber-300  border-solid border-2 ${
-            bottomCanDrop &&
-            !bottomIsOver &&
-            "border-dashed border-2 border-gray-400"
+          className={`min-h-[2.3rem]  border-solid border-2 ${
+            bottomCanDrop && !bottomIsOver
+              ? `border-dashed border-2 border-gray-400 ${bgBottomHover}`
+              : bgBottom
           }
           ${bottomIsOver && " border-gray-400"}
           ${!bottomCanDrop && !bottomIsOver && " border-transparent"}
@@ -200,7 +202,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
               !closedExpanded &&
               !bottomCantDropWarning && (
                 <div className="flex items-center justify-center w-full gap-1 text-sm text-center ">
-                  {`Closed Tasks (${closed.length})`}
+                  {`Done (${closed.length})`}
                 </div>
               )}
             {closed.length > 0 && !closedExpanded && !bottomCantDropWarning && (
@@ -209,7 +211,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
               >
                 <ChevronDownIcon className="w-3 h-3" />
-                {`closed Tasks (${closed.length})`}
+                {`Done (${closed.length})`}
               </div>
             )}
             {bottomCantDropWarning && (
