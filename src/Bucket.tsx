@@ -147,13 +147,13 @@ const Bucket: React.FC<BucketProps> = (props) => {
     bucketState === BucketState.SOLVED || bucketState === BucketState.UNSOLVED;
 
   return (
-    <div className={`w-full rounded-md overflow-hidden `}>
+    <div className={`w-full rounded-md overflow-hidden border border-black `}>
       <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
         <Header context={TabContext.Group} bucket={bucket} />
         <div
           ref={topDropRef}
-          className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${
+          className={`min-h-[3.5rem] bg-white border-solid border-2 ${
             topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
           }
           ${topIsOver && " border-gray-400"}

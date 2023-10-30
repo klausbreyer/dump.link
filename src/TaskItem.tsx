@@ -182,6 +182,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         <div className="relative w-full">
           <textarea
             className={`w-full px-1 rounded-sm shadow-md resize-y relative
+            border-b border-black
                       ${
                         val.length >= config.TASK_MAX_LENGTH
                           ? "focus:outline outline-2 outline-rose-500"
