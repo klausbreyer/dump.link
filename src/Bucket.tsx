@@ -16,7 +16,6 @@ import {
 } from "./common/colors";
 import { useData } from "./context/data";
 import {
-  getBucketState,
   getClosedBucketType,
   getOpenBucketType,
   getTasksByClosed,
@@ -52,7 +51,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const open = getTasksByClosed(bucket, false);
   const closed = getTasksByClosed(bucket, true);
-  const bucketState = getBucketState(bucket);
   const { globalDragging } = useGlobalDragging();
 
   useEffect(() => {
@@ -143,9 +141,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
     closed.length === 0 &&
     globalDragging.bucketId === bucket.id;
 
-  const showNewTaskItem =
-    bucketState === BucketState.SOLVED || bucketState === BucketState.UNSOLVED;
-
   return (
     <div className={`w-full rounded-md overflow-hidden `}>
       <div className={` `}>
@@ -153,13 +148,16 @@ const Bucket: React.FC<BucketProps> = (props) => {
         <Header context={TabContext.Group} bucket={bucket} />
         <div
           ref={topDropRef}
-          className={`min-h-[3.5rem] ${bgTop} border-solid border-2 ${
+          className={`min-h-[2.5rem] ${bgTop} border-solid border-2 ${
             topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
           }
           ${topIsOver && " border-gray-400"}
           ${!topCanDrop && !topIsOver && " border-transparent"}
           `}
         >
+          <div className="pl-2 text-sm text-center">
+            Unsolved: {getTasksByClosed(bucket, false).length}
+          </div>
           <CardList>
             {open.map((task) => (
               <TaskItem task={task} key={task.id} bucket={bucket} />
@@ -170,8 +168,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 Can't drop - this bucket is done! Undone?
               </div>
             )}
-
-            {showNewTaskItem && <TaskItem bucket={bucket} task={null} />}
           </CardList>
         </div>
         <div
@@ -191,7 +187,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 onClick={() => setClosedExpanded(!closedExpanded)}
                 className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
               >
-                <ChevronUpIcon className="w-3 h-3" /> Hide Tasks
+                <ChevronUpIcon className="w-3 h-3" /> Solved: (
+                {getTasksByClosed(bucket, true).length})
               </div>
             )}
             {closedExpanded &&
@@ -202,7 +199,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
               !closedExpanded &&
               !bottomCantDropWarning && (
                 <div className="flex items-center justify-center w-full gap-1 text-sm text-center ">
-                  {`Done (${closed.length})`}
+                  {`Solved (${closed.length})`}
                 </div>
               )}
             {closed.length > 0 && !closedExpanded && !bottomCantDropWarning && (
@@ -211,13 +208,13 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
               >
                 <ChevronDownIcon className="w-3 h-3" />
-                {`Done (${closed.length})`}
+                {`Solved (${closed.length})`}
               </div>
             )}
             {bottomCantDropWarning && (
               <div className="flex items-center justify-center gap-2 text-sm text-center">
                 <ExclamationTriangleIcon className="w-5 h-5" />
-                Can't drop - this bucket is inactive! Start?
+                Can't drop - this bucket is stopped!
               </div>
             )}
           </CardList>

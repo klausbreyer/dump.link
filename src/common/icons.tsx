@@ -18,6 +18,25 @@ export const ArrowIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
     </svg>
   );
 };
+
+export const SquareIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+  return (
+    <svg
+      width="1200"
+      height="1200"
+      viewBox="0 0 1200 1200"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="m75 37.5h1050c20.711 0 37.5 20.711 37.5 37.5v1050c0 20.711-16.789 37.5-37.5 37.5h-1050c-20.711 0-37.5-20.711-37.5-37.5v-1050c0-20.711 16.789-37.5 37.5-37.5z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
 export const EjectIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg

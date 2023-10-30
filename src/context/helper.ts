@@ -1,4 +1,4 @@
-import { Bucket, BucketID, BucketState, Task, TaskID } from "../types";
+import { Bucket, BucketID, Task, TaskID } from "../types";
 
 // main.ts
 const crypto = window.crypto || (window as any).msCrypto;
@@ -261,36 +261,6 @@ export function getLastValues(arr: string[][]): string[] {
   return [...lastValues];
 }
 
-export function getBucketState(bucket: Bucket): BucketState {
-  // Check if all tasks are closed
-  const allTasksClosed = bucket.tasks.every((task) => task.closed);
-  const hasClosedTasks = bucket.tasks.some((task) => task.closed);
-
-  // Handle buckets with no tasks
-  if (bucket.tasks.length === 0) {
-    return BucketState.EMPTY;
-  }
-
-  if (allTasksClosed && hasClosedTasks && bucket.active) {
-    return BucketState.SOLVED;
-  }
-
-  if (allTasksClosed && hasClosedTasks && !bucket.active) {
-    return BucketState.DONE;
-  }
-
-  if (!allTasksClosed && bucket.active) {
-    return BucketState.UNSOLVED;
-  }
-
-  if (!allTasksClosed && !bucket.active) {
-    return BucketState.INACTIVE;
-  }
-
-  // This line should theoretically never be reached, but it's here for completeness
-  throw new Error("Undefined bucket state.");
-}
-
 //calculate percentage of tasks in bucket closed
 export function getBucketPercentage(bucket: Bucket): number {
   const closedTasks = bucket.tasks.filter((task) => task.closed);
@@ -300,22 +270,4 @@ export function getBucketPercentage(bucket: Bucket): number {
 
   percentage > 0 ? percentage : percentage;
   return percentage;
-}
-
-// Function to sort buckets by your provided states
-export function sortByState(buckets: Bucket[]): Bucket[] {
-  // Define the order of your states, using the enum values directly as keys
-  const order: { [K in BucketState]: number } = {
-    [BucketState.DONE]: 1,
-    [BucketState.SOLVED]: 2,
-    [BucketState.UNSOLVED]: 3,
-    [BucketState.INACTIVE]: 4,
-    [BucketState.EMPTY]: 5,
-  };
-
-  return buckets.sort((a, b) => {
-    const stateA = getBucketState(a);
-    const stateB = getBucketState(b);
-    return order[stateA] - order[stateB];
-  });
 }

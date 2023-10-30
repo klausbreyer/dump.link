@@ -5,14 +5,13 @@ import { CogIcon } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
 import { getBucketBackgroundColorBottom } from "./common/colors";
-import { GroupIcon, ArrangeIcon, SequenceIcon } from "./common/icons";
+import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
 import { useData } from "./context/data";
 import {
   getAllPairs,
   getBucketPercentage,
   getOtherBuckets,
   getTasksByClosed,
-  sortByState,
 } from "./context/helper";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
@@ -57,7 +56,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
 
   const { getBuckets, getAllDependencyChains } = useData();
   const buckets = getBuckets();
-  const otherBuckets = sortByState(getOtherBuckets(buckets));
+  const otherBuckets = getOtherBuckets(buckets);
   const relevantBuckets = otherBuckets.filter((b) => b.tasks.length > 0);
 
   const chains = getAllDependencyChains();
@@ -90,6 +89,16 @@ const Navigation: React.FC<NavigationProps> = (props) => {
       window.removeEventListener("hashchange", handleHashChange);
     };
   }, []);
+
+  const tasksSolved = otherBuckets.reduce(
+    (acc, bucket) => acc + getTasksByClosed(bucket, true).length,
+    0,
+  );
+
+  const tasksNotDone = otherBuckets.reduce(
+    (acc, bucket) => acc + getTasksByClosed(bucket, false).length,
+    0,
+  );
 
   return (
     <Container>
@@ -153,22 +162,20 @@ const Navigation: React.FC<NavigationProps> = (props) => {
           </ol>
         </Tab.Group>
         <div className="flex w-full cursor-help">
-          {relevantBuckets.map((bucket, i) => (
-            <div
-              key={i}
-              title={` ${bucket.name} (${
-                getTasksByClosed(bucket, true).length
-              }/${bucket.tasks.length})`}
-              className={`h-3 ${getBucketBackgroundColorBottom(bucket)} `}
-              style={{ width: `${getBucketPercentage(bucket)}%` }}
-            ></div>
-          ))}
-          {relevantBuckets.map((bucket, i) => (
-            <div
-              key={i}
-              style={{ width: `${100 - getBucketPercentage(bucket)}%` }}
-            ></div>
-          ))}
+          <div
+            title={`Solved: ${tasksSolved}`}
+            className={`h-3 bg-green-300 hover:bg-green-400 `}
+            style={{
+              width: `${(100 * tasksSolved) / (tasksNotDone + tasksSolved)}%`,
+            }}
+          ></div>
+          <div
+            title={`Unsolved: ${tasksNotDone}`}
+            className={`h-3 bg-slate-200`}
+            style={{
+              width: `${(100 * tasksNotDone) / (tasksNotDone + tasksSolved)}%`,
+            }}
+          ></div>
         </div>
       </div>
     </Container>

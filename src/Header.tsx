@@ -11,34 +11,8 @@ import {
 } from "./common/colors";
 import config from "./config";
 import { useData } from "./context/data";
-import {
-  getBucketPercentage,
-  getBucketState,
-  getTasksByClosed,
-} from "./context/helper";
-import { Bucket, BucketState, TabContext } from "./types";
-
-const getStateName = (bucket: Bucket) => {
-  const state = getBucketState(bucket);
-  if (state === BucketState.INACTIVE) {
-    return "inactive";
-  }
-  if (state === BucketState.UNSOLVED) {
-    return "unsolved";
-  }
-  if (state === BucketState.SOLVED) {
-    return "solved";
-  }
-  if (state === BucketState.DONE) {
-    return "done";
-  }
-
-  if (state === BucketState.EMPTY) {
-    return "empty";
-  }
-
-  return null;
-};
+import { getBucketPercentage } from "./context/helper";
+import { Bucket, TabContext } from "./types";
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -48,8 +22,6 @@ export interface HeaderProps {
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
   const { renameBucket, flagBucket } = useData();
-
-  const stateName = getStateName(bucket);
 
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
@@ -89,15 +61,13 @@ const Header: React.FC<HeaderProps> = (props) => {
         title={`${percentageCompleted}% completed`}
       >
         <div
-          className={`h-full ${active} absolute top-0 left-0 `}
+          className={`h-full bg-green-300 absolute top-0 left-0 `}
           style={{ width: `${percentageCompleted}%` }}
         ></div>
         <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">
-          <span>
-            {context === TabContext.Group && "Tasks: "}
-            {getTasksByClosed(bucket, true).length} / {bucket.tasks.length}
+          <span className={` font-bold`}>
+            {/* {bucket.active ? "started" : "stopped"} */}
           </span>
-          <span className={` font-bold`}>{stateName}</span>
           {context === TabContext.Group && <StateSwitch bucket={bucket} />}
         </div>
       </div>
@@ -105,7 +75,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         <div className="relative w-full">
           <input
             type="text"
-            className={`w-full h-7 px-1 shadow-sm rounded-sm border-b-2 focus:outline-none  ${flaggedStyles} ${inputBorder}
+            className={`w-full h-8  px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}
         `}
             placeholder="Unnamed"
             value={bucket?.name}
