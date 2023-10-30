@@ -121,19 +121,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     }
 
     setVal(newValue);
-
-    // Check if the value is empty and prompt for deletion immediately
-    if (newValue.trim() === "" && task && !askedToDelete) {
-      const isConfirmed = window.confirm(
-        "Are you sure you want to delete this task?",
-      );
-      if (isConfirmed) {
-        deleteTask(getBucketForTask(task)?.id || "", task.id);
-      } else {
-        // Mark that we've asked to delete, so we don't ask again.
-        setAskedToDelete(true);
-      }
-    }
   };
 
   function handleFocus() {

@@ -1,7 +1,7 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 
 import StateSwitch from "./StateSwitch";
-import BucketButton from "./common/BucketButton";
+import FlagButton from "./common/FlagButton";
 import {
   getActiveColor,
   getBucketBackgroundColorTop,
@@ -16,9 +16,7 @@ import {
   getBucketState,
   getTasksByClosed,
 } from "./context/helper";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import { Bucket, BucketState, TabContext } from "./types";
-import FlagButton from "./common/FlagButton";
 
 const getStateName = (bucket: Bucket) => {
   const state = getBucketState(bucket);
@@ -49,8 +47,7 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { renameBucket, flagBucket, getLayerForBucketId, getLayers } =
-    useData();
+  const { renameBucket, flagBucket } = useData();
 
   const stateName = getStateName(bucket);
 
