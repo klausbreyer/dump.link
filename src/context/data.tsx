@@ -636,15 +636,21 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         const dependencyFor = bucket.dependencies || [];
 
         const dependentOnLayers = new Set<number>(
-          dependentOn.map((id) => layerForBucketId.get(id) || MIN_LAYER),
+          dependentOn
+            .map((id) => layerForBucketId.get(id))
+            .filter((layer): layer is number => layer !== undefined),
         );
+
         const dependencyForLayers = new Set<number>(
-          dependencyFor.map((id) => layerForBucketId.get(id) || MAX_LAYER),
+          dependencyFor
+            .map((id) => layerForBucketId.get(id))
+            .filter((layer): layer is number => layer !== undefined),
         );
 
         const minLayer = dependentOnLayers.size
           ? Math.max(...dependentOnLayers)
           : MIN_LAYER;
+
         const maxLayer = dependencyForLayers.size
           ? Math.min(...dependencyForLayers)
           : MAX_LAYER;

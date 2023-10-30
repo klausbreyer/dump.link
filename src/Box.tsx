@@ -54,8 +54,6 @@ const Box: React.FC<BoxProps> = (props) => {
     return layer > currentLayer;
   });
 
-  console.log(currentLayer, dependenciesLayers, isMovable);
-
   const layerProps = useDragLayer((monitor) => ({
     item: monitor.getItem(),
     differenceFromInitialOffset: monitor.getDifferenceFromInitialOffset(),
@@ -144,7 +142,7 @@ const Box: React.FC<BoxProps> = (props) => {
   const dragref =
     context === TabContext.Sequence
       ? sequenceDragRef
-      : context === TabContext.Arrange
+      : context === TabContext.Arrange && isMovable
       ? arrangeDragRef
       : (x: any) => x;
 

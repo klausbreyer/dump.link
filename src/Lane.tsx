@@ -35,7 +35,8 @@ const Lane: React.FC<LaneProps> = (props) => {
   const { globalDragging } = useGlobalDragging();
 
   const getAccept = () => {
-    // all that is not having any dependents
+    // all that is not having any dependents can be moved to the last lane.
+
     if (index === allowedOnLayers.length) {
       return getLastValues(chains).map((bucketId) =>
         getArrangeBucketType(bucketId),
