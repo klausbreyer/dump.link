@@ -128,7 +128,9 @@ const Header: React.FC<HeaderProps> = (props) => {
         ></div>
         <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center h-full gap-1 text-sm text-xxs">
           <span>{state}</span>
-          <span>({getTasksNumber(bucket)})</span>
+          {getBucketState(bucket) !== BucketState.EMPTY && (
+            <span>({getTasksNumber(bucket)})</span>
+          )}
         </div>
       </div>
       <div className={` p-1 flex gap-1 flex-row  `}>
