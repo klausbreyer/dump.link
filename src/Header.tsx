@@ -55,9 +55,13 @@ const Header: React.FC<HeaderProps> = (props) => {
   const flaggedStyles = getBucketFlaggedStyle(bucket);
 
   return (
-    <div className={`w-full ${bgTop}`}>
+    <div
+      className={`w-full ${
+        TabContext.Group !== context ? "bg-slate-200" : bgTop
+      }`}
+    >
       <div
-        className={`relative w-full h-8 border-b ${darkBorder} `}
+        className={`relative w-full h-8 border-b ${darkBorder} bg-sky-200 `}
         title={`${percentageCompleted}% completed`}
       >
         <div

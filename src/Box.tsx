@@ -171,7 +171,7 @@ const Box: React.FC<BoxProps> = (props) => {
       <div className={`${bgTop}`}>
         <Header bucket={bucket} context={context} />
 
-        <div className={`min-h-[1rem]  `}>
+        <div className={`min-h-[1rem] bg-slate-200 `}>
           <ul className="p-1 text-sm">
             {dependingIds?.map((id) => (
               <BucketItem
