@@ -102,7 +102,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
 
   return (
     <Container>
-      <div className="mb-2 overflow-hidden rounded-b-md ">
+      <div className="overflow-hidden rounded-b-md">
         <Tab.Group as="nav" aria-label="Progress">
           <ol
             role="list"
@@ -161,22 +161,22 @@ const Navigation: React.FC<NavigationProps> = (props) => {
             ))}
           </ol>
         </Tab.Group>
-        <div className="flex w-full cursor-help">
-          <div
-            title={`Solved: ${tasksSolved}`}
-            className={`h-3 bg-green-300 hover:bg-green-400 `}
-            style={{
-              width: `${(100 * tasksSolved) / (tasksNotDone + tasksSolved)}%`,
-            }}
-          ></div>
-          <div
-            title={`Unsolved: ${tasksNotDone}`}
-            className={`h-3 bg-slate-200`}
-            style={{
-              width: `${(100 * tasksNotDone) / (tasksNotDone + tasksSolved)}%`,
-            }}
-          ></div>
-        </div>
+      </div>
+      <div className="flex w-full my-2 overflow-hidden border cursor-help rounded-xl">
+        <div
+          title={`Solved: ${tasksSolved}`}
+          className={`h-3 bg-green-300 hover:bg-green-400 `}
+          style={{
+            width: `${(100 * tasksSolved) / (tasksNotDone + tasksSolved)}%`,
+          }}
+        ></div>
+        <div
+          title={`Unsolved: ${tasksNotDone}`}
+          className={`h-3 bg-white`}
+          style={{
+            width: `${(100 * tasksNotDone) / (tasksNotDone + tasksSolved)}%`,
+          }}
+        ></div>
       </div>
     </Container>
   );

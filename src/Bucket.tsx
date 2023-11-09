@@ -141,21 +141,26 @@ const Bucket: React.FC<BucketProps> = (props) => {
     closed.length === 0 &&
     globalDragging.bucketId === bucket.id;
 
+  const borderColor = bucket.active ? "border-black" : "border-slate-300  ";
   return (
-    <div className={`w-full rounded-md overflow-hidden `}>
+    <div
+      className={`w-full rounded-md overflow-hidden ${borderColor} border-2  ${bgTop} `}
+    >
       <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
         <Header context={TabContext.Group} bucket={bucket} />
         <div
           ref={topDropRef}
-          className={`min-h-[2.5rem] ${bgTop} border-solid border-2 ${
+          className={`min-h-[2.5rem] ${bgTop} border-solid  ${
             topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
           }
-          ${topIsOver && " border-gray-400"}
-          ${!topCanDrop && !topIsOver && " border-transparent"}
+          ${topIsOver && " border-gray-400 border-2"}
+            ${borderColor} border-t-2
           `}
         >
-          <div className="pl-2 text-sm text-center">
+          <div
+            className={`flex items-center justify-center w-full gap-1 text-sm text-center `}
+          >
             Figuring Out: {getTasksByClosed(bucket, false).length}
           </div>
           <CardList>
@@ -174,13 +179,14 @@ const Bucket: React.FC<BucketProps> = (props) => {
         </div>
         <div
           ref={bottomDropRef}
-          className={`min-h-[2.3rem]  border-solid border-2 ${
+          className={`min-h-[2.3rem]  border-solid  ${
             bottomCanDrop && !bottomIsOver
               ? `border-dashed border-2 border-gray-400 ${bgBottomHover}`
-              : bgBottom
+              : ""
           }
-          ${bottomIsOver && " border-gray-400"}
-          ${!bottomCanDrop && !bottomIsOver && " border-transparent"}
+          ${bottomIsOver && " border-gray-400 border-2"}
+           ${borderColor} border-t-2
+           ${bgBottom}
           `}
         >
           <CardList>

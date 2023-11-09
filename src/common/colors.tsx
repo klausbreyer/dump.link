@@ -1,4 +1,5 @@
-import { Bucket } from "../types";
+import { getBucketState } from "../context/helper";
+import { Bucket, BucketState } from "../types";
 
 // Separate function for flagged condition
 export function getFlaggedHeaderTextColor(): string {
@@ -76,7 +77,7 @@ export function getHeaderTextColor(bucket: Bucket): string {
 }
 
 export function getBucketBackgroundColorTop(bucket: Bucket): string {
-  return "bg-sky-200";
+  return bucket.active ? "bg-slate-200" : "bg-slate-200";
 
   // const statusToColor = {
   //   [BucketState.UNSOLVED]: "bg-orange-200",
@@ -90,7 +91,7 @@ export function getBucketBackgroundColorTop(bucket: Bucket): string {
 }
 
 export function getBucketBackgroundColorBottom(bucket: Bucket): string {
-  return "bg-green-300 hover:bg-green-400";
+  return "bg-green-300";
   // const statusToColor = {
   //   [BucketState.UNSOLVED]: "bg-orange-300 hover:bg-orange-400",
   //   [BucketState.SOLVED]: "bg-yellow-300 hover:bg-yellow-400",

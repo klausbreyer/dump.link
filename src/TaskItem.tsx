@@ -188,19 +188,18 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             onClick={() => changeTaskState(bucket.id, task.id, !task.closed)}
           />
         )}
-        {task === null && (
-          <div>
-            <PencilSquareIcon className="w-5 h-5" />
-          </div>
-        )}
+        {(!task || !bucket.active) && <div className="w-5 h-5"></div>}
+
         <div className="relative w-full ">
           <textarea
             className={` resize-none w-full px-1 rounded-sm shadow-md relative
+            border-b border-slate-500
                       ${
                         val.length >= config.TASK_MAX_LENGTH
                           ? "focus:outline outline-2 outline-rose-500"
                           : "focus:outline outline-2 outline-indigo-500"
-                      }`}
+                      }
+            `}
             placeholder="type more here"
             value={val}
             onBlur={handleBlur}
@@ -224,9 +223,10 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             <Bars2Icon className="w-5 h-5" />
           </div>
         )}
+
         {task === null && (
-          <div className="opacity-0">
-            <Bars2Icon className="w-5 h-5" />
+          <div>
+            <PencilSquareIcon className="w-5 h-5" />
           </div>
         )}
       </div>

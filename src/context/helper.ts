@@ -1,4 +1,4 @@
-import { Bucket, BucketID, Task, TaskID } from "../types";
+import { Bucket, BucketID, BucketState, Task, TaskID } from "../types";
 
 // main.ts
 const crypto = window.crypto || (window as any).msCrypto;
@@ -270,4 +270,34 @@ export function getBucketPercentage(bucket: Bucket): number {
 
   percentage > 0 ? percentage : percentage;
   return percentage;
+}
+
+export function getBucketState(bucket: Bucket): BucketState {
+  // Check if all tasks are closed
+  const allTasksClosed = bucket.tasks.every((task) => task.closed);
+  const hasClosedTasks = bucket.tasks.some((task) => task.closed);
+
+  // Handle buckets with no tasks
+  if (bucket.tasks.length === 0) {
+    return BucketState.EMPTY;
+  }
+
+  if (allTasksClosed && hasClosedTasks && bucket.active) {
+    return BucketState.SOLVED;
+  }
+
+  if (allTasksClosed && hasClosedTasks && !bucket.active) {
+    return BucketState.DONE;
+  }
+
+  if (!allTasksClosed && bucket.active) {
+    return BucketState.UNSOLVED;
+  }
+
+  if (!allTasksClosed && !bucket.active) {
+    return BucketState.INACTIVE;
+  }
+
+  // This line should theoretically never be reached, but it's here for completeness
+  throw new Error("Undefined bucket state.");
 }

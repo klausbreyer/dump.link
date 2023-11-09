@@ -21,7 +21,7 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { renameBucket, flagBucket } = useData();
+  const { renameBucket, flagBucket, setBucketActive } = useData();
 
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
@@ -55,27 +55,30 @@ const Header: React.FC<HeaderProps> = (props) => {
   const flaggedStyles = getBucketFlaggedStyle(bucket);
 
   return (
-    <div
-      className={`w-full ${
-        TabContext.Group !== context ? "bg-slate-200" : bgTop
-      }`}
-    >
-      <div
-        className={`relative w-full h-8 border-b ${darkBorder} bg-sky-200 `}
-        title={`${percentageCompleted}% completed`}
-      >
+    <div className={`w-full ${bgTop}`}>
+      <div className="flex items-center justify-between gap-1 p-1 ">
         <div
-          className={`h-full bg-green-300 absolute top-0 left-0 `}
-          style={{ width: `${percentageCompleted}%` }}
-        ></div>
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">
-          <span className={` font-bold`}>
-            {/* {bucket.active ? "started" : "stopped"} */}
-          </span>
-          {context === TabContext.Group && <StateSwitch bucket={bucket} />}
+          className={`relative w-full h-2  rounded-xl overflow-hidden bg-white `}
+          title={`${percentageCompleted}% Figured Out`}
+        >
+          <div
+            className={`h-full bg-green-500 absolute top-0 left-0 `}
+            style={{ width: `${percentageCompleted}%` }}
+          ></div>
+          <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">
+            <span className={` font-bold`}>
+              {/* {bucket.active ? "started" : "stopped"} */}
+            </span>
+          </div>
         </div>
       </div>
-      <div className={` p-1 flex gap-1 flex-row  `}>
+      <div className={` p-1 flex gap-1 flex-row items-center `}>
+        <input
+          type="checkbox"
+          className="w-8 h-8 "
+          checked={bucket.active}
+          onClick={() => setBucketActive(bucket.id, !bucket.active)}
+        />
         <div className="relative w-full">
           <input
             type="text"
@@ -98,6 +101,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         {context === TabContext.Group && (
           <>
             <FlagButton onClick={handleClick} bucket={bucket} />
+            {/* {<StateSwitch bucket={bucket} />} */}
           </>
         )}
       </div>
