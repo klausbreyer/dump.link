@@ -30,6 +30,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     getBucketForTask,
     deleteTask,
     reorderTask,
+    changeTaskState,
   } = useData();
 
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
@@ -179,9 +180,22 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         ${isDragging ? "invisible" : "visible"}
         `}
       >
-        <div className="relative w-full">
+        {task && bucket.active && (
+          <input
+            type="checkbox"
+            className={`w-5 h-5 `}
+            checked={task?.closed}
+            onClick={() => changeTaskState(bucket.id, task.id, !task.closed)}
+          />
+        )}
+        {task === null && (
+          <div>
+            <PencilSquareIcon className="w-5 h-5" />
+          </div>
+        )}
+        <div className="relative w-full ">
           <textarea
-            className={`w-full px-1 rounded-sm shadow-md resize-y relative
+            className={` resize-none w-full px-1 rounded-sm shadow-md relative
                       ${
                         val.length >= config.TASK_MAX_LENGTH
                           ? "focus:outline outline-2 outline-rose-500"
@@ -211,8 +225,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           </div>
         )}
         {task === null && (
-          <div>
-            <PencilSquareIcon className="w-5 h-5" />
+          <div className="opacity-0">
+            <Bars2Icon className="w-5 h-5" />
           </div>
         )}
       </div>
