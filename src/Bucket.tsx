@@ -162,6 +162,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
             {open.map((task) => (
               <TaskItem task={task} key={task.id} bucket={bucket} />
             ))}
+
+            <TaskItem bucket={bucket} task={null} />
             {topCantDropWarning && (
               <div className="flex items-center justify-center gap-2 text-center">
                 <ExclamationTriangleIcon className="w-5 h-5" />
