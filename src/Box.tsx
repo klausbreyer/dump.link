@@ -151,17 +151,22 @@ const Box: React.FC<BoxProps> = (props) => {
     !canDrop &&
     !sequenceIsDragging;
 
-  const hoverBorder = isMovable && getHoverBorderColor(bucket);
+  const hoverBorder =
+    (context === TabContext.Sequence ||
+      (context === TabContext.Arrange && isMovable)) &&
+    getHoverBorderColor(bucket);
 
+  const borderColor = bucket.active ? "border-black" : "border-slate-300  ";
   return (
     <div
       id={bucket.id}
       className={` w-full rounded-md overflow-hidden opacity-95  border-2
        ${isMovable || context === TabContext.Sequence ? "cursor-move" : ""}
       ${hoverBorder}
+      ${borderColor}
            ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
             ${isOver && " border-gray-400"}
-            ${!canDrop && !isOver && " border-transparent"}
+
 
       `}
       ref={(node) =>
@@ -171,7 +176,7 @@ const Box: React.FC<BoxProps> = (props) => {
       <div className={`${bgTop}`}>
         <Header bucket={bucket} context={context} />
 
-        <div className={`min-h-[1rem] bg-slate-200 `}>
+        <div className={`min-h-[1rem] `}>
           <ul className="p-1 text-sm">
             {dependingIds?.map((id) => (
               <BucketItem

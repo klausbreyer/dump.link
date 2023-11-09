@@ -24,7 +24,7 @@ export function getInputBorderColor(bucket: Bucket): string {
 }
 
 export function getHoverBorderColor(bucket: Bucket): string {
-  return "hover:border-slate-600";
+  return "hover:border-slate-500";
   // const statusToColor = {
   //   [BucketState.UNSOLVED]: "hover:border-orange-600",
   //   [BucketState.SOLVED]: "hover:border-yellow-600",
@@ -77,7 +77,7 @@ export function getHeaderTextColor(bucket: Bucket): string {
 }
 
 export function getBucketBackgroundColorTop(bucket: Bucket): string {
-  return bucket.active ? "bg-slate-200" : "bg-slate-200";
+  return bucket.active ? "bg-sky-200" : "bg-slate-200";
 
   // const statusToColor = {
   //   [BucketState.UNSOLVED]: "bg-orange-200",

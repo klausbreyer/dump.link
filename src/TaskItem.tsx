@@ -188,7 +188,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             onClick={() => changeTaskState(bucket.id, task.id, !task.closed)}
           />
         )}
-        {(!task || !bucket.active) && <div className="w-5 h-5"></div>}
+        {!task && bucket.active && <div className="w-5 h-5"></div>}
 
         <div className="relative w-full ">
           <textarea

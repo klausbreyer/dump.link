@@ -13,6 +13,7 @@ import config from "./config";
 import { useData } from "./context/data";
 import { getBucketPercentage } from "./context/helper";
 import { Bucket, TabContext } from "./types";
+import DlSwitch from "./Switch";
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -73,12 +74,15 @@ const Header: React.FC<HeaderProps> = (props) => {
         </div>
       </div>
       <div className={` p-1 flex gap-1 flex-row items-center `}>
-        <input
-          type="checkbox"
-          className="w-8 h-8 "
-          checked={bucket.active}
-          onClick={() => setBucketActive(bucket.id, !bucket.active)}
-        />
+        {context === TabContext.Group && (
+          <DlSwitch
+            enabled={bucket.active}
+            onToggle={() => {
+              setBucketActive(bucket.id, !bucket.active);
+            }}
+          />
+        )}
+
         <div className="relative w-full">
           <input
             type="text"
