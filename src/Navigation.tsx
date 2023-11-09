@@ -47,6 +47,10 @@ const steps: Step[] = [
   },
 ];
 
+// Utility function to conditionally join class names, implementation needed
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
+}
 interface NavigationProps {}
 
 const Navigation: React.FC<NavigationProps> = (props) => {
@@ -100,67 +104,55 @@ const Navigation: React.FC<NavigationProps> = (props) => {
     0,
   );
 
+  // Assuming 'inputValue' is of type 'string | null'
+  const value = currentTab === null ? "" : currentTab; // Provide a default empty string if null
+
   return (
     <Container>
-      <div className="overflow-hidden rounded-b-md">
-        <Tab.Group as="nav" aria-label="Progress">
-          <ol
-            role="list"
-            className="border border-gray-300 divide-y divide-gray-300 md:flex md:divide-y-0"
-          >
-            {steps.map((step, stepIdx) => (
-              <Tab
-                as="li"
-                key={step.name}
-                className={`relative md:flex md:flex-1 ${
-                  step.id === TabContext.Arrange && !showArrange
-                    ? "opacity-50"
-                    : ""
-                }`}
-              >
-                <Tab.List className="flex items-center w-full">
-                  <button
-                    onClick={() =>
-                      step.id === TabContext.Arrange && !showArrange
-                        ? () => {}
-                        : handleTabClick(step)
-                    }
-                    title={
-                      step.id === TabContext.Arrange && !showArrange
-                        ? `Create some dependencies in the ${TabContext.Arrange} Tab first.`
-                        : step.name
-                    }
-                    className={`flex items-center w-full px-6 py-2 text-sm font-medium
-                    ${
-                      step.id === TabContext.Arrange && !showArrange
-                        ? "cursor-help"
-                        : ""
-                    }
-                ${
-                  currentTab === step.id
-                    ? "bg-sky-100"
-                    : "hover:bg-sky-50 focus:bg-sky-50"
-                }
-                focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2`}
-                  >
-                    <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-sky-600">
-                      {step.icon}
-                    </span>
-                    <span className="ml-4 text-sm font-medium text-black">
-                      {step.name}
-                    </span>
-                  </button>
-                </Tab.List>
-                {stepIdx !== steps.length - 1 && (
-                  <div
-                    className="absolute top-0 right-0 hidden w-5 h-full border-r md:block"
-                    aria-hidden="true"
-                  ></div>
-                )}
-              </Tab>
-            ))}
-          </ol>
-        </Tab.Group>
+      <div className="sm:hidden">
+        {/* Mobile view: Dropdown */}
+        <label htmlFor="tabs" className="sr-only">
+          Select a tab
+        </label>
+        <select
+          id="tabs"
+          name="tabs"
+          className="block w-full border-gray-300 rounded-md focus:border-sky-500 focus:ring-sky-500"
+          value={value}
+          onChange={(e) => {
+            const step = steps.find((step) => step.name === e.target.value);
+            if (step) handleTabClick(step);
+          }}
+        >
+          {steps.map((tab) => (
+            <option key={tab.name}>{tab.name}</option>
+          ))}
+        </select>
+      </div>
+      <div className="hidden sm:block">
+        <div className="border-b border-gray-200">
+          <nav className="flex -mb-px space-x-8" aria-label="Tabs">
+            {steps.map((tab) => {
+              const isCurrent = currentTab === tab.id;
+              return (
+                <button
+                  key={tab.name}
+                  onClick={() => handleTabClick(tab)}
+                  className={classNames(
+                    isCurrent
+                      ? "border-sky-500 text-sky-600"
+                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                    "group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium",
+                  )}
+                  aria-current={isCurrent ? "page" : undefined}
+                >
+                  {tab.icon}
+                  <span className="ml-2">{tab.name}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </div>
       <div className="flex w-full my-2 overflow-hidden border cursor-help rounded-xl">
         <div
