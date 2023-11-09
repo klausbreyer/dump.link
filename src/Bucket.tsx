@@ -156,7 +156,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
           `}
         >
           <div className="pl-2 text-sm text-center">
-            Unsolved: {getTasksByClosed(bucket, false).length}
+            Figuring Out: {getTasksByClosed(bucket, false).length}
           </div>
           <CardList>
             {open.map((task) => (
@@ -189,7 +189,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 onClick={() => setClosedExpanded(!closedExpanded)}
                 className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
               >
-                <ChevronUpIcon className="w-3 h-3" /> Solved: (
+                <ChevronUpIcon className="w-3 h-3" /> Figured Out: (
                 {getTasksByClosed(bucket, true).length})
               </div>
             )}
@@ -201,7 +201,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
               !closedExpanded &&
               !bottomCantDropWarning && (
                 <div className="flex items-center justify-center w-full gap-1 text-sm text-center ">
-                  {`Solved (${closed.length})`}
+                  {`Figured Out (${closed.length})`}
                 </div>
               )}
             {closed.length > 0 && !closedExpanded && !bottomCantDropWarning && (
@@ -210,7 +210,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
               >
                 <ChevronDownIcon className="w-3 h-3" />
-                {`Solved (${closed.length})`}
+                {`Figured Out (${closed.length})`}
               </div>
             )}
             {bottomCantDropWarning && (

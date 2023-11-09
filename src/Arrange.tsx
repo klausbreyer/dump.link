@@ -82,7 +82,7 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
               : null
           }
         >
-          Restore defaults
+          Adjust
         </SimpleButton>
       </div>
       <div className="relative w-full parent ">
