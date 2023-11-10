@@ -52,12 +52,12 @@ const Area: React.FC<AreaProps> = (props) => {
         canDrop && !isOver ? "border-dashed border-2 border-gray-400" : ""
       } ${isOver ? "border-solid border-2 border-gray-400" : ""}`}
     >
-      <div className={`w-full p-1 flex gap-1 `}>
+      <div className={`w-full px-1 py-2 flex gap-1 `}>
         <input
           readOnly
           type="text"
           value={"Dump"}
-          className={`px-1 w-full bg-transparent border-b-2 focus:outline-none border-slate-500
+          className={`px-1 w-full bg-transparent border-b-4 focus:outline-none border-slate-500
         `}
         />
       </div>

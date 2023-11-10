@@ -193,7 +193,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             className={`w-5 h-5 `}
             disabled={bucket.done}
             checked={task.closed}
-            onClick={() => changeTaskState(bucket.id, task.id, !task.closed)}
+            onChange={() => changeTaskState(bucket.id, task.id, !task.closed)}
           />
         )}
         {!task && (

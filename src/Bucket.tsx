@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
 
 import {
@@ -53,6 +53,11 @@ const Bucket: React.FC<BucketProps> = (props) => {
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (bucket.done) {
+      setClosedExpanded(false);
+    }
+  }, [bucket.done]);
   const [topCollectedProps, topDropRef] = useDrop(
     {
       // accepts tasks from all others and from this self bucket, if it is from done.
@@ -104,26 +109,24 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const topCantDropWarning =
     !topCanDrop && globalDragging.type === DraggingType.TASK && bucket.done;
 
-  const borderColor = bucket.done ? "border-black" : "border-slate-300  ";
-
   const hasTasks = bucket.tasks.length > 0;
+  const showFigures = hasTasks && !bucket.done && open.length > 0;
 
   return (
-    <div
-      className={`w-full rounded-md overflow-hidden ${borderColor} border-2  ${bgTop} `}
-    >
+    <div className={`w-full rounded-md overflow-hidden  ${bgTop} `}>
       <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
         <Header context={TabContext.Group} bucket={bucket} />
         <div
           ref={topDropRef}
-          className={`min-h-[2.5rem] ${bgTop} border-solid  ${
+          className={`min-h-[2.5rem] ${bgTop} border-solid   border-2 ${
             topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
           }
-          ${topIsOver && " border-gray-400 border-2"}
+          ${topIsOver && " border-gray-400"}
+          ${!topCanDrop && " border-transparent"}
           `}
         >
-          {hasTasks && (
+          {showFigures && (
             <>
               <div
                 className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
@@ -131,10 +134,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 <span> Figuring Out: {open.length}</span>
                 <span> Figured Out: {closed.length}</span>
               </div>
-              <MicroProgress percentageCompleted={percentageCompleted} />
             </>
           )}
-
+          <MicroProgress percentageCompleted={percentageCompleted} />
           <CardList>
             {open.map((task) => (
               <TaskItem task={task} key={task.id} bucket={bucket} />
@@ -143,7 +145,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
             {!bucket.done && <TaskItem bucket={bucket} task={null} />}
             {closed.length > 0 && (
               <>
-                <hr className="border-b border-black border-dashed" />
+                {open.length > 0 && (
+                  <hr className="border-b border-black border-dashed" />
+                )}
                 {closedExpanded &&
                   closed.map((task) => (
                     <TaskItem task={task} key={task.id} bucket={bucket} />

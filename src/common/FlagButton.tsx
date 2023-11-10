@@ -4,7 +4,7 @@ import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 import React from "react";
 import { Bucket } from "../types";
 import {
-  getButtonBackground,
+  getFlagButtonBackground,
   getFlaggedHeaderTextColor,
   getHeaderTextColor,
   getInputBorderColor,
@@ -22,7 +22,7 @@ const FlagButton = React.forwardRef<
   const { bucket, onClick, children, className, ...rest } = props;
 
   const border = getInputBorderColor(bucket);
-  const hover = getButtonBackground(bucket);
+  const hover = getFlagButtonBackground(bucket);
   const text = getHeaderTextColor(bucket);
 
   const flagColor = getFlaggedHeaderTextColor();
@@ -35,7 +35,7 @@ const FlagButton = React.forwardRef<
     <button
       ref={ref}
       onClick={onClick ? () => onClick() : () => {}}
-      className={`active:transform active:scale-95 transition-transform duration-150 h-7 p-0.5 rounded-sm shadow-sm focus:outline-none ${colors} ${className} `}
+      className={`active:transform active:scale-95 transition-transform duration-150 h-8 p-0.5 rounded-sm shadow-sm border-b-4 focus:outline-none ${colors} ${className} `}
       {...rest}
     >
       {bucket?.flagged ? (

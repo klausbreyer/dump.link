@@ -18,7 +18,7 @@ const BucketButton = React.forwardRef<
     <button
       ref={ref}
       onClick={onClick ? () => onClick() : () => {}}
-      className={`active:transform active:scale-95 transition-transform duration-150 h-7 p-0.5 rounded-sm shadow-sm focus:outline-none bg-sky-300 hover:bg-sky-400 text-black ${className} `}
+      className={`${className}  active:transform active:scale-95 transition-transform duration-150 h-7 p-0.5 rounded-sm shadow-sm focus:outline-none bg-sky-300 hover:bg-sky-400 text-black `}
       {...rest}
     >
       {children}

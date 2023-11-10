@@ -156,14 +156,13 @@ const Box: React.FC<BoxProps> = (props) => {
       (context === TabContext.Arrange && isMovable)) &&
     getHoverBorderColor(bucket);
 
-  const borderColor = bucket.done ? "border-black" : "border-slate-300  ";
   return (
     <div
       id={bucket.id}
       className={` w-full rounded-md overflow-hidden opacity-95  border-2
        ${isMovable || context === TabContext.Sequence ? "cursor-move" : ""}
       ${hoverBorder}
-      ${borderColor}
+      border-slate-300
            ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
             ${isOver && " border-gray-400"}
 

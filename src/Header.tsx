@@ -1,17 +1,14 @@
 import React, { ChangeEvent, useState } from "react";
 
-import StateSwitch from "./StateSwitch";
 import FlagButton from "./common/FlagButton";
 import {
-  getActiveColor,
   getBucketBackgroundColorTop,
   getBucketFlaggedStyle,
-  getHeaderBorderColor,
   getInputBorderColor,
 } from "./common/colors";
 import config from "./config";
 import { useData } from "./context/data";
-import { getBucketPercentage } from "./context/helper";
+import { getTasksByClosed } from "./context/helper";
 import { Bucket, TabContext } from "./types";
 
 export interface HeaderProps {
@@ -22,6 +19,8 @@ export interface HeaderProps {
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
   const { renameBucket, flagBucket, setBucketDone } = useData();
+
+  const open = getTasksByClosed(bucket, false);
 
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
@@ -50,6 +49,9 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   const flaggedStyles = getBucketFlaggedStyle(bucket);
 
+  const hasTasks = bucket.tasks.length > 0;
+  const showDone = hasTasks && open.length === 0;
+
   return (
     <div className={`w-full ${bgTop}`}>
       <div className={` p-1 flex gap-1 flex-row items-center `}>
@@ -72,11 +74,19 @@ const Header: React.FC<HeaderProps> = (props) => {
             {bucket?.name.length}/{config.BUCKET_MAX_LENGTH}
           </div>
         </div>
-        {context === TabContext.Group && (
+        {!showDone && context === TabContext.Group && (
           <>
             <FlagButton onClick={handleClick} bucket={bucket} />
             {/* {<StateSwitch bucket={bucket} />} */}
           </>
+        )}
+        {showDone && context === TabContext.Group && (
+          <input
+            type="checkbox"
+            className="w-7 h-7"
+            checked={bucket.done || false}
+            onChange={() => setBucketDone(bucket.id, !bucket.done)}
+          />
         )}
       </div>
     </div>

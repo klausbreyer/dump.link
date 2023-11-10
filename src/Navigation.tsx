@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { Tab } from "@headlessui/react";
 import { CogIcon } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
-import { getBucketBackgroundColorBottom } from "./common/colors";
 import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
 import { useData } from "./context/data";
 import {
   getAllPairs,
-  getBucketPercentage,
   getOtherBuckets,
   getTasksByClosed,
 } from "./context/helper";
@@ -27,23 +24,23 @@ const steps: Step[] = [
   {
     id: TabContext.Group,
     name: "Group",
-    icon: <GroupIcon className="w-6 h-6 text-sky-600" />,
+    icon: <GroupIcon className="w-6 h-6 text-slate-600" />,
   },
   {
     id: TabContext.Sequence,
     name: "Sequence",
 
-    icon: <SequenceIcon className="w-6 h-6 text-sky-600" />,
+    icon: <SequenceIcon className="w-6 h-6 text-slate-600" />,
   },
   {
     id: TabContext.Arrange,
     name: "Arrange",
-    icon: <ArrangeIcon className="w-6 h-6 text-sky-600 " />,
+    icon: <ArrangeIcon className="w-6 h-6 text-slate-600 " />,
   },
   {
     id: TabContext.Settings,
     name: "Prototype Settings",
-    icon: <CogIcon className="w-6 h-6 text-sky-600" />,
+    icon: <CogIcon className="w-6 h-6 text-slate-600" />,
   },
 ];
 
@@ -117,7 +114,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
         <select
           id="tabs"
           name="tabs"
-          className="block w-full border-gray-300 rounded-md focus:border-sky-500 focus:ring-sky-500"
+          className="block w-full border-gray-300 rounded-md focus:border-slate-500 focus:ring-slate-500"
           value={value}
           onChange={(e) => {
             const step = steps.find((step) => step.name === e.target.value);
@@ -140,7 +137,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
                   onClick={() => handleTabClick(tab)}
                   className={classNames(
                     isCurrent
-                      ? "border-sky-500 text-sky-600"
+                      ? "border-slate-500 text-slate-600"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
                     "group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium",
                   )}
