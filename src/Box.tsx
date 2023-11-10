@@ -177,14 +177,15 @@ const Box: React.FC<BoxProps> = (props) => {
 
         <div className={`min-h-[1rem] `}>
           <ul className="p-1 text-sm">
-            {dependingIds?.map((id) => (
-              <BucketItem
-                key={id}
-                context={context}
-                callback={() => removeBucketDependency(id, bucket.id)}
-                bucket={getBucket(id)}
-              />
-            ))}
+            {TabContext.Sequence === context &&
+              dependingIds?.map((id) => (
+                <BucketItem
+                  key={id}
+                  context={context}
+                  callback={() => removeBucketDependency(id, bucket.id)}
+                  bucket={getBucket(id)}
+                />
+              ))}
             {TabContext.Sequence === context && (
               <li className="flex items-center justify-center h-8 gap-1 p-1 text-sm">
                 {showUnavailable && (
