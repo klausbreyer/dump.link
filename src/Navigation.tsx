@@ -4,12 +4,6 @@ import { CogIcon } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
 import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
-import { useData } from "./context/data";
-import {
-  getAllPairs,
-  getOtherBuckets,
-  getTasksByClosed,
-} from "./context/helper";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
 
@@ -39,7 +33,7 @@ const steps: Step[] = [
   },
   {
     id: TabContext.Settings,
-    name: "Prototype Settings",
+    name: "Alpha Settings",
     icon: <CogIcon className="w-6 h-6 text-slate-600" />,
   },
 ];
@@ -54,16 +48,6 @@ const Navigation: React.FC<NavigationProps> = (props) => {
   const currentQueryParam = useQueryParamChange("p");
   const initialTab = currentQueryParam || TabContext.Group;
   const [currentTab, setCurrentTab] = useState<string | null>(initialTab);
-
-  const { getBuckets, getAllDependencyChains } = useData();
-  const buckets = getBuckets();
-  const otherBuckets = getOtherBuckets(buckets);
-  const relevantBuckets = otherBuckets.filter((b) => b.tasks.length > 0);
-
-  const chains = getAllDependencyChains();
-  const pairs = getAllPairs(chains);
-
-  const showArrange = pairs.length > 0;
 
   const handleTabClick = (step: Step) => {
     setCurrentTab(step.id);
@@ -91,43 +75,10 @@ const Navigation: React.FC<NavigationProps> = (props) => {
     };
   }, []);
 
-  const tasksSolved = otherBuckets.reduce(
-    (acc, bucket) => acc + getTasksByClosed(bucket, true).length,
-    0,
-  );
-
-  const tasksNotDone = otherBuckets.reduce(
-    (acc, bucket) => acc + getTasksByClosed(bucket, false).length,
-    0,
-  );
-
-  // Assuming 'inputValue' is of type 'string | null'
-  const value = currentTab === null ? "" : currentTab; // Provide a default empty string if null
-
   return (
     <Container>
-      <div className="sm:hidden">
-        {/* Mobile view: Dropdown */}
-        <label htmlFor="tabs" className="sr-only">
-          Select a tab
-        </label>
-        <select
-          id="tabs"
-          name="tabs"
-          className="block w-full border-gray-300 rounded-md focus:border-slate-500 focus:ring-slate-500"
-          value={value}
-          onChange={(e) => {
-            const step = steps.find((step) => step.name === e.target.value);
-            if (step) handleTabClick(step);
-          }}
-        >
-          {steps.map((tab) => (
-            <option key={tab.name}>{tab.name}</option>
-          ))}
-        </select>
-      </div>
-      <div className="hidden sm:block">
-        <div className="border-b border-gray-200">
+      <div className="mb-2">
+        <div className="flex items-center justify-between border-b border-gray-200">
           <nav className="flex -mb-px space-x-8" aria-label="Tabs">
             {steps.map((tab) => {
               const isCurrent = currentTab === tab.id;
@@ -150,22 +101,6 @@ const Navigation: React.FC<NavigationProps> = (props) => {
             })}
           </nav>
         </div>
-      </div>
-      <div className="flex w-full my-2 overflow-hidden border cursor-help rounded-xl">
-        <div
-          title={`Solved: ${tasksSolved}`}
-          className={`h-3 bg-green-300 hover:bg-green-400 `}
-          style={{
-            width: `${(100 * tasksSolved) / (tasksNotDone + tasksSolved)}%`,
-          }}
-        ></div>
-        <div
-          title={`Unsolved: ${tasksNotDone}`}
-          className={`h-3 bg-white`}
-          style={{
-            width: `${(100 * tasksNotDone) / (tasksNotDone + tasksSolved)}%`,
-          }}
-        ></div>
       </div>
     </Container>
   );
