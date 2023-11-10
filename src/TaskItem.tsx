@@ -180,15 +180,16 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         ${isDragging ? "invisible" : "visible"}
         `}
       >
-        {task && bucket.active && (
+        {task && (
           <input
             type="checkbox"
             className={`w-5 h-5 `}
-            checked={task?.closed}
+            disabled={!bucket.active}
+            checked={task.closed}
             onClick={() => changeTaskState(bucket.id, task.id, !task.closed)}
           />
         )}
-        {!task && bucket.active && <div className="w-5 h-5"></div>}
+        {!task && <div className="w-5 h-5"></div>}
 
         <div className="relative w-full ">
           <textarea
@@ -206,6 +207,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             onFocus={handleFocus}
             onKeyDown={handleKeyDown}
             onChange={handleChange}
+            disabled={task?.closed}
             rows={1}
             ref={textAreaRef}
           ></textarea>

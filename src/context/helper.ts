@@ -132,6 +132,16 @@ export function getTasksByClosed(
   return tasks.filter((task) => task.closed === closed);
 }
 
+export function sortTasksNotClosedFirst(bucket: Bucket | undefined): Task[] {
+  const tasks = bucket?.tasks || [];
+
+  return tasks.sort((a, b) => {
+    if (!a.closed && b.closed) return -1;
+    if (a.closed && !b.closed) return 1;
+    return 0;
+  });
+}
+
 export const getClosedBucketType = (bucketId: BucketID) => {
   return `CLOSED_BUCKET_${bucketId}`;
 };

@@ -1,29 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useDrop } from "react-dnd";
 
-import {
-  ChevronDownIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
-import { ChevronUpIcon } from "@heroicons/react/24/solid";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import Header from "./Header";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
-import {
-  getBucketBackgroundColorBottom,
-  getBucketBackgroundColorBottomHover,
-  getBucketBackgroundColorTop,
-} from "./common/colors";
+import { getBucketBackgroundColorTop } from "./common/colors";
 import { useData } from "./context/data";
 import {
   getClosedBucketType,
   getOpenBucketType,
   getTasksByClosed,
+  sortTasksNotClosedFirst,
 } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
   Bucket,
-  BucketState,
   DraggedTask,
   DraggingType,
   DropCollectedProps,
@@ -49,18 +41,10 @@ const Bucket: React.FC<BucketProps> = (props) => {
     (b: Bucket) => b.id !== bucket.id,
   );
 
+  const sorted = sortTasksNotClosedFirst(bucket);
   const open = getTasksByClosed(bucket, false);
   const closed = getTasksByClosed(bucket, true);
   const { globalDragging } = useGlobalDragging();
-
-  useEffect(() => {
-    if (closed.length === 1) {
-      setClosedExpanded(false);
-    }
-  }, [closed.length]);
-
-  // flag closed expansion
-  const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
 
   const [topCollectedProps, topDropRef] = useDrop(
     {
@@ -105,40 +89,12 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const { isOver: topIsOver, canDrop: topCanDrop } =
     topCollectedProps as DropCollectedProps;
 
-  const [bottomCollectedProps, bottomDropRef] = useDrop(
-    {
-      accept: bucket.active ? getOpenBucketType(bucket.id) : [],
-
-      drop: (item: DraggedTask) => {
-        // only allow dropping if the task is already in this bucket but in another state.
-        changeTaskState(bucket.id, item.taskId, true);
-      },
-
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-      }),
-    },
-    [getOpenBucketType, bucket, changeTaskState],
-  );
-
-  const { isOver: bottomIsOver, canDrop: bottomCanDrop } =
-    bottomCollectedProps as DropCollectedProps;
-
   const bgTop = getBucketBackgroundColorTop(bucket);
-  const bgBottom = getBucketBackgroundColorBottom(bucket);
-  const bgBottomHover = getBucketBackgroundColorBottomHover(bucket);
 
   const topCantDropWarning =
     !topCanDrop &&
     globalDragging.type === DraggingType.TASK &&
-    open.length === 0 &&
-    globalDragging.bucketId === bucket.id;
-
-  const bottomCantDropWarning =
-    !bottomCanDrop &&
-    globalDragging.type === DraggingType.TASK &&
-    closed.length === 0 &&
+    sorted.length === 0 &&
     globalDragging.bucketId === bucket.id;
 
   const borderColor = bucket.active ? "border-black" : "border-slate-300  ";
@@ -159,12 +115,13 @@ const Bucket: React.FC<BucketProps> = (props) => {
           `}
         >
           <div
-            className={`flex items-center justify-center w-full gap-1 text-sm text-center `}
+            className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
           >
-            Figuring Out: {getTasksByClosed(bucket, false).length}
+            <span> Figuring Out: {open.length}</span>
+            <span> Figured Out: {closed.length}</span>
           </div>
           <CardList>
-            {open.map((task) => (
+            {sorted.map((task) => (
               <TaskItem task={task} key={task.id} bucket={bucket} />
             ))}
 
@@ -173,56 +130,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
               <div className="flex items-center justify-center gap-2 text-center">
                 <ExclamationTriangleIcon className="w-5 h-5" />
                 Can't drop - this bucket is done! Undone?
-              </div>
-            )}
-          </CardList>
-        </div>
-        <div
-          ref={bottomDropRef}
-          className={`min-h-[2.3rem]  border-solid  ${
-            bottomCanDrop && !bottomIsOver
-              ? `border-dashed border-2 border-gray-400 ${bgBottomHover}`
-              : ""
-          }
-          ${bottomIsOver && " border-gray-400 border-2"}
-           ${borderColor} border-t-2
-           ${bgBottom}
-          `}
-        >
-          <CardList>
-            {closedExpanded && (
-              <div
-                onClick={() => setClosedExpanded(!closedExpanded)}
-                className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
-              >
-                <ChevronUpIcon className="w-3 h-3" /> Figured Out: (
-                {getTasksByClosed(bucket, true).length})
-              </div>
-            )}
-            {closedExpanded &&
-              closed.map((task) => (
-                <TaskItem task={task} key={task.id} bucket={bucket} />
-              ))}
-            {closed.length === 0 &&
-              !closedExpanded &&
-              !bottomCantDropWarning && (
-                <div className="flex items-center justify-center w-full gap-1 text-sm text-center ">
-                  {`Figured Out (${closed.length})`}
-                </div>
-              )}
-            {closed.length > 0 && !closedExpanded && !bottomCantDropWarning && (
-              <div
-                onClick={() => setClosedExpanded(!closedExpanded)}
-                className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
-              >
-                <ChevronDownIcon className="w-3 h-3" />
-                {`Figured Out (${closed.length})`}
-              </div>
-            )}
-            {bottomCantDropWarning && (
-              <div className="flex items-center justify-center gap-2 text-sm text-center">
-                <ExclamationTriangleIcon className="w-5 h-5" />
-                Can't drop - this bucket is stopped!
               </div>
             )}
           </CardList>
