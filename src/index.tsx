@@ -12,6 +12,8 @@ import Settings from "./Settings";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
 
+import "../public/styles.css";
+
 const App = function App() {
   const currentQueryParam = useQueryParamChange("p");
 

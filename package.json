@@ -16,7 +16,9 @@
   },
   "scripts": {
     "start": "rm -rf .parcel-cache && rm -rf watch && parcel public/index.html --dist-dir watch",
-    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build public/index.html --public-url '.' --reporter @parcel/reporter-bundle-analyzer"
+    "starttsx": "rm -rf .parcel-cache && rm -rf watch && parcel src/index.tsx --dist-dir watch",
+    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build public/index.html --public-url '.' --reporter @parcel/reporter-bundle-analyzer",
+    "buildtsx": "rm -rf .parcel-cache && rm -rf dist && parcel build src/index.tsx --public-url '.' --reporter @parcel/reporter-bundle-analyzer"
   },
   "dependencies": {
     "@headlessui/react": "1.7.17",
