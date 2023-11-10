@@ -77,7 +77,7 @@ export function getHeaderTextColor(bucket: Bucket): string {
 }
 
 export function getBucketBackgroundColorTop(bucket: Bucket): string {
-  return bucket.active ? "bg-sky-200" : "bg-slate-200";
+  return bucket.done ? "bg-sky-200" : "bg-slate-200";
 
   // const statusToColor = {
   //   [BucketState.UNSOLVED]: "bg-orange-200",

@@ -46,9 +46,9 @@ export interface StateSwitchProps {
 const StateSwitch: React.FC<StateSwitchProps> = (props) => {
   const { bucket } = props;
 
-  const { setBucketActive } = useData();
+  const { setBucketDone } = useData();
 
-  if (bucket.active) {
+  if (bucket.done) {
     return (
       <Switch
         bucket={bucket}
@@ -57,7 +57,7 @@ const StateSwitch: React.FC<StateSwitchProps> = (props) => {
         hover={"stop"}
         HoverIcon={<SquareIcon className="w-4 h-4" />}
         callback={() =>
-          bucket.tasks.length > 0 ? setBucketActive(bucket.id, false) : null
+          bucket.tasks.length > 0 ? setBucketDone(bucket.id, false) : null
         }
       />
     );
@@ -70,7 +70,7 @@ const StateSwitch: React.FC<StateSwitchProps> = (props) => {
       hover={"start"}
       Icon={<SquareIcon className="w-3 h-3" />}
       HoverIcon={<PlayIcon className="w-4 h-4" />}
-      callback={() => setBucketActive(bucket.id, true)}
+      callback={() => setBucketDone(bucket.id, true)}
     />
   );
 };

@@ -33,8 +33,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     changeTaskState,
   } = useData();
 
-  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
+
   usePasteListener(textAreaRef, (title: string) => {
     title = title.substring(0, config.TASK_MAX_LENGTH);
 
@@ -125,7 +126,10 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   };
 
   function handleFocus() {
-    setIsTextAreaFocused(true);
+    // Little hack to allow for dragging and positioning mouse cursor inside the textarea.
+    setTimeout(() => {
+      setIsTextAreaFocused(true);
+    }, 100);
   }
 
   function handleBlur() {
@@ -172,6 +176,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     }
   }
 
+  const activeTask = task && !task.closed;
+  const allowedToDrag = activeTask && !isTextAreaFocused;
+
   return (
     <div ref={(node) => previewRev(dropRef(node))}>
       <div
@@ -184,17 +191,25 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           <input
             type="checkbox"
             className={`w-5 h-5 `}
-            disabled={!bucket.active}
+            disabled={bucket.done}
             checked={task.closed}
             onClick={() => changeTaskState(bucket.id, task.id, !task.closed)}
           />
         )}
-        {!task && <div className="w-5 h-5"></div>}
+        {!task && (
+          <div>
+            <PencilSquareIcon className="w-5 h-5" />
+          </div>
+        )}
 
-        <div className="relative w-full ">
+        <div
+          className={`relative w-full `}
+          ref={allowedToDrag ? dragRef : null}
+        >
           <textarea
             className={` resize-none w-full px-1 rounded-sm shadow-md relative
-            border-b border-slate-500
+            border-b border-slate-500 select-text
+             ${activeTask && "cursor-move"}
                       ${
                         val.length >= config.TASK_MAX_LENGTH
                           ? "focus:outline outline-2 outline-rose-500"
@@ -219,18 +234,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             {val.length}/{config.TASK_MAX_LENGTH}
           </div>
         </div>
-
-        {task !== null && (
-          <div ref={dragRef} className="cursor-move">
-            <Bars2Icon className="w-5 h-5" />
-          </div>
-        )}
-
-        {task === null && (
-          <div>
-            <PencilSquareIcon className="w-5 h-5" />
-          </div>
-        )}
       </div>
     </div>
   );

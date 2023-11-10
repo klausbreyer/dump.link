@@ -13,7 +13,6 @@ import config from "./config";
 import { useData } from "./context/data";
 import { getBucketPercentage } from "./context/helper";
 import { Bucket, TabContext } from "./types";
-import DlSwitch from "./Switch";
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -22,7 +21,7 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { renameBucket, flagBucket, setBucketActive } = useData();
+  const { renameBucket, flagBucket, setBucketDone } = useData();
 
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
@@ -48,41 +47,12 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   const bgTop = getBucketBackgroundColorTop(bucket);
   const inputBorder = getInputBorderColor(bucket);
-  const darkBorder = getHeaderBorderColor(bucket);
-  const active = getActiveColor(bucket);
 
-  // to account for NaN on unstarted buckets
-  const percentageCompleted = getBucketPercentage(bucket) || 0;
   const flaggedStyles = getBucketFlaggedStyle(bucket);
 
   return (
     <div className={`w-full ${bgTop}`}>
-      <div className="flex items-center justify-between gap-1 p-1 ">
-        <div
-          className={`relative w-full h-2  rounded-xl overflow-hidden bg-white `}
-          title={`${percentageCompleted}% Figured Out`}
-        >
-          <div
-            className={`h-full bg-green-500 absolute top-0 left-0 `}
-            style={{ width: `${percentageCompleted}%` }}
-          ></div>
-          <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">
-            <span className={` font-bold`}>
-              {/* {bucket.active ? "started" : "stopped"} */}
-            </span>
-          </div>
-        </div>
-      </div>
       <div className={` p-1 flex gap-1 flex-row items-center `}>
-        {context === TabContext.Group && (
-          <DlSwitch
-            enabled={bucket.active}
-            onToggle={() => {
-              setBucketActive(bucket.id, !bucket.active);
-            }}
-          />
-        )}
-
         <div className="relative w-full">
           <input
             type="text"

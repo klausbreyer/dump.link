@@ -292,19 +292,19 @@ export function getBucketState(bucket: Bucket): BucketState {
     return BucketState.EMPTY;
   }
 
-  if (allTasksClosed && hasClosedTasks && bucket.active) {
+  if (allTasksClosed && hasClosedTasks && bucket.done) {
     return BucketState.SOLVED;
   }
 
-  if (allTasksClosed && hasClosedTasks && !bucket.active) {
+  if (allTasksClosed && hasClosedTasks && !bucket.done) {
     return BucketState.DONE;
   }
 
-  if (!allTasksClosed && bucket.active) {
+  if (!allTasksClosed && bucket.done) {
     return BucketState.UNSOLVED;
   }
 
-  if (!allTasksClosed && !bucket.active) {
+  if (!allTasksClosed && !bucket.done) {
     return BucketState.INACTIVE;
   }
 

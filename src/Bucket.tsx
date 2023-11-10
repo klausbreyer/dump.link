@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDrop } from "react-dnd";
 
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 import Header from "./Header";
+import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import { getBucketBackgroundColorTop } from "./common/colors";
 import { useData } from "./context/data";
 import {
+  getBucketPercentage,
   getClosedBucketType,
   getOpenBucketType,
   getTasksByClosed,
-  sortTasksNotClosedFirst,
 } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
@@ -41,17 +46,19 @@ const Bucket: React.FC<BucketProps> = (props) => {
     (b: Bucket) => b.id !== bucket.id,
   );
 
-  const sorted = sortTasksNotClosedFirst(bucket);
   const open = getTasksByClosed(bucket, false);
   const closed = getTasksByClosed(bucket, true);
   const { globalDragging } = useGlobalDragging();
+
+  // flag closed expansion
+  const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
 
   const [topCollectedProps, topDropRef] = useDrop(
     {
       // accepts tasks from all others and from this self bucket, if it is from done.
       accept: [
         ...allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
-        bucket.active ? getClosedBucketType(bucket.id) : "NO_OP",
+        bucket.done ? getClosedBucketType(bucket.id) : "NO_OP",
       ],
       drop: (item: DraggedTask) => {
         const taskId = item.taskId;
@@ -86,18 +93,21 @@ const Bucket: React.FC<BucketProps> = (props) => {
     ],
   );
 
+  // to account for NaN on unstarted buckets
+  const percentageCompleted = getBucketPercentage(bucket) || 0;
+
   const { isOver: topIsOver, canDrop: topCanDrop } =
     topCollectedProps as DropCollectedProps;
 
   const bgTop = getBucketBackgroundColorTop(bucket);
 
   const topCantDropWarning =
-    !topCanDrop &&
-    globalDragging.type === DraggingType.TASK &&
-    sorted.length === 0 &&
-    globalDragging.bucketId === bucket.id;
+    !topCanDrop && globalDragging.type === DraggingType.TASK && bucket.done;
 
-  const borderColor = bucket.active ? "border-black" : "border-slate-300  ";
+  const borderColor = bucket.done ? "border-black" : "border-slate-300  ";
+
+  const hasTasks = bucket.tasks.length > 0;
+
   return (
     <div
       className={`w-full rounded-md overflow-hidden ${borderColor} border-2  ${bgTop} `}
@@ -111,21 +121,54 @@ const Bucket: React.FC<BucketProps> = (props) => {
             topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
           }
           ${topIsOver && " border-gray-400 border-2"}
-            ${borderColor} border-t-2
           `}
         >
-          <div
-            className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
-          >
-            <span> Figuring Out: {open.length}</span>
-            <span> Figured Out: {closed.length}</span>
-          </div>
+          {hasTasks && (
+            <>
+              <div
+                className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
+              >
+                <span> Figuring Out: {open.length}</span>
+                <span> Figured Out: {closed.length}</span>
+              </div>
+              <MicroProgress percentageCompleted={percentageCompleted} />
+            </>
+          )}
+
           <CardList>
-            {sorted.map((task) => (
+            {open.map((task) => (
               <TaskItem task={task} key={task.id} bucket={bucket} />
             ))}
 
-            <TaskItem bucket={bucket} task={null} />
+            {!bucket.done && <TaskItem bucket={bucket} task={null} />}
+            {closed.length > 0 && (
+              <>
+                <hr className="border-b border-black border-dashed" />
+                {closedExpanded &&
+                  closed.map((task) => (
+                    <TaskItem task={task} key={task.id} bucket={bucket} />
+                  ))}
+
+                <div
+                  onClick={() => setClosedExpanded(!closedExpanded)}
+                  className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
+                >
+                  {!closedExpanded && (
+                    <>
+                      <ChevronDownIcon className="w-3 h-3" />
+                      {`Show all (${closed.length})`}
+                    </>
+                  )}
+                  {closedExpanded && (
+                    <>
+                      <ChevronUpIcon className="w-3 h-3" />
+                      {`Hide`}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+
             {topCantDropWarning && (
               <div className="flex items-center justify-center gap-2 text-center">
                 <ExclamationTriangleIcon className="w-5 h-5" />

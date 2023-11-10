@@ -156,7 +156,7 @@ const Box: React.FC<BoxProps> = (props) => {
       (context === TabContext.Arrange && isMovable)) &&
     getHoverBorderColor(bucket);
 
-  const borderColor = bucket.active ? "border-black" : "border-slate-300  ";
+  const borderColor = bucket.done ? "border-black" : "border-slate-300  ";
   return (
     <div
       id={bucket.id}

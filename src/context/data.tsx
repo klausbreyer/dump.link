@@ -72,9 +72,9 @@ type ActionType =
       taskId: TaskID;
     }
   | {
-      type: "SET_BUCKET_ACTIVE";
+      type: "SET_BUCKET_DONE";
       bucketId: BucketID;
-      active: boolean;
+      done: boolean;
     }
   | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" };
 
@@ -271,12 +271,12 @@ const dataReducer = (state: State, action: ActionType): State => {
         ),
       };
 
-    case "SET_BUCKET_ACTIVE":
+    case "SET_BUCKET_DONE":
       return {
         ...state,
         buckets: state.buckets.map((bucket) =>
           bucket.id === action.bucketId
-            ? { ...bucket, active: action.active }
+            ? { ...bucket, done: action.done }
             : bucket,
         ),
       };
@@ -688,11 +688,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return allowedOnLayers;
   };
 
-  const setBucketActive = (bucketId: BucketID, active: boolean) => {
+  const setBucketDone = (bucketId: BucketID, done: boolean) => {
     dispatch({
-      type: "SET_BUCKET_ACTIVE",
+      type: "SET_BUCKET_DONE",
       bucketId: bucketId,
-      active: active,
+      done: done,
     });
   };
 
@@ -738,7 +738,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         addBucketDependency,
         getLayerForBucketId,
         removeBucketDependency,
-        setBucketActive,
+        setBucketDone,
         getBucketsAvailableFor,
         getAllDependencyChains,
       }}
@@ -777,7 +777,7 @@ type DataContextType = {
   getLayerForBucketId: (bucketId: BucketID) => number;
   getAllowedBucketsByLayer: (index: number | undefined) => BucketID[][];
   deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
-  setBucketActive: (bucketId: BucketID, active: boolean) => void;
+  setBucketDone: (bucketId: BucketID, done: boolean) => void;
   resetLayersForAllBuckets: () => void;
 };
 
