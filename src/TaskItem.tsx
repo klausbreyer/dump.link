@@ -177,7 +177,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   const activeTask = task && !task.closed;
-  const allowedToDrag = activeTask && !isTextAreaFocused;
+  const allowedToDrag = activeTask === true;
 
   return (
     <div ref={(node) => previewRev(dropRef(node))}>
@@ -207,6 +207,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           ref={allowedToDrag ? dragRef : null}
         >
           <textarea
+            draggable
             className={` resize-none w-full px-1 rounded-sm shadow-md relative
             border-b border-slate-500 select-text
              ${activeTask && "cursor-move"}
