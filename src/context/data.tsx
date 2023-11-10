@@ -534,14 +534,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     if (chains.length === 0) {
       return [];
     }
-    const longestNaturalChain = getLargestSubArray(chains).length;
-
     // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
     const layersMap: Map<number, BucketID[]> = new Map();
 
     const ids = uniqueValues(chains);
 
-    const middleOrphans: BucketID[] = [];
     // Process each id
     ids.forEach((id) => {
       const bucket = getBucket(id);
@@ -551,16 +548,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         // Use bucket.layer if set, otherwise use findSubarrayIndex
         index = bucket.layer;
       } else {
-        if (
-          isOnlyInOneSubArray(chains, id) &&
-          isLastInSubarray(chains, id) &&
-          SubArrayLength(chains, id) < longestNaturalChain
-        ) {
-          middleOrphans.push(id);
-
-          return;
-        }
-
         index = findLargestSubarrayIndex(chains, id);
       }
 
@@ -588,8 +575,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     }
 
-    const pos = Math.min(longestNaturalChain - 1, layersArray.length - 1);
-    layersArray[pos] = [...layersArray[pos], ...middleOrphans];
     return layersArray;
   };
 
