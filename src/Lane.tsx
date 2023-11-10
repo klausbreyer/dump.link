@@ -98,7 +98,7 @@ const Lane: React.FC<LaneProps> = (props) => {
         ${showWhileDragging ? "opacity-100" : "opacity-0"}
       `}
       >
-        <div className="text-sm">{index + 1}</div>
+        <div className="text-sm">Layer {index + 1}</div>
         <div
           className={`flex flex-1 flex-wrap items-center justify-evenly gap-8 `}
         >
