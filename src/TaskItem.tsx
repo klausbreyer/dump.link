@@ -88,7 +88,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       isDragging ? DraggingType.TASK : DraggingType.NONE,
       isDragging ? bucket.id : "",
     );
-  }, [bucket, isDragging, task, getBucketForTask, setGlobalDragging]);
+  }, [bucket.id, isDragging, setGlobalDragging]);
 
   const [, dropRef] = useDrop(
     () => ({

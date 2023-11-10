@@ -58,13 +58,12 @@ const Bucket: React.FC<BucketProps> = (props) => {
       setClosedExpanded(false);
     }
   }, [bucket.done]);
-  const [topCollectedProps, topDropRef] = useDrop(
+  const [collectedProps, dropRef] = useDrop(
     {
       // accepts tasks from all others and from this self bucket, if it is from done.
-      accept: [
-        ...allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
-        bucket.done ? getClosedBucketType(bucket.id) : "NO_OP",
-      ],
+      accept: bucket.done
+        ? []
+        : allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
       drop: (item: DraggedTask) => {
         const taskId = item.taskId;
         const task = getTask(taskId);
@@ -98,32 +97,34 @@ const Bucket: React.FC<BucketProps> = (props) => {
     ],
   );
 
+  const { isOver, canDrop } = collectedProps as DropCollectedProps;
+
   // to account for NaN on unstarted buckets
   const percentageCompleted = getBucketPercentage(bucket) || 0;
-
-  const { isOver: topIsOver, canDrop: topCanDrop } =
-    topCollectedProps as DropCollectedProps;
-
   const bgTop = getBucketBackgroundColorTop(bucket);
 
-  const topCantDropWarning =
-    !topCanDrop && globalDragging.type === DraggingType.TASK && bucket.done;
-
-  const hasTasks = bucket.tasks.length > 0;
-  const showFigures = hasTasks && !bucket.done && open.length > 0;
+  const showCantDropWarning =
+    globalDragging.type === DraggingType.TASK && bucket.done;
+  const showTasks = bucket.tasks.length > 0;
+  const showFigures = showTasks && !bucket.done && open.length > 0;
+  const showDashed = canDrop && !isOver && !bucket.done;
+  const showSolid = isOver && !bucket.done;
+  const showNone = !canDrop;
 
   return (
-    <div className={`w-full rounded-md overflow-hidden  ${bgTop} `}>
+    <div
+      className={`w-full rounded-md overflow-hidden ${bgTop} border-2
+      ${showDashed && "border-dashed border-2 border-gray-400"}
+      ${showSolid && " border-gray-400"}
+      ${showNone && " border-transparent"}
+    `}
+    >
       <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
         <Header context={TabContext.Group} bucket={bucket} />
         <div
-          ref={topDropRef}
-          className={`min-h-[2.5rem] ${bgTop} border-solid   border-2 ${
-            topCanDrop && !topIsOver && "border-dashed border-2 border-gray-400"
-          }
-          ${topIsOver && " border-gray-400"}
-          ${!topCanDrop && " border-transparent"}
+          ref={dropRef}
+          className={`min-h-[2.5rem]
           `}
         >
           {showFigures && (
@@ -135,6 +136,13 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 <span> Figured Out: {closed.length}</span>
               </div>
             </>
+          )}
+
+          {showCantDropWarning && (
+            <div className="flex items-center justify-center gap-2 text-center">
+              <ExclamationTriangleIcon className="w-5 h-5" />
+              Can't drop - this bucket is done! Undone?
+            </div>
           )}
           <MicroProgress percentageCompleted={percentageCompleted} />
           <CardList>
@@ -171,13 +179,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
                   )}
                 </div>
               </>
-            )}
-
-            {topCantDropWarning && (
-              <div className="flex items-center justify-center gap-2 text-center">
-                <ExclamationTriangleIcon className="w-5 h-5" />
-                Can't drop - this bucket is done! Undone?
-              </div>
             )}
           </CardList>
         </div>
