@@ -30,26 +30,25 @@ export function getHeaderTextColor(bucket: Bucket): string {
 
 export function getBucketBackgroundColorTop(bucket: Bucket): string {
   const statusToColor = {
-    [BucketState.UNSOLVED]: "bg-orange-200",
-    [BucketState.SOLVED]: "bg-yellow-200",
+    [BucketState.UNSOLVED]: "bg-slate-300",
+    [BucketState.SOLVED]: "bg-slate-300",
     [BucketState.DONE]: "bg-green-200",
-    [BucketState.EMPTY]: "bg-slate-200",
-    [BucketState.INACTIVE]: "bg-slate-200",
+    [BucketState.EMPTY]: "bg-slate-100",
+    [BucketState.INACTIVE]: "bg-slate-300",
   };
 
   return statusToColor[getBucketState(bucket)];
 }
 
 export function getFlagButtonBackground(bucket: Bucket): string {
+  const slate = "bg-slate-400 hover:bg-slate-500 focus:bg-slate-500";
   const statusToColor = {
-    [BucketState.UNSOLVED]:
-      "bg-orange-300 hover:bg-orange-400 focus:bg-orange-400",
-    [BucketState.SOLVED]:
-      "bg-yellow-300 hover:bg-yellow-400 focus:bg-yellow-400",
+    [BucketState.UNSOLVED]: slate,
+    [BucketState.SOLVED]: slate,
     [BucketState.DONE]: "bg-green-300 hover:bg-green-400 focus:bg-green-400",
-    [BucketState.EMPTY]: "bg-slate-300 hover:bg-slate-400 focus:bg-slate-400",
+    [BucketState.EMPTY]: slate,
     [BucketState.INACTIVE]:
-      "bg-slate-300 hover:bg-slate-400 focus:bg-slate-400",
+      "bg-slate-200 hover:bg-slate-300 focus:bg-slate-300",
   };
 
   return statusToColor[getBucketState(bucket)];

@@ -27,17 +27,25 @@ const Group: React.FC<GroupProps> = (props) => {
         <div className="">
           <Area bucket={dump} />
         </div>
-        <div className="grid grid-cols-2 col-span-2 gap-4 ">
-          <FlexCol>
-            {others.slice(0, 5).map((bucket) => (
-              <Bucket bucket={bucket} key={bucket.id} />
-            ))}
-          </FlexCol>
-          <FlexCol>
-            {others.slice(-5).map((bucket) => (
-              <Bucket bucket={bucket} key={bucket.id} />
-            ))}
-          </FlexCol>
+        <div className="col-span-2">
+          <div
+            className={` px-1 py-2 w-full border-slate-500 text-lg font-bold
+        `}
+          >
+            Cluster
+          </div>
+          <div className="grid grid-cols-2 gap-4 ">
+            <FlexCol>
+              {others.slice(0, 5).map((bucket) => (
+                <Bucket bucket={bucket} key={bucket.id} />
+              ))}
+            </FlexCol>
+            <FlexCol>
+              {others.slice(-5).map((bucket) => (
+                <Bucket bucket={bucket} key={bucket.id} />
+              ))}
+            </FlexCol>
+          </div>
         </div>
       </div>
     </Container>
