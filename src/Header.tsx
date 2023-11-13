@@ -10,6 +10,7 @@ import config from "./config";
 import { useData } from "./context/data";
 import { getTasksByClosed } from "./context/helper";
 import { Bucket, TabContext } from "./types";
+import { isSafari } from "./common/helper";
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -59,7 +60,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           <input
             type="text"
             className={`w-full h-8  px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}
-        `}
+            `}
             placeholder="Unnamed"
             value={bucket?.name}
             onChange={handleChange}
@@ -83,7 +84,8 @@ const Header: React.FC<HeaderProps> = (props) => {
         {showDone && context === TabContext.Group && (
           <input
             type="checkbox"
-            className="w-7 h-7"
+            className={`w-7 h-7
+            ${isSafari() && "safari-only-checkbox-big"} `}
             checked={bucket.done || false}
             onChange={() => setBucketDone(bucket.id, !bucket.done)}
           />

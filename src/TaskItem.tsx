@@ -1,3 +1,4 @@
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import React, {
   ChangeEvent,
   KeyboardEvent,
@@ -6,14 +7,13 @@ import React, {
   useState,
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import { Bars2Icon } from "@heroicons/react/24/solid";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 import config from "./config";
 import { useData } from "./context/data";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
+import { isSafari } from "./common/helper";
 
 interface TaskItemProps {
   task: Task | null;
@@ -190,7 +190,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         {task && (
           <input
             type="checkbox"
-            className={`w-5 h-5 `}
+            className={`w-5 h-5
+            ${isSafari() && "safari-only-checkbox-small"} `}
             disabled={bucket.done}
             checked={task.closed}
             onChange={() => changeTaskState(bucket.id, task.id, !task.closed)}
