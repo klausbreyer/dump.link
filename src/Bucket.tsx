@@ -106,7 +106,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const showCantDropWarning =
     globalDragging.type === DraggingType.TASK && bucket.done;
   const showTasks = bucket.tasks.length > 0;
-  const showFigures = showTasks && !bucket.done && open.length > 0;
+  const showFigures = showTasks;
   const showDashed = canDrop && !isOver && !bucket.done;
   const showSolid = isOver && !bucket.done;
   const showNone = !canDrop;
@@ -144,7 +144,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
               Can't drop - this bucket is done! Undone?
             </div>
           )}
-          <MicroProgress percentageCompleted={percentageCompleted} />
+          {showFigures && (
+            <MicroProgress percentageCompleted={percentageCompleted} />
+          )}
           <CardList>
             {open.map((task) => (
               <TaskItem task={task} key={task.id} bucket={bucket} />
