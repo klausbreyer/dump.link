@@ -128,14 +128,12 @@ const Bucket: React.FC<BucketProps> = (props) => {
           `}
         >
           {showFigures && (
-            <>
-              <div
-                className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
-              >
-                <span> Figuring Out: {open.length}</span>
-                <span> Figured Out: {closed.length}</span>
-              </div>
-            </>
+            <div
+              className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
+            >
+              <span> Figuring Out: {open.length}</span>
+              <span> Figured Out: {closed.length}</span>
+            </div>
           )}
 
           {showCantDropWarning && (

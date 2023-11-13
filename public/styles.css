@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* In Ihrer globalen CSS-Datei */
+@supports (-webkit-appearance: none) {
+  .safari-only-checkbox-small {
+    -webkit-transform: scale(1.2) translate(0, -1px);
+  }
+  .safari-only-checkbox-big {
+    -webkit-transform: scale(1.7) translate(5px, -1px);
+  }
+}
