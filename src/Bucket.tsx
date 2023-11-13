@@ -21,10 +21,12 @@ import {
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
   Bucket,
+  BucketID,
   DraggedTask,
   DraggingType,
   DropCollectedProps,
   TabContext,
+  TaskID,
 } from "./types";
 
 interface BucketProps {
@@ -46,18 +48,26 @@ const Bucket: React.FC<BucketProps> = (props) => {
     (b: Bucket) => b.id !== bucket.id,
   );
 
-  const open = getTasksByClosed(bucket, false);
-  const closed = getTasksByClosed(bucket, true);
   const { globalDragging } = useGlobalDragging();
 
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
+
+  const [recentlyDone, setRecentlyDone] = useState<TaskID[]>([]);
+
+  const handleTaskClosed = (taskId: string) => {
+    // Add the closed task to the recentlyDone list if it's not already there
+    setRecentlyDone((prev) =>
+      prev.includes(taskId) ? prev : [...prev, taskId],
+    );
+  };
 
   useEffect(() => {
     if (bucket.done) {
       setClosedExpanded(false);
     }
   }, [bucket.done]);
+
   const [collectedProps, dropRef] = useDrop(
     {
       // accepts tasks from all others and from this self bucket, if it is from done.
@@ -98,6 +108,12 @@ const Bucket: React.FC<BucketProps> = (props) => {
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
+
+  const open = getTasksByClosed(bucket, false);
+  const closed = getTasksByClosed(bucket, true);
+
+  const aboveFoldClosed = closed.filter((t) => recentlyDone.includes(t.id));
+  const belowFoldClosed = closed.filter((t) => !recentlyDone.includes(t.id));
 
   // to account for NaN on unstarted buckets
   const percentageCompleted = getBucketPercentage(bucket) || 0;
@@ -147,7 +163,12 @@ const Bucket: React.FC<BucketProps> = (props) => {
           )}
           <CardList>
             {open.map((task) => (
-              <TaskItem task={task} key={task.id} bucket={bucket} />
+              <TaskItem
+                task={task}
+                key={task.id}
+                bucket={bucket}
+                onTaskClosed={() => handleTaskClosed(task.id)}
+              />
             ))}
 
             {!bucket.done && <TaskItem bucket={bucket} task={null} />}
@@ -156,13 +177,29 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 {open.length > 0 && (
                   <hr className="border-b border-black border-dashed" />
                 )}
+                {aboveFoldClosed.map((task) => (
+                  <TaskItem
+                    task={task}
+                    key={task.id}
+                    bucket={bucket}
+                    onTaskClosed={() => handleTaskClosed(task.id)}
+                  />
+                ))}
                 {closedExpanded &&
-                  closed.map((task) => (
-                    <TaskItem task={task} key={task.id} bucket={bucket} />
+                  belowFoldClosed.map((task) => (
+                    <TaskItem
+                      task={task}
+                      key={task.id}
+                      bucket={bucket}
+                      onTaskClosed={() => handleTaskClosed(task.id)}
+                    />
                   ))}
 
                 <div
-                  onClick={() => setClosedExpanded(!closedExpanded)}
+                  onClick={() => {
+                    setClosedExpanded(!closedExpanded);
+                    setRecentlyDone([]);
+                  }}
                   className="flex items-center justify-center w-full gap-1 text-sm text-center cursor-pointer hover:underline"
                 >
                   {!closedExpanded && (

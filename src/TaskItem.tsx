@@ -18,10 +18,11 @@ import { isSafari } from "./common/helper";
 interface TaskItemProps {
   task: Task | null;
   bucket: Bucket;
+  onTaskClosed?: (taskId: string) => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
-  const { task, bucket } = props;
+  const { task, bucket, onTaskClosed } = props;
   const {
     addTask,
     updateTask,
@@ -176,6 +177,18 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     }
   }
 
+  function handleCheckboxChange(event: React.ChangeEvent<HTMLInputElement>) {
+    if (!task) return;
+
+    const isTaskNowClosed = event.target.checked;
+    changeTaskState(bucket.id, task.id, isTaskNowClosed);
+
+    // If the task is now closed and there's a callback, call it
+    if (isTaskNowClosed && onTaskClosed) {
+      onTaskClosed(task.id);
+    }
+  }
+
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true;
 
@@ -194,7 +207,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             ${isSafari() && "safari-only-checkbox-small"} `}
             disabled={bucket.done}
             checked={task.closed}
-            onChange={() => changeTaskState(bucket.id, task.id, !task.closed)}
+            onChange={handleCheckboxChange}
           />
         )}
         {!task && (
