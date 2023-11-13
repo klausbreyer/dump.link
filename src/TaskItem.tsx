@@ -178,9 +178,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true;
-  const accent = !task?.closed
-    ? "filter sepia brightness-75 hue-rotate-180  "
-    : "accent-orange-400 ";
 
   return (
     <div ref={(node) => previewRev(dropRef(node))}>
@@ -193,7 +190,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         {task && (
           <input
             type="checkbox"
-            className={`w-5 h-5  ${accent}
+            className={`w-5 h-5
             ${isSafari() && "safari-only-checkbox-small"} `}
             disabled={bucket.done}
             checked={task.closed}

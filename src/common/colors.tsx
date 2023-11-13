@@ -29,7 +29,6 @@ export function getHeaderTextColor(bucket: Bucket): string {
 }
 
 export function getBucketBackgroundColorTop(bucket: Bucket): string {
-  return bucket.done ? "bg-green-200" : "bg-slate-200";
   const statusToColor = {
     [BucketState.UNSOLVED]: "bg-orange-200",
     [BucketState.SOLVED]: "bg-yellow-200",
@@ -42,7 +41,6 @@ export function getBucketBackgroundColorTop(bucket: Bucket): string {
 }
 
 export function getFlagButtonBackground(bucket: Bucket): string {
-  return "bg-slate-300 hover:bg-slate-400 focus:bg-slate-400";
   const statusToColor = {
     [BucketState.UNSOLVED]:
       "bg-orange-300 hover:bg-orange-400 focus:bg-orange-400",
