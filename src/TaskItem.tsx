@@ -230,7 +230,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           ref={allowedToDrag ? dragRef : null}
         >
           <textarea
-            draggable
             className={` resize-none w-full px-1 rounded-sm shadow-md relative
             border-b-2 select-text
             ${activeTask && "cursor-move"}
