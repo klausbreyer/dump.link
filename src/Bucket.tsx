@@ -194,7 +194,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
             {closed.length > 0 && (
               <>
                 {open.length > 0 && (
-                  <hr className="border-b border-black border-dashed" />
+                  <hr className="border-b border-dashed border-slate-400" />
                 )}
                 {aboveFoldClosed.map((task) => (
                   <TaskItem

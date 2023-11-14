@@ -193,12 +193,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true;
 
-  const bg =
-    task && !bucket.dump
-      ? task?.closed
-        ? "border-yellow-300"
-        : "border-orange-300"
-      : getInputBorderColor(bucket);
+  const bucketTask = task && !bucket.dump;
+  const bg = bucketTask
+    ? task?.closed
+      ? "border-yellow-300"
+      : "border-orange-300"
+    : getInputBorderColor(bucket);
 
   return (
     <div ref={(node) => previewRev(dropRef(node))}>
@@ -208,7 +208,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         ${isDragging ? "invisible" : "visible"}
         `}
       >
-        {task && (
+        {bucketTask && (
           <input
             type="checkbox"
             className={`w-5 h-5
@@ -218,6 +218,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             onChange={handleCheckboxChange}
           />
         )}
+
         {!task && (
           <div>
             <PencilSquareIcon className="w-5 h-5" />
@@ -246,7 +247,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             onFocus={handleFocus}
             onKeyDown={handleKeyDown}
             onChange={handleChange}
-            disabled={task?.closed}
+            // disabled={task?.closed}
             rows={1}
             ref={textAreaRef}
           ></textarea>
