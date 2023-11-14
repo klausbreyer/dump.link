@@ -66,9 +66,6 @@ func (s *Server) AppGet(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 		return
 	}
 
-	fmt.Println("jsFile: ", jsFile)
-	fmt.Println("cssFile: ", cssFile)
-
 	template := fmt.Sprintf(`
 	<!DOCTYPE html>
 	<html>
