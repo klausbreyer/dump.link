@@ -1,0 +1,26 @@
+name: Fly Deploy
+on:
+    push:
+        branches:
+            - main
+jobs:
+    deploy:
+        name: Deploy app
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: superfly/flyctl-actions/setup-flyctl@master
+
+            - name: Run Tests
+              run: make test
+
+            - name: Download Tailwind
+              run: make tailwind-download
+
+            - name: Build Tailwind
+              run: make tailwind-build
+
+            - name: Deploy to Fly
+              run: flyctl deploy --remote-only
+              env:
+                  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
