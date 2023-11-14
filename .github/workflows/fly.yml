@@ -1,0 +1,63 @@
+name: Unified Build and Deploy Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - monorepo
+
+jobs:
+  build-and-deploy:
+    name: Build Frontend and Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v3
+
+      # Build Frontend
+      - name: Setup Frontend Environment
+        run: |
+          # Navigate to the frontend directory
+          cd app
+          # Install dependencies
+          sudo apt-get install nodejs yarn
+
+      - name: Build Frontend
+        run: |
+          cd app
+          yarn && yarn build
+
+      # Run lifting script at the root of the repository
+      - name: Run Lifting Script
+        run: ./lifting.sh
+
+      # Backend Deployment Steps
+      # Setup flyctl for deployment
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # Run tests in the backend
+      # - name: Run Tests
+      #   run: |
+      #     cd api
+      #     make test
+
+      # Download Tailwind for the backend
+      - name: Download Tailwind
+        run: |
+          cd api
+          make tailwind-download
+
+      # Build Tailwind in the backend
+      - name: Build Tailwind
+        run: |
+          cd api
+          make tailwind-build
+
+      # Deploy backend to Fly.io
+      - name: Deploy to Fly
+        run: |
+          cd api
+          flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

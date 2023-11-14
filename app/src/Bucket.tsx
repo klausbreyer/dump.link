@@ -48,8 +48,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
     (b: Bucket) => b.id !== bucket.id,
   );
 
-  const { globalDragging } = useGlobalDragging();
-
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
 

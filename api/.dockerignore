@@ -1,0 +1,10 @@
+# flyctl launch added from .gitignore
+**/node_modules
+**/.DS_Store
+**/tmp
+**/tailwindcss
+**/.env
+**/.livereload
+
+# flyctl launch added from static/app/.gitignore
+fly.toml

@@ -1,0 +1,27 @@
+tailwind-download:
+ifeq ($(shell uname -s), Darwin)
+	curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-macos-arm64
+else ifeq ($(shell uname -s), Linux)
+	curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
+endif
+	mv tailwindcss-* tailwindcss
+	chmod +x tailwindcss
+
+watch:
+	./tailwindcss -i ./css/tailwind.css -o ./static/tailwind.css --watch
+
+tailwind-build:
+	./tailwindcss -i ./css/tailwind.css -o ./static/tailwind.css --minify
+
+kill:
+	lsof -t -i tcp:8080 | xargs kill -9
+	lsof -t -i tcp:13306 | xargs kill -9
+
+start:
+	air & make watch
+
+test:
+	go test -v ./src/...
+
+deploy:
+	fly deploy
