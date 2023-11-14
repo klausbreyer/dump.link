@@ -32,7 +32,7 @@ const Group: React.FC<GroupProps> = (props) => {
             className={` px-1 py-2 w-full border-slate-500 text-lg font-bold
         `}
           >
-            Cluster
+            Task Group Clusters
           </div>
           <div className="grid grid-cols-2 gap-4 ">
             <FlexCol>
