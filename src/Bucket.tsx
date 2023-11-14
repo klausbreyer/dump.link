@@ -119,8 +119,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const percentageCompleted = getBucketPercentage(bucket) || 0;
   const bgTop = getBucketBackgroundColorTop(bucket);
 
-  const showCantDropWarning =
-    globalDragging.type === DraggingType.TASK && bucket.done;
+  // const showCantDropWarning =
+  //   globalDragging.type === DraggingType.TASK && bucket.done;
   const showTasks = bucket.tasks.length > 0;
   const showFigures = showTasks;
   const showDashed = canDrop && !isOver && !bucket.done;
@@ -147,8 +147,27 @@ const Bucket: React.FC<BucketProps> = (props) => {
             <div
               className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
             >
-              <span> Figuring Out: {open.length}</span>
-              <span> Figured Out: {closed.length}</span>
+              <span>
+                Figured Out:{" "}
+                <span
+                  className={`px-1 rounded
+                  ${closed.length > 0 && !bucket.done && "bg-yellow-300"}
+                  `}
+                >
+                  {closed.length}
+                </span>
+              </span>
+              <span>
+                {" "}
+                Figuring Out:{" "}
+                <span
+                  className={`px-1 rounded
+                  ${open.length > 0 && !bucket.done && "bg-orange-300"}
+                `}
+                >
+                  {open.length}
+                </span>
+              </span>
             </div>
           )}
 

@@ -30,11 +30,11 @@ export function getHeaderTextColor(bucket: Bucket): string {
 
 export function getBucketBackgroundColorTop(bucket: Bucket): string {
   const statusToColor = {
-    [BucketState.UNSOLVED]: "bg-slate-300",
-    [BucketState.SOLVED]: "bg-slate-300",
+    [BucketState.UNSOLVED]: "bg-slate-200",
+    [BucketState.SOLVED]: "bg-slate-200",
     [BucketState.DONE]: "bg-green-200",
     [BucketState.EMPTY]: "bg-slate-100",
-    [BucketState.INACTIVE]: "bg-slate-300",
+    [BucketState.INACTIVE]: "bg-slate-200",
   };
 
   return statusToColor[getBucketState(bucket)];

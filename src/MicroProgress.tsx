@@ -7,14 +7,18 @@ export interface MicroProgressProps {
 const MicroProgress: React.FC<MicroProgressProps> = (props) => {
   const { percentageCompleted } = props;
 
+  const bgFiguringOut =
+    percentageCompleted === 100 ? "bg-green-400" : "bg-yellow-300";
+  const bgFiguredOut =
+    percentageCompleted === 100 ? "bg-green-400" : "bg-orange-300";
+
   return (
     <div className="flex items-center justify-between gap-1 p-1 ">
       <div
-        className={`relative w-full h-2  rounded-xl overflow-hidden bg-white `}
-        title={`${percentageCompleted}% Figured Out`}
+        className={`relative w-full h-2  rounded-xl overflow-hidden ${bgFiguredOut} `}
       >
         <div
-          className={`h-full bg-green-500 absolute top-0 left-0 `}
+          className={`h-full absolute top-0 left-0 ${bgFiguringOut} `}
           style={{ width: `${percentageCompleted}%` }}
         ></div>
         <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">

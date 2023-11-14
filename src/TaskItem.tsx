@@ -14,6 +14,7 @@ import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { isSafari } from "./common/helper";
+import { getInputBorderColor } from "./common/colors";
 
 interface TaskItemProps {
   task: Task | null;
@@ -191,9 +192,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true;
-  const accent = !task?.closed
-    ? "filter sepia brightness-75 hue-rotate-180  "
-    : "accent-orange-400 ";
+
+  const bg =
+    task && !bucket.dump
+      ? task?.closed
+        ? "border-yellow-300"
+        : "border-orange-300"
+      : getInputBorderColor(bucket);
 
   return (
     <div ref={(node) => previewRev(dropRef(node))}>
@@ -206,7 +211,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         {task && (
           <input
             type="checkbox"
-            className={`w-5 h-5  ${accent}
+            className={`w-5 h-5
             ${isSafari() && "safari-only-checkbox-small"} `}
             disabled={bucket.done}
             checked={task.closed}
@@ -226,13 +231,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           <textarea
             draggable
             className={` resize-none w-full px-1 rounded-sm shadow-md relative
-            border-b border-slate-500 select-text
-             ${activeTask && "cursor-move"}
-                      ${
-                        val.length >= config.TASK_MAX_LENGTH
-                          ? "focus:outline outline-2 outline-rose-500"
-                          : "focus:outline outline-2 outline-indigo-500"
-                      }
+            border-b-2 select-text
+            ${activeTask && "cursor-move"}
+            ${
+              val.length >= config.TASK_MAX_LENGTH
+                ? "focus:outline outline-2 outline-rose-500"
+                : "focus:outline outline-2 outline-indigo-500"
+            }
+            ${bg}
             `}
             placeholder="type more here"
             value={val}
