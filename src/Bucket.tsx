@@ -115,8 +115,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const aboveFoldClosed = closed.filter((t) => recentlyDone.includes(t.id));
   const belowFoldClosed = closed.filter((t) => !recentlyDone.includes(t.id));
 
-  // to account for NaN on unstarted buckets
-  const percentageCompleted = getBucketPercentage(bucket) || 0;
   const bgTop = getBucketBackgroundColorTop(bucket);
 
   // const showCantDropWarning =
@@ -177,9 +175,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
               Can't drop - this bucket is done! Undone?
             </div>
           )} */}
-          {showFigures && (
-            <MicroProgress percentageCompleted={percentageCompleted} />
-          )}
+          {showFigures && <MicroProgress bucket={bucket} />}
           <CardList>
             {open.map((task) => (
               <TaskItem

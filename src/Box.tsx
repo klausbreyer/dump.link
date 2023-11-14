@@ -22,6 +22,7 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
+import MicroProgress from "./MicroProgress";
 
 interface BoxProps {
   bucket: Bucket;
@@ -174,6 +175,7 @@ const Box: React.FC<BoxProps> = (props) => {
     >
       <div className={`${bgTop}`}>
         <Header bucket={bucket} context={context} />
+        <MicroProgress bucket={bucket} />
 
         <div className={`min-h-[1rem] `}>
           <ul className="p-1 text-sm">

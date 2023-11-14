@@ -1,11 +1,16 @@
 import React from "react";
+import { Bucket } from "./types";
+import { getBucketPercentage } from "./context/helper";
 
 export interface MicroProgressProps {
-  percentageCompleted: number;
+  bucket: Bucket;
 }
 
 const MicroProgress: React.FC<MicroProgressProps> = (props) => {
-  const { percentageCompleted } = props;
+  const { bucket } = props;
+
+  // to account for NaN on unstarted buckets
+  const percentageCompleted = getBucketPercentage(bucket) || 0;
 
   const bgFiguringOut =
     percentageCompleted === 100 ? "bg-green-400" : "bg-yellow-300";
