@@ -152,12 +152,12 @@ const Bucket: React.FC<BucketProps> = (props) => {
             </div>
           )}
 
-          {showCantDropWarning && (
+          {/* {showCantDropWarning && (
             <div className="flex items-center justify-center gap-2 text-center">
               <ExclamationTriangleIcon className="w-5 h-5" />
               Can't drop - this bucket is done! Undone?
             </div>
-          )}
+          )} */}
           {showFigures && (
             <MicroProgress percentageCompleted={percentageCompleted} />
           )}
