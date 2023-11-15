@@ -1,6 +1,6 @@
-import { State } from "../types";
+import { Project } from "../types";
 
-export const saveToLocalStorage = (state: State) => {
+export const saveToLocalStorage = (state: Project) => {
   try {
     const serializedState = JSON.stringify(state);
     localStorage.setItem("appData", serializedState);

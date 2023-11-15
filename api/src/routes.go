@@ -1,9 +1,16 @@
 package src
 
-func (s *Server) routes() {
-	s.router.GET("/", s.RootGet)
-	s.router.GET("/health", s.HealthGet)
-	s.router.GET("/a", s.AppGet)
+import "net/http"
 
-	s.router.GET("/static/*filepath", s.StaticHandler)
+func (app *Application) routes() *http.ServeMux {
+	mux := http.NewServeMux()
+
+	fileServer := http.FileServer(http.Dir("./static/"))
+	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+
+	mux.HandleFunc("/", app.RootGet)
+	mux.HandleFunc("/health/", app.HealthGet)
+	mux.HandleFunc("/a/", app.AppGet)
+
+	return mux
 }

@@ -1,57 +1,79 @@
 package src
 
 import (
+	"database/sql"
 	"embed"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/julienschmidt/httprouter"
+	"dump.link/src/models"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-type Server struct {
-	router     *httprouter.Router
-	httpServer *http.Server
-	contentFS  embed.FS
+type Application struct {
+	contentFS embed.FS
+
+	errorLog *log.Logger
+	infoLog  *log.Logger
+	buckets  *models.BucketModel
+	tasks    *models.TaskModel
+	projects *models.ProjectModel
 }
 
 func Run(contentFS embed.FS) error {
-	log.Println("starting server...")
+	addr := flag.String("addr", ":8080", "HTTP network address")
+	flag.Parse()
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	// Determine port for HTTP service.
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	db, err := openDB()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	fmt.Printf("Server running on: http://%s:%s\n", "localhost", port)
+	defer db.Close()
 
-	server := newServer(contentFS)
-	if server == nil {
-		return fmt.Errorf("error creating new server")
+	app := &Application{
+		contentFS: contentFS,
+		errorLog:  errorLog,
+		infoLog:   infoLog,
+
+		buckets:  &models.BucketModel{DB: db},
+		tasks:    &models.TaskModel{DB: db},
+		projects: &models.ProjectModel{DB: db},
 	}
 
-	if err := server.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		return fmt.Errorf("ListenAndServe: %+v", err)
+	srv := &http.Server{
+		Addr:     *addr,
+		ErrorLog: errorLog,
+		Handler:  app.routes(),
 	}
+
+	infoLog.Printf("Starting server on %s", *addr)
+	err = srv.ListenAndServe()
+	errorLog.Fatal(err)
 
 	return nil
 }
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.router.ServeHTTP(w, r)
-}
 
-func newServer(contentFS embed.FS) *Server {
-	router := httprouter.New()
-	s := &Server{
-		httpServer: &http.Server{
-			Handler: router,
-			Addr:    ":8080", // oder ein anderer Port
-		},
-		contentFS: contentFS,
-		router:    router,
+// The openDB() function wraps sql.Open() and returns a sql.DB connection pool
+// for a given DSN.
+func openDB() (*sql.DB, error) {
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbHost := os.Getenv("DB_HOST")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", user, password, dbHost, dbName)
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
 	}
-	s.routes()
-	return s
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
 }

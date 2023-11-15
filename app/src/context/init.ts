@@ -1,4 +1,4 @@
-import { Bucket, State } from "../types";
+import { Bucket, Project } from "../types";
 import { NewID } from "./helper";
 
 const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
@@ -20,7 +20,7 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
       : [],
 }));
 
-const state: State = {
+const state: Project = {
   buckets: initialBuckets,
 };
 

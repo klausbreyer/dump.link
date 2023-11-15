@@ -1,3 +1,5 @@
+// all ids are 11 chars base58 alphanumerical.
+
 export type BucketID = string;
 export type TaskID = string;
 
@@ -12,13 +14,17 @@ export type Bucket = {
   name: string;
   done: boolean;
   dump: boolean;
-  layer?: number; //overwrite layer. only write when moved. then it keeps this position, no matter what.
+  layer?: number;
   tasks: Task[];
   flagged: boolean;
   dependencies: BucketID[]; // List of Bucket IDs this bucket depends on
 };
 
-export type State = {
+export type Project = {
+  id: string;
+  name: string;
+  startAt: Date;
+  appetite: number;
   buckets: Bucket[];
 };
 

@@ -9,14 +9,13 @@ import (
 	"strings"
 
 	"github.com/gomarkdown/markdown"
-	"github.com/julienschmidt/httprouter"
 )
 
-func (s *Server) StaticHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (s *Application) StaticHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, r.URL.Path[1:])
 }
 
-func (s *Server) handleError(w http.ResponseWriter, r *http.Request, err error) {
+func (s *Application) handleError(w http.ResponseWriter, r *http.Request, err error) {
 	id := GenerateUUID()
 	fmt.Println("Error ID: ", id)
 	fmt.Println("Error: ", err)
@@ -24,11 +23,11 @@ func (s *Server) handleError(w http.ResponseWriter, r *http.Request, err error) 
 	http.Error(w, fmt.Sprintf("Error: %s", id), http.StatusInternalServerError)
 }
 
-func (s *Server) HealthGet(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (s *Application) HealthGet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "healthy")
 }
 
-func (s *Server) RootGet(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (s *Application) RootGet(w http.ResponseWriter, r *http.Request) {
 
 	mdContent, err := fs.ReadFile(s.contentFS, "content/index.md")
 	if err != nil {
@@ -59,7 +58,7 @@ func (s *Server) RootGet(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 }
 
 // AppGet handles the request and serves the HTML with dynamic script and stylesheet links.
-func (s *Server) AppGet(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (s *Application) AppGet(w http.ResponseWriter, r *http.Request) {
 	jsFile, cssFile, err := findFiles("static/app/")
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

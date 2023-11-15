@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 
-import { Bucket, BucketID, State, Task, TaskID } from "../types";
+import { Bucket, BucketID, Project, Task, TaskID } from "../types";
 import {
   NewID,
   SubArrayLength,
@@ -79,7 +79,7 @@ type ActionType =
   | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
-const dataReducer = (state: State, action: ActionType): State => {
+const dataReducer = (state: Project, action: ActionType): Project => {
   switch (action.type) {
     case "ADD_TASK":
       return {
@@ -734,7 +734,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 };
 
 type DataContextType = {
-  state: State;
+  state: Project;
   addTask: (bucketId: BucketID, task: Omit<Task, "id">) => void;
   moveTask: (toBucketId: BucketID, task: Task) => void;
   changeTaskState: (
