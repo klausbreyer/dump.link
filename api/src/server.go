@@ -63,10 +63,11 @@ func Run(contentFS embed.FS) error {
 // for a given DSN.
 func openDB() (*sql.DB, error) {
 	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
+	password := os.Getenv("DB_PASS")
 	dbName := os.Getenv("DB_NAME")
 	dbHost := os.Getenv("DB_HOST")
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", user, password, dbHost, dbName)
+	dbTls := os.Getenv("DB_TLS")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?tls=%s&interpolateParams=true", user, password, dbHost, dbName, dbTls)
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {

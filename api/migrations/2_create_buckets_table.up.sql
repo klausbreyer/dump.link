@@ -6,6 +6,5 @@ CREATE TABLE `Bucket` (
             `layer` INT,
             `flagged` BOOLEAN NOT NULL,
             `project_id` VARCHAR(11) NOT NULL,
-            PRIMARY KEY (`id`),
-            FOREIGN KEY (`project_id`) REFERENCES `Project` (`id`)
+            PRIMARY KEY (`id`)
         );

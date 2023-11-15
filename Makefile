@@ -4,13 +4,17 @@ start:
 	lsof -t -i tcp:1234 | xargs kill -9
 	(cd api && make start) & (cd app && bun start)
 
+magic:
+	cd app && bun run build
+	sh lifting.sh
+	cd api && fly deploy
 
 # https://github.com/golang-migrate/migrate
 up:
-	migrate -source  file://api/migrations  -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST})/${DB_NAME}" up
+	migrate -source  file://api/migrations  -database "mysql://${DB_USER}:${DB_PASS}@tcp(${DB_HOST})/${DB_NAME}?tls=${DB_TLS}&interpolateParams=true" up
 
 down:
-	migrate -source  file://api/migrations  -database "mysql://${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST})/${DB_NAME}" down
+	migrate -source  file://api/migrations  -database "mysql://${DB_USER}:${DB_PASS}@tcp(${DB_HOST})/${DB_NAME}?tls=${DB_TLS}&interpolateParams=true" down
 
 reset:
 	make up
