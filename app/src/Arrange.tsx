@@ -11,6 +11,7 @@ import {
 import { useData } from "./context/data";
 import { getAllPairs, uniqueValues } from "./context/helper";
 import { Bucket, BucketID, TabContext } from "./types";
+import Title from "./common/Title";
 
 interface ArrangeProps {}
 
@@ -71,6 +72,7 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
 
   return (
     <Container>
+      <Title title="Arrange to discuss order" />
       <div className="flex justify-end w-full">
         <SimpleButton
           color="slate"

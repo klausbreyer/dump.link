@@ -117,8 +117,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   // const showCantDropWarning =
   //   globalDragging.type === DraggingType.TASK && bucket.done;
-  const showTasks = bucket.tasks.length > 0;
-  const showFigures = showTasks;
+  const showTasksAndBar = bucket.tasks.length > 0;
+  const showFigured = showTasksAndBar && !bucket.done;
+  const showDone = showTasksAndBar && bucket.done;
   const showDashed = canDrop && !isOver && !bucket.done;
   const showSolid = isOver && !bucket.done;
   const showNone = !canDrop;
@@ -139,7 +140,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
           className={`min-h-[2.5rem]
           `}
         >
-          {showFigures && (
+          {showFigured && (
             <div
               className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
             >
@@ -154,7 +155,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 </span>
               </span>
               <span>
-                {" "}
                 Figuring Out:{" "}
                 <span
                   className={`px-1 rounded
@@ -167,13 +167,21 @@ const Bucket: React.FC<BucketProps> = (props) => {
             </div>
           )}
 
+          {showDone && (
+            <div
+              className={`flex items-center justify-center w-full gap-1 text-sm text-center px-1`}
+            >
+              Done
+            </div>
+          )}
+
           {/* {showCantDropWarning && (
             <div className="flex items-center justify-center gap-2 text-center">
               <ExclamationTriangleIcon className="w-5 h-5" />
               Can't drop - this bucket is done! Undone?
             </div>
           )} */}
-          {showFigures && <MicroProgress bucket={bucket} />}
+          {showTasksAndBar && <MicroProgress bucket={bucket} />}
           <CardList>
             {open.map((task) => (
               <TaskItem

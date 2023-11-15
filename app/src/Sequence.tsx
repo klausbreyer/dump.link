@@ -12,6 +12,7 @@ import {
   shortenLineEnd,
 } from "./common/coordinates";
 import FollowArrow from "./FollowArrow";
+import Title from "./common/Title";
 
 interface SequenceProps {}
 
@@ -116,6 +117,7 @@ const Sequence: React.FC<SequenceProps> = (props) => {
 
   return (
     <Container>
+      <Title title="Sequence Clusters unlocks Arranging" />
       <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&

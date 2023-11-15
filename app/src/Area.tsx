@@ -6,6 +6,7 @@ import { useData } from "./context/data";
 import { getOpenBucketType } from "./context/helper";
 import TaskItem from "./TaskItem";
 import { Bucket, DraggedTask, DropCollectedProps } from "./types";
+import Title from "./common/Title";
 
 export interface AreaProps {
   bucket: Bucket;
@@ -54,12 +55,7 @@ const Area: React.FC<AreaProps> = (props) => {
           : "border-transparent"
       } ${isOver ? "border-solid border-gray-400" : "border-transparent"}`}
     >
-      <div
-        className={` px-1 py-2 w-full border-slate-500 text-lg font-bold
-        `}
-      >
-        Dump
-      </div>
+      <Title title="Dump" />
       <CardList>
         {bucket?.tasks.map((task) => (
           <TaskItem bucket={bucket} task={task} key={task.id} />

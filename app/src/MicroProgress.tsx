@@ -13,9 +13,13 @@ const MicroProgress: React.FC<MicroProgressProps> = (props) => {
   const percentageCompleted = getBucketPercentage(bucket) || 0;
 
   const bgFiguringOut =
-    percentageCompleted === 100 ? "bg-green-400" : "bg-yellow-300";
+    percentageCompleted === 100 && bucket.done
+      ? "bg-green-400"
+      : "bg-yellow-300";
   const bgFiguredOut =
-    percentageCompleted === 100 ? "bg-green-400" : "bg-orange-300";
+    percentageCompleted === 100 && bucket.done
+      ? "bg-green-400"
+      : "bg-orange-300";
 
   return (
     <div className="flex items-center justify-between gap-1 p-1 ">

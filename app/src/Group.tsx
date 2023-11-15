@@ -6,6 +6,7 @@ import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import { getDumpBucket, getOtherBuckets } from "./context/helper";
 import Bucket from "./Bucket";
+import Title from "./common/Title";
 
 interface GroupProps {}
 
@@ -28,12 +29,7 @@ const Group: React.FC<GroupProps> = (props) => {
           <Area bucket={dump} />
         </div>
         <div className="col-span-2">
-          <div
-            className={` px-1 py-2 w-full border-slate-500 text-lg font-bold
-        `}
-          >
-            Task Group Clusters
-          </div>
+          <Title title="Group Tasks to Clusters unlocks Sequencing" />
           <div className="grid grid-cols-2 gap-4 ">
             <FlexCol>
               {others.slice(0, 5).map((bucket) => (
