@@ -14,19 +14,12 @@ jobs:
     steps:
       # Checkout the repository
       - uses: actions/checkout@v3
-
-      # Build Frontend
-      - name: Setup Frontend Environment
-        run: |
-          # Navigate to the frontend directory
-          cd app
-          # Install dependencies
-          sudo apt-get install nodejs yarn
+      - uses: oven-sh/setup-bun@v1
 
       - name: Build Frontend
         run: |
           cd app
-          yarn && yarn build
+          bun install && bun run build
 
       # Run lifting script at the root of the repository
       - name: Run Lifting Script
