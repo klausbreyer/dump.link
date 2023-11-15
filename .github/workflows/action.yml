@@ -56,7 +56,7 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       # Migrate the database
-      - name: Migrate
+      - name: Migrate Database
         uses: vovavc/migrate-github-action@v0.2.1
         with:
           path: ./api/migrations

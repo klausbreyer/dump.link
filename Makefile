@@ -1,11 +1,15 @@
-start:
+kill:
 	lsof -t -i tcp:8080 | xargs kill -9
 	lsof -t -i tcp:13306 | xargs kill -9
 	lsof -t -i tcp:1234 | xargs kill -9
+
+
+start:
+	make kill
 	(cd api && make start) & (cd app && bun start)
 
-magic:
-	cd app && bun run build
+fly:
+	cd app && bun install && bun run build
 	sh lifting.sh
 	cd api && fly deploy
 

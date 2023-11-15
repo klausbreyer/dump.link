@@ -24,7 +24,7 @@ type Application struct {
 }
 
 func Run(contentFS embed.FS) error {
-	addr := flag.String("addr", ":8080", "HTTP network address")
+	addr := flag.String("addr", "0.0.0.0:8080", "HTTP network address")
 	flag.Parse()
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
@@ -52,7 +52,7 @@ func Run(contentFS embed.FS) error {
 		Handler:  app.routes(),
 	}
 
-	infoLog.Printf("Starting server on %s", *addr)
+	infoLog.Printf("Starting server on http://%s", *addr)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 
@@ -67,7 +67,10 @@ func openDB() (*sql.DB, error) {
 	dbName := os.Getenv("DB_NAME")
 	dbHost := os.Getenv("DB_HOST")
 	dbTls := os.Getenv("DB_TLS")
+
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?tls=%s&interpolateParams=true", user, password, dbHost, dbName, dbTls)
+
+	fmt.Printf("%s:%s@tcp(%s)/%s?tls=%s&interpolateParams=true", user, user, dbHost, dbName, dbTls)
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
