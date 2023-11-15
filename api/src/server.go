@@ -31,7 +31,7 @@ func Run(contentFS embed.FS) error {
 
 	db, err := openDB()
 	if err != nil {
-		log.Fatal(err)
+		errorLog.Fatal(err)
 	}
 
 	defer db.Close()
@@ -69,8 +69,6 @@ func openDB() (*sql.DB, error) {
 	dbTls := os.Getenv("DB_TLS")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?tls=%s&interpolateParams=true", user, password, dbHost, dbName, dbTls)
-
-	fmt.Printf("%s:%s@tcp(%s)/%s?tls=%s&interpolateParams=true", user, user, dbHost, dbName, dbTls)
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
