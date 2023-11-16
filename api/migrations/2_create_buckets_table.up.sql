@@ -1,5 +1,5 @@
 CREATE TABLE `Bucket` (
-            `id` VARCHAR(11) NOT NULL,
+            `id` VARCHAR(22) NOT NULL,
             `name` VARCHAR(255) NOT NULL,
             `done` BOOLEAN NOT NULL,
             `dump` BOOLEAN NOT NULL,
