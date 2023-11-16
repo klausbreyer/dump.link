@@ -5,7 +5,7 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -13,11 +13,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Application struct {
+type application struct {
 	contentFS embed.FS
 
-	errorLog *log.Logger
-	infoLog  *log.Logger
+	logger   *slog.Logger
 	buckets  *models.BucketModel
 	tasks    *models.TaskModel
 	projects *models.ProjectModel
@@ -26,36 +25,30 @@ type Application struct {
 func Run(contentFS embed.FS) error {
 	addr := flag.String("addr", "0.0.0.0:8080", "HTTP network address")
 	flag.Parse()
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	// Use the slog.New() function to initialize a new structured logger, which
+	// writes to the standard out stream and uses the default settings.
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	db, err := openDB()
 	if err != nil {
-		errorLog.Fatal(err)
+		logger.Error(err.Error())
 	}
 
 	defer db.Close()
 
-	app := &Application{
+	app := &application{
 		contentFS: contentFS,
-		errorLog:  errorLog,
-		infoLog:   infoLog,
+		logger:    logger,
 
 		buckets:  &models.BucketModel{DB: db},
 		tasks:    &models.TaskModel{DB: db},
 		projects: &models.ProjectModel{DB: db},
 	}
 
-	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
-	}
-
-	infoLog.Printf("Starting server on http://%s", *addr)
-	err = srv.ListenAndServe()
-	errorLog.Fatal(err)
-
+	logger.Info("starting server at http://%s", "addr", *addr)
+	err = http.ListenAndServe(*addr, app.routes())
+	logger.Error(err.Error())
+	os.Exit(1)
 	return nil
 }
 

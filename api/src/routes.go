@@ -2,7 +2,7 @@ package src
 
 import "net/http"
 
-func (app *Application) routes() *http.ServeMux {
+func (app *application) routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.Dir("./static/"))
