@@ -17,7 +17,7 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
 	router.HandlerFunc(http.MethodGet, "/", app.RootGet)
-	router.HandlerFunc(http.MethodGet, "/app", app.AppGet)
+	router.HandlerFunc(http.MethodGet, "/a", app.AppGet)
 
 	router.HandlerFunc(http.MethodGet, "/api/v1/health", app.HealthGet)
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects", app.ProjectsPost)
