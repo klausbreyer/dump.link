@@ -3,6 +3,6 @@ CREATE TABLE `Task` (
             `title` VARCHAR(255) NOT NULL,
             `closed` BOOLEAN NOT NULL,
             `bucket_id` VARCHAR(11) NOT NULL,
-            `priority` FLOAT NOT NULL
+            `priority` FLOAT NOT NULL,
             PRIMARY KEY (`id`)
         );
