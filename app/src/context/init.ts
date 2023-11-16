@@ -15,12 +15,17 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
             id: Date.now().toString() + index,
             title: "Your first task",
             closed: false,
+            priority: 100000,
           },
         ]
       : [],
 }));
 
 const state: Project = {
+  id: NewID(),
+  name: "Untitled Project",
+  startAt: new Date(),
+  appetite: 6,
   buckets: initialBuckets,
 };
 

@@ -18,7 +18,11 @@ import initialState from "./init";
 import { loadFromLocalStorage, saveToLocalStorage } from "./storage";
 
 type ActionType =
-  | { type: "ADD_TASK"; bucketId: BucketID; task: Omit<Task, "id"> }
+  | {
+      type: "ADD_TASK";
+      bucketId: BucketID;
+      task: Omit<Task, "id" | "priority">;
+    }
   | {
       type: "MOVE_TASK";
       fromBucketId: BucketID;
@@ -34,7 +38,7 @@ type ActionType =
   | {
       type: "UPDATE_TASK";
       taskId: TaskID;
-      updatedTask: Omit<Task, "id">;
+      updatedTask: Omit<Task, "id" | "priority">;
     }
   | {
       type: "REORDER_TASK";
@@ -80,19 +84,40 @@ type ActionType =
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 const dataReducer = (state: Project, action: ActionType): Project => {
+  console.log(action);
+
   switch (action.type) {
-    case "ADD_TASK":
+    case "ADD_TASK": {
+      const { bucketId, task } = action;
+
       return {
         ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? {
-                ...bucket,
-                tasks: [...bucket.tasks, { ...action.task, id: NewID() }],
+        buckets: state.buckets.map((bucket) => {
+          if (bucket.id === bucketId) {
+            // Find the current highest priority in the bucket
+            let highestPriority = 0;
+            bucket.tasks.forEach((t) => {
+              if (t.priority > highestPriority) {
+                highestPriority = t.priority;
               }
-            : bucket,
-        ),
+            });
+
+            // Set the new task's priority
+            const newPriority = highestPriority + 100000; // Increment by a large number
+
+            // Add the new task at the end with the calculated priority
+            return {
+              ...bucket,
+              tasks: [
+                ...bucket.tasks,
+                { ...task, id: NewID(), priority: newPriority },
+              ],
+            };
+          }
+          return bucket;
+        }),
       };
+    }
 
     case "DELETE_TASK":
       return {
@@ -105,27 +130,6 @@ const dataReducer = (state: Project, action: ActionType): Project => {
               }
             : bucket,
         ),
-      };
-
-    case "MOVE_TASK":
-      const taskToMove = state.buckets
-        .find((bucket) => bucket.id === action.fromBucketId)
-        ?.tasks.find((task) => task.id === action.taskId);
-      if (!taskToMove) return state;
-
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) => {
-          if (bucket.id === action.fromBucketId) {
-            return {
-              ...bucket,
-              tasks: bucket.tasks.filter((task) => task.id !== action.taskId),
-            };
-          } else if (bucket.id === action.toBucketId) {
-            return { ...bucket, tasks: [...bucket.tasks, taskToMove] };
-          }
-          return bucket;
-        }),
       };
 
     case "CHANGE_TASK_STATE":
@@ -161,33 +165,79 @@ const dataReducer = (state: Project, action: ActionType): Project => {
     case "REORDER_TASK": {
       const { movingTaskId, newPosition } = action;
 
-      let movingTask: Task | null = null;
-      let bucketId: BucketID | null = null;
-      let originalPosition: number | null = null;
+      let updatedBuckets = state.buckets.map((bucket) => {
+        if (bucket.tasks.some((task) => task.id === movingTaskId)) {
+          let newTasks = [...bucket.tasks];
+          const movingTaskIndex = newTasks.findIndex(
+            (task) => task.id === movingTaskId,
+          );
+          const movingTask = newTasks[movingTaskIndex];
 
-      for (const bucket of state.buckets) {
-        const taskIndex = bucket.tasks.findIndex(
-          (task) => task.id === movingTaskId,
-        );
-        if (taskIndex !== -1) {
-          movingTask = { ...bucket.tasks[taskIndex] };
-          originalPosition = taskIndex;
-          bucketId = bucket.id;
-          break;
+          // Entfernen des Tasks aus seiner ursprünglichen Position
+          newTasks.splice(movingTaskIndex, 1);
+
+          // Berechnen der neuen Priorität
+          let newPriority = 0;
+          if (newPosition === 0) {
+            newPriority = newTasks.length > 0 ? newTasks[0].priority / 2 : 1;
+          } else if (newPosition >= newTasks.length) {
+            newPriority =
+              newTasks.length > 0
+                ? newTasks[newTasks.length - 1].priority + 100000
+                : 100000;
+          } else {
+            const beforePriority = newTasks[newPosition - 1].priority;
+            const afterPriority = newTasks[newPosition].priority;
+            newPriority = (beforePriority + afterPriority) / 2;
+          }
+
+          // Hinzufügen des Tasks an der neuen Position
+          movingTask.priority = newPriority;
+          newTasks.splice(newPosition, 0, movingTask);
+
+          return { ...bucket, tasks: newTasks };
         }
-      }
+        return bucket;
+      });
+      return { ...state, buckets: updatedBuckets };
+    }
 
-      if (!movingTask || !bucketId || originalPosition === null) return state;
+    case "MOVE_TASK": {
+      const { fromBucketId, toBucketId, taskId } = action;
 
-      const targetBucket = state.buckets.find(
-        (bucket) => bucket.id === bucketId,
-      );
-      if (!targetBucket) return state;
+      let taskToMove: Task | null = null;
+      let updatedBuckets = state.buckets.map((bucket) => {
+        if (bucket.id === fromBucketId) {
+          // Entfernen des Tasks aus dem ursprünglichen Bucket
+          const newTasks = bucket.tasks.filter((task) => task.id !== taskId);
+          return { ...bucket, tasks: newTasks };
+        } else if (bucket.id === toBucketId) {
+          // Finden des Tasks und Hinzufügen am Ende des neuen Buckets
+          const movingTask = state.buckets
+            .find((b) => b.id === fromBucketId)
+            ?.tasks.find((t) => t.id === taskId);
+          if (movingTask) {
+            taskToMove = { ...movingTask }; // Stellt sicher, dass das Task-Objekt vollständig ist
 
-      targetBucket.tasks.splice(originalPosition, 1);
-      targetBucket.tasks.splice(newPosition, 0, movingTask);
+            const highestPriority =
+              bucket.tasks.length > 0
+                ? Math.max(...bucket.tasks.map((t) => t.priority))
+                : 0;
+            const updatedTask = {
+              ...taskToMove,
+              priority: highestPriority + 100000,
+            };
 
-      return { ...state, buckets: [...state.buckets] };
+            // Stellt sicher, dass updatedTask alle erforderlichen Felder von Task enthält
+            return { ...bucket, tasks: [...bucket.tasks, updatedTask] };
+          }
+        }
+        return bucket;
+      });
+
+      if (!taskToMove) return state; // Falls der Task nicht gefunden wurde
+
+      return { ...state, buckets: updatedBuckets };
     }
 
     case "RENAME_BUCKET":
@@ -310,7 +360,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     saveToLocalStorage(state);
   }, [state]);
 
-  const addTask = (bucketId: BucketID, task: Omit<Task, "id">) => {
+  const addTask = (bucketId: BucketID, task: Omit<Task, "id" | "priority">) => {
     dispatch({
       type: "ADD_TASK",
       bucketId: bucketId,
@@ -340,7 +390,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const updateTask = (taskId: TaskID, updatedTask: Omit<Task, "id">) => {
+  const updateTask = (
+    taskId: TaskID,
+    updatedTask: Omit<Task, "id" | "priority">,
+  ) => {
     dispatch({ type: "UPDATE_TASK", taskId, updatedTask });
   };
 
@@ -695,7 +748,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  console.log("state", state);
+  console.dir("state", state.buckets[1].tasks);
 
   return (
     <DataContext.Provider
@@ -735,14 +788,17 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 type DataContextType = {
   state: Project;
-  addTask: (bucketId: BucketID, task: Omit<Task, "id">) => void;
+  addTask: (bucketId: BucketID, task: Omit<Task, "id" | "priority">) => void;
   moveTask: (toBucketId: BucketID, task: Task) => void;
   changeTaskState: (
     bucketId: BucketID,
     taskId: TaskID,
     closed: boolean,
   ) => void;
-  updateTask: (taskId: TaskID, updatedTask: Omit<Task, "id">) => void;
+  updateTask: (
+    taskId: TaskID,
+    updatedTask: Omit<Task, "id" | "priority">,
+  ) => void;
   getBucket: (bucketId: BucketID) => Bucket | undefined;
   getTask: (taskId: TaskID) => Task | undefined;
   getBucketForTask: (task: Task) => Bucket | undefined;
