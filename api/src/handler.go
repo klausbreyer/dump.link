@@ -12,7 +12,15 @@ import (
 )
 
 func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "healthy")
+	data := map[string]string{
+		"status": "available",
+	}
+
+	err := app.writeJSON(w, http.StatusOK, data, nil)
+	if err != nil {
+		app.logger.Error(err.Error())
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+	}
 }
 
 func (app *application) RootGet(w http.ResponseWriter, r *http.Request) {

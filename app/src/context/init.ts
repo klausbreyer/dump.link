@@ -24,7 +24,7 @@ const initialBuckets: Bucket[] = Array.from({ length: 11 }).map((_, index) => ({
 const state: Project = {
   id: NewID(),
   name: "Untitled Project",
-  startAt: new Date(),
+  startedAt: new Date(),
   appetite: 6,
   buckets: initialBuckets,
 };

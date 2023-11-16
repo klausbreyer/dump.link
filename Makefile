@@ -21,8 +21,8 @@ down:
 	migrate -source  file://api/migrations  -database "mysql://${DB_USER}:${DB_PASS}@tcp(${DB_HOST})/${DB_NAME}?tls=${DB_TLS}&interpolateParams=true" down
 
 reset:
-	make up
 	make down
+	make up
 
 db:
 	rm -rf dump;

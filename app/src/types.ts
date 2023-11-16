@@ -24,7 +24,7 @@ export type Bucket = {
 export type Project = {
   id: string;
   name: string;
-  startAt: Date;
+  startedAt: Date;
   appetite: number;
   buckets: Bucket[];
 };

@@ -10,16 +10,17 @@ import (
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
-	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.notFound(w)
-	})
+	router.NotFound = http.HandlerFunc(app.notFoundResponse)
+	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
 	router.HandlerFunc(http.MethodGet, "/", app.RootGet)
 	router.HandlerFunc(http.MethodGet, "/app", app.AppGet)
-	router.HandlerFunc(http.MethodGet, "/health", app.HealthGet)
+
+	router.HandlerFunc(http.MethodGet, "/api/v1/health", app.HealthGet)
+	router.HandlerFunc(http.MethodPost, "/api/v1/projects", app.ProjectsPost)
 
 	standard := alice.New(app.recoverPanic, app.enableCORS, app.logRequest, secureHeaders)
 
