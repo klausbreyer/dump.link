@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
-
-	"github.com/gomarkdown/markdown"
 )
 
 func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
@@ -31,8 +29,8 @@ func (app *application) RootGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-
-	htmlContent := markdown.ToHTML(mdContent, nil, nil)
+	htmlContent := markdownToHTML([]byte(mdContent))
+	styledHTML := addTailwindClasses(htmlContent)
 
 	template := fmt.Sprintf(`
 <!DOCTYPE html>
@@ -44,10 +42,12 @@ func (app *application) RootGet(w http.ResponseWriter, r *http.Request) {
 <link rel="stylesheet" href="/static/tailwind.css" />
 </head>
 <body>
+<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
 %s
+</div>
 </body>
 </html>
-`, string(htmlContent))
+`, string(styledHTML))
 
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(template))

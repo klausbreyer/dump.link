@@ -6,7 +6,7 @@ kill:
 
 start:
 	make kill
-	(cd api && make start) & (cd app && bun start)
+	(cd api && air) & (cd api && ./tailwindcss -i ./css/tailwind.css -o ./static/tailwind.css --watch) & (cd app && bun start)
 
 fly:
 	cd app && bun install && bun run build
