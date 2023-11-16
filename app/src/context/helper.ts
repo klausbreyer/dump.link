@@ -21,7 +21,6 @@ export function NewID(): string {
   return id;
 }
 
-
 /**
  * Given a list of chains, this function returns each unique pair from all the chains.
  *
@@ -313,3 +312,7 @@ export function getBucketState(bucket: Bucket): BucketState {
   // This line should theoretically never be reached, but it's here for completeness
   throw new Error("Undefined bucket state.");
 }
+
+export const sortTasksByPriority = (tasks: Task[]): Task[] => {
+  return [...tasks].sort((a, b) => a.priority - b.priority);
+};

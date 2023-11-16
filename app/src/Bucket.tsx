@@ -17,6 +17,7 @@ import {
   getClosedBucketType,
   getOpenBucketType,
   getTasksByClosed,
+  sortTasksByPriority,
 } from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
@@ -107,8 +108,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
-  const open = getTasksByClosed(bucket, false);
-  const closed = getTasksByClosed(bucket, true);
+  const open = sortTasksByPriority(getTasksByClosed(bucket, false));
+  const closed = sortTasksByPriority(getTasksByClosed(bucket, true));
 
   const aboveFoldClosed = closed.filter((t) => recentlyDone.includes(t.id));
   const belowFoldClosed = closed.filter((t) => !recentlyDone.includes(t.id));

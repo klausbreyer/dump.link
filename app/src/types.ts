@@ -7,6 +7,7 @@ export type Task = {
   id: TaskID;
   title: string;
   closed: boolean;
+  priority: number;
 };
 
 export type Bucket = {
