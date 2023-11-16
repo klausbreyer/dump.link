@@ -45,7 +45,7 @@ func Run(contentFS embed.FS) error {
 		projects: &models.ProjectModel{DB: db},
 	}
 
-	logger.Info("starting server at http://%s", "addr", *addr)
+	logger.Info(fmt.Sprintf("starting server at http://%s", *addr))
 	err = http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
 	os.Exit(1)

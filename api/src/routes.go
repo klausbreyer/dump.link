@@ -1,40 +1,27 @@
 package src
 
-import "net/http"
+import (
+	"net/http"
 
-func (app *application) routes() *http.ServeMux {
-	mux := http.NewServeMux()
+	"github.com/julienschmidt/httprouter"
+	"github.com/justinas/alice"
+)
+
+func (app *application) routes() http.Handler {
+	router := httprouter.New()
+
+	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		app.notFound(w)
+	})
 
 	fileServer := http.FileServer(http.Dir("./static/"))
-	mux.Handle("/static/", corsMiddleware(http.StripPrefix("/static", fileServer)))
+	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
-	mux.Handle("/", corsMiddleware(http.HandlerFunc(app.RootGet)))
-	mux.Handle("/health/", corsMiddleware(http.HandlerFunc(app.HealthGet)))
-	mux.Handle("/a/", corsMiddleware(http.HandlerFunc(app.AppGet)))
+	router.HandlerFunc(http.MethodGet, "/", app.RootGet)
+	router.HandlerFunc(http.MethodGet, "/app", app.AppGet)
+	router.HandlerFunc(http.MethodGet, "/health", app.HealthGet)
 
-	return mux
-}
+	standard := alice.New(app.recoverPanic, app.enableCORS, app.logRequest, secureHeaders)
 
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		enableCors(w, r)
-		if r.Method == "OPTIONS" {
-			return // Handle preflight requests
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-
-func enableCors(w http.ResponseWriter, r *http.Request) {
-	allowedOrigins := []string{"http://localhost:1234", "https://beta.dump-link.com"}
-
-	origin := r.Header.Get("Origin")
-	for _, allowedOrigin := range allowedOrigins {
-		if origin == allowedOrigin {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-			break
-		}
-	}
+	return standard.Then(router)
 }

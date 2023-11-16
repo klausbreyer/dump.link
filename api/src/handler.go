@@ -11,17 +11,13 @@ import (
 	"github.com/gomarkdown/markdown"
 )
 
-func (s *application) StaticHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, r.URL.Path[1:])
-}
-
-func (s *application) HealthGet(w http.ResponseWriter, r *http.Request) {
+func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "healthy")
 }
 
-func (s *application) RootGet(w http.ResponseWriter, r *http.Request) {
+func (app *application) RootGet(w http.ResponseWriter, r *http.Request) {
 
-	mdContent, err := fs.ReadFile(s.contentFS, "content/index.md")
+	mdContent, err := fs.ReadFile(app.contentFS, "content/index.md")
 	if err != nil {
 		log.Printf("Error reading markdown: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -50,7 +46,7 @@ func (s *application) RootGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // AppGet handles the request and serves the HTML with dynamic script and stylesheet links.
-func (s *application) AppGet(w http.ResponseWriter, r *http.Request) {
+func (app *application) AppGet(w http.ResponseWriter, r *http.Request) {
 	jsFile, cssFile, err := findFiles("static/app/")
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
