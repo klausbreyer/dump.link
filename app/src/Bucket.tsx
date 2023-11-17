@@ -139,16 +139,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
               className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
             >
               <span>
-                Figured Out:{" "}
-                <span
-                  className={`px-1 rounded
-                  ${closed.length > 0 && !bucket.done && "bg-yellow-300"}
-                  `}
-                >
-                  {closed.length}
-                </span>
-              </span>
-              <span>
                 Figuring Out:{" "}
                 <span
                   className={`px-1 rounded
@@ -156,6 +146,16 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 `}
                 >
                   {open.length}
+                </span>
+              </span>
+              <span>
+                Figured Out:{" "}
+                <span
+                  className={`px-1 rounded
+                  ${closed.length > 0 && !bucket.done && "bg-yellow-300"}
+                  `}
+                >
+                  {closed.length}
                 </span>
               </span>
             </div>

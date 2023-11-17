@@ -211,7 +211,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         {bucketTask && (
           <input
             type="checkbox"
-            className={`w-5 h-5
+            className={`w-5 h-5 accent-yellow-300
             ${isSafari() && "safari-only-checkbox-small"} `}
             disabled={bucket.done}
             checked={task.closed}
