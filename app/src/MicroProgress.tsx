@@ -14,11 +14,11 @@ const MicroProgress: React.FC<MicroProgressProps> = (props) => {
 
   const bgFiguringOut =
     percentageCompleted === 100 && bucket.done
-      ? "bg-green-400"
+      ? "bg-green-500"
       : "bg-yellow-300";
   const bgFiguredOut =
     percentageCompleted === 100 && bucket.done
-      ? "bg-green-400"
+      ? "bg-green-500"
       : "bg-orange-300";
 
   return (

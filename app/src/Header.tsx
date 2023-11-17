@@ -84,7 +84,8 @@ const Header: React.FC<HeaderProps> = (props) => {
         {showDone && context === TabContext.Group && (
           <input
             type="checkbox"
-            className={`w-7 h-7
+            className={`w-7 h-7 accent-green-500
+            ring-2 ring-green-500
             ${isSafari() && "safari-only-checkbox-big"} `}
             checked={bucket.done || false}
             onChange={() => setBucketDone(bucket.id, !bucket.done)}
