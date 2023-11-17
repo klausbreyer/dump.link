@@ -231,7 +231,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         >
           <textarea
             className={` resize-none w-full px-1 rounded-sm shadow-md relative
-            border-b-2 select-text
+            border-b-2 select-text overflow-hidden
             ${activeTask && "cursor-move"}
             ${
               val.length >= config.TASK_MAX_LENGTH
@@ -251,7 +251,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             ref={textAreaRef}
           ></textarea>
           <div
-            className={`absolute text-slate-800 text-xxs bottom-1.5 right-2 ${
+            className={`absolute text-slate-800 text-xxs bottom-2 right-1 ${
               isTextAreaFocused ? "block" : "hidden"
             }`}
           >
