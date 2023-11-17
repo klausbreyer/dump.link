@@ -7,11 +7,11 @@ import (
 )
 
 type Project struct {
-	ID        string
-	Name      string
-	StartedAt time.Time
-	CreatedAt time.Time
-	Appetite  int
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	StartedAt time.Time `json:"startedAt"`
+	CreatedAt time.Time `json:"createdAt"`
+	Appetite  int       `json:"appetite"`
 }
 
 type ProjectModel struct {

@@ -10,7 +10,7 @@ import { useDrag, useDrop } from "react-dnd";
 
 import config from "./config";
 import { useData } from "./context/data";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import { useGlobalDragging } from "./context/dragging";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { isSafari } from "./common/helper";

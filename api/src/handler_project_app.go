@@ -8,7 +8,6 @@ import (
 )
 
 func (app *application) ProjectRoot(w http.ResponseWriter, r *http.Request) {
-
 	projectId := app.initProject(w, r)
 
 	//redirect

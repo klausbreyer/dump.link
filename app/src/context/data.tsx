@@ -3,13 +3,28 @@ import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { Bucket, BucketID, Project, Task, TaskID } from "../types";
 import {
   NewID,
+  extractIdFromUrl,
   getBucketForTask,
   hasCyclicDependencyWithBucket,
+  transformApiResponseToProject,
 } from "./helper";
-import initialState from "./init";
-import { loadFromLocalStorage, saveToLocalStorage } from "./storage";
+import { LifecycleState, useLifecycle } from "./lifecycle";
+
+const initialProjectState: Project = {
+  buckets: [],
+  id: "",
+  name: "",
+  appetite: 0,
+  startedAt: new Date(),
+};
+
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? window.location.origin
+    : "http://localhost:8080";
 
 type ActionType =
+  | { type: "SET_INITIAL_STATE"; payload: Project }
   | {
       type: "ADD_TASK";
       bucketId: BucketID;
@@ -77,6 +92,9 @@ type ActionType =
 const DataContext = createContext<DataContextType | undefined>(undefined);
 const dataReducer = (state: Project, action: ActionType): Project => {
   switch (action.type) {
+    case "SET_INITIAL_STATE":
+      return action.payload;
+
     case "ADD_TASK": {
       const { bucketId, task } = action;
 
@@ -340,15 +358,25 @@ type DataProviderProps = {
 };
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-  const persistedState = loadFromLocalStorage();
-  const [state, dispatch] = useReducer(
-    dataReducer,
-    persistedState || initialState,
-  );
+  const [state, dispatch] = useReducer(dataReducer, initialProjectState);
+  const { setLifecycle } = useLifecycle();
 
   useEffect(() => {
-    saveToLocalStorage(state);
-  }, [state]);
+    const fetchInitialState = async () => {
+      try {
+        const id = extractIdFromUrl();
+        const response = await fetch(`${BASE_URL}/api/v1/projects/${id}`);
+        const data = await response.json();
+        const transformedData = transformApiResponseToProject(data);
+        dispatch({ type: "SET_INITIAL_STATE", payload: transformedData });
+        setLifecycle(LifecycleState.Loaded);
+      } catch (error) {
+        console.error("Fehler beim Laden des Initialzustands:", error);
+      }
+    };
+
+    fetchInitialState();
+  }, []);
 
   const addTask = (bucketId: BucketID, task: Omit<Task, "id" | "priority">) => {
     dispatch({
@@ -470,7 +498,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  console.dir("state", state.buckets[1].tasks);
+  console.dir(state);
 
   return (
     <DataContext.Provider

@@ -21,7 +21,7 @@ import {
   getLayerForBucketId,
   getSequenceBucketType,
 } from "./context/helper";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import { useGlobalDragging } from "./context/dragging";
 import {
   Bucket,
   DraggedBucket,

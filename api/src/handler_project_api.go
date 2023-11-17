@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"dump.link/src/models"
+	"github.com/julienschmidt/httprouter"
 )
 
 const DEFAULT_PROJECT_APPETITE = 6
@@ -12,7 +13,6 @@ const DEFAULT_TASK_PRIORITY = 100000
 const DEFAULT_TASK_NAME = "Your first task"
 
 func (app *application) initProject(w http.ResponseWriter, r *http.Request) string {
-
 	name := ProjectName()
 	startedAt := time.Now()
 	appetite := DEFAULT_PROJECT_APPETITE
@@ -47,10 +47,18 @@ func (app *application) initProject(w http.ResponseWriter, r *http.Request) stri
 }
 
 func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
-	projectId := app.initProject(w, r)
+	params := httprouter.ParamsFromContext(r.Context())
+	projectId := params.ByName("projectId")
+
+	idExists := app.projects.IDExists(projectId)
+	if !idExists {
+		app.notFoundResponse(w, r)
+		return
+	}
 
 	project, err := app.projects.Get(projectId)
 	if err != nil {
+
 		app.serverErrorResponse(w, r, err)
 		return
 	}

@@ -1,7 +1,48 @@
-import { Bucket, BucketID, BucketState, Task, TaskID } from "../types";
+import { Bucket, BucketID, BucketState, Project, Task, TaskID } from "../types";
 
-// main.ts
 const crypto = window.crypto || (window as any).msCrypto;
+
+export const transformApiResponseToProject = (apiResponse: any): Project => {
+  // Zuerst die Tasks mappen
+  const tasksMap = new Map<TaskID, Task>();
+  apiResponse.tasks.forEach((task: any) => {
+    tasksMap.set(task.id, {
+      id: task.id,
+      title: task.title,
+      closed: task.closed,
+      priority: task.priority,
+    });
+  });
+
+  // Jetzt die Buckets mappen und die zugehörigen Tasks einbinden
+  const buckets = apiResponse.buckets.map((bucket: any) => ({
+    id: bucket.id,
+    name: bucket.name,
+    done: bucket.done,
+    dump: bucket.dump,
+    layer: bucket.layer ?? undefined, // 'null' in der API-Antwort wird zu 'undefined'
+    tasks: apiResponse.tasks
+      .filter((task: any) => task.bucketId === bucket.id)
+      .map((task: any) => tasksMap.get(task.id)!),
+    flagged: bucket.flagged,
+    dependencies: [], // Muss aus weiteren Informationen abgeleitet werden, falls vorhanden
+  }));
+
+  // Abschließend das gesamte Project-Objekt zusammenstellen
+  return {
+    id: apiResponse.project.id,
+    name: apiResponse.project.name,
+    startedAt: new Date(apiResponse.project.startedAt),
+    appetite: apiResponse.project.appetite,
+    buckets: buckets,
+  };
+};
+
+export const extractIdFromUrl = () => {
+  const url = window.location.pathname;
+  const parts = url.split("/");
+  return parts[parts.length - 1];
+};
 
 // NewID generates a random base-58 ID.
 export function NewID(): string {

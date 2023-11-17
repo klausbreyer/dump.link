@@ -10,7 +10,7 @@ import {
   getLastValues,
   getOtherBuckets,
 } from "./context/helper";
-import { useGlobalDragging } from "./hooks/useGlobalDragging";
+import { useGlobalDragging } from "./context/dragging";
 import { DraggedBucket, DraggingType, DropCollectedProps } from "./types";
 
 interface LaneProps extends React.HTMLProps<HTMLDivElement> {

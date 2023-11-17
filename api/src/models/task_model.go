@@ -6,11 +6,11 @@ import (
 )
 
 type Task struct {
-	ID       string
-	Title    string
-	Closed   bool
-	BucketID string
-	Priority float64
+	ID       string  `json:"id"`
+	Title    string  `json:"title"`
+	Closed   bool    `json:"closed"`
+	BucketID string  `json:"bucketId"`
+	Priority float64 `json:"priority"`
 }
 
 type TaskModel struct {

@@ -5,8 +5,8 @@ import (
 )
 
 type BucketDependency struct {
-	BucketID          string
-	DependsOnBucketID string
+	BucketID          string `json:"bucketId"`
+	DependsOnBucketID string `json:"dependsOnBucketId"`
 }
 
 type BucketDependencyModel struct {

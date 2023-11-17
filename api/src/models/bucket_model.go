@@ -6,13 +6,13 @@ import (
 )
 
 type Bucket struct {
-	ID        string
-	Name      string
-	Done      bool
-	Dump      bool
-	Layer     *int
-	Flagged   bool
-	ProjectID string
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Done      bool   `json:"done"`
+	Dump      bool   `json:"dump"`
+	Layer     *int   `json:"layer"`
+	Flagged   bool   `json:"flagged"`
+	ProjectID string `json:"projectId"`
 }
 
 type BucketModel struct {
