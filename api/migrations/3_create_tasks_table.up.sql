@@ -1,4 +1,4 @@
-CREATE TABLE `Task` (
+CREATE TABLE `tasks` (
             `id` VARCHAR(22) NOT NULL,
             `title` VARCHAR(255) NOT NULL,
             `closed` BOOLEAN NOT NULL,

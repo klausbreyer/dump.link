@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS `Project`;
+DROP TABLE IF EXISTS `projects`;

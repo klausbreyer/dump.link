@@ -25,9 +25,8 @@ func (m *ProjectModel) Insert(name string, startedAt time.Time, createdAt time.T
 		if !m.IDExists(id) {
 			break
 		}
-		// Optionally, limit the number of attempts to avoid an infinite loop
 	}
-	stmt := `INSERT INTO Project (id, name, startedAt, createdAt, appetite) VALUES (?, ?, ?, ?, ?)`
+	stmt := `INSERT INTO projects (id, name, startedAt, createdAt, appetite) VALUES (?, ?, ?, ?, ?)`
 	_, err := m.DB.Exec(stmt, id, name, startedAt, createdAt, appetite)
 	if err != nil {
 		return "", err
@@ -37,7 +36,7 @@ func (m *ProjectModel) Insert(name string, startedAt time.Time, createdAt time.T
 }
 
 func (m *ProjectModel) IDExists(id string) bool {
-	stmt := `SELECT COUNT(id) FROM Project WHERE id = ?`
+	stmt := `SELECT COUNT(id) FROM projects WHERE id = ?`
 	var count int
 	err := m.DB.QueryRow(stmt, id).Scan(&count)
 	if err != nil {
@@ -48,7 +47,7 @@ func (m *ProjectModel) IDExists(id string) bool {
 }
 
 func (m *ProjectModel) Get(id string) (*Project, error) {
-	stmt := `SELECT id, name, startedAt, createdAt, appetite FROM Project WHERE id = ?`
+	stmt := `SELECT id, name, startedAt, createdAt, appetite FROM projects WHERE id = ?`
 	row := m.DB.QueryRow(stmt, id)
 
 	var (

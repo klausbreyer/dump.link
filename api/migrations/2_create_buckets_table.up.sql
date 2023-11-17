@@ -1,4 +1,4 @@
-CREATE TABLE `Bucket` (
+CREATE TABLE `buckets` (
             `id` VARCHAR(22) NOT NULL,
             `name` VARCHAR(255) NOT NULL,
             `done` BOOLEAN NOT NULL,

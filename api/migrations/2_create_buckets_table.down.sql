@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS `Bucket`;
+DROP TABLE IF EXISTS `buckets`;

@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS `BucketDependencies`;
+DROP TABLE IF EXISTS `bucket_dependencies`;

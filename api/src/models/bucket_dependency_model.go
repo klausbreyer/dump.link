@@ -14,13 +14,13 @@ type BucketDependencyModel struct {
 }
 
 func (m *BucketDependencyModel) Insert(bucketID string, dependsOnBucketID string) error {
-	stmt := `INSERT INTO BucketDependencies (bucket_id, depends_on_bucket_id) VALUES (?, ?)`
+	stmt := `INSERT INTO bucket_dependencies (bucket_id, depends_on_bucket_id) VALUES (?, ?)`
 	_, err := m.DB.Exec(stmt, bucketID, dependsOnBucketID)
 	return err
 }
 
 func (m *BucketDependencyModel) Get(bucketID string) ([]string, error) {
-	stmt := `SELECT depends_on_bucket_id FROM BucketDependencies WHERE bucket_id = ?`
+	stmt := `SELECT depends_on_bucket_id FROM bucket_dependencies WHERE bucket_id = ?`
 	rows, err := m.DB.Query(stmt, bucketID)
 	if err != nil {
 		return nil, err

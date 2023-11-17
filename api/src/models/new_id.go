@@ -3,12 +3,16 @@ package models
 import (
 	"crypto/rand"
 	"math/big"
+	"strings"
 )
 
-// NewID generates a random base-58 ID.
-func NewID() string {
+// NewID generates a random base-58 ID with optional prefixes.
+func NewID(prefixes ...string) string {
 	alphabet := "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" // base58
 	size := 11
+
+	// Concatenate all prefixes if provided
+	prefix := strings.Join(prefixes, "")
 
 	id := make([]byte, size)
 	for i := range id {
@@ -16,5 +20,5 @@ func NewID() string {
 		id[i] = alphabet[randomInt.Int64()]
 	}
 
-	return string(id)
+	return prefix + string(id)
 }

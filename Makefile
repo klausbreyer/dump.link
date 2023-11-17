@@ -3,10 +3,12 @@ kill:
 	lsof -t -i tcp:13306 | xargs kill -9
 	lsof -t -i tcp:1234 | xargs kill -9
 
-
 start:
 	make kill
 	(cd api && air) & (cd api && ./tailwindcss -i ./css/tailwind.css -o ./static/tailwind.css --watch) & (cd app && bun start)
+
+test:
+	cd api && make test
 
 fly:
 	cd app && bun install && bun run build

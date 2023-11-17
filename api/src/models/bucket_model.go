@@ -20,22 +20,35 @@ type BucketModel struct {
 }
 
 func (m *BucketModel) Insert(name string, done bool, dump bool, layer *int, flagged bool, projectID string) (string, error) {
-	stmt := `INSERT INTO Bucket (name, done, dump, layer, flagged, project_id) VALUES (?, ?, ?, ?, ?, ?)`
-	res, err := m.DB.Exec(stmt, name, done, dump, layer, flagged, projectID)
+	var id string
+	for {
+		id = NewID()
+		if !m.IDExists(id) {
+			break
+		}
+	}
+	stmt := `INSERT INTO buckets (id, name, done, dump, layer, flagged, project_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, name, done, dump, layer, flagged, projectID)
 	if err != nil {
 		return "", err
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return "", err
-	}
+	return id, nil
+}
 
-	return fmt.Sprintf("%d", id), nil
+func (m *BucketModel) IDExists(id string) bool {
+	stmt := `SELECT COUNT(id) FROM buckets WHERE id = ?`
+	var count int
+	err := m.DB.QueryRow(stmt, id).Scan(&count)
+	if err != nil {
+		// Handle error. For simplicity, return true to indicate an error occurred.
+		return true
+	}
+	return count > 0
 }
 
 func (m *BucketModel) Get(id string) (*Bucket, error) {
-	stmt := `SELECT id, name, done, dump, layer, flagged, project_id FROM Bucket WHERE id = ?`
+	stmt := `SELECT id, name, done, dump, layer, flagged, project_id FROM buckets WHERE id = ?`
 	row := m.DB.QueryRow(stmt, id)
 
 	b := &Bucket{}
@@ -51,9 +64,9 @@ func (m *BucketModel) Get(id string) (*Bucket, error) {
 	return b, nil
 }
 
-func (m *BucketModel) Latest() ([]*Bucket, error) {
-	stmt := `SELECT id, name, done, dump, layer, flagged, project_id FROM Bucket ORDER BY id DESC LIMIT 10`
-	rows, err := m.DB.Query(stmt)
+func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
+	stmt := `SELECT id, name, done, dump, layer, flagged, project_id FROM buckets WHERE project_id = ?`
+	rows, err := m.DB.Query(stmt, projectId)
 	if err != nil {
 		return nil, err
 	}
