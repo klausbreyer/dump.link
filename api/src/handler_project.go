@@ -5,20 +5,15 @@ import (
 	"time"
 )
 
+const DEFAULT_APPETITE = 6
+
 func (app *application) ProjectsPost(w http.ResponseWriter, r *http.Request) {
 
-	var input struct {
-		Name      *string    `json:"name"`
-		StartedAt *time.Time `json:"startedAt"`
-		Appetite  *int       `json:"appetite"`
-	}
-	err := app.readJSON(w, r, &input)
-	if err != nil {
-		app.badRequestResponse(w, r, err)
-		return
-	}
+	name := ProjectName()
+	startedAt := time.Now()
+	appetite := DEFAULT_APPETITE
 
-	projectId, err := app.projects.Insert(*input.Name, *input.StartedAt, time.Now(), *input.Appetite)
+	projectId, err := app.projects.Insert(name, startedAt, appetite)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

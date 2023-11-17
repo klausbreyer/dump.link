@@ -18,7 +18,7 @@ type ProjectModel struct {
 	DB *sql.DB
 }
 
-func (m *ProjectModel) Insert(name string, startedAt time.Time, createdAt time.Time, appetite int) (string, error) {
+func (m *ProjectModel) Insert(name string, startedAt time.Time, appetite int) (string, error) {
 	var id string
 	for {
 		id = NewID()
@@ -27,7 +27,7 @@ func (m *ProjectModel) Insert(name string, startedAt time.Time, createdAt time.T
 		}
 	}
 	stmt := `INSERT INTO projects (id, name, startedAt, createdAt, appetite) VALUES (?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, startedAt, createdAt, appetite)
+	_, err := m.DB.Exec(stmt, id, name, startedAt, time.Now(), appetite)
 	if err != nil {
 		return "", err
 	}
@@ -64,12 +64,11 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 	}
 
 	// Parse the datetime strings
-	layout := "2006-01-02 15:04:05" // Adjust the layout to match your datetime format
-	p.StartedAt, err = time.Parse(layout, startedAtStr)
+	p.StartedAt, err = time.Parse(DateLayout, startedAtStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse startedAt: %v", err)
 	}
-	p.CreatedAt, err = time.Parse(layout, createdAtStr)
+	p.CreatedAt, err = time.Parse(DateTimeLayout, createdAtStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse createdAt: %v", err)
 	}
