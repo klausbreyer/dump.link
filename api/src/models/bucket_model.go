@@ -22,7 +22,7 @@ type BucketModel struct {
 func (m *BucketModel) Insert(name string, done bool, dump bool, layer *int, flagged bool, projectID string) (string, error) {
 	var id string
 	for {
-		id = NewID()
+		id = NewID(projectID)
 		if !m.IDExists(id) {
 			break
 		}
