@@ -25,7 +25,7 @@ const Group: React.FC<GroupProps> = (props) => {
   return (
     <Container>
       <div className="grid grid-cols-3 gap-4 mb-10">
-        <div className="pr-4 border-r-2 border-slate-500">
+        <div className="">
           <Area bucket={dump} />
         </div>
         <div className="col-span-2">
