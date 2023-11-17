@@ -1,4 +1,4 @@
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import React, {
   ChangeEvent,
   KeyboardEvent,
@@ -135,7 +135,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   function handleBlur() {
-    setIsTextAreaFocused(false);
+    setTimeout(() => {
+      setIsTextAreaFocused(false);
+    }, 100);
     // If the task is a new entry and the value is empty, return early.
     if (task === null) {
       if (val.length === 0) return;
@@ -148,22 +150,15 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       }, 100);
       return;
     }
+  }
 
-    // If the value is empty, the task exists, and we haven't asked yet, ask for confirmation to delete.
-    if (val.trim() === "" && task && !askedToDelete) {
-      const isConfirmed = window.confirm(
-        "Are you sure you want to delete this task?",
-      );
-      if (isConfirmed) {
-        deleteTask(getBucketForTask(buckets, task)?.id || "", task.id);
-      } else {
-        // Mark that we've asked to delete, so we don't ask again.
-        setAskedToDelete(true);
-      }
-    } else {
-      // Otherwise, update the task and reset the askedToDelete flag.
-      updateTask(task.id, { title: val, closed: task?.closed === true });
-      setAskedToDelete(false);
+  function handleDelete() {
+    if (!task) return;
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this task?",
+    );
+    if (isConfirmed) {
+      deleteTask(getBucketForTask(buckets, task)?.id || "", task.id);
     }
   }
 
@@ -192,6 +187,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true;
+
+  const showCounter =
+    isTextAreaFocused &&
+    textAreaRef.current &&
+    textAreaRef.current.scrollHeight > 30;
+  const showDelete = isTextAreaFocused && task;
 
   const bucketTask = task && !bucket.dump;
   const bg = bucketTask
@@ -250,13 +251,20 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             rows={1}
             ref={textAreaRef}
           ></textarea>
-          <div
-            className={`absolute text-slate-800 text-xxs bottom-2 right-1 ${
-              isTextAreaFocused ? "block" : "hidden"
-            }`}
-          >
-            {val.length}/{config.TASK_MAX_LENGTH}
-          </div>
+          {showCounter && (
+            <div
+              className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
+            >
+              {val.length}/{config.TASK_MAX_LENGTH}
+            </div>
+          )}
+
+          {showDelete && (
+            <XMarkIcon
+              onClick={() => handleDelete()}
+              className={`absolute w-5 h-5 cursor-pointer text-slate-800 top-0.5 right-1`}
+            />
+          )}
         </div>
       </div>
     </div>
