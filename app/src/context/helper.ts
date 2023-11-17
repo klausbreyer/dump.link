@@ -316,3 +316,284 @@ export function getBucketState(bucket: Bucket): BucketState {
 export const sortTasksByPriority = (tasks: Task[]): Task[] => {
   return [...tasks].sort((a, b) => a.priority - b.priority);
 };
+
+export const getBucketsDependingOn = (
+  buckets: Bucket[],
+  dependencyId: BucketID,
+) => {
+  return buckets
+    .filter((bucket) => bucket.dependencies.includes(dependencyId))
+    .map((bucket) => bucket.id);
+};
+/**
+ * Returns a list of BucketID that can be associated with the given bucket.
+ *
+ * Specifically, the function filters out:
+ * 1. The bucket specified by `givenBucketId` itself.
+ * 2. Buckets that are direct dependencies of the bucket specified by `givenBucketId`.
+ * 3. Buckets that would create a cyclic dependency if associated with the bucket specified by `givenBucketId`.
+ *
+ * @param givenBucketId - The ID of the bucket for which to find available buckets.
+ * @returns A list of BucketID that can be associated with the given bucket.
+ */
+export const getBucketsAvailableFor = (
+  buckets: Bucket[],
+  givenBucketId: BucketID,
+): BucketID[] => {
+  return buckets
+    .filter(
+      (bucket) =>
+        bucket.id !== givenBucketId && // Exclude the given bucket itself
+        !bucket.dependencies.includes(givenBucketId) && // Exclude direct dependencies
+        !hasCyclicDependencyWithBucket(bucket, givenBucketId, buckets), // Exclude buckets that would result in a cyclic dependency
+    )
+    .map((bucket) => bucket.id); // Extract the bucket IDs
+};
+
+const getDependencyChainsForBucket = (
+  buckets: Bucket[],
+  bucketId: BucketID,
+): BucketID[][] => {
+  const bucket = buckets.find((b) => b.id === bucketId);
+  if (!bucket) return [];
+
+  // If the bucket has no dependencies, just return the bucket itself.
+  if (bucket.dependencies.length === 0) {
+    return [[bucketId]];
+  }
+
+  let chains: BucketID[][] = [];
+  for (const dependencyId of bucket.dependencies) {
+    const dependencyChains = getDependencyChainsForBucket(
+      buckets,
+      dependencyId,
+    );
+    for (const chain of dependencyChains) {
+      chains.push([bucketId, ...chain]);
+    }
+  }
+
+  return chains;
+};
+
+// This function retrieves all dependency chains for all buckets.
+export const getAllDependencyChains = (buckets: Bucket[]) => {
+  let allChains: BucketID[][] = [];
+
+  const others = getOtherBuckets(buckets);
+
+  for (const bucket of others) {
+    allChains = [
+      ...allChains,
+      ...getDependencyChainsForBucket(buckets, bucket.id),
+    ];
+  }
+
+  // Filter out sub-chains to retain only the longest unique paths.
+  return allChains
+    .filter(
+      (chain) =>
+        !allChains.some(
+          (otherChain) =>
+            otherChain.length > chain.length &&
+            JSON.stringify(otherChain.slice(-chain.length)) ===
+              JSON.stringify(chain),
+        ),
+    )
+    .filter((chain) => chain.length > 1);
+};
+
+export const getTaskType = (
+  buckets: Bucket[],
+  task: Task | null | undefined,
+) => {
+  if (!task) {
+    return "NO_OP";
+  }
+
+  const bucket = getBucketForTask(buckets, task);
+
+  if (!bucket) {
+    return "NO_OP";
+  }
+
+  if (bucket && task.closed) {
+    return getClosedBucketType(bucket.id);
+  }
+
+  return getOpenBucketType(bucket.id);
+};
+
+export const getBucketForTask = (buckets: Bucket[], task: Task) => {
+  return buckets.find((bucket) => bucket.tasks.some((bt) => bt.id === task.id));
+};
+
+export const getLayers = (buckets: Bucket[]): BucketID[][] => {
+  const chains = getAllDependencyChains(buckets);
+  if (chains.length === 0) {
+    return [];
+  }
+  // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
+  const layersMap: Map<number, BucketID[]> = new Map();
+
+  const ids = uniqueValues(chains);
+
+  // Process each id
+  ids.forEach((id) => {
+    const bucket = getBucket(buckets, id);
+    let index: number;
+
+    if (bucket?.layer !== undefined) {
+      // Use bucket.layer if set, otherwise use findSubarrayIndex
+      index = bucket.layer;
+    } else {
+      index = findLargestSubarrayIndex(chains, id);
+    }
+
+    // We save all the middle orphans for the last row. but not when it is from the longest chain, because it then will not create the last layer.
+
+    if (layersMap.has(index)) {
+      layersMap.get(index)!.push(id); // Add to the existing array
+    } else {
+      layersMap.set(index, [id]); // Create a new array with the id
+    }
+  });
+
+  // Convert the map to an array of arrays
+  const layersArray: BucketID[][] = [];
+  const keys = Array.from(layersMap.keys()).sort((a, b) => a - b); // Sorting the keys in ascending order
+
+  const minKey = keys[0];
+  const maxKey = keys[keys.length - 1];
+
+  for (let i = minKey; i <= maxKey; i++) {
+    if (layersMap.has(i)) {
+      layersArray.push(layersMap.get(i)!);
+    } else {
+      layersArray.push([]);
+    }
+  }
+
+  return layersArray;
+};
+
+export const getBucket = (buckets: Bucket[], bucketId: BucketID) => {
+  return buckets.find((bucket) => bucket.id === bucketId);
+};
+
+export const getLayerForBucketId = (
+  buckets: Bucket[],
+  bucketId: BucketID,
+): number => {
+  const layers = getLayers(buckets);
+
+  for (let i = 0; i < layers.length; i++) {
+    if (layers[i].includes(bucketId)) {
+      return i;
+    }
+  }
+
+  // Return -1 if the bucketId is not found in any layer
+  return -1;
+};
+
+export const getAllowedBucketsByLayer = (
+  buckets: Bucket[],
+  index: number | undefined,
+): BucketID[][] => {
+  // Immediate return if index is undefined or negative
+  if (index === undefined || index < 0) {
+    return [];
+  }
+
+  const MIN_LAYER = -1;
+  const MAX_LAYER = Number.MAX_SAFE_INTEGER;
+
+  const layersWithBucketIds = getLayers(buckets);
+  const lookup: Map<BucketID, [number, number]> = new Map();
+
+  // Pre-compute layer-to-bucketID mapping
+  const layerForBucketId: Map<BucketID, number> = new Map();
+  layersWithBucketIds.forEach((ids, layerIndex) => {
+    ids.forEach((id) => layerForBucketId.set(id, layerIndex));
+  });
+
+  for (const idsInLayer of layersWithBucketIds) {
+    for (const idInLayer of idsInLayer) {
+      const bucket = getBucket(buckets, idInLayer);
+      if (!bucket) continue;
+
+      const dependentOn = getBucketsDependingOn(buckets, idInLayer);
+      const dependencyFor = bucket.dependencies || [];
+
+      const dependentOnLayers = new Set<number>(
+        dependentOn
+          .map((id) => layerForBucketId.get(id))
+          .filter((layer): layer is number => layer !== undefined),
+      );
+
+      const dependencyForLayers = new Set<number>(
+        dependencyFor
+          .map((id) => layerForBucketId.get(id))
+          .filter((layer): layer is number => layer !== undefined),
+      );
+
+      const minLayer = dependentOnLayers.size
+        ? Math.max(...dependentOnLayers)
+        : MIN_LAYER;
+
+      const maxLayer = dependencyForLayers.size
+        ? Math.min(...dependencyForLayers)
+        : MAX_LAYER;
+
+      lookup.set(idInLayer, [minLayer, maxLayer]);
+    }
+  }
+
+  const getAllowedBucketsOnLayer = (
+    layerIndex: number,
+    others: Bucket[],
+  ): BucketID[] => {
+    return others
+      .map((bucket) => bucket.id)
+      .filter((id) => {
+        const [min, max] = lookup.get(id) || [MIN_LAYER, MAX_LAYER];
+        const currentLayer = layerForBucketId.get(id) || MIN_LAYER;
+        return (
+          currentLayer !== layerIndex && min < layerIndex && max > layerIndex
+        );
+      });
+  };
+
+  // Main logic
+  const allowedOnLayers: BucketID[][] = [];
+  const others = getOtherBuckets(buckets);
+  for (
+    let layerIndex = 0;
+    layerIndex < layersWithBucketIds.length;
+    layerIndex++
+  ) {
+    allowedOnLayers.push(getAllowedBucketsOnLayer(layerIndex, others));
+  }
+
+  return allowedOnLayers;
+};
+
+export const getTask = (buckets: Bucket[], taskId: TaskID) => {
+  for (const bucket of buckets) {
+    const task = bucket.tasks.find((t) => t.id === taskId);
+    if (task) return task;
+  }
+  return undefined;
+};
+
+export const getTaskIndex = (
+  buckets: Bucket[],
+  task: Task | null,
+): number | undefined => {
+  if (!task) return undefined;
+  const bucket = getBucketForTask(buckets, task);
+  if (!bucket) return undefined;
+
+  return bucket.tasks.findIndex((bt) => bt.id === task.id);
+};

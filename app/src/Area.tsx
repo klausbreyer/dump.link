@@ -3,7 +3,7 @@ import { useDrop } from "react-dnd";
 
 import CardList from "./common/CardList";
 import { useData } from "./context/data";
-import { getOpenBucketType } from "./context/helper";
+import { getBucketForTask, getOpenBucketType, getTask } from "./context/helper";
 import TaskItem from "./TaskItem";
 import { Bucket, DraggedTask, DropCollectedProps } from "./types";
 import Title from "./common/Title";
@@ -14,18 +14,19 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const { bucket } = props;
-  const { getBuckets, moveTask, getTask, getBucketForTask } = useData();
+  const { getBuckets, moveTask } = useData();
 
-  const allOtherBuckets = getBuckets().filter((b) => b.id !== bucket.id);
+  const buckets = getBuckets();
+  const allOtherBuckets = buckets.filter((b) => b.id !== bucket.id);
 
   const [collectedProps, dropRef] = useDrop(
     {
       accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
 
       drop: (item: DraggedTask) => {
-        const task = getTask(item.taskId);
+        const task = getTask(buckets, item.taskId);
         if (!task) return;
-        const fromBucketId = getBucketForTask(task)?.id || "";
+        const fromBucketId = getBucketForTask(buckets, task)?.id || "";
         if (fromBucketId !== bucket.id) {
           moveTask(bucket.id, task);
         }
@@ -37,9 +38,9 @@ const Area: React.FC<AreaProps> = (props) => {
     },
     [
       bucket,
+      buckets,
       allOtherBuckets,
       getOpenBucketType,
-      getTask,
       getBucketForTask,
       moveTask,
     ],

@@ -9,29 +9,29 @@ import {
   shortenLineEnd,
 } from "./common/coordinates";
 import { useData } from "./context/data";
-import { getAllPairs, uniqueValues } from "./context/helper";
+import {
+  getAllDependencyChains,
+  getAllPairs,
+  getBucket,
+  getLayers,
+  uniqueValues,
+} from "./context/helper";
 import { Bucket, BucketID, TabContext } from "./types";
 import Title from "./common/Title";
 
 interface ArrangeProps {}
 
 const Arrange: React.FC<ArrangeProps> = (props) => {
-  const {
-    getAllDependencyChains,
-    getBucket,
-    getBuckets,
-    getLayers,
-    resetLayersForAllBuckets,
-  } = useData();
+  const { getBuckets, resetLayersForAllBuckets } = useData();
 
   const buckets = getBuckets();
-  const chains = getAllDependencyChains();
-  const layers = getLayers();
+  const chains = getAllDependencyChains(buckets);
+  const layers = getLayers(buckets);
 
   const layersWithBuckets = layers.map((layer) =>
     layer
       .filter((id): id is BucketID => id !== null)
-      .map((id) => getBucket(id))
+      .map((id) => getBucket(buckets, id))
       .filter((bucket): bucket is Bucket => bucket !== undefined),
   );
 

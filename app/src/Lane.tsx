@@ -3,7 +3,10 @@ import { useDrop } from "react-dnd";
 
 import { useData } from "./context/data";
 import {
+  getAllDependencyChains,
+  getAllowedBucketsByLayer,
   getArrangeBucketType,
+  getBucket,
   getLastValues,
   getOtherBuckets,
 } from "./context/helper";
@@ -19,18 +22,12 @@ interface LaneProps extends React.HTMLProps<HTMLDivElement> {
 
 const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const {
-    getBucket,
-    getBuckets,
-    updateBucketLayer,
-    getAllDependencyChains,
-    getAllowedBucketsByLayer,
-  } = useData();
-  const buckets = getBuckets();
+  const { getBuckets, updateBucketLayer } = useData();
 
-  const chains = getAllDependencyChains();
+  const buckets = getBuckets();
+  const chains = getAllDependencyChains(buckets);
   const others = getOtherBuckets(buckets);
-  const allowedOnLayers = getAllowedBucketsByLayer(index);
+  const allowedOnLayers = getAllowedBucketsByLayer(buckets, index);
 
   const { globalDragging } = useGlobalDragging();
 
@@ -59,7 +56,7 @@ const Lane: React.FC<LaneProps> = (props) => {
       accept: getAccept(),
 
       drop: (item: DraggedBucket) => {
-        const bucket = getBucket(item.bucketId);
+        const bucket = getBucket(buckets, item.bucketId);
 
         if (!bucket) return;
         if (index === null || index === undefined) return;
@@ -71,7 +68,7 @@ const Lane: React.FC<LaneProps> = (props) => {
         canDrop: monitor.canDrop(),
       }),
     },
-    [others, index, updateBucketLayer, getAccept],
+    [others, index, buckets, updateBucketLayer, getAccept],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;

@@ -15,6 +15,7 @@ import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { isSafari } from "./common/helper";
 import { getInputBorderColor } from "./common/colors";
+import { getBucketForTask, getTaskIndex, getTaskType } from "./context/helper";
 
 interface TaskItemProps {
   task: Task | null;
@@ -27,14 +28,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const {
     addTask,
     updateTask,
-    getTaskType,
-    getTaskIndex,
-    getBucketForTask,
     deleteTask,
+    getBuckets,
     reorderTask,
     changeTaskState,
   } = useData();
 
+  const buckets = getBuckets();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
@@ -45,7 +45,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       addTask(bucket.id, { title: title, closed: false });
     }
     if (task) {
-      const bucket = getBucketForTask(task);
+      const bucket = getBucketForTask(buckets, task);
       if (!bucket) return;
       addTask(bucket.id, { title: title, closed: false });
     }
@@ -62,14 +62,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const [{ isDragging }, dragRef, previewRev] = useDrag(
     () => ({
-      type: getTaskType(task),
+      type: getTaskType(buckets, task),
       item: { taskId: task?.id },
       collect: (monitor) => ({
         isDragging: !!monitor.isDragging(),
       }),
       end: (item, monitor) => {
         const droppedId = item.taskId;
-        const overIndex = getTaskIndex(task);
+        const overIndex = getTaskIndex(buckets, task);
         const didDrop = monitor.didDrop();
 
         if (overIndex === undefined) return;
@@ -81,7 +81,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         }
       },
     }),
-    [reorderTask, task],
+    [reorderTask, task, buckets],
   );
 
   const { setGlobalDragging } = useGlobalDragging();
@@ -94,10 +94,10 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const [, dropRef] = useDrop(
     () => ({
-      accept: getTaskType(task),
+      accept: getTaskType(buckets, task),
       hover(item: DraggedTask) {
         const draggedId = item.taskId;
-        const overIndex = getTaskIndex(task);
+        const overIndex = getTaskIndex(buckets, task);
 
         // avoid flickering.
         if (overIndex === undefined) return;
@@ -106,7 +106,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         reorderTask(draggedId, overIndex);
       },
     }),
-    [reorderTask, task],
+    [reorderTask, task, buckets],
   );
 
   useEffect(() => {
@@ -155,7 +155,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         "Are you sure you want to delete this task?",
       );
       if (isConfirmed) {
-        deleteTask(getBucketForTask(task)?.id || "", task.id);
+        deleteTask(getBucketForTask(buckets, task)?.id || "", task.id);
       } else {
         // Mark that we've asked to delete, so we don't ask again.
         setAskedToDelete(true);

@@ -13,9 +13,11 @@ import CardList from "./common/CardList";
 import { getBucketBackgroundColorTop } from "./common/colors";
 import { useData } from "./context/data";
 import {
+  getBucketForTask,
   getBucketPercentage,
   getClosedBucketType,
   getOpenBucketType,
+  getTask,
   getTasksByClosed,
   sortTasksByPriority,
 } from "./context/helper";
@@ -36,18 +38,10 @@ interface BucketProps {
 
 const Bucket: React.FC<BucketProps> = (props) => {
   const { bucket } = props;
-  const {
-    moveTask,
-    updateTask,
-    getTask,
-    changeTaskState,
-    getBucketForTask,
-    getBuckets,
-  } = useData();
+  const { moveTask, updateTask, changeTaskState, getBuckets } = useData();
 
-  const allOtherBuckets = getBuckets().filter(
-    (b: Bucket) => b.id !== bucket.id,
-  );
+  const buckets = getBuckets();
+  const allOtherBuckets = buckets.filter((b: Bucket) => b.id !== bucket.id);
 
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
@@ -75,9 +69,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
         : allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
       drop: (item: DraggedTask) => {
         const taskId = item.taskId;
-        const task = getTask(taskId);
+        const task = getTask(buckets, taskId);
         if (!task) return;
-        const fromBucketId = getBucketForTask(task)?.id || "";
+        const fromBucketId = getBucketForTask(buckets, task)?.id || "";
         if (fromBucketId !== bucket.id) {
           updateTask(taskId, {
             title: task?.title || "",
@@ -96,8 +90,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
     [
       getOpenBucketType,
       getClosedBucketType,
-      getBucketForTask,
-      getTask,
+      buckets,
       updateTask,
       moveTask,
       changeTaskState,

@@ -13,7 +13,14 @@ import {
   getHoverBorderColor,
 } from "./common/colors";
 import { useData } from "./context/data";
-import { getArrangeBucketType, getSequenceBucketType } from "./context/helper";
+import {
+  getArrangeBucketType,
+  getBucket,
+  getBucketsAvailableFor,
+  getBucketsDependingOn,
+  getLayerForBucketId,
+  getSequenceBucketType,
+} from "./context/helper";
 import { useGlobalDragging } from "./hooks/useGlobalDragging";
 import {
   Bucket,
@@ -34,21 +41,15 @@ interface BoxProps {
 
 const Box: React.FC<BoxProps> = (props) => {
   const { bucket, context } = props;
-  const {
-    removeBucketDependency,
-    getBucket,
-    addBucketDependency,
-    getBucketsAvailableFor,
-    getLayerForBucketId,
-    getBucketsDependingOn,
-  } = useData();
+  const { removeBucketDependency, addBucketDependency, getBuckets } = useData();
 
-  const availbleIds = getBucketsAvailableFor(bucket.id);
-  const dependingIds = getBucketsDependingOn(bucket.id);
+  const buckets = getBuckets();
+  const availbleIds = getBucketsAvailableFor(buckets, bucket.id);
+  const dependingIds = getBucketsDependingOn(buckets, bucket.id);
 
-  const currentLayer = getLayerForBucketId(bucket.id);
+  const currentLayer = getLayerForBucketId(buckets, bucket.id);
   const dependenciesLayers = bucket.dependencies.map((id) => {
-    return getLayerForBucketId(id);
+    return getLayerForBucketId(buckets, id);
   });
 
   const isMovable: boolean = !dependenciesLayers.some((layer) => {
@@ -68,7 +69,7 @@ const Box: React.FC<BoxProps> = (props) => {
       accept: availbleIds.map((id) => getSequenceBucketType(id)),
 
       drop: (item: DraggedBucket) => {
-        const fromBucket = getBucket(item.bucketId);
+        const fromBucket = getBucket(buckets, item.bucketId);
         if (!fromBucket) return;
         addBucketDependency(fromBucket, bucket.id);
       },
@@ -77,7 +78,7 @@ const Box: React.FC<BoxProps> = (props) => {
         canDrop: monitor.canDrop(),
       }),
     },
-    [availbleIds, bucket, addBucketDependency, getSequenceBucketType],
+    [availbleIds, bucket, buckets, addBucketDependency, getSequenceBucketType],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
@@ -144,8 +145,8 @@ const Box: React.FC<BoxProps> = (props) => {
     context === TabContext.Sequence
       ? sequenceDragRef
       : context === TabContext.Arrange && isMovable
-      ? arrangeDragRef
-      : (x: any) => x;
+        ? arrangeDragRef
+        : (x: any) => x;
 
   const showUnavailable =
     globalDragging.type === DraggingType.SEQUENCE &&
@@ -185,7 +186,7 @@ const Box: React.FC<BoxProps> = (props) => {
                   key={id}
                   context={context}
                   callback={() => removeBucketDependency(id, bucket.id)}
-                  bucket={getBucket(id)}
+                  bucket={getBucket(buckets, id)}
                 />
               ))}
             {TabContext.Sequence === context && (
