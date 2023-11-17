@@ -97,7 +97,8 @@ const Lane: React.FC<LaneProps> = (props) => {
       >
         <div className="text-sm">Layer {index + 1}</div>
         <div
-          className={`flex flex-1 flex-wrap items-center justify-evenly gap-8 `}
+          className={`flex flex-1 flex-wrap items-center justify-evenly gap-8
+          ${index % 2 === 0 && "pl-10"}`}
         >
           {children}
         </div>
