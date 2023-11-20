@@ -31,7 +31,7 @@ const Area: React.FC<AreaProps> = (props) => {
       accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
 
       drop: (item: DraggedTask) => {
-        const task = getTask(tasksForbucket, item.taskId);
+        const task = getTask(tasks, item.taskId);
         if (!task) return;
         const fromBucketId = getBucketForTask(buckets, task)?.id || "";
         if (fromBucketId !== bucket.id) {

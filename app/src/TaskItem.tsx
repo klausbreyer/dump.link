@@ -146,7 +146,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   function handleBlur() {
     setTimeout(() => {
       setIsTextAreaFocused(false);
-    }, 100);
+    }, 200);
     // If the task is a new entry and the value is empty, return early.
     if (task === null) {
       if (val.length === 0) return;
@@ -162,6 +162,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   function handleDelete() {
+    console.log(task);
+
     if (!task) return;
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this task?",

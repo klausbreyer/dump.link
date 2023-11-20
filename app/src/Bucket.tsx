@@ -66,10 +66,15 @@ const Bucket: React.FC<BucketProps> = (props) => {
         : allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
       drop: (item: DraggedTask) => {
         const taskId = item.taskId;
-        const task = getTask(tasksForbucket, taskId);
+        const task = getTask(tasks, taskId);
+
+        console.log("dropped", tasksForbucket);
+
         if (!task) return;
         const fromBucketId = getBucketForTask(buckets, task)?.id || "";
         if (fromBucketId !== bucket.id) {
+          console.log("dropped into bucket", bucket.id, "from", fromBucketId);
+
           updateTask(taskId, {
             title: task?.title || "",
             closed: false,
