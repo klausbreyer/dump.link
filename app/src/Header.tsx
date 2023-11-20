@@ -8,7 +8,7 @@ import {
 } from "./common/colors";
 import config from "./config";
 import { useData } from "./context/data";
-import { getTasksByClosed } from "./context/helper";
+import { getTasksByClosed, getTasksForBucket } from "./context/helper";
 import { Bucket, TabContext } from "./types";
 import { isSafari } from "./common/helper";
 
@@ -19,38 +19,47 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { renameBucket, flagBucket, setBucketDone } = useData();
+  const { updateBucket, getTasks } = useData();
 
-  const open = getTasksByClosed(bucket, false);
+  const tasks = getTasks();
+  const tasksForbucket = getTasksForBucket(tasks, bucket.id);
+  const open = getTasksByClosed(tasksForbucket, false);
 
+  const [inputValue, setInputValue] = useState(bucket?.name);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     if (newValue.length <= config.BUCKET_MAX_LENGTH) {
-      renameBucket(bucket.id, newValue);
+      setInputValue(newValue);
     } else {
-      renameBucket(bucket.id, newValue.substring(0, config.BUCKET_MAX_LENGTH));
+      setInputValue(newValue.substring(0, config.BUCKET_MAX_LENGTH));
     }
   };
 
-  const handleClick = () => {
-    flagBucket(bucket.id, !bucket?.flagged);
+  const handleFlagClick = () => {
+    updateBucket(bucket.id, { flagged: !bucket?.flagged });
   };
-  function handleFocus() {
+
+  const handleCheckboxClick = () => {
+    updateBucket(bucket.id, { done: !bucket.done });
+  };
+
+  function handleInputFocus() {
     setIsTextAreaFocused(true);
   }
 
-  function handleBlur() {
+  function handleInputBlur() {
     setIsTextAreaFocused(false);
+    updateBucket(bucket.id, { name: inputValue });
   }
 
-  const bgTop = getBucketBackgroundColorTop(bucket);
+  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
   const inputBorder = getInputBorderColor(bucket);
 
-  const flaggedStyles = getBucketFlaggedStyle(bucket);
+  const flaggedStyles = getBucketFlaggedStyle(bucket, tasksForbucket);
 
-  const hasTasks = bucket.tasks.length > 0;
+  const hasTasks = tasksForbucket.length > 0;
   const showDone = hasTasks && open.length === 0;
 
   return (
@@ -59,14 +68,14 @@ const Header: React.FC<HeaderProps> = (props) => {
         <div className="relative w-full">
           <input
             type="text"
-            className={`w-full h-8  px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}
-            `}
+            className={`w-full h-8 px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}`}
             placeholder="Unnamed"
-            value={bucket?.name}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            onFocus={handleFocus}
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
+            onFocus={handleInputFocus}
           />
+
           <div
             className={`absolute text-slate-800 text-xxs bottom-1.5 right-2 ${
               isTextAreaFocused ? "block" : "hidden"
@@ -77,8 +86,11 @@ const Header: React.FC<HeaderProps> = (props) => {
         </div>
         {!showDone && context === TabContext.Group && (
           <>
-            <FlagButton onClick={handleClick} bucket={bucket} />
-            {/* {<StateSwitch bucket={bucket} />} */}
+            <FlagButton
+              tasks={tasksForbucket}
+              onClick={handleFlagClick}
+              bucket={bucket}
+            />
           </>
         )}
         {showDone && context === TabContext.Group && (
@@ -88,7 +100,7 @@ const Header: React.FC<HeaderProps> = (props) => {
             ring-2 ring-green-500
             ${isSafari() && "safari-only-checkbox-big"} `}
             checked={bucket.done || false}
-            onChange={() => setBucketDone(bucket.id, !bucket.done)}
+            onChange={handleCheckboxClick}
           />
         )}
       </div>

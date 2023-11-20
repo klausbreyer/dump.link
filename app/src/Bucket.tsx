@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
 
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import Header from "./Header";
 import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
@@ -14,19 +10,16 @@ import { getBucketBackgroundColorTop } from "./common/colors";
 import { useData } from "./context/data";
 import {
   getBucketForTask,
-  getBucketPercentage,
   getClosedBucketType,
   getOpenBucketType,
   getTask,
   getTasksByClosed,
+  getTasksForBucket,
   sortTasksByPriority,
 } from "./context/helper";
-import { useGlobalDragging } from "./context/dragging";
 import {
   Bucket,
-  BucketID,
   DraggedTask,
-  DraggingType,
   DropCollectedProps,
   TabContext,
   TaskID,
@@ -38,9 +31,12 @@ interface BucketProps {
 
 const Bucket: React.FC<BucketProps> = (props) => {
   const { bucket } = props;
-  const { moveTask, updateTask, changeTaskState, getBuckets } = useData();
+  const { updateTask, getTasks, moveTask, getBuckets } = useData();
 
   const buckets = getBuckets();
+
+  const tasks = getTasks();
+  const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const allOtherBuckets = buckets.filter((b: Bucket) => b.id !== bucket.id);
 
   // flag closed expansion
@@ -69,18 +65,19 @@ const Bucket: React.FC<BucketProps> = (props) => {
         : allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
       drop: (item: DraggedTask) => {
         const taskId = item.taskId;
-        const task = getTask(buckets, taskId);
+        const task = getTask(tasks, taskId);
+
+        console.log("dropped", tasksForbucket);
+
         if (!task) return;
         const fromBucketId = getBucketForTask(buckets, task)?.id || "";
-        if (fromBucketId !== bucket.id) {
-          updateTask(taskId, {
-            title: task?.title || "",
-            closed: false,
-          });
-          moveTask(bucket.id, task);
-        } else {
-          changeTaskState(bucket.id, taskId, false);
-        }
+        if (fromBucketId === bucket.id) return;
+
+        updateTask(taskId, {
+          title: task?.title || "",
+          closed: false,
+        });
+        moveTask(bucket.id, task);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
@@ -93,7 +90,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       buckets,
       updateTask,
       moveTask,
-      changeTaskState,
+      updateTask,
       bucket,
       allOtherBuckets,
     ],
@@ -101,17 +98,17 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
-  const open = sortTasksByPriority(getTasksByClosed(bucket, false));
-  const closed = sortTasksByPriority(getTasksByClosed(bucket, true));
+  const open = sortTasksByPriority(getTasksByClosed(tasksForbucket, false));
+  const closed = sortTasksByPriority(getTasksByClosed(tasksForbucket, true));
 
   const aboveFoldClosed = closed.filter((t) => recentlyDone.includes(t.id));
   const belowFoldClosed = closed.filter((t) => !recentlyDone.includes(t.id));
 
-  const bgTop = getBucketBackgroundColorTop(bucket);
+  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
 
   // const showCantDropWarning =
   //   globalDragging.type === DraggingType.TASK && bucket.done;
-  const showTasksAndBar = bucket.tasks.length > 0;
+  const showTasksAndBar = tasksForbucket.length > 0;
   const showFigured = showTasksAndBar && !bucket.done;
   const showDone = showTasksAndBar && bucket.done;
   const showDashed = canDrop && !isOver && !bucket.done;

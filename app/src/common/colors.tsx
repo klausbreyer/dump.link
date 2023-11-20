@@ -1,5 +1,5 @@
 import { getBucketState, getTasksByClosed } from "../context/helper";
-import { Bucket, BucketState } from "../types";
+import { Bucket, BucketState, Task } from "../types";
 
 // Separate function for flagged condition
 export function getFlaggedHeaderTextColor(): string {
@@ -16,19 +16,12 @@ export function getHoverBorderColor(bucket: Bucket): string {
 
 export function getHeaderTextColor(bucket: Bucket): string {
   return "text-slate-800";
-
-  // const statusToColor = {
-  //   [BucketState.UNSOLVED]: "text-orange-800",
-  //   [BucketState.SOLVED]: "text-yellow-800",
-  //   [BucketState.DONE]: "text-green-800",
-  //   [BucketState.EMPTY]: "text-slate-800",
-  //   [BucketState.INACTIVE]: "text-slate-800",
-  // };
-
-  // return statusToColor[getBucketState(bucket)];
 }
 
-export function getBucketBackgroundColorTop(bucket: Bucket): string {
+export function getBucketBackgroundColorTop(
+  bucket: Bucket,
+  tasks: Task[],
+): string {
   const statusToColor = {
     [BucketState.UNSOLVED]: "bg-slate-200",
     [BucketState.SOLVED]: "bg-slate-200",
@@ -37,10 +30,10 @@ export function getBucketBackgroundColorTop(bucket: Bucket): string {
     [BucketState.INACTIVE]: "bg-slate-200",
   };
 
-  return statusToColor[getBucketState(bucket)];
+  return statusToColor[getBucketState(bucket, tasks)];
 }
 
-export function getFlagButtonBackground(bucket: Bucket): string {
+export function getFlagButtonBackground(bucket: Bucket, tasks: Task[]): string {
   const slate = "bg-slate-400 hover:bg-slate-500 focus:bg-slate-500";
   const statusToColor = {
     [BucketState.UNSOLVED]: slate,
@@ -51,11 +44,11 @@ export function getFlagButtonBackground(bucket: Bucket): string {
       "bg-slate-200 hover:bg-slate-300 focus:bg-slate-300",
   };
 
-  return statusToColor[getBucketState(bucket)];
+  return statusToColor[getBucketState(bucket, tasks)];
 }
 
-export function getBucketFlaggedStyle(bucket: Bucket): string {
-  const open = getTasksByClosed(bucket, false);
+export function getBucketFlaggedStyle(bucket: Bucket, tasks: Task[]): string {
+  const open = getTasksByClosed(tasks, false);
   if (bucket.flagged && open.length > 0) {
     return " bg-rose-500 ";
   }
