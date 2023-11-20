@@ -1,8 +1,9 @@
 CREATE TABLE `projects` (
-            `id` VARCHAR(11) NOT NULL,
-            `name` VARCHAR(255) NOT NULL,
-            `startedAt` DATE NOT NULL,
-            `createdAt` DATETIME NOT NULL,
-            `appetite` INT NOT NULL,
-            PRIMARY KEY (`id`)
-        );
+    `id` VARCHAR(11) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `started_at` DATE NOT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `appetite` INT NOT NULL,
+    PRIMARY KEY (`id`)
+);

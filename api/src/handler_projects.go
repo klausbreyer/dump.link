@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"dump.link/src/models"
-	"github.com/julienschmidt/httprouter"
 )
 
 const DEFAULT_PROJECT_APPETITE = 6
@@ -14,10 +13,10 @@ const DEFAULT_TASK_NAME = "Your first task"
 
 func (app *application) initProject(w http.ResponseWriter, r *http.Request) string {
 	name := ProjectName()
-	startedAt := time.Now()
+	started_at := time.Now()
 	appetite := DEFAULT_PROJECT_APPETITE
 
-	projectId, err := app.projects.Insert(name, startedAt, appetite)
+	projectId, err := app.projects.Insert(name, started_at, appetite)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return ""
@@ -47,12 +46,8 @@ func (app *application) initProject(w http.ResponseWriter, r *http.Request) stri
 }
 
 func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
-	params := httprouter.ParamsFromContext(r.Context())
-	projectId := params.ByName("projectId")
-
-	idExists := app.projects.IDExists(projectId)
-	if !idExists {
-		app.notFoundResponse(w, r)
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
 		return
 	}
 

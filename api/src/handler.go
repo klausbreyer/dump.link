@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
@@ -74,4 +76,29 @@ func findFiles(dir string) (jsFile, cssFile string, err error) {
 	})
 
 	return jsFile, cssFile, err
+}
+
+func (app *application) getAndValidateID(w http.ResponseWriter, r *http.Request, idParamName string) (string, bool) {
+	params := httprouter.ParamsFromContext(r.Context())
+	id := params.ByName(idParamName)
+
+	if !app.idExists(idParamName, id) {
+		app.notFoundResponse(w, r)
+		return "", false
+	}
+
+	return id, true
+}
+
+func (app *application) idExists(idType string, id string) bool {
+	switch idType {
+	case "projectId":
+		return app.projects.IDExists(id)
+	case "taskId":
+		return app.tasks.IDExists(id)
+	case "bucketId":
+		return app.buckets.IDExists(id)
+	default:
+		return false
+	}
 }

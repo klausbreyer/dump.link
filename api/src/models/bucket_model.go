@@ -3,16 +3,19 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 type Bucket struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Done      bool   `json:"done"`
-	Dump      bool   `json:"dump"`
-	Layer     *int   `json:"layer"`
-	Flagged   bool   `json:"flagged"`
-	ProjectID string `json:"projectId"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Done      bool      `json:"done"`
+	Dump      bool      `json:"dump"`
+	Layer     *int      `json:"layer"`
+	Flagged   bool      `json:"flagged"`
+	ProjectID string    `json:"projectId"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type BucketModel struct {

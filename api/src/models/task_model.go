@@ -3,14 +3,17 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 type Task struct {
-	ID       string  `json:"id"`
-	Title    string  `json:"title"`
-	Closed   bool    `json:"closed"`
-	BucketID string  `json:"bucketId"`
-	Priority float64 `json:"priority"`
+	ID        string    `json:"id"`
+	Title     string    `json:"title"`
+	Closed    bool      `json:"closed"`
+	BucketID  string    `json:"bucketId"`
+	Priority  float64   `json:"priority"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type TaskModel struct {
