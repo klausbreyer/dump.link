@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -92,6 +93,27 @@ func (m *TaskModel) Delete(taskId string) error {
 	stmt := `DELETE FROM tasks WHERE id = ?`
 
 	_, err := m.DB.Exec(stmt, taskId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TaskModel) Update(taskId string, updates map[string]interface{}) error {
+	// Build the SQL query dynamically based on the updates map
+	queryParts := []string{}
+	args := []interface{}{}
+
+	for key, value := range updates {
+		queryParts = append(queryParts, fmt.Sprintf("%s = ?", key))
+		args = append(args, value)
+	}
+
+	sql := fmt.Sprintf("UPDATE tasks SET %s WHERE id = ?", strings.Join(queryParts, ", "))
+	args = append(args, taskId)
+
+	_, err := m.DB.Exec(sql, args...)
 	if err != nil {
 		return err
 	}

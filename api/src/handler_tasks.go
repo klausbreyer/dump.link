@@ -38,8 +38,14 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	task, err := app.tasks.Get(newTaskID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	data := envelope{
-		"taskId": newTaskID,
+		"task": task,
 	}
 
 	app.writeJSON(w, http.StatusCreated, data, nil)
@@ -69,14 +75,58 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusOK, data, nil)
 }
 
-func (app *application) ApiMoveTask(w http.ResponseWriter, r *http.Request) {
-}
+func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
+	taskId, valid := app.getAndValidateID(w, r, "taskId")
+	if !valid {
+		return
+	}
 
-func (app *application) ApiChangeTaskState(w http.ResponseWriter, r *http.Request) {
-}
+	if !app.tasks.IDExists(taskId) {
+		app.notFoundResponse(w, r)
+		return
+	}
 
-func (app *application) ApiUpdateTask(w http.ResponseWriter, r *http.Request) {
-}
+	var input struct {
+		BucketID *string  `json:"bucketId,omitempty"`
+		Closed   *bool    `json:"closed,omitempty"`
+		Title    *string  `json:"title,omitempty"`
+		Priority *float64 `json:"priority,omitempty"`
+	}
 
-func (app *application) ApiReorderTask(w http.ResponseWriter, r *http.Request) {
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	updates := make(envelope)
+	if input.BucketID != nil {
+		if !app.buckets.IDExists(*input.BucketID) {
+			app.notFoundResponse(w, r)
+			return
+		}
+		updates["bucket_id"] = *input.BucketID
+	}
+	if input.Closed != nil {
+		updates["closed"] = *input.Closed
+	}
+	if input.Title != nil {
+		updates["title"] = *input.Title
+	}
+	if input.Priority != nil {
+		updates["priority"] = *input.Priority
+	}
+
+	if len(updates) == 0 {
+		app.badRequestResponse(w, r, fmt.Errorf("no updates provided"))
+		return
+	}
+
+	err = app.tasks.Update(taskId, updates)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, updates, nil)
 }

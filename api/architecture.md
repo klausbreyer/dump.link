@@ -1,0 +1,1 @@
+When designing api responses, keep in mind that we also want to send them as incremental updates to all of the other clients via websocket. So think of: What do the others need to know? It should not be too much (only the field, if just the field updated). But it also needs sometimes more context(the full object, when a task was created)

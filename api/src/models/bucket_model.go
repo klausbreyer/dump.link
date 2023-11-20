@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -91,4 +92,24 @@ func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
 	}
 
 	return buckets, nil
+}
+
+func (m *BucketModel) Update(bucketId string, updates map[string]interface{}) error {
+	queryParts := []string{}
+	args := []interface{}{}
+
+	for key, value := range updates {
+		queryParts = append(queryParts, fmt.Sprintf("%s = ?", key))
+		args = append(args, value)
+	}
+
+	sql := fmt.Sprintf("UPDATE buckets SET %s WHERE id = ?", strings.Join(queryParts, ", "))
+	args = append(args, bucketId)
+
+	_, err := m.DB.Exec(sql, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
