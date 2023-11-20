@@ -122,42 +122,39 @@ const Sequence: React.FC<SequenceProps> = (props) => {
       <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
-            buckets.map((bucket) =>
-              dependencies.map((dependency, index) => {
-                if (
-                  !boxRefs?.current[bucket.id]?.current ||
-                  !boxRefs?.current[dependency.dependencyId]?.current
-                ) {
-                  return null;
-                }
+            dependencies.map((dependency, index) => {
+              if (
+                !boxRefs?.current[dependency.bucketId]?.current ||
+                !boxRefs?.current[dependency.dependencyId]?.current
+              ) {
+                return null;
+              }
 
-                const fromRect =
-                  boxRefs.current[bucket.id].current!.getBoundingClientRect();
-                const toRect =
-                  boxRefs.current[
-                    dependency.dependencyId
-                  ].current!.getBoundingClientRect();
-                const { from, to } = getBorderCenterCoordinates(
-                  fromRect,
-                  toRect,
-                );
-                const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
+              const fromRect =
+                boxRefs.current[
+                  dependency.bucketId
+                ].current!.getBoundingClientRect();
+              const toRect =
+                boxRefs.current[
+                  dependency.dependencyId
+                ].current!.getBoundingClientRect();
+              const { from, to } = getBorderCenterCoordinates(fromRect, toRect);
+              const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
 
-                return (
-                  <g key={index}>
-                    <line
-                      x1={from.x}
-                      y1={from.y}
-                      x2={shortenedTo.x}
-                      y2={shortenedTo.y}
-                      stroke="black"
-                      strokeWidth="2"
-                      markerEnd="url(#smallArrowhead)"
-                    />
-                  </g>
-                );
-              }),
-            )}
+              return (
+                <g key={index}>
+                  <line
+                    x1={from.x}
+                    y1={from.y}
+                    x2={shortenedTo.x}
+                    y2={shortenedTo.y}
+                    stroke="black"
+                    strokeWidth="2"
+                    markerEnd="url(#smallArrowhead)"
+                  />
+                </g>
+              );
+            })}
 
           <defs>
             <marker
