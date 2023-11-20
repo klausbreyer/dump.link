@@ -9,8 +9,12 @@ import {
   Task,
   TaskID,
 } from "../types";
-import { apiGetProject, apiPostTask } from "./calls";
-import { extractIdFromUrl, hasCyclicDependencyWithBucket } from "./helper";
+import { apiDeleteTask, apiGetProject, apiPostTask } from "./calls";
+import {
+  PRIORITY_INCREMENT,
+  extractIdFromUrl,
+  hasCyclicDependencyWithBucket,
+} from "./helper";
 import { LifecycleState, useLifecycle } from "./lifecycle";
 
 const initialState: State = {
@@ -77,7 +81,6 @@ type ActionType =
     }
   | {
       type: "DELETE_TASK";
-      bucketId: BucketID;
       taskId: TaskID;
     }
   | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" };
@@ -206,8 +209,9 @@ const dataReducer = (state: State, action: ActionType): State => {
         // If moving to the end, set priority greater than the last task's priority
         newPriority =
           tasksInSameBucket.length > 0
-            ? tasksInSameBucket[tasksInSameBucket.length - 1].priority + 100000
-            : 100000;
+            ? tasksInSameBucket[tasksInSameBucket.length - 1].priority +
+              PRIORITY_INCREMENT
+            : PRIORITY_INCREMENT;
       } else {
         // Otherwise, set priority as the average of the before and after tasks
         const beforePriority = tasksInSameBucket[newPosition - 1].priority;
@@ -249,7 +253,7 @@ const dataReducer = (state: State, action: ActionType): State => {
 
       // Update the task with the new bucketId and priority
       taskToMove.bucketId = toBucketId;
-      taskToMove.priority = highestPriority + 100000;
+      taskToMove.priority = highestPriority + PRIORITY_INCREMENT;
 
       // Update the tasks array in the state
       let updatedTasks = [...state.tasks];
@@ -340,8 +344,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setLifecycle(LifecycleState.Loaded);
   }, [state.project.id]);
 
-  const addTask = (projectId: string, task: Task) => {
-    apiPostTask(projectId, task).then((newTask) => {
+  const addTask = (task: Task) => {
+    apiPostTask(state.project.id, task).then((newTask) => {
       if (!newTask) {
         console.error("Error while adding the task");
         return;
@@ -443,11 +447,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const deleteTask = (bucketId: BucketID, taskId: TaskID) => {
-    dispatch({
-      type: "DELETE_TASK",
-      bucketId,
-      taskId,
+  const deleteTask = (taskId: TaskID) => {
+    apiDeleteTask(state.project.id, taskId).then((success) => {
+      if (success) {
+        dispatch({
+          type: "DELETE_TASK",
+          taskId: taskId,
+        });
+      }
     });
   };
 
@@ -487,8 +494,8 @@ type DataContextType = {
   state: State;
 
   getTasks: () => Task[];
-  addTask: (bucketId: BucketID, task: Task) => void;
-  deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
+  addTask: (task: Task) => void;
+  deleteTask: (taskId: TaskID) => void;
   updateTask: (
     taskId: TaskID,
     updates: {

@@ -9,6 +9,8 @@ import {
 
 const crypto = window.crypto || (window as any).msCrypto;
 
+export const PRIORITY_INCREMENT = 100000;
+
 export const extractIdFromUrl = () => {
   const url = window.location.pathname;
   const parts = url.split("/");

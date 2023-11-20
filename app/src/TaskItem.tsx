@@ -15,8 +15,8 @@ import { useData } from "./context/data";
 import { useGlobalDragging } from "./context/dragging";
 import {
   NewID,
+  PRIORITY_INCREMENT,
   calculateHighestPriority,
-  getBucketForTask,
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
@@ -53,9 +53,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   usePasteListener(textAreaRef, (title: string) => {
     title = title.substring(0, config.TASK_MAX_LENGTH);
 
-    addTask(project.id, {
+    addTask({
       id: NewID(project.id),
-      priority: calculateHighestPriority(tasksForbucket),
+      priority: calculateHighestPriority(tasksForbucket) + PRIORITY_INCREMENT,
       title: val,
       closed: false,
       bucketId: bucket.id,
@@ -152,9 +152,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     // For a new task
     if (task === null) {
       if (val.length === 0) return;
-      addTask(project.id, {
+      addTask({
         id: NewID(project.id),
-        priority: calculateHighestPriority(tasksForbucket),
+        priority: calculateHighestPriority(tasksForbucket) + PRIORITY_INCREMENT,
         title: val,
         closed: false,
         bucketId: bucket.id,
@@ -180,7 +180,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       "Are you sure you want to delete this task?",
     );
     if (isConfirmed) {
-      deleteTask(getBucketForTask(buckets, task)?.id || "", task.id);
+      deleteTask(task.id);
     }
   }
 

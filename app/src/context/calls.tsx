@@ -86,9 +86,31 @@ export const apiPostTask = async (
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const newTask: Task = await response.json();
-    return newTask;
+    const json = await response.json();
+    return json.task;
   } catch (error) {
     throw error;
+  }
+};
+export const apiDeleteTask = async (
+  projectId: string,
+  taskId: string,
+): Promise<boolean> => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/v1/projects/${projectId}/tasks/${taskId}`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return true; // Erfolgreiches Löschen
+  } catch (error) {
+    console.error("Error while deleting the task:", error);
+    return false; // Fehler beim Löschen
   }
 };

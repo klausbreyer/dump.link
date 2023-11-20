@@ -12,9 +12,10 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
-		Id       string `json:"id"`
-		BucketID string `json:"bucketId"`
-		Title    string `json:"title"`
+		Id       string  `json:"id"`
+		BucketID string  `json:"bucketId"`
+		Title    string  `json:"title"`
+		Priority float64 `json:"priority"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -32,7 +33,7 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newTaskID, err := app.tasks.Insert(input.Id, input.Title, false, input.BucketID, DEFAULT_TASK_PRIORITY, projectId)
+	newTaskID, err := app.tasks.Insert(input.Id, input.Title, false, input.BucketID, input.Priority, projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
