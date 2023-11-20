@@ -22,6 +22,7 @@ import {
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
+  sortTasksByPriority,
 } from "./context/helper";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
@@ -43,6 +44,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const project = getProject();
   const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
+  const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
@@ -52,7 +54,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
     addTask({
       id: NewID(project.id),
-      priority: calculateHighestPriority(tasksForbucket) + PRIORITY_INCREMENT,
+      priority:
+        calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
       title: val,
       closed: false,
       bucketId: bucket.id,
@@ -83,18 +86,18 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         });
         setTemporaryPriority({ priority: 0, taskId: "" });
 
-        const droppedId = item.taskId;
-        const overIndex = getTaskIndex(tasksForbucket, task);
-        const didDrop = monitor.didDrop();
-        if (overIndex === undefined) return;
-        if (droppedId === undefined) return;
-        if (droppedId === task?.id) return;
-        if (!didDrop) {
-          // reorderTask(droppedId, overIndex);
-        }
+        // const droppedId = item.taskId;
+        // const overIndex = getTaskIndex(sortedTasksForBucket, task);
+        // const didDrop = monitor.didDrop();
+        // if (overIndex === undefined) return;
+        // if (droppedId === undefined) return;
+        // if (droppedId === task?.id) return;
+        // if (!didDrop) {
+        // reorderTask(droppedId, overIndex);
+        // }
       },
     }),
-    [task, buckets, tasksForbucket, updateTask, setTemporaryPriority],
+    [task, buckets, sortedTasksForBucket, updateTask, setTemporaryPriority],
   );
 
   useEffect(() => {
@@ -110,11 +113,16 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       hover: (item, monitor) => {
         const draggedId = item.taskId;
 
-        const draggedTask = getTask(tasksForbucket, draggedId);
+        const draggedTask = getTask(sortedTasksForBucket, draggedId);
 
         const overtask = task;
+        const overIndex = getTaskIndex(sortedTasksForBucket, overtask.id);
+        const beforeIndex = overIndex - 1;
+        const beforeTask = sortedTasksForBucket[beforeIndex];
 
-        const newPriority = overtask?.priority - 1;
+        const newPriority = Math.round(
+          (overtask?.priority + beforeTask?.priority) / 2,
+        );
 
         console.dir(newPriority);
 
@@ -126,7 +134,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     [
       task,
       buckets,
-      tasksForbucket,
+      sortedTasksForBucket,
       getTaskIndex,
       getTask,
       calculateNewPriority,
@@ -168,7 +176,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       if (val.length === 0) return;
       addTask({
         id: NewID(project.id),
-        priority: calculateHighestPriority(tasksForbucket) + PRIORITY_INCREMENT,
+        priority:
+          calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
         title: val,
         closed: false,
         bucketId: bucket.id,

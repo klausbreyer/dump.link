@@ -629,3 +629,7 @@ export function calculateHighestPriority(tasks: Task[]) {
   });
   return highestPriority;
 }
+
+export const sortTasksByPriority = (tasks: Task[]): Task[] => {
+  return [...tasks].sort((a, b) => a.priority - b.priority);
+};
