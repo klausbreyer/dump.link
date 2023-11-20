@@ -39,6 +39,16 @@ type ActionType =
       taskId: TaskID;
     }
   | {
+      type: "UPDATE_BUCKET";
+      bucketId: BucketID;
+      updates: {
+        name?: string;
+        layer?: number;
+        flagged?: boolean;
+        done?: boolean;
+      };
+    }
+  | {
       type: "CHANGE_TASK_STATE";
       bucketId: BucketID;
       taskId: TaskID;
@@ -47,22 +57,15 @@ type ActionType =
   | {
       type: "UPDATE_TASK";
       taskId: TaskID;
-      updatedTask: Partial<Omit<Task, "id" | "priority" | "bucketId">>;
+      updates: {
+        closed?: boolean;
+        title?: string;
+      };
     }
   | {
       type: "REORDER_TASK";
       movingTaskId: TaskID;
       newPosition: number;
-    }
-  | {
-      type: "RENAME_BUCKET";
-      bucketId: BucketID;
-      newName: string;
-    }
-  | {
-      type: "FLAG_BUCKET";
-      bucketId: BucketID;
-      flag: boolean;
     }
   | {
       type: "ADD_BUCKET_DEPENDENCY";
@@ -75,19 +78,9 @@ type ActionType =
       dependencyId: BucketID;
     }
   | {
-      type: "UPDATE_BUCKET_LAYER";
-      bucketId: BucketID;
-      newLayer: number;
-    }
-  | {
       type: "DELETE_TASK";
       bucketId: BucketID;
       taskId: TaskID;
-    }
-  | {
-      type: "SET_BUCKET_DONE";
-      bucketId: BucketID;
-      done: boolean;
     }
   | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" };
 
@@ -157,13 +150,16 @@ const dataReducer = (state: State, action: ActionType): State => {
     }
 
     case "UPDATE_TASK": {
-      const { taskId, updatedTask } = action;
+      const { taskId, updates } = action;
 
       // Map through the tasks array to find and update the specific task
       const updatedTasks = state.tasks.map((task) => {
         if (task.id === taskId) {
-          // Create a new task object with the updated properties
-          return { ...task, ...updatedTask };
+          return {
+            ...task,
+            ...(updates.closed !== undefined && { closed: updates.closed }),
+            ...(updates.title !== undefined && { title: updates.title }),
+          };
         }
         return task;
       });
@@ -171,6 +167,31 @@ const dataReducer = (state: State, action: ActionType): State => {
       return {
         ...state,
         tasks: updatedTasks,
+      };
+    }
+
+    case "UPDATE_BUCKET": {
+      const { bucketId, updates } = action;
+
+      // Map through the buckets array to find and update the specific bucket
+      const updatedBuckets = state.buckets.map((bucket) => {
+        if (bucket.id === bucketId) {
+          return {
+            ...bucket,
+            ...(updates.name !== undefined && { name: updates.name }),
+            ...(updates.layer !== undefined && { layer: updates.layer }),
+            ...(updates.flagged !== undefined && {
+              flagged: updates.flagged,
+            }),
+            ...(updates.done !== undefined && { done: updates.done }),
+          };
+        }
+        return bucket;
+      });
+
+      return {
+        ...state,
+        buckets: updatedBuckets,
       };
     }
 
@@ -256,25 +277,6 @@ const dataReducer = (state: State, action: ActionType): State => {
       return { ...state, tasks: updatedTasks };
     }
 
-    case "RENAME_BUCKET": {
-      const { bucketId, newName } = action;
-
-      const updatedBuckets = state.buckets.map((bucket) =>
-        bucket.id === bucketId ? { ...bucket, name: newName } : bucket,
-      );
-
-      return { ...state, buckets: updatedBuckets };
-    }
-
-    case "FLAG_BUCKET": {
-      const { bucketId, flag } = action;
-
-      const updatedBuckets = state.buckets.map((bucket) =>
-        bucket.id === bucketId ? { ...bucket, flagged: flag } : bucket,
-      );
-
-      return { ...state, buckets: updatedBuckets };
-    }
     case "ADD_BUCKET_DEPENDENCY": {
       const { bucketId, dependencyId } = action;
 
@@ -318,27 +320,6 @@ const dataReducer = (state: State, action: ActionType): State => {
         dependencies: updatedDependencies,
       };
     }
-
-    case "UPDATE_BUCKET_LAYER": {
-      const { bucketId, newLayer } = action;
-
-      const updatedBuckets = state.buckets.map((bucket) =>
-        bucket.id === bucketId ? { ...bucket, layer: newLayer } : bucket,
-      );
-
-      return { ...state, buckets: updatedBuckets };
-    }
-
-    case "SET_BUCKET_DONE": {
-      const { bucketId, done } = action;
-
-      const updatedBuckets = state.buckets.map((bucket) =>
-        bucket.id === bucketId ? { ...bucket, done: done } : bucket,
-      );
-
-      return { ...state, buckets: updatedBuckets };
-    }
-
     case "RESET_LAYERS_FOR_ALL_BUCKETS": {
       const updatedBuckets = state.buckets.map((bucket) => ({
         ...bucket,
@@ -399,12 +380,16 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const updateTask = (
     taskId: TaskID,
-    updatedTask: Partial<Omit<Task, "id" | "priority" | "bucketId">>,
+    updates: {
+      closed?: boolean;
+      title?: string;
+      bucketId?: BucketID;
+    },
   ) => {
     dispatch({
       type: "UPDATE_TASK",
       taskId: taskId,
-      updatedTask: updatedTask,
+      updates: updates,
     });
   };
 
@@ -413,22 +398,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       type: "REORDER_TASK",
       movingTaskId,
       newPosition,
-    });
-  };
-
-  const renameBucket = (bucketId: BucketID, newName: string) => {
-    dispatch({
-      type: "RENAME_BUCKET",
-      bucketId,
-      newName,
-    });
-  };
-
-  const flagBucket = (bucketId: BucketID, flag: boolean) => {
-    dispatch({
-      type: "FLAG_BUCKET",
-      bucketId,
-      flag,
     });
   };
 
@@ -471,19 +440,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const updateBucketLayer = (bucketId: BucketID, newLayer: number) => {
+  const updateBucket = (
+    bucketId: BucketID,
+    updates: {
+      name?: string;
+      layer?: number;
+      flagged?: boolean;
+      done?: boolean;
+    },
+  ) => {
     dispatch({
-      type: "UPDATE_BUCKET_LAYER",
-      bucketId,
-      newLayer,
-    });
-  };
-
-  const setBucketDone = (bucketId: BucketID, done: boolean) => {
-    dispatch({
-      type: "SET_BUCKET_DONE",
+      type: "UPDATE_BUCKET",
       bucketId: bucketId,
-      done: done,
+      updates: updates,
     });
   };
 
@@ -514,14 +483,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         moveTask,
         updateTask,
         reorderTask,
-        renameBucket,
-        flagBucket,
-        updateBucketLayer,
         resetLayersForAllBuckets,
         getBuckets,
         addBucketDependency,
         removeBucketDependency,
-        setBucketDone,
+        updateBucket,
       }}
     >
       {children}
@@ -540,20 +506,28 @@ type DataContextType = {
   deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
   updateTask: (
     taskId: TaskID,
-    updatedTask: Partial<Omit<Task, "id" | "priority" | "bucketId">>,
+    updates: {
+      closed?: boolean;
+      title?: string;
+    },
   ) => void;
   reorderTask: (movingTaskId: TaskID, newPosition: number) => void;
   moveTask: (toBucketId: BucketID, task: Task) => void;
 
+  getBuckets: () => Bucket[];
+  updateBucket: (
+    bucketId: BucketID,
+    updates: {
+      name?: string;
+      layer?: number;
+      flagged?: boolean;
+      done?: boolean;
+    },
+  ) => void;
+
   getDependencies: () => Dependency[];
   addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
-
-  getBuckets: () => Bucket[];
-  updateBucketLayer: (bucketId: BucketID, newLayer: number) => void;
-  renameBucket: (bucketId: BucketID, newName: string) => void;
-  flagBucket: (bucketId: BucketID, flag: boolean) => void;
-  setBucketDone: (bucketId: BucketID, done: boolean) => void;
 
   resetLayersForAllBuckets: () => void;
 };

@@ -22,7 +22,7 @@ interface LaneProps extends React.HTMLProps<HTMLDivElement> {
 
 const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const { getBuckets, getDependencies, updateBucketLayer } = useData();
+  const { getBuckets, getDependencies, updateBucket } = useData();
 
   const buckets = getBuckets();
   const dependencies = getDependencies();
@@ -66,14 +66,14 @@ const Lane: React.FC<LaneProps> = (props) => {
         if (!bucket) return;
         if (index === null || index === undefined) return;
 
-        updateBucketLayer(bucket.id, index);
+        updateBucket(bucket.id, { layer: index });
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
     },
-    [others, index, buckets, updateBucketLayer, getAccept],
+    [others, index, buckets, updateBucket, getAccept],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;

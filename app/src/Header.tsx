@@ -19,7 +19,7 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { renameBucket, getTasks, flagBucket, setBucketDone } = useData();
+  const { updateBucket, getTasks } = useData();
 
   const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = (props) => {
   const [inputValue, setInputValue] = useState(bucket?.name);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     if (newValue.length <= config.BUCKET_MAX_LENGTH) {
       setInputValue(newValue);
@@ -37,16 +37,21 @@ const Header: React.FC<HeaderProps> = (props) => {
     }
   };
 
-  const handleClick = () => {
-    flagBucket(bucket.id, !bucket?.flagged);
+  const handleFlagClick = () => {
+    updateBucket(bucket.id, { flagged: !bucket?.flagged });
   };
-  function handleFocus() {
+
+  const handleCheckboxClick = () => {
+    updateBucket(bucket.id, { done: !bucket.done });
+  };
+
+  function handleInputFocus() {
     setIsTextAreaFocused(true);
   }
 
-  function handleBlur() {
+  function handleInputBlur() {
     setIsTextAreaFocused(false);
-    renameBucket(bucket.id, inputValue);
+    updateBucket(bucket.id, { name: inputValue });
   }
 
   const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
@@ -66,9 +71,9 @@ const Header: React.FC<HeaderProps> = (props) => {
             className={`w-full h-8 px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}`}
             placeholder="Unnamed"
             value={inputValue}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            onFocus={handleFocus}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
+            onFocus={handleInputFocus}
           />
 
           <div
@@ -83,7 +88,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           <>
             <FlagButton
               tasks={tasksForbucket}
-              onClick={handleClick}
+              onClick={handleFlagClick}
               bucket={bucket}
             />
           </>
@@ -95,7 +100,7 @@ const Header: React.FC<HeaderProps> = (props) => {
             ring-2 ring-green-500
             ${isSafari() && "safari-only-checkbox-big"} `}
             checked={bucket.done || false}
-            onChange={() => setBucketDone(bucket.id, !bucket.done)}
+            onChange={handleCheckboxClick}
           />
         )}
       </div>
