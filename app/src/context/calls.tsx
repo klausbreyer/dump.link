@@ -92,6 +92,7 @@ export const apiPostTask = async (
     throw error;
   }
 };
+
 export const apiDeleteTask = async (
   projectId: string,
   taskId: string,
@@ -112,5 +113,42 @@ export const apiDeleteTask = async (
   } catch (error) {
     console.error("Error while deleting the task:", error);
     return false; // Fehler beim Löschen
+  }
+};
+
+export type TaskUpdateData = {
+  // Definieren Sie hier die Felder, die aktualisiert werden können
+  // Beispiel:
+  title?: string;
+  closed?: boolean;
+  // Weitere Felder, die aktualisiert werden können...
+};
+
+export const apiPatchTask = async (
+  projectId: string,
+  taskId: string,
+  updateData: TaskUpdateData,
+): Promise<Task | null> => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/v1/projects/${projectId}/tasks/${taskId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const updatedTask: Task = await response.json();
+    return updatedTask;
+  } catch (error) {
+    console.error("Error while updating the task:", error);
+    return null;
   }
 };

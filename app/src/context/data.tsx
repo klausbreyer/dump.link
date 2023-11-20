@@ -9,7 +9,12 @@ import {
   Task,
   TaskID,
 } from "../types";
-import { apiDeleteTask, apiGetProject, apiPostTask } from "./calls";
+import {
+  apiDeleteTask,
+  apiGetProject,
+  apiPostTask,
+  apiPatchTask,
+} from "./calls";
 import {
   PRIORITY_INCREMENT,
   extractIdFromUrl,
@@ -59,10 +64,7 @@ type ActionType =
   | {
       type: "UPDATE_TASK";
       taskId: TaskID;
-      updates: {
-        closed?: boolean;
-        title?: string;
-      };
+      updates: TaskUpdates;
     }
   | {
       type: "REORDER_TASK";
@@ -139,11 +141,7 @@ const dataReducer = (state: State, action: ActionType): State => {
       // Map through the tasks array to find and update the specific task
       const updatedTasks = state.tasks.map((task) => {
         if (task.id === taskId) {
-          return {
-            ...task,
-            ...(updates.closed !== undefined && { closed: updates.closed }),
-            ...(updates.title !== undefined && { title: updates.title }),
-          };
+          return reconsileTaskUpdate(task, updates);
         }
         return task;
       });
@@ -365,18 +363,20 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const updateTask = (
-    taskId: TaskID,
-    updates: {
-      closed?: boolean;
-      title?: string;
-      bucketId?: BucketID;
-    },
-  ) => {
-    dispatch({
-      type: "UPDATE_TASK",
-      taskId: taskId,
-      updates: updates,
+  const updateTask = (taskId: TaskID, updates: TaskUpdates) => {
+    const task = state.tasks.find((task) => task.id === taskId);
+    if (!task) return;
+
+    const updateData = reconsileTaskUpdate(task, updates);
+
+    apiPatchTask(state.project.id, taskId, updateData).then((updatedTask) => {
+      if (updatedTask) {
+        dispatch({
+          type: "UPDATE_TASK",
+          taskId: taskId,
+          updates: updatedTask,
+        });
+      }
     });
   };
 
@@ -496,13 +496,7 @@ type DataContextType = {
   getTasks: () => Task[];
   addTask: (task: Task) => void;
   deleteTask: (taskId: TaskID) => void;
-  updateTask: (
-    taskId: TaskID,
-    updates: {
-      closed?: boolean;
-      title?: string;
-    },
-  ) => void;
+  updateTask: (taskId: TaskID, updates: TaskUpdates) => void;
   reorderTask: (movingTaskId: TaskID, newPosition: number) => void;
   moveTask: (toBucketId: BucketID, task: Task) => void;
 
@@ -532,3 +526,16 @@ export const useData = () => {
   }
   return context;
 };
+
+type TaskUpdates = {
+  closed?: Task["closed"];
+  title?: Task["title"];
+};
+
+function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
+  return {
+    ...task,
+    ...(updates.closed !== undefined && { closed: updates.closed }),
+    ...(updates.title !== undefined && { title: updates.title }),
+  };
+}
