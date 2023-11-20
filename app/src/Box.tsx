@@ -16,10 +16,12 @@ import { useData } from "./context/data";
 import {
   getArrangeBucketType,
   getBucket,
+  getBucketDependencies,
   getBucketsAvailableFor,
   getBucketsDependingOn,
   getLayerForBucketId,
   getSequenceBucketType,
+  getTasksForBucket,
 } from "./context/helper";
 import { useGlobalDragging } from "./context/dragging";
 import {
@@ -41,15 +43,26 @@ interface BoxProps {
 
 const Box: React.FC<BoxProps> = (props) => {
   const { bucket, context } = props;
-  const { removeBucketDependency, addBucketDependency, getBuckets } = useData();
+  const {
+    removeBucketDependency,
+    getTasks,
+    getDependencies,
+    addBucketDependency,
+    getBuckets,
+  } = useData();
 
   const buckets = getBuckets();
-  const availbleIds = getBucketsAvailableFor(buckets, bucket.id);
-  const dependingIds = getBucketsDependingOn(buckets, bucket.id);
 
-  const currentLayer = getLayerForBucketId(buckets, bucket.id);
-  const dependenciesLayers = bucket.dependencies.map((id) => {
-    return getLayerForBucketId(buckets, id);
+  const tasks = getTasks();
+  const dependencies = getDependencies();
+  const tasksForbucket = getTasksForBucket(tasks, bucket.id);
+  const availbleIds = getBucketsAvailableFor(buckets, dependencies, bucket.id);
+  const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
+  const dependencyIds = getBucketDependencies(dependencies, bucket.id);
+
+  const currentLayer = getLayerForBucketId(buckets, dependencies, bucket.id);
+  const dependenciesLayers = dependencyIds.map((id) => {
+    return getLayerForBucketId(buckets, dependencies, id);
   });
 
   const isMovable: boolean = !dependenciesLayers.some((layer) => {
@@ -139,7 +152,7 @@ const Box: React.FC<BoxProps> = (props) => {
     );
   }, [foliationIsDragging, setGlobalDragging]);
 
-  const bgTop = getBucketBackgroundColorTop(bucket);
+  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
 
   const dragref =
     context === TabContext.Sequence

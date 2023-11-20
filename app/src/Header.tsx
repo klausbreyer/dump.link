@@ -8,7 +8,7 @@ import {
 } from "./common/colors";
 import config from "./config";
 import { useData } from "./context/data";
-import { getTasksByClosed } from "./context/helper";
+import { getTasksByClosed, getTasksForBucket } from "./context/helper";
 import { Bucket, TabContext } from "./types";
 import { isSafari } from "./common/helper";
 
@@ -19,9 +19,11 @@ export interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { renameBucket, flagBucket, setBucketDone } = useData();
+  const { renameBucket, getTasks, flagBucket, setBucketDone } = useData();
 
-  const open = getTasksByClosed(bucket, false);
+  const tasks = getTasks();
+  const tasksForbucket = getTasksForBucket(tasks, bucket.id);
+  const open = getTasksByClosed(tasksForbucket, false);
 
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
@@ -45,12 +47,12 @@ const Header: React.FC<HeaderProps> = (props) => {
     setIsTextAreaFocused(false);
   }
 
-  const bgTop = getBucketBackgroundColorTop(bucket);
+  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
   const inputBorder = getInputBorderColor(bucket);
 
-  const flaggedStyles = getBucketFlaggedStyle(bucket);
+  const flaggedStyles = getBucketFlaggedStyle(bucket, tasksForbucket);
 
-  const hasTasks = bucket.tasks.length > 0;
+  const hasTasks = tasksForbucket.length > 0;
   const showDone = hasTasks && open.length === 0;
 
   return (
@@ -77,8 +79,11 @@ const Header: React.FC<HeaderProps> = (props) => {
         </div>
         {!showDone && context === TabContext.Group && (
           <>
-            <FlagButton onClick={handleClick} bucket={bucket} />
-            {/* {<StateSwitch bucket={bucket} />} */}
+            <FlagButton
+              tasks={tasksForbucket}
+              onClick={handleClick}
+              bucket={bucket}
+            />
           </>
         )}
         {showDone && context === TabContext.Group && (

@@ -6,17 +6,18 @@ import { getOtherBuckets, getTasksByClosed } from "./context/helper";
 interface MacroProgressProps {}
 
 const MacroProgress: React.FC<MacroProgressProps> = (props) => {
-  const { getBuckets } = useData();
+  const { getBuckets, getTasks } = useData();
   const buckets = getBuckets();
+  const tasks = getTasks();
   const otherBuckets = getOtherBuckets(buckets);
 
   const tasksSolved = otherBuckets.reduce(
-    (acc, bucket) => acc + getTasksByClosed(bucket, true).length,
+    (acc, bucket) => acc + getTasksByClosed(tasks, true).length,
     0,
   );
 
   const tasksNotDone = otherBuckets.reduce(
-    (acc, bucket) => acc + getTasksByClosed(bucket, false).length,
+    (acc, bucket) => acc + getTasksByClosed(tasks, false).length,
     0,
   );
 

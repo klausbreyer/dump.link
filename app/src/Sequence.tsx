@@ -31,9 +31,10 @@ const positions: { top: number; left: number }[] = [
 ];
 
 const Sequence: React.FC<SequenceProps> = (props) => {
-  const { getBuckets } = useData();
+  const { getBuckets, getDependencies } = useData();
 
   const buckets = getBuckets();
+  const dependencies = getDependencies();
   const others = getOtherBuckets(buckets);
   const [, setRepaintcounter] = useState(0);
   const [activeRef, setActiveRef] = useState<React.RefObject<HTMLDivElement>>(
@@ -122,10 +123,10 @@ const Sequence: React.FC<SequenceProps> = (props) => {
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
             buckets.map((bucket) =>
-              bucket.dependencies.map((dependencyId, index) => {
+              dependencies.map((dependency, index) => {
                 if (
                   !boxRefs?.current[bucket.id]?.current ||
-                  !boxRefs?.current[dependencyId]?.current
+                  !boxRefs?.current[dependency.dependencyId]?.current
                 ) {
                   return null;
                 }
@@ -134,7 +135,7 @@ const Sequence: React.FC<SequenceProps> = (props) => {
                   boxRefs.current[bucket.id].current!.getBoundingClientRect();
                 const toRect =
                   boxRefs.current[
-                    dependencyId
+                    dependency.dependencyId
                   ].current!.getBoundingClientRect();
                 const { from, to } = getBorderCenterCoordinates(
                   fromRect,

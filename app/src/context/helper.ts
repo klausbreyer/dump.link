@@ -470,7 +470,6 @@ export const getAllDependencyChains = (
 
 export const getTaskType = (
   buckets: Bucket[],
-  tasks: Task[],
   task: Task | null | undefined,
 ) => {
   if (!task) {
@@ -658,4 +657,12 @@ export const getTaskIndex = (
 
   // Find and return the index of the task in the tasks array
   return tasks.findIndex((t) => t.id === task.id);
+};
+
+export const getTasksForBucket = (
+  tasks: Task[],
+  bucketId: BucketID,
+): Task[] => {
+  // Filter and return tasks that belong to the given bucket
+  return tasks.filter((task) => task.bucketId === bucketId);
 };

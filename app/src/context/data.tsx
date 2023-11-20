@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 
-import { Bucket, BucketID, Project, State, Task, TaskID } from "../types";
+import { Bucket, BucketID, Dependency, State, Task, TaskID } from "../types";
 import {
   NewID,
   extractIdFromUrl,
@@ -32,7 +32,7 @@ type ActionType =
   | {
       type: "ADD_TASK";
       bucketId: BucketID;
-      task: Omit<Task, "id" | "priority">;
+      task: Omit<Task, "id" | "priority" | "bucketId">;
     }
   | {
       type: "MOVE_TASK";
@@ -49,7 +49,7 @@ type ActionType =
   | {
       type: "UPDATE_TASK";
       taskId: TaskID;
-      updatedTask: Omit<Task, "id" | "priority">;
+      updatedTask: Omit<Task, "id" | "priority" | "bucketId">;
     }
   | {
       type: "REORDER_TASK";
@@ -359,7 +359,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     fetchInitialState();
   }, []);
 
-  const addTask = (bucketId: BucketID, task: Omit<Task, "id" | "priority">) => {
+  const addTask = (
+    bucketId: BucketID,
+    task: Omit<Task, "id" | "priority" | "bucketId">,
+  ) => {
     dispatch({
       type: "ADD_TASK",
       bucketId: bucketId,
@@ -391,7 +394,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const updateTask = (
     taskId: TaskID,
-    updatedTask: Omit<Task, "id" | "priority">,
+    updatedTask: Omit<Task, "id" | "priority" | "bucketId">,
   ) => {
     dispatch({ type: "UPDATE_TASK", taskId, updatedTask });
   };
@@ -422,6 +425,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const getBuckets = () => {
     return state.buckets;
+  };
+
+  const getTasks = () => {
+    return state.tasks;
+  };
+
+  const getDependencies = () => {
+    return state.dependencies;
   };
 
   const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
@@ -489,6 +500,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         state,
         addTask,
         deleteTask,
+        getTasks,
+        getDependencies,
         moveTask,
         changeTaskState,
         updateTask,
@@ -510,7 +523,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 type DataContextType = {
   state: State;
-  addTask: (bucketId: BucketID, task: Omit<Task, "id" | "priority">) => void;
+  addTask: (
+    bucketId: BucketID,
+    task: Omit<Task, "id" | "priority" | "bucketId">,
+  ) => void;
   moveTask: (toBucketId: BucketID, task: Task) => void;
   changeTaskState: (
     bucketId: BucketID,
@@ -519,9 +535,11 @@ type DataContextType = {
   ) => void;
   updateTask: (
     taskId: TaskID,
-    updatedTask: Omit<Task, "id" | "priority">,
+    updatedTask: Omit<Task, "id" | "priority" | "bucketId">,
   ) => void;
   reorderTask: (movingTaskId: TaskID, newPosition: number) => void;
+  getDependencies: () => Dependency[];
+  getTasks: () => Task[];
   getBuckets: () => Bucket[];
   renameBucket: (bucketId: BucketID, newName: string) => void;
   flagBucket: (bucketId: BucketID, flag: boolean) => void;

@@ -2,7 +2,7 @@ import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
 
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 import React from "react";
-import { Bucket } from "../types";
+import { Bucket, Task } from "../types";
 import {
   getFlagButtonBackground,
   getFlaggedHeaderTextColor,
@@ -12,6 +12,7 @@ import {
 
 export interface FlagButtonProps {
   bucket: Bucket;
+  tasks: Task[];
   onClick?: () => void;
 }
 
@@ -19,10 +20,10 @@ const FlagButton = React.forwardRef<
   HTMLButtonElement,
   FlagButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>
 >((props, ref) => {
-  const { bucket, onClick, children, className, ...rest } = props;
+  const { bucket, tasks, onClick, children, className, ...rest } = props;
 
   const border = getInputBorderColor(bucket);
-  const hover = getFlagButtonBackground(bucket);
+  const hover = getFlagButtonBackground(bucket, tasks);
   const text = getHeaderTextColor(bucket);
 
   const flagColor = getFlaggedHeaderTextColor();

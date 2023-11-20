@@ -22,12 +22,17 @@ interface LaneProps extends React.HTMLProps<HTMLDivElement> {
 
 const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const { getBuckets, updateBucketLayer } = useData();
+  const { getBuckets, getDependencies, updateBucketLayer } = useData();
 
   const buckets = getBuckets();
-  const chains = getAllDependencyChains(buckets);
+  const dependencies = getDependencies();
+  const chains = getAllDependencyChains(buckets, dependencies);
   const others = getOtherBuckets(buckets);
-  const allowedOnLayers = getAllowedBucketsByLayer(buckets, index);
+  const allowedOnLayers = getAllowedBucketsByLayer(
+    buckets,
+    dependencies,
+    index,
+  );
 
   const { globalDragging } = useGlobalDragging();
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { Bucket } from "./types";
-import { getBucketPercentage } from "./context/helper";
+import { getBucketPercentage, getTasksForBucket } from "./context/helper";
+import { useData } from "./context/data";
 
 export interface MicroProgressProps {
   bucket: Bucket;
@@ -9,8 +10,11 @@ export interface MicroProgressProps {
 const MicroProgress: React.FC<MicroProgressProps> = (props) => {
   const { bucket } = props;
 
+  const { getTasks } = useData();
+  const tasks = getTasks();
+  const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   // to account for NaN on unstarted buckets
-  const percentageCompleted = getBucketPercentage(bucket) || 0;
+  const percentageCompleted = getBucketPercentage(tasksForbucket) || 0;
 
   const bgFiguringOut =
     percentageCompleted === 100 && bucket.done

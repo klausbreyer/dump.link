@@ -22,11 +22,12 @@ import Title from "./common/Title";
 interface ArrangeProps {}
 
 const Arrange: React.FC<ArrangeProps> = (props) => {
-  const { getBuckets, resetLayersForAllBuckets } = useData();
+  const { getBuckets, resetLayersForAllBuckets, getDependencies } = useData();
 
   const buckets = getBuckets();
-  const chains = getAllDependencyChains(buckets);
-  const layers = getLayers(buckets);
+  const dependencies = getDependencies();
+  const chains = getAllDependencyChains(buckets, dependencies);
+  const layers = getLayers(buckets, dependencies);
 
   const layersWithBuckets = layers.map((layer) =>
     layer
