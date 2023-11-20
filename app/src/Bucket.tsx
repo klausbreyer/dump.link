@@ -31,8 +31,7 @@ interface BucketProps {
 
 const Bucket: React.FC<BucketProps> = (props) => {
   const { bucket } = props;
-  const { moveTask, updateTask, getTasks, changeTaskState, getBuckets } =
-    useData();
+  const { updateTask, getTasks, moveTask, getBuckets } = useData();
 
   const buckets = getBuckets();
 
@@ -72,17 +71,13 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
         if (!task) return;
         const fromBucketId = getBucketForTask(buckets, task)?.id || "";
-        if (fromBucketId !== bucket.id) {
-          console.log("dropped into bucket", bucket.id, "from", fromBucketId);
+        if (fromBucketId === bucket.id) return;
 
-          updateTask(taskId, {
-            title: task?.title || "",
-            closed: false,
-          });
-          moveTask(bucket.id, task);
-        } else {
-          changeTaskState(bucket.id, taskId, false);
-        }
+        updateTask(taskId, {
+          title: task?.title || "",
+          closed: false,
+        });
+        moveTask(bucket.id, task);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
@@ -95,7 +90,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       buckets,
       updateTask,
       moveTask,
-      changeTaskState,
+      updateTask,
       bucket,
       allOtherBuckets,
     ],

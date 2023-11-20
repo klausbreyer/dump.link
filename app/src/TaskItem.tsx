@@ -30,15 +30,8 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
-  const {
-    addTask,
-    updateTask,
-    deleteTask,
-    getBuckets,
-    getTasks,
-    reorderTask,
-    changeTaskState,
-  } = useData();
+  const { addTask, updateTask, deleteTask, getBuckets, getTasks, reorderTask } =
+    useData();
 
   const buckets = getBuckets();
 
@@ -192,7 +185,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     if (!task) return;
 
     const isTaskNowClosed = event.target.checked;
-    changeTaskState(bucket.id, task.id, isTaskNowClosed);
+    updateTask(task.id, { closed: isTaskNowClosed });
 
     // If the task is now closed and there's a callback, call it
     if (isTaskNowClosed && onTaskClosed) {

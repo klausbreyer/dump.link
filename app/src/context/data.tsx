@@ -47,7 +47,7 @@ type ActionType =
   | {
       type: "UPDATE_TASK";
       taskId: TaskID;
-      updatedTask: Omit<Task, "id" | "priority" | "bucketId">;
+      updatedTask: Partial<Omit<Task, "id" | "priority" | "bucketId">>;
     }
   | {
       type: "REORDER_TASK";
@@ -160,9 +160,13 @@ const dataReducer = (state: State, action: ActionType): State => {
       const { taskId, updatedTask } = action;
 
       // Map through the tasks array to find and update the specific task
-      const updatedTasks = state.tasks.map((task) =>
-        task.id === taskId ? { ...task, ...updatedTask } : task,
-      );
+      const updatedTasks = state.tasks.map((task) => {
+        if (task.id === taskId) {
+          // Create a new task object with the updated properties
+          return { ...task, ...updatedTask };
+        }
+        return task;
+      });
 
       return {
         ...state,
@@ -393,24 +397,15 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const changeTaskState = (
-    bucketId: BucketID,
-    taskId: TaskID,
-    closed: boolean,
-  ) => {
-    dispatch({
-      type: "CHANGE_TASK_STATE",
-      bucketId: bucketId,
-      taskId: taskId,
-      closed: closed,
-    });
-  };
-
   const updateTask = (
     taskId: TaskID,
-    updatedTask: Omit<Task, "id" | "priority" | "bucketId">,
+    updatedTask: Partial<Omit<Task, "id" | "priority" | "bucketId">>,
   ) => {
-    dispatch({ type: "UPDATE_TASK", taskId, updatedTask });
+    dispatch({
+      type: "UPDATE_TASK",
+      taskId: taskId,
+      updatedTask: updatedTask,
+    });
   };
 
   const reorderTask = (movingTaskId: TaskID, newPosition: number) => {
@@ -517,7 +512,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getTasks,
         getDependencies,
         moveTask,
-        changeTaskState,
         updateTask,
         reorderTask,
         renameBucket,
@@ -537,31 +531,30 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 type DataContextType = {
   state: State;
+
+  getTasks: () => Task[];
   addTask: (
     bucketId: BucketID,
     task: Omit<Task, "id" | "priority" | "bucketId">,
   ) => void;
-  moveTask: (toBucketId: BucketID, task: Task) => void;
-  changeTaskState: (
-    bucketId: BucketID,
-    taskId: TaskID,
-    closed: boolean,
-  ) => void;
+  deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
   updateTask: (
     taskId: TaskID,
-    updatedTask: Omit<Task, "id" | "priority" | "bucketId">,
+    updatedTask: Partial<Omit<Task, "id" | "priority" | "bucketId">>,
   ) => void;
   reorderTask: (movingTaskId: TaskID, newPosition: number) => void;
+  moveTask: (toBucketId: BucketID, task: Task) => void;
+
   getDependencies: () => Dependency[];
-  getTasks: () => Task[];
-  getBuckets: () => Bucket[];
-  renameBucket: (bucketId: BucketID, newName: string) => void;
-  flagBucket: (bucketId: BucketID, flag: boolean) => void;
   addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
+
+  getBuckets: () => Bucket[];
   updateBucketLayer: (bucketId: BucketID, newLayer: number) => void;
-  deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
+  renameBucket: (bucketId: BucketID, newName: string) => void;
+  flagBucket: (bucketId: BucketID, flag: boolean) => void;
   setBucketDone: (bucketId: BucketID, done: boolean) => void;
+
   resetLayersForAllBuckets: () => void;
 };
 
