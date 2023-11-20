@@ -8,19 +8,21 @@ import React, {
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
+import { getInputBorderColor } from "./common/colors";
+import { isSafari } from "./common/helper";
 import config from "./config";
 import { useData } from "./context/data";
 import { useGlobalDragging } from "./context/dragging";
-import usePasteListener from "./hooks/usePasteListener";
-import { Bucket, DraggedTask, DraggingType, Task } from "./types";
-import { isSafari } from "./common/helper";
-import { getInputBorderColor } from "./common/colors";
 import {
+  NewID,
+  calculateHighestPriority,
   getBucketForTask,
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
 } from "./context/helper";
+import usePasteListener from "./hooks/usePasteListener";
+import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 
 interface TaskItemProps {
   task: Task | null;
@@ -30,11 +32,18 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
-  const { addTask, updateTask, deleteTask, getBuckets, getTasks, reorderTask } =
-    useData();
+  const {
+    addTask,
+    updateTask,
+    deleteTask,
+    getProject,
+    getBuckets,
+    getTasks,
+    reorderTask,
+  } = useData();
 
   const buckets = getBuckets();
-
+  const project = getProject();
   const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
 
@@ -44,14 +53,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   usePasteListener(textAreaRef, (title: string) => {
     title = title.substring(0, config.TASK_MAX_LENGTH);
 
-    if (!task) {
-      addTask(bucket.id, { title: title, closed: false });
-    }
-    if (task) {
-      const bucket = getBucketForTask(buckets, task);
-      if (!bucket) return;
-      addTask(bucket.id, { title: title, closed: false });
-    }
+    addTask(project.id, {
+      id: NewID(project.id),
+      priority: calculateHighestPriority(tasksForbucket),
+      title: val,
+      closed: false,
+      bucketId: bucket.id,
+    });
   });
 
   const [val, setVal] = useState<string>(task?.title || "");
@@ -144,7 +152,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     // For a new task
     if (task === null) {
       if (val.length === 0) return;
-      addTask(bucket.id, { title: val, closed: false });
+      addTask(project.id, {
+        id: NewID(project.id),
+        priority: calculateHighestPriority(tasksForbucket),
+        title: val,
+        closed: false,
+        bucketId: bucket.id,
+      });
       setVal("");
       setTimeout(() => {
         textAreaRef?.current?.focus();

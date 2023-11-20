@@ -1,12 +1,16 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 
-import { Bucket, BucketID, Dependency, State, Task, TaskID } from "../types";
 import {
-  NewID,
-  extractIdFromUrl,
-  hasCyclicDependencyWithBucket,
-  transformApiResponseToProject,
-} from "./helper";
+  Bucket,
+  BucketID,
+  Dependency,
+  Project,
+  State,
+  Task,
+  TaskID,
+} from "../types";
+import { apiGetProject, apiPostTask } from "./calls";
+import { extractIdFromUrl, hasCyclicDependencyWithBucket } from "./helper";
 import { LifecycleState, useLifecycle } from "./lifecycle";
 
 const initialState: State = {
@@ -21,17 +25,11 @@ const initialState: State = {
   },
 };
 
-const BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? window.location.origin
-    : "http://localhost:8080";
-
 type ActionType =
   | { type: "SET_INITIAL_STATE"; payload: State }
   | {
       type: "ADD_TASK";
-      bucketId: BucketID;
-      task: Omit<Task, "id" | "priority" | "bucketId">;
+      task: Task;
     }
   | {
       type: "MOVE_TASK";
@@ -93,29 +91,12 @@ const dataReducer = (state: State, action: ActionType): State => {
       return action.payload;
 
     case "ADD_TASK": {
-      const { bucketId, task } = action;
+      const { task } = action;
 
       // Update the tasks array directly in the state
       let updatedTasks = [...state.tasks];
 
-      // Find the current highest priority among tasks in the same bucket
-      let highestPriority = 0;
-      state.tasks.forEach((t) => {
-        if (t.bucketId === bucketId && t.priority > highestPriority) {
-          highestPriority = t.priority;
-        }
-      });
-
-      // Set the new task's priority
-      const newPriority = highestPriority + 100000; // Increment by a large number
-
-      // Add the new task at the end with the calculated priority
-      updatedTasks.push({
-        ...task,
-        id: NewID(),
-        bucketId: bucketId,
-        priority: newPriority,
-      });
+      updatedTasks.push(task);
 
       return {
         ...state,
@@ -343,30 +324,32 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const { setLifecycle } = useLifecycle();
 
   useEffect(() => {
-    const fetchInitialState = async () => {
-      try {
-        const id = extractIdFromUrl();
-        const response = await fetch(`${BASE_URL}/api/v1/projects/${id}`);
-        const data = await response.json();
-        const transformedData = transformApiResponseToProject(data);
-        dispatch({ type: "SET_INITIAL_STATE", payload: transformedData });
-        setLifecycle(LifecycleState.Loaded);
-      } catch (error) {
-        console.error("Fehler beim Laden des Initialzustands:", error);
+    const loadInitialState = async () => {
+      const id = extractIdFromUrl(); // Stellen Sie sicher, dass diese Funktion existiert und richtig importiert wird
+      const initialState = await apiGetProject(id);
+      if (initialState) {
+        dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
       }
     };
 
-    fetchInitialState();
+    loadInitialState();
   }, []);
 
-  const addTask = (
-    bucketId: BucketID,
-    task: Omit<Task, "id" | "priority" | "bucketId">,
-  ) => {
-    dispatch({
-      type: "ADD_TASK",
-      bucketId: bucketId,
-      task: task,
+  useEffect(() => {
+    if (state.project.id === "") return;
+    setLifecycle(LifecycleState.Loaded);
+  }, [state.project.id]);
+
+  const addTask = (projectId: string, task: Task) => {
+    apiPostTask(projectId, task).then((newTask) => {
+      if (!newTask) {
+        console.error("Error while adding the task");
+        return;
+      }
+      dispatch({
+        type: "ADD_TASK",
+        task: newTask,
+      });
     });
   };
 
@@ -411,6 +394,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const getDependencies = () => {
     return state.dependencies;
+  };
+
+  const getProject = () => {
+    return state.project;
   };
 
   const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
@@ -480,6 +467,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         deleteTask,
         getTasks,
         getDependencies,
+        getProject,
         moveTask,
         updateTask,
         reorderTask,
@@ -499,10 +487,7 @@ type DataContextType = {
   state: State;
 
   getTasks: () => Task[];
-  addTask: (
-    bucketId: BucketID,
-    task: Omit<Task, "id" | "priority" | "bucketId">,
-  ) => void;
+  addTask: (bucketId: BucketID, task: Task) => void;
   deleteTask: (bucketId: BucketID, taskId: TaskID) => void;
   updateTask: (
     taskId: TaskID,
@@ -526,6 +511,7 @@ type DataContextType = {
   ) => void;
 
   getDependencies: () => Dependency[];
+  getProject: () => Project;
   addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
 

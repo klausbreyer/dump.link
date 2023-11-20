@@ -37,6 +37,8 @@ const Main = function Main() {
   const { lifecycle } = useLifecycle();
   const currentQueryParam = useQueryParamChange("p");
 
+  console.log(lifecycle);
+
   if (lifecycle === LifecycleState.Initialized) {
     return <Loading />;
   }
