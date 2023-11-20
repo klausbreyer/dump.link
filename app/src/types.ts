@@ -1,10 +1,10 @@
-// all ids are 11 chars base58 alphanumerical.
-
+export type ProjectID = string;
 export type BucketID = string;
 export type TaskID = string;
 
 export type Task = {
   id: TaskID;
+  bucketId: BucketID;
   title: string;
   closed: boolean;
   priority: number;
@@ -12,13 +12,17 @@ export type Task = {
 
 export type Bucket = {
   id: BucketID;
+  projectId: ProjectID;
   name: string;
   done: boolean;
   dump: boolean;
   layer?: number;
-  tasks: Task[];
   flagged: boolean;
-  dependencies: BucketID[]; // List of Bucket IDs this bucket depends on
+};
+
+export type Dependency = {
+  bucketId: BucketID;
+  dependencyId: BucketID;
 };
 
 export type Project = {
@@ -26,7 +30,13 @@ export type Project = {
   name: string;
   startedAt: Date;
   appetite: number;
+};
+
+export type State = {
+  project: Project;
   buckets: Bucket[];
+  tasks: Task[];
+  dependencies: Dependency[];
 };
 
 export type DraggedTask = {

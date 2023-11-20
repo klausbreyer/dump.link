@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 
-import { Bucket, BucketID, Project, Task, TaskID } from "../types";
+import { Bucket, BucketID, Project, State, Task, TaskID } from "../types";
 import {
   NewID,
   extractIdFromUrl,
@@ -10,12 +10,16 @@ import {
 } from "./helper";
 import { LifecycleState, useLifecycle } from "./lifecycle";
 
-const initialProjectState: Project = {
+const initialState: State = {
   buckets: [],
-  id: "",
-  name: "",
-  appetite: 0,
-  startedAt: new Date(),
+  tasks: [],
+  dependencies: [],
+  project: {
+    id: "",
+    name: "",
+    appetite: 0,
+    startedAt: new Date(),
+  },
 };
 
 const BASE_URL =
@@ -24,7 +28,7 @@ const BASE_URL =
     : "http://localhost:8080";
 
 type ActionType =
-  | { type: "SET_INITIAL_STATE"; payload: Project }
+  | { type: "SET_INITIAL_STATE"; payload: State }
   | {
       type: "ADD_TASK";
       bucketId: BucketID;
@@ -90,7 +94,7 @@ type ActionType =
   | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
-const dataReducer = (state: Project, action: ActionType): Project => {
+const dataReducer = (state: State, action: ActionType): State => {
   switch (action.type) {
     case "SET_INITIAL_STATE":
       return action.payload;
@@ -98,255 +102,232 @@ const dataReducer = (state: Project, action: ActionType): Project => {
     case "ADD_TASK": {
       const { bucketId, task } = action;
 
+      // Update the tasks array directly in the state
+      let updatedTasks = [...state.tasks];
+
+      // Find the current highest priority among tasks in the same bucket
+      let highestPriority = 0;
+      state.tasks.forEach((t) => {
+        if (t.bucketId === bucketId && t.priority > highestPriority) {
+          highestPriority = t.priority;
+        }
+      });
+
+      // Set the new task's priority
+      const newPriority = highestPriority + 100000; // Increment by a large number
+
+      // Add the new task at the end with the calculated priority
+      updatedTasks.push({
+        ...task,
+        id: NewID(),
+        bucketId: bucketId,
+        priority: newPriority,
+      });
+
       return {
         ...state,
-        buckets: state.buckets.map((bucket) => {
-          if (bucket.id === bucketId) {
-            // Find the current highest priority in the bucket
-            let highestPriority = 0;
-            bucket.tasks.forEach((t) => {
-              if (t.priority > highestPriority) {
-                highestPriority = t.priority;
-              }
-            });
-
-            // Set the new task's priority
-            const newPriority = highestPriority + 100000; // Increment by a large number
-
-            // Add the new task at the end with the calculated priority
-            return {
-              ...bucket,
-              tasks: [
-                ...bucket.tasks,
-                { ...task, id: NewID(), priority: newPriority },
-              ],
-            };
-          }
-          return bucket;
-        }),
+        tasks: updatedTasks,
       };
     }
 
-    case "DELETE_TASK":
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? {
-                ...bucket,
-                tasks: bucket.tasks.filter((task) => task.id !== action.taskId),
-              }
-            : bucket,
-        ),
-      };
+    case "DELETE_TASK": {
+      const { taskId } = action;
 
-    case "CHANGE_TASK_STATE":
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? {
-                ...bucket,
-                tasks: bucket.tasks.map((task) =>
-                  task.id === action.taskId
-                    ? { ...task, closed: action.closed }
-                    : task,
-                ),
-              }
-            : bucket,
-        ),
-      };
+      // Filter out the task to be deleted from the state's tasks array
+      const updatedTasks = state.tasks.filter((task) => task.id !== taskId);
 
-    case "UPDATE_TASK":
       return {
         ...state,
-        buckets: state.buckets.map((bucket) => ({
-          ...bucket,
-          tasks: bucket.tasks.map((task) =>
-            task.id === action.taskId
-              ? { ...task, ...action.updatedTask }
-              : task,
-          ),
-        })),
+        tasks: updatedTasks,
       };
+    }
+
+    case "CHANGE_TASK_STATE": {
+      const { taskId, closed } = action;
+
+      // Map through the tasks array to find and update the specific task
+      const updatedTasks = state.tasks.map((task) =>
+        task.id === taskId ? { ...task, closed: closed } : task,
+      );
+
+      return {
+        ...state,
+        tasks: updatedTasks,
+      };
+    }
+
+    case "UPDATE_TASK": {
+      const { taskId, updatedTask } = action;
+
+      // Map through the tasks array to find and update the specific task
+      const updatedTasks = state.tasks.map((task) =>
+        task.id === taskId ? { ...task, ...updatedTask } : task,
+      );
+
+      return {
+        ...state,
+        tasks: updatedTasks,
+      };
+    }
 
     case "REORDER_TASK": {
       const { movingTaskId, newPosition } = action;
 
-      let updatedBuckets = state.buckets.map((bucket) => {
-        if (bucket.tasks.some((task) => task.id === movingTaskId)) {
-          let newTasks = [...bucket.tasks];
-          const movingTaskIndex = newTasks.findIndex(
-            (task) => task.id === movingTaskId,
-          );
-          const movingTask = newTasks[movingTaskIndex];
+      // Find and remove the moving task from the current tasks array
+      let updatedTasks = [...state.tasks];
+      const movingTaskIndex = updatedTasks.findIndex(
+        (task) => task.id === movingTaskId,
+      );
+      const movingTask = updatedTasks[movingTaskIndex];
+      updatedTasks.splice(movingTaskIndex, 1);
 
-          // Entfernen des Tasks aus seiner ursprünglichen Position
-          newTasks.splice(movingTaskIndex, 1);
+      // Calculate the new priority
+      let newPriority = 0;
+      if (newPosition === 0) {
+        newPriority =
+          updatedTasks.length > 0 ? updatedTasks[0].priority / 2 : 1;
+      } else if (newPosition >= updatedTasks.length) {
+        newPriority =
+          updatedTasks.length > 0
+            ? updatedTasks[updatedTasks.length - 1].priority + 100000
+            : 100000;
+      } else {
+        const beforePriority = updatedTasks[newPosition - 1].priority;
+        const afterPriority = updatedTasks[newPosition].priority;
+        newPriority = (beforePriority + afterPriority) / 2;
+      }
 
-          // Berechnen der neuen Priorität
-          let newPriority = 0;
-          if (newPosition === 0) {
-            newPriority = newTasks.length > 0 ? newTasks[0].priority / 2 : 1;
-          } else if (newPosition >= newTasks.length) {
-            newPriority =
-              newTasks.length > 0
-                ? newTasks[newTasks.length - 1].priority + 100000
-                : 100000;
-          } else {
-            const beforePriority = newTasks[newPosition - 1].priority;
-            const afterPriority = newTasks[newPosition].priority;
-            newPriority = (beforePriority + afterPriority) / 2;
-          }
+      // Update the priority of the moving task
+      movingTask.priority = newPriority;
 
-          // Hinzufügen des Tasks an der neuen Position
-          movingTask.priority = newPriority;
-          newTasks.splice(newPosition, 0, movingTask);
+      // Insert the moving task at the new position
+      updatedTasks.splice(newPosition, 0, movingTask);
 
-          return { ...bucket, tasks: newTasks };
-        }
-        return bucket;
-      });
-      return { ...state, buckets: updatedBuckets };
+      return { ...state, tasks: updatedTasks };
     }
 
     case "MOVE_TASK": {
       const { fromBucketId, toBucketId, taskId } = action;
 
-      let taskToMove: Task | null = null;
-      let updatedBuckets = state.buckets.map((bucket) => {
-        if (bucket.id === fromBucketId) {
-          // Entfernen des Tasks aus dem ursprünglichen Bucket
-          const newTasks = bucket.tasks.filter((task) => task.id !== taskId);
-          return { ...bucket, tasks: newTasks };
-        } else if (bucket.id === toBucketId) {
-          // Finden des Tasks und Hinzufügen am Ende des neuen Buckets
-          const movingTask = state.buckets
-            .find((b) => b.id === fromBucketId)
-            ?.tasks.find((t) => t.id === taskId);
-          if (movingTask) {
-            taskToMove = { ...movingTask }; // Stellt sicher, dass das Task-Objekt vollständig ist
+      // Find the task to move
+      const taskToMoveIndex = state.tasks.findIndex(
+        (task) => task.id === taskId && task.bucketId === fromBucketId,
+      );
+      if (taskToMoveIndex === -1) return state; // If the task is not found, return the current state
 
-            const highestPriority =
-              bucket.tasks.length > 0
-                ? Math.max(...bucket.tasks.map((t) => t.priority))
-                : 0;
-            const updatedTask = {
-              ...taskToMove,
-              priority: highestPriority + 100000,
-            };
+      const taskToMove = { ...state.tasks[taskToMoveIndex] };
 
-            // Stellt sicher, dass updatedTask alle erforderlichen Felder von Task enthält
-            return { ...bucket, tasks: [...bucket.tasks, updatedTask] };
-          }
-        }
-        return bucket;
-      });
+      // Calculate the new priority for the task in the new bucket
+      const tasksInNewBucket = state.tasks.filter(
+        (task) => task.bucketId === toBucketId,
+      );
+      const highestPriority =
+        tasksInNewBucket.length > 0
+          ? Math.max(...tasksInNewBucket.map((t) => t.priority))
+          : 0;
 
-      if (!taskToMove) return state; // Falls der Task nicht gefunden wurde
+      // Update the task with the new bucketId and priority
+      taskToMove.bucketId = toBucketId;
+      taskToMove.priority = highestPriority + 100000;
+
+      // Update the tasks array in the state
+      let updatedTasks = [...state.tasks];
+      updatedTasks[taskToMoveIndex] = taskToMove;
+
+      return { ...state, tasks: updatedTasks };
+    }
+
+    case "RENAME_BUCKET": {
+      const { bucketId, newName } = action;
+
+      const updatedBuckets = state.buckets.map((bucket) =>
+        bucket.id === bucketId ? { ...bucket, name: newName } : bucket,
+      );
 
       return { ...state, buckets: updatedBuckets };
     }
 
-    case "RENAME_BUCKET":
+    case "FLAG_BUCKET": {
+      const { bucketId, flag } = action;
+
+      const updatedBuckets = state.buckets.map((bucket) =>
+        bucket.id === bucketId ? { ...bucket, flagged: flag } : bucket,
+      );
+
+      return { ...state, buckets: updatedBuckets };
+    }
+    case "ADD_BUCKET_DEPENDENCY": {
+      const { bucketId, dependencyId } = action;
+
+      // Creating a new dependency object
+      const newDependency = { bucketId, dependencyId };
+
+      return { ...state, dependencies: [...state.dependencies, newDependency] };
+    }
+
+    case "REMOVE_BUCKET_DEPENDENCY": {
+      const { bucketId, dependencyId } = action;
+
+      // Filter out the dependency to be removed
+      const updatedDependencies = state.dependencies.filter(
+        (dependency) =>
+          !(
+            dependency.bucketId === bucketId &&
+            dependency.dependencyId === dependencyId
+          ),
+      );
+
+      // Check if any bucket is solely dependent on the removed dependency
+      // Adjust the 'layer' property if necessary
+      const updatedBuckets = state.buckets.map((bucket) => {
+        if (bucket.id === dependencyId) {
+          const isSolelyDependent = updatedDependencies.some(
+            (dep) => dep.dependencyId === dependencyId,
+          );
+
+          return {
+            ...bucket,
+            layer: isSolelyDependent ? bucket.layer : undefined,
+          };
+        }
+        return bucket;
+      });
+
       return {
         ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? { ...bucket, name: action.newName }
-            : bucket,
-        ),
+        buckets: updatedBuckets,
+        dependencies: updatedDependencies,
       };
+    }
 
-    case "FLAG_BUCKET":
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? { ...bucket, flagged: action.flag }
-            : bucket,
-        ),
-      };
+    case "UPDATE_BUCKET_LAYER": {
+      const { bucketId, newLayer } = action;
 
-    case "ADD_BUCKET_DEPENDENCY":
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? {
-                ...bucket,
-                dependencies: [...bucket.dependencies, action.dependencyId],
-              }
-            : bucket,
-        ),
-      };
+      const updatedBuckets = state.buckets.map((bucket) =>
+        bucket.id === bucketId ? { ...bucket, layer: newLayer } : bucket,
+      );
 
-    case "REMOVE_BUCKET_DEPENDENCY":
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) => {
-          // First, remove the dependency from the current bucket
-          if (bucket.id === action.bucketId) {
-            const newDependencies = bucket.dependencies.filter(
-              (id) => id !== action.dependencyId,
-            );
-            return {
-              ...bucket,
-              dependencies: newDependencies,
-            };
-          }
+      return { ...state, buckets: updatedBuckets };
+    }
 
-          // Then, check if the bucket is represented by action.dependencyId
-          // and if other buckets have exactly one dependency to this bucket
-          if (bucket.id === action.dependencyId) {
-            const otherBucketsHaveSingleDependency = state.buckets.some(
-              (otherBucket) =>
-                otherBucket.dependencies.length === 1 &&
-                otherBucket.dependencies.includes(action.dependencyId) &&
-                otherBucket.id !== action.bucketId,
-            );
+    case "SET_BUCKET_DONE": {
+      const { bucketId, done } = action;
 
-            return {
-              ...bucket,
-              layer: otherBucketsHaveSingleDependency
-                ? bucket.layer
-                : undefined,
-            };
-          }
+      const updatedBuckets = state.buckets.map((bucket) =>
+        bucket.id === bucketId ? { ...bucket, done: done } : bucket,
+      );
 
-          // If the bucket is neither the target of the action nor the dependency, leave it unchanged
-          return bucket;
-        }),
-      };
+      return { ...state, buckets: updatedBuckets };
+    }
 
-    case "UPDATE_BUCKET_LAYER":
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? { ...bucket, layer: action.newLayer }
-            : bucket,
-        ),
-      };
+    case "RESET_LAYERS_FOR_ALL_BUCKETS": {
+      const updatedBuckets = state.buckets.map((bucket) => ({
+        ...bucket,
+        layer: undefined,
+      }));
 
-    case "SET_BUCKET_DONE":
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) =>
-          bucket.id === action.bucketId
-            ? { ...bucket, done: action.done }
-            : bucket,
-        ),
-      };
-
-    case "RESET_LAYERS_FOR_ALL_BUCKETS":
-      return {
-        ...state,
-        buckets: state.buckets.map((bucket) => ({
-          ...bucket,
-          layer: undefined,
-        })),
-      };
+      return { ...state, buckets: updatedBuckets };
+    }
 
     default:
       return state;
@@ -358,7 +339,7 @@ type DataProviderProps = {
 };
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-  const [state, dispatch] = useReducer(dataReducer, initialProjectState);
+  const [state, dispatch] = useReducer(dataReducer, initialState);
   const { setLifecycle } = useLifecycle();
 
   useEffect(() => {
@@ -445,7 +426,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
     const bucketId = bucket.id;
-    if (hasCyclicDependencyWithBucket(bucket, dependencyId, state.buckets)) {
+    if (
+      hasCyclicDependencyWithBucket(bucket.id, dependencyId, state.dependencies)
+    ) {
       console.error("Cyclic dependency detected!");
       return;
     }
@@ -526,7 +509,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 };
 
 type DataContextType = {
-  state: Project;
+  state: State;
   addTask: (bucketId: BucketID, task: Omit<Task, "id" | "priority">) => void;
   moveTask: (toBucketId: BucketID, task: Task) => void;
   changeTaskState: (
