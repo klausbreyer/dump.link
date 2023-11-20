@@ -23,7 +23,6 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check the length of Id and BucketID
 	if len(input.Id) != 22 {
 		app.serverErrorResponse(w, r, fmt.Errorf("id must be exactly 22 characters long"))
 		return
@@ -47,6 +46,27 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
+	taskId, valid := app.getAndValidateID(w, r, "taskId")
+	if !valid {
+		return
+	}
+
+	if !app.tasks.IDExists(taskId) {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err := app.tasks.Delete(taskId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	data := envelope{
+		"taskId": taskId,
+	}
+
+	app.writeJSON(w, http.StatusOK, data, nil)
 }
 
 func (app *application) ApiMoveTask(w http.ResponseWriter, r *http.Request) {

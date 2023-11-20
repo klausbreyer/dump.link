@@ -87,3 +87,14 @@ func (m *TaskModel) GetForProjectId(projectId string) ([]*Task, error) {
 
 	return tasks, nil
 }
+
+func (m *TaskModel) Delete(taskId string) error {
+	stmt := `DELETE FROM tasks WHERE id = ?`
+
+	_, err := m.DB.Exec(stmt, taskId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
