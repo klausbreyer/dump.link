@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 
-import { BucketID, DraggingType } from "../types";
+import { BucketID, DraggingType, Task, TaskID } from "../types";
 
 interface GlobalDraggingProviderProps {
   children: ReactNode;
@@ -17,10 +17,10 @@ type GlobalDraggingState = {
   bucketId: BucketID;
 };
 
-interface GlobalDraggingContextType {
-  globalDragging: GlobalDraggingState;
-  setGlobalDragging: (type: DraggingType, entity: BucketID) => void;
-}
+type TemporaryPriority = {
+  priority: Task["priority"];
+  taskId: TaskID;
+};
 
 export const GlobalDraggingContext = createContext<
   GlobalDraggingContextType | undefined
@@ -33,6 +33,13 @@ export const GlobalDraggingProvider: React.FC<GlobalDraggingProviderProps> = ({
     type: DraggingType.NONE,
     bucketId: "",
   });
+
+  const [temporaryPriority, setTemporaryPriority] = useState<TemporaryPriority>(
+    {
+      priority: 0,
+      taskId: "",
+    },
+  );
 
   const setGlobalDragging = useCallback(
     (type: DraggingType, entity: BucketID) => {
@@ -47,12 +54,24 @@ export const GlobalDraggingProvider: React.FC<GlobalDraggingProviderProps> = ({
 
   return (
     <GlobalDraggingContext.Provider
-      value={{ globalDragging: state, setGlobalDragging }}
+      value={{
+        globalDragging: state,
+        setGlobalDragging,
+        temporaryPriority,
+        setTemporaryPriority,
+      }}
     >
       {children}
     </GlobalDraggingContext.Provider>
   );
 };
+
+interface GlobalDraggingContextType {
+  globalDragging: GlobalDraggingState;
+  setGlobalDragging: (type: DraggingType, entity: BucketID) => void;
+  temporaryPriority: TemporaryPriority;
+  setTemporaryPriority: (input: TemporaryPriority) => void;
+}
 
 export const useGlobalDragging = (): GlobalDraggingContextType => {
   const context = useContext(GlobalDraggingContext);

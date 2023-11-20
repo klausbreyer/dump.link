@@ -606,12 +606,10 @@ export const getTask = (tasks: Task[], taskId: TaskID) => {
 
 export const getTaskIndex = (
   tasks: Task[],
-  task: Task | null,
+  taskId: TaskID,
 ): number | undefined => {
-  if (!task) return undefined;
-
   // Find and return the index of the task in the tasks array
-  return tasks.findIndex((t) => t.id === task.id);
+  return tasks.findIndex((t) => t.id === taskId);
 };
 
 export const getTasksForBucket = (

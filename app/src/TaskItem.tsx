@@ -18,6 +18,7 @@ import {
   NewID,
   PRIORITY_INCREMENT,
   calculateHighestPriority,
+  getTask,
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
@@ -33,29 +34,15 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
-  const {
-    addTask,
-    updateTask,
-    deleteTask,
-    getProject,
-    getBuckets,
-    getTasks,
-    reorderTask,
-  } = useData();
+  const { addTask, updateTask, deleteTask, getProject, getBuckets, getTasks } =
+    useData();
 
+  const { setGlobalDragging, temporaryPriority, setTemporaryPriority } =
+    useGlobalDragging();
   const buckets = getBuckets();
   const project = getProject();
   const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-
-  const [localPriority, setLocalPriority] = useState<number>(
-    task?.priority || 0,
-  );
-
-  useEffect(() => {
-    if (!task) return;
-    setLocalPriority(task.priority);
-  }, [task?.priority]);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
@@ -74,13 +61,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const [val, setVal] = useState<string>(task?.title || "");
 
-  const handleDrop = useCallback(() => {
-    if (!task) return;
-    if (localPriority !== task.priority) {
-      updateTask(task.id, { priority: localPriority });
-    }
-  }, [localPriority, task, updateTask]);
-
   useEffect(() => {
     if (task?.id === null && textAreaRef.current) {
       textAreaRef.current.focus();
@@ -95,21 +75,28 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         isDragging: !!monitor.isDragging(),
       }),
       end: (item, monitor) => {
-        // const droppedId = item.taskId;
-        // const overIndex = getTaskIndex(tasksForbucket, task);
-        // const didDrop = monitor.didDrop();
-        // if (overIndex === undefined) return;
-        // if (droppedId === undefined) return;
-        // if (droppedId === task?.id) return;
-        // if (!didDrop) {
-        //   reorderTask(droppedId, overIndex);
-        // }
+        if (!task) return;
+
+        updateTask(temporaryPriority.taskId, {
+          ...task,
+          priority: temporaryPriority.priority,
+        });
+        setTemporaryPriority({ priority: 0, taskId: "" });
+
+        const droppedId = item.taskId;
+        const overIndex = getTaskIndex(tasksForbucket, task);
+        const didDrop = monitor.didDrop();
+        if (overIndex === undefined) return;
+        if (droppedId === undefined) return;
+        if (droppedId === task?.id) return;
+        if (!didDrop) {
+          // reorderTask(droppedId, overIndex);
+        }
       },
     }),
-    [reorderTask, task, buckets, tasksForbucket],
+    [task, buckets, tasksForbucket, updateTask, setTemporaryPriority],
   );
 
-  const { setGlobalDragging } = useGlobalDragging();
   useEffect(() => {
     setGlobalDragging(
       isDragging ? DraggingType.TASK : DraggingType.NONE,
@@ -121,24 +108,29 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     () => ({
       accept: getTaskType(buckets, task),
       hover: (item, monitor) => {
-        const draggedId = task.id;
-        const overIndex = getTaskIndex(tasksForbucket, task);
+        const draggedId = item.taskId;
 
-        if (!overIndex) return;
+        const draggedTask = getTask(tasksForbucket, draggedId);
 
-        console.log(overIndex);
-        const newPriority = calculateNewPriority(
-          tasksForbucket,
-          draggedId,
-          overIndex,
-        );
-        console.log(overIndex, newPriority);
-        if (newPriority !== -1) {
-          setLocalPriority(newPriority);
+        const overtask = task;
+
+        const newPriority = overtask?.priority - 1;
+
+        console.dir(newPriority);
+
+        if (newPriority > -1) {
+          setTemporaryPriority({ priority: newPriority, taskId: draggedId });
         }
       },
     }),
-    [reorderTask, task, buckets, tasksForbucket],
+    [
+      task,
+      buckets,
+      tasksForbucket,
+      getTaskIndex,
+      getTask,
+      calculateNewPriority,
+    ],
   );
 
   useEffect(() => {
@@ -245,6 +237,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       : "border-orange-300"
     : getInputBorderColor(bucket);
 
+  const localPriority =
+    temporaryPriority.taskId === task?.id
+      ? temporaryPriority.priority
+      : task?.priority;
+
   return (
     <div
       ref={(node) => previewRev(dropRef(node))}
@@ -289,7 +286,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             ${bg}
             `}
             placeholder="type more here"
-            value={val}
+            value={val + " " + localPriority}
             onBlur={handleBlur}
             onFocus={handleFocus}
             onKeyDown={handleKeyDown}
@@ -321,6 +318,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 export default TaskItem;
 
 function calculateNewPriority(tasks, movingTaskId, newPosition) {
+  console.log(tasks, movingTaskId, newPosition);
+
   // Find and remove the moving task from the tasks array
   const movingTaskIndex = tasks.findIndex((task) => task.id === movingTaskId);
   if (movingTaskIndex === -1) return -1; // Return an invalid priority if task not found
@@ -355,5 +354,5 @@ function calculateNewPriority(tasks, movingTaskId, newPosition) {
     newPriority = (beforePriority + afterPriority) / 2;
   }
 
-  return newPriority;
+  return Math.round(newPriority);
 }
