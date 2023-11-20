@@ -2,6 +2,7 @@ import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import React, {
   ChangeEvent,
   KeyboardEvent,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -47,6 +48,15 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
 
+  const [localPriority, setLocalPriority] = useState<number>(
+    task?.priority || 0,
+  );
+
+  useEffect(() => {
+    if (!task) return;
+    setLocalPriority(task.priority);
+  }, [task?.priority]);
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
@@ -64,6 +74,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const [val, setVal] = useState<string>(task?.title || "");
 
+  const handleDrop = useCallback(() => {
+    if (!task) return;
+    if (localPriority !== task.priority) {
+      updateTask(task.id, { priority: localPriority });
+    }
+  }, [localPriority, task, updateTask]);
+
   useEffect(() => {
     if (task?.id === null && textAreaRef.current) {
       textAreaRef.current.focus();
@@ -78,17 +95,15 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         isDragging: !!monitor.isDragging(),
       }),
       end: (item, monitor) => {
-        const droppedId = item.taskId;
-        const overIndex = getTaskIndex(tasksForbucket, task);
-        const didDrop = monitor.didDrop();
-
-        if (overIndex === undefined) return;
-        if (droppedId === undefined) return;
-        if (droppedId === task?.id) return;
-
-        if (!didDrop) {
-          reorderTask(droppedId, overIndex);
-        }
+        // const droppedId = item.taskId;
+        // const overIndex = getTaskIndex(tasksForbucket, task);
+        // const didDrop = monitor.didDrop();
+        // if (overIndex === undefined) return;
+        // if (droppedId === undefined) return;
+        // if (droppedId === task?.id) return;
+        // if (!didDrop) {
+        //   reorderTask(droppedId, overIndex);
+        // }
       },
     }),
     [reorderTask, task, buckets, tasksForbucket],
@@ -105,15 +120,22 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const [, dropRef] = useDrop(
     () => ({
       accept: getTaskType(buckets, task),
-      hover(item: DraggedTask) {
-        const draggedId = item.taskId;
+      hover: (item, monitor) => {
+        const draggedId = task.id;
         const overIndex = getTaskIndex(tasksForbucket, task);
 
-        // avoid flickering.
-        if (overIndex === undefined) return;
-        if (draggedId === task?.id) return;
+        if (!overIndex) return;
 
-        reorderTask(draggedId, overIndex);
+        console.log(overIndex);
+        const newPriority = calculateNewPriority(
+          tasksForbucket,
+          draggedId,
+          overIndex,
+        );
+        console.log(overIndex, newPriority);
+        if (newPriority !== -1) {
+          setLocalPriority(newPriority);
+        }
       },
     }),
     [reorderTask, task, buckets, tasksForbucket],
@@ -224,7 +246,10 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     : getInputBorderColor(bucket);
 
   return (
-    <div ref={(node) => previewRev(dropRef(node))}>
+    <div
+      ref={(node) => previewRev(dropRef(node))}
+      style={{ order: localPriority > 0 ? localPriority : -9999 }}
+    >
       <div
         // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
         className={`flex gap-1 items-center
@@ -294,3 +319,41 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 };
 
 export default TaskItem;
+
+function calculateNewPriority(tasks, movingTaskId, newPosition) {
+  // Find and remove the moving task from the tasks array
+  const movingTaskIndex = tasks.findIndex((task) => task.id === movingTaskId);
+  if (movingTaskIndex === -1) return -1; // Return an invalid priority if task not found
+
+  const movingTask = tasks[movingTaskIndex];
+  tasks.splice(movingTaskIndex, 1);
+
+  // Filter tasks to include only those in the same bucket as the moving task
+  const tasksInSameBucket = tasks.filter(
+    (task) => task.bucketId === movingTask.bucketId,
+  );
+
+  // Sort tasks in the same bucket by their priority
+  tasksInSameBucket.sort((a, b) => a.priority - b.priority);
+
+  let newPriority = 0;
+  if (newPosition === 0) {
+    // If moving to the start, set priority less than the first task's priority
+    newPriority =
+      tasksInSameBucket.length > 0 ? tasksInSameBucket[0].priority / 2 : 1;
+  } else if (newPosition >= tasksInSameBucket.length) {
+    // If moving to the end, set priority greater than the last task's priority
+    newPriority =
+      tasksInSameBucket.length > 0
+        ? tasksInSameBucket[tasksInSameBucket.length - 1].priority +
+          PRIORITY_INCREMENT
+        : PRIORITY_INCREMENT;
+  } else {
+    // Otherwise, set priority as the average of the before and after tasks
+    const beforePriority = tasksInSameBucket[newPosition - 1].priority;
+    const afterPriority = tasksInSameBucket[newPosition].priority;
+    newPriority = (beforePriority + afterPriority) / 2;
+  }
+
+  return newPriority;
+}

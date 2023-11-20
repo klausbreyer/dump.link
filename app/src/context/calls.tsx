@@ -117,11 +117,9 @@ export const apiDeleteTask = async (
 };
 
 export type TaskUpdateData = {
-  // Definieren Sie hier die Felder, die aktualisiert werden können
-  // Beispiel:
   title?: string;
   closed?: boolean;
-  // Weitere Felder, die aktualisiert werden können...
+  priority?: number;
 };
 
 export const apiPatchTask = async (

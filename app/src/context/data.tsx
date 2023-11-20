@@ -67,11 +67,6 @@ type ActionType =
       updates: TaskUpdates;
     }
   | {
-      type: "REORDER_TASK";
-      movingTaskId: TaskID;
-      newPosition: number;
-    }
-  | {
       type: "ADD_BUCKET_DEPENDENCY";
       bucketId: BucketID;
       dependencyId: BucketID;
@@ -175,55 +170,6 @@ const dataReducer = (state: State, action: ActionType): State => {
         ...state,
         buckets: updatedBuckets,
       };
-    }
-
-    case "REORDER_TASK": {
-      const { movingTaskId, newPosition } = action;
-
-      // Find and remove the moving task from the current tasks array
-      let updatedTasks = [...state.tasks];
-      const movingTaskIndex = updatedTasks.findIndex(
-        (task) => task.id === movingTaskId,
-      );
-      if (movingTaskIndex === -1) return state; // If the task is not found, return the current state
-
-      const movingTask = updatedTasks[movingTaskIndex];
-      updatedTasks.splice(movingTaskIndex, 1);
-
-      // Filter tasks to include only those in the same bucket as the moving task
-      const tasksInSameBucket = updatedTasks.filter(
-        (task) => task.bucketId === movingTask.bucketId,
-      );
-
-      // Sort tasks in the same bucket by their priority
-      tasksInSameBucket.sort((a, b) => a.priority - b.priority);
-
-      let newPriority = 0;
-      if (newPosition === 0) {
-        // If moving to the start, set priority less than the first task's priority
-        newPriority =
-          tasksInSameBucket.length > 0 ? tasksInSameBucket[0].priority / 2 : 1;
-      } else if (newPosition >= tasksInSameBucket.length) {
-        // If moving to the end, set priority greater than the last task's priority
-        newPriority =
-          tasksInSameBucket.length > 0
-            ? tasksInSameBucket[tasksInSameBucket.length - 1].priority +
-              PRIORITY_INCREMENT
-            : PRIORITY_INCREMENT;
-      } else {
-        // Otherwise, set priority as the average of the before and after tasks
-        const beforePriority = tasksInSameBucket[newPosition - 1].priority;
-        const afterPriority = tasksInSameBucket[newPosition].priority;
-        newPriority = (beforePriority + afterPriority) / 2;
-      }
-
-      // Update the priority of the moving task
-      movingTask.priority = newPriority;
-
-      // Re-insert the moving task at its new position
-      updatedTasks.splice(newPosition, 0, movingTask);
-
-      return { ...state, tasks: updatedTasks };
     }
 
     case "MOVE_TASK": {
@@ -380,14 +326,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const reorderTask = (movingTaskId: TaskID, newPosition: number) => {
-    dispatch({
-      type: "REORDER_TASK",
-      movingTaskId,
-      newPosition,
-    });
-  };
-
   const getBuckets = () => {
     return state.buckets;
   };
@@ -477,7 +415,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getProject,
         moveTask,
         updateTask,
-        reorderTask,
         resetLayersForAllBuckets,
         getBuckets,
         addBucketDependency,
@@ -497,7 +434,6 @@ type DataContextType = {
   addTask: (task: Task) => void;
   deleteTask: (taskId: TaskID) => void;
   updateTask: (taskId: TaskID, updates: TaskUpdates) => void;
-  reorderTask: (movingTaskId: TaskID, newPosition: number) => void;
   moveTask: (toBucketId: BucketID, task: Task) => void;
 
   getBuckets: () => Bucket[];
@@ -530,6 +466,7 @@ export const useData = () => {
 type TaskUpdates = {
   closed?: Task["closed"];
   title?: Task["title"];
+  priority?: Task["priority"];
 };
 
 function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
@@ -537,5 +474,6 @@ function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
     ...task,
     ...(updates.closed !== undefined && { closed: updates.closed }),
     ...(updates.title !== undefined && { title: updates.title }),
+    ...(updates.priority !== undefined && { priority: updates.priority }),
   };
 }

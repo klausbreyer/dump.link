@@ -321,10 +321,6 @@ export function getBucketState(bucket: Bucket, tasks: Task[]): BucketState {
   throw new Error("Undefined bucket state.");
 }
 
-export const sortTasksByPriority = (tasks: Task[]): Task[] => {
-  return [...tasks].sort((a, b) => a.priority - b.priority);
-};
-
 export const getBucketsDependingOn = (
   dependencies: Dependency[],
   dependencyId: BucketID,
