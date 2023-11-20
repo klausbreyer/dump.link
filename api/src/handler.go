@@ -96,6 +96,8 @@ func (app *application) idExists(idType string, id string) bool {
 		return app.projects.IDExists(id)
 	case "taskId":
 		return app.tasks.IDExists(id)
+	case "dependencyId":
+		return app.buckets.IDExists(id)
 	case "bucketId":
 		return app.buckets.IDExists(id)
 	default:

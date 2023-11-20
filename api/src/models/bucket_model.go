@@ -51,25 +51,8 @@ func (m *BucketModel) IDExists(id string) bool {
 	return count > 0
 }
 
-func (m *BucketModel) Get(id string) (*Bucket, error) {
-	stmt := `SELECT id, name, done, dump, layer, flagged, project_id FROM buckets WHERE id = ?`
-	row := m.DB.QueryRow(stmt, id)
-
-	b := &Bucket{}
-
-	err := row.Scan(&b.ID, &b.Name, &b.Done, &b.Dump, &b.Layer, &b.Flagged, &b.ProjectID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("Bucket with ID %s not found", id)
-		}
-		return nil, err
-	}
-
-	return b, nil
-}
-
 func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
-	stmt := `SELECT id, name, done, dump, layer, flagged, project_id FROM buckets WHERE project_id = ?`
+	stmt := `SELECT id, name, done, dump, layer, flagged, project_id, created_at, updated_at FROM buckets WHERE project_id = ?`
 	rows, err := m.DB.Query(stmt, projectId)
 	if err != nil {
 		return nil, err
@@ -77,13 +60,25 @@ func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
 	defer rows.Close()
 
 	var buckets []*Bucket
-
 	for rows.Next() {
+		var createdAtStr, updatedAtStr string
 		b := &Bucket{}
-		err = rows.Scan(&b.ID, &b.Name, &b.Done, &b.Dump, &b.Layer, &b.Flagged, &b.ProjectID)
+
+		err = rows.Scan(&b.ID, &b.Name, &b.Done, &b.Dump, &b.Layer, &b.Flagged, &b.ProjectID, &createdAtStr, &updatedAtStr)
 		if err != nil {
 			return nil, err
 		}
+
+		b.CreatedAt, err = time.Parse(DateTimeLayout, createdAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse createdAt: %v", err)
+		}
+
+		b.UpdatedAt, err = time.Parse(DateTimeLayout, updatedAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse updatedAt: %v", err)
+		}
+
 		buckets = append(buckets, b)
 	}
 

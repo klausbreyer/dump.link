@@ -56,7 +56,3 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 
 	app.writeJSON(w, http.StatusOK, updates, nil)
 }
-
-func (app *application) ApiModifyBucketDependencies(w http.ResponseWriter, r *http.Request) {
-
-}

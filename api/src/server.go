@@ -16,10 +16,11 @@ import (
 type application struct {
 	contentFS embed.FS
 
-	logger   *slog.Logger
-	buckets  *models.BucketModel
-	tasks    *models.TaskModel
-	projects *models.ProjectModel
+	logger       *slog.Logger
+	buckets      *models.BucketModel
+	tasks        *models.TaskModel
+	projects     *models.ProjectModel
+	dependencies *models.DependencyModel
 }
 
 func Run(contentFS embed.FS) error {
@@ -40,9 +41,10 @@ func Run(contentFS embed.FS) error {
 		contentFS: contentFS,
 		logger:    logger,
 
-		buckets:  &models.BucketModel{DB: db},
-		tasks:    &models.TaskModel{DB: db},
-		projects: &models.ProjectModel{DB: db},
+		buckets:      &models.BucketModel{DB: db},
+		tasks:        &models.TaskModel{DB: db},
+		projects:     &models.ProjectModel{DB: db},
+		dependencies: &models.DependencyModel{DB: db},
 	}
 
 	logger.Info(fmt.Sprintf("starting server at http://%s", *addr))

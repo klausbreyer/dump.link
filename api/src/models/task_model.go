@@ -58,9 +58,10 @@ func (m *TaskModel) Get(id string) (*Task, error) {
 
 	return t, nil
 }
+
 func (m *TaskModel) GetForProjectId(projectId string) ([]*Task, error) {
 	stmt := `
-	SELECT t.id, t.title, t.closed, t.bucket_id, t.priority
+	SELECT t.id, t.title, t.closed, t.bucket_id, t.priority, t.created_at, t.updated_at
 	FROM tasks AS t
 	INNER JOIN buckets AS b ON t.bucket_id = b.id
 	WHERE b.project_id = ?
@@ -73,15 +74,27 @@ func (m *TaskModel) GetForProjectId(projectId string) ([]*Task, error) {
 
 	var tasks []*Task
 	for rows.Next() {
-		var t Task
-		err := rows.Scan(&t.ID, &t.Title, &t.Closed, &t.BucketID, &t.Priority)
+		var createdAtStr, updatedAtStr string
+		t := &Task{}
+
+		err := rows.Scan(&t.ID, &t.Title, &t.Closed, &t.BucketID, &t.Priority, &createdAtStr, &updatedAtStr)
 		if err != nil {
 			return nil, err
 		}
-		tasks = append(tasks, &t)
+
+		t.CreatedAt, err = time.Parse(DateTimeLayout, createdAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse createdAt: %v", err)
+		}
+
+		t.UpdatedAt, err = time.Parse(DateTimeLayout, updatedAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse updatedAt: %v", err)
+		}
+
+		tasks = append(tasks, t)
 	}
 
-	// Check for errors from iterating over rows
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}

@@ -70,10 +70,17 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dependencies, err := app.dependencies.GetForProjectId(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	data := envelope{
-		"project": project,
-		"buckets": buckets,
-		"tasks":   tasks,
+		"project":      project,
+		"buckets":      buckets,
+		"tasks":        tasks,
+		"dependencies": dependencies,
 	}
 
 	err = app.writeJSON(w, http.StatusOK, data, nil)
