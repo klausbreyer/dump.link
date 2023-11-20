@@ -147,17 +147,21 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     setTimeout(() => {
       setIsTextAreaFocused(false);
     }, 200);
-    // If the task is a new entry and the value is empty, return early.
+
+    // For a new task
     if (task === null) {
       if (val.length === 0) return;
-
       addTask(bucket.id, { title: val, closed: false });
       setVal("");
-
       setTimeout(() => {
         textAreaRef?.current?.focus();
       }, 100);
       return;
+    }
+
+    // For an existing task
+    if (task && val !== task.title) {
+      updateTask(task.id, { ...task, title: val });
     }
   }
 

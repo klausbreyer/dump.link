@@ -4,7 +4,6 @@ import { Bucket, BucketID, Dependency, State, Task, TaskID } from "../types";
 import {
   NewID,
   extractIdFromUrl,
-  getBucketForTask,
   hasCyclicDependencyWithBucket,
   transformApiResponseToProject,
 } from "./helper";

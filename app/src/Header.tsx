@@ -25,14 +25,15 @@ const Header: React.FC<HeaderProps> = (props) => {
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const open = getTasksByClosed(tasksForbucket, false);
 
+  const [inputValue, setInputValue] = useState(bucket?.name);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     if (newValue.length <= config.BUCKET_MAX_LENGTH) {
-      renameBucket(bucket.id, newValue);
+      setInputValue(newValue);
     } else {
-      renameBucket(bucket.id, newValue.substring(0, config.BUCKET_MAX_LENGTH));
+      setInputValue(newValue.substring(0, config.BUCKET_MAX_LENGTH));
     }
   };
 
@@ -45,6 +46,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   function handleBlur() {
     setIsTextAreaFocused(false);
+    renameBucket(bucket.id, inputValue);
   }
 
   const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
@@ -61,14 +63,14 @@ const Header: React.FC<HeaderProps> = (props) => {
         <div className="relative w-full">
           <input
             type="text"
-            className={`w-full h-8  px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}
-            `}
+            className={`w-full h-8 px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}`}
             placeholder="Unnamed"
-            value={bucket?.name}
+            value={inputValue}
             onChange={handleChange}
             onBlur={handleBlur}
             onFocus={handleFocus}
           />
+
           <div
             className={`absolute text-slate-800 text-xxs bottom-1.5 right-2 ${
               isTextAreaFocused ? "block" : "hidden"
