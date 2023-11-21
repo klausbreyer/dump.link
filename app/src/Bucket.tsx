@@ -177,7 +177,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
                 onTaskClosed={() => handleTaskClosed(task.id)}
               />
             ))}
-
+          </CardList>
+          <CardList>
             {!bucket.done && <TaskItem bucket={bucket} task={null} />}
             {closed.length > 0 && (
               <>
