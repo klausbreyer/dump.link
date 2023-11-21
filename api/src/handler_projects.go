@@ -53,7 +53,6 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 
 	project, err := app.projects.Get(projectId)
 	if err != nil {
-
 		app.serverErrorResponse(w, r, err)
 		return
 	}
@@ -63,17 +62,26 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+	if buckets == nil {
+		buckets = []*models.Bucket{} // Ersetzen Sie Bucket mit dem tatsächlichen Typ für Buckets
+	}
 
 	tasks, err := app.tasks.GetForProjectId(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+	if tasks == nil {
+		tasks = []*models.Task{} // Ersetzen Sie Task mit dem tatsächlichen Typ für Tasks
+	}
 
 	dependencies, err := app.dependencies.GetForProjectId(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
+	}
+	if dependencies == nil {
+		dependencies = []*models.Dependency{} // Ersetzen Sie Dependency mit dem tatsächlichen Typ für Dependencies
 	}
 
 	data := envelope{

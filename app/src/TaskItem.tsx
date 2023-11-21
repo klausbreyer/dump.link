@@ -303,7 +303,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             rows={1}
             ref={textAreaRef}
           ></textarea>
-          {false && (
+          {true && (
             <div
               className={`absolute text-slate-800 text-xxs bottom-2 left-1 bg-white`}
             >

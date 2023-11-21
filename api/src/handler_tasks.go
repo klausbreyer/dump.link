@@ -12,10 +12,10 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
-		Id       string  `json:"id"`
-		BucketID string  `json:"bucketId"`
-		Title    string  `json:"title"`
-		Priority float64 `json:"priority"`
+		Id       string `json:"id"`
+		BucketID string `json:"bucketId"`
+		Title    string `json:"title"`
+		Priority int    `json:"priority"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -88,10 +88,10 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var input struct {
-		BucketID *string  `json:"bucketId,omitempty"`
-		Closed   *bool    `json:"closed,omitempty"`
-		Title    *string  `json:"title,omitempty"`
-		Priority *float64 `json:"priority,omitempty"`
+		BucketID *string `json:"bucketId,omitempty"`
+		Closed   *bool   `json:"closed,omitempty"`
+		Title    *string `json:"title,omitempty"`
+		Priority *int    `json:"priority,omitempty"`
 	}
 
 	err := app.readJSON(w, r, &input)

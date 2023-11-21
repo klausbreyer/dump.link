@@ -12,7 +12,7 @@ type Task struct {
 	Title     string    `json:"title"`
 	Closed    bool      `json:"closed"`
 	BucketID  string    `json:"bucketId"`
-	Priority  float64   `json:"priority"`
+	Priority  int       `json:"priority"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -21,7 +21,7 @@ type TaskModel struct {
 	DB *sql.DB
 }
 
-func (m *TaskModel) Insert(id string, title string, closed bool, bucketID string, priority float64, projectId string) (string, error) {
+func (m *TaskModel) Insert(id string, title string, closed bool, bucketID string, priority int, projectId string) (string, error) {
 	stmt := `INSERT INTO tasks (id, title, closed, bucket_id, priority) VALUES (?, ?, ?, ?, ?)`
 	_, err := m.DB.Exec(stmt, id, title, closed, bucketID, priority)
 	if err != nil {
