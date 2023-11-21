@@ -179,3 +179,56 @@ export const apiPatchBucket = async (
     return null;
   }
 };
+
+export const apiAddBucketDependency = async (
+  projectId: string,
+  bucketId: string,
+  dependencyId: string,
+): Promise<Dependency | null> => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/v1/projects/${projectId}/dependencies`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bucketId, dependencyId }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const newDependency: Dependency = await response.json();
+    return newDependency;
+  } catch (error) {
+    console.error("Error while adding bucket dependency:", error);
+    return null;
+  }
+};
+
+export const apiRemoveBucketDependency = async (
+  projectId: string,
+  bucketId: string,
+  dependencyId: string,
+): Promise<boolean> => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/v1/projects/${projectId}/dependencies/${bucketId}/${dependencyId}`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return true; // Return true to indicate success
+  } catch (error) {
+    console.error("Error while removing bucket dependency:", error);
+    return false; // Return false to indicate failure
+  }
+};

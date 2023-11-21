@@ -16,7 +16,7 @@ export type Bucket = {
   name: string;
   done: boolean;
   dump: boolean;
-  layer?: number;
+  layer: number | null;
   flagged: boolean;
 };
 

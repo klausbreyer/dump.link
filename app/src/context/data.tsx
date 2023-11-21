@@ -17,6 +17,8 @@ import {
   apiPostTask,
   apiPatchTask,
   apiPatchBucket,
+  apiAddBucketDependency,
+  apiRemoveBucketDependency,
 } from "./calls";
 import {
   PRIORITY_INCREMENT,
@@ -77,8 +79,7 @@ type ActionType =
   | {
       type: "DELETE_TASK";
       taskId: TaskID;
-    }
-  | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" };
+    };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 const dataReducer = (state: State, action: ActionType): State => {
@@ -151,15 +152,7 @@ const dataReducer = (state: State, action: ActionType): State => {
       // Map through the buckets array to find and update the specific bucket
       const updatedBuckets = state.buckets.map((bucket) => {
         if (bucket.id === bucketId) {
-          return {
-            ...bucket,
-            ...(updates.name !== undefined && { name: updates.name }),
-            ...(updates.layer !== undefined && { layer: updates.layer }),
-            ...(updates.flagged !== undefined && {
-              flagged: updates.flagged,
-            }),
-            ...(updates.done !== undefined && { done: updates.done }),
-          };
+          return reconsileBucketUpdate(bucket, updates);
         }
         return bucket;
       });
@@ -201,7 +194,7 @@ const dataReducer = (state: State, action: ActionType): State => {
 
           return {
             ...bucket,
-            layer: isSolelyDependent ? bucket.layer : undefined,
+            layer: isSolelyDependent ? bucket.layer : null,
           };
         }
         return bucket;
@@ -212,14 +205,6 @@ const dataReducer = (state: State, action: ActionType): State => {
         buckets: updatedBuckets,
         dependencies: updatedDependencies,
       };
-    }
-    case "RESET_LAYERS_FOR_ALL_BUCKETS": {
-      const updatedBuckets = state.buckets.map((bucket) => ({
-        ...bucket,
-        layer: undefined,
-      }));
-
-      return { ...state, buckets: updatedBuckets };
     }
 
     default:
@@ -253,16 +238,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, [state.project.id]);
 
   const addTask = (task: Task) => {
-    apiPostTask(state.project.id, task).then((newTask) => {
+    (async () => {
+      const newTask = await apiPostTask(state.project.id, task);
+
       if (!newTask) {
         console.error("Error while adding the task");
         return;
       }
+
       dispatch({
         type: "ADD_TASK",
         task: newTask,
       });
-    });
+    })();
   };
 
   const moveTask = (toBucketId: BucketID, taskId: TaskID) => {
@@ -293,11 +281,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const updateTask = (taskId: TaskID, updates: TaskUpdates) => {
-    const task = state.tasks.find((task) => task.id === taskId);
-    if (!task) return;
-    const updateData = reconsileTaskUpdate(task, updates);
+    (async () => {
+      const task = state.tasks.find((task) => task.id === taskId);
+      if (!task) return;
 
-    apiPatchTask(state.project.id, taskId, updateData).then((updatedTask) => {
+      const updatedTask = await apiPatchTask(state.project.id, taskId, updates);
       if (updatedTask) {
         console.log("ifyes");
 
@@ -307,11 +295,97 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           updates: updatedTask,
         });
       }
+    })();
+  };
+
+  const deleteTask = (taskId: TaskID) => {
+    (async () => {
+      const success = await apiDeleteTask(state.project.id, taskId);
+      if (success) {
+        dispatch({
+          type: "DELETE_TASK",
+          taskId: taskId,
+        });
+      }
+    })();
+  };
+
+  const updateBucket = (bucketId: BucketID, updates: BucketUpdates) => {
+    (async () => {
+      const bucketToUpdate = state.buckets.find(
+        (bucket) => bucket.id === bucketId,
+      );
+      if (!bucketToUpdate) return;
+
+      const updatedBucket = await apiPatchBucket(
+        state.project.id,
+        bucketId,
+        updates,
+      );
+      if (updatedBucket) {
+        dispatch({
+          type: "UPDATE_BUCKET",
+          bucketId: bucketId,
+          updates: updatedBucket,
+        });
+      }
+    })();
+  };
+
+  const resetLayersForAllBuckets = () => {
+    state.buckets.forEach((bucket) => {
+      // Call updateBucket for each bucket to reset the layer
+      updateBucket(bucket.id, { layer: null });
     });
   };
 
-  const getBuckets = () => {
-    return state.buckets;
+  const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
+    (async () => {
+      const bucketId = bucket.id;
+      if (
+        hasCyclicDependencyWithBucket(
+          bucket.id,
+          dependencyId,
+          state.dependencies,
+        )
+      ) {
+        console.error("Cyclic dependency detected!");
+        return;
+      }
+
+      const newDependency = await apiAddBucketDependency(
+        state.project.id,
+        bucketId,
+        dependencyId,
+      );
+      if (newDependency) {
+        dispatch({
+          type: "ADD_BUCKET_DEPENDENCY",
+          bucketId,
+          dependencyId,
+        });
+      }
+    })();
+  };
+
+  const removeBucketDependency = (
+    bucketId: BucketID,
+    dependencyId: BucketID,
+  ) => {
+    (async () => {
+      const success = await apiRemoveBucketDependency(
+        state.project.id,
+        bucketId,
+        dependencyId,
+      );
+      if (success) {
+        dispatch({
+          type: "REMOVE_BUCKET_DEPENDENCY",
+          bucketId,
+          dependencyId,
+        });
+      }
+    })();
   };
 
   const getTasks = () => {
@@ -326,82 +400,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return state.project;
   };
 
-  const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
-    const bucketId = bucket.id;
-    if (
-      hasCyclicDependencyWithBucket(bucket.id, dependencyId, state.dependencies)
-    ) {
-      console.error("Cyclic dependency detected!");
-      return;
-    }
-
-    dispatch({
-      type: "ADD_BUCKET_DEPENDENCY",
-      bucketId,
-      dependencyId,
-    });
-  };
-
-  const removeBucketDependency = (
-    bucketId: BucketID,
-    dependencyId: BucketID,
-  ) => {
-    dispatch({
-      type: "REMOVE_BUCKET_DEPENDENCY",
-      bucketId,
-      dependencyId,
-    });
-  };
-
-  const updateBucket = (
-    bucketId: BucketID,
-    updates: {
-      name?: string;
-      layer?: number;
-      flagged?: boolean;
-      done?: boolean;
-    },
-  ) => {
-    // Find the bucket to update
-    const bucketToUpdate = state.buckets.find(
-      (bucket) => bucket.id === bucketId,
-    );
-    if (!bucketToUpdate) return;
-
-    // Merge the existing bucket data with the updates
-    const updatedBucketData = reconsileBucketUpdate(bucketToUpdate, updates);
-
-    // Call API to update the bucket on the server
-    // Assuming you have an API function like `apiPatchBucket`
-    apiPatchBucket(state.project.id, bucketId, updatedBucketData).then(
-      (updatedBucket) => {
-        if (updatedBucket) {
-          // Dispatch an action to update the bucket in the local state
-          dispatch({
-            type: "UPDATE_BUCKET",
-            bucketId: bucketId,
-            updates: updatedBucket,
-          });
-        }
-      },
-    );
-  };
-
-  const deleteTask = (taskId: TaskID) => {
-    apiDeleteTask(state.project.id, taskId).then((success) => {
-      if (success) {
-        dispatch({
-          type: "DELETE_TASK",
-          taskId: taskId,
-        });
-      }
-    });
-  };
-
-  const resetLayersForAllBuckets = () => {
-    dispatch({
-      type: "RESET_LAYERS_FOR_ALL_BUCKETS",
-    });
+  const getBuckets = () => {
+    return state.buckets;
   };
 
   console.dir(state);
