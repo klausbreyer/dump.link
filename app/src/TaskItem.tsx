@@ -303,12 +303,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             rows={1}
             ref={textAreaRef}
           ></textarea>
-          <div
-            className={`absolute text-slate-800 text-xxs bottom-2 left-1 bg-white`}
-          >
-            ID: {task?.id} Prio:
-            {task?.priority}
-          </div>
+          {false && (
+            <div
+              className={`absolute text-slate-800 text-xxs bottom-2 left-1 bg-white`}
+            >
+              ID: {task?.id} Prio:
+              {task?.priority}
+            </div>
+          )}
           {showCounter && (
             <div
               className={`absolute text-slate-800 text-xxs bottom-2 right-1`}

@@ -172,40 +172,6 @@ const dataReducer = (state: State, action: ActionType): State => {
       };
     }
 
-    case "MOVE_TASK": {
-      const { toBucketId, taskId } = action;
-
-      // Find the task to move
-      const taskToMoveIndex = state.tasks.findIndex(
-        (task) => task.id === taskId,
-      );
-      if (taskToMoveIndex === -1) return state; // If the task is not found, return the current state
-
-      const taskToMove = { ...state.tasks[taskToMoveIndex] };
-
-      // Check if the task is already in the target bucket
-      if (taskToMove.bucketId === toBucketId) return state;
-
-      // Calculate the new priority for the task in the new bucket
-      const tasksInNewBucket = state.tasks.filter(
-        (task) => task.bucketId === toBucketId,
-      );
-      const highestPriority =
-        tasksInNewBucket.length > 0
-          ? Math.max(...tasksInNewBucket.map((t) => t.priority))
-          : 0;
-
-      // Update the task with the new bucketId and priority
-      taskToMove.bucketId = toBucketId;
-      taskToMove.priority = highestPriority + PRIORITY_INCREMENT;
-
-      // Update the tasks array in the state
-      let updatedTasks = [...state.tasks];
-      updatedTasks[taskToMoveIndex] = taskToMove;
-
-      return { ...state, tasks: updatedTasks };
-    }
-
     case "ADD_BUCKET_DEPENDENCY": {
       const { bucketId, dependencyId } = action;
 
@@ -301,22 +267,46 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
   };
 
-  const moveTask = (toBucketId: BucketID, task: Task) => {
-    dispatch({
-      type: "MOVE_TASK",
-      toBucketId: toBucketId,
-      taskId: task.id,
-    });
+  const moveTask = (toBucketId: BucketID, taskId: TaskID) => {
+    // Find the task to move
+    const taskToMove = state.tasks.find((task) => task.id === taskId);
+    if (!taskToMove) return;
+
+    // Check if the task is already in the target bucket
+    if (taskToMove.bucketId === toBucketId) return;
+
+    // Calculate the new priority for the task in the new bucket
+    const tasksInNewBucket = state.tasks.filter(
+      (task) => task.bucketId === toBucketId,
+    );
+    const highestPriority =
+      tasksInNewBucket.length > 0
+        ? Math.max(...tasksInNewBucket.map((t) => t.priority))
+        : 0;
+
+    // Prepare the updates for the task
+    const updates = {
+      bucketId: toBucketId,
+      priority: highestPriority + PRIORITY_INCREMENT,
+    };
+
+    // Update the task using the updateTask function
+    updateTask(taskId, updates);
   };
 
   const updateTask = (taskId: TaskID, updates: TaskUpdates) => {
     const task = state.tasks.find((task) => task.id === taskId);
     if (!task) return;
-
     const updateData = reconsileTaskUpdate(task, updates);
 
     apiPatchTask(state.project.id, taskId, updateData).then((updatedTask) => {
+      console.log("updated task");
+
+      console.log(updatedTask, taskId);
+
       if (updatedTask) {
+        console.log("ifyes");
+
         dispatch({
           type: "UPDATE_TASK",
           taskId: taskId,
@@ -434,7 +424,7 @@ type DataContextType = {
   addTask: (task: Task) => void;
   deleteTask: (taskId: TaskID) => void;
   updateTask: (taskId: TaskID, updates: TaskUpdates) => void;
-  moveTask: (toBucketId: BucketID, task: Task) => void;
+  moveTask: (toBucketId: BucketID, taskId: TaskID) => void;
 
   getBuckets: () => Bucket[];
   updateBucket: (
@@ -467,6 +457,7 @@ type TaskUpdates = {
   closed?: Task["closed"];
   title?: Task["title"];
   priority?: Task["priority"];
+  bucketId?: Task["bucketId"];
 };
 
 function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
@@ -475,5 +466,6 @@ function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
     ...(updates.closed !== undefined && { closed: updates.closed }),
     ...(updates.title !== undefined && { title: updates.title }),
     ...(updates.priority !== undefined && { priority: updates.priority }),
+    ...(updates.bucketId !== undefined && { bucketId: updates.bucketId }),
   };
 }

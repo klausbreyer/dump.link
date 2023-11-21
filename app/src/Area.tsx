@@ -35,7 +35,7 @@ const Area: React.FC<AreaProps> = (props) => {
         if (!task) return;
         const fromBucketId = getBucketForTask(buckets, task)?.id || "";
         if (fromBucketId !== bucket.id) {
-          moveTask(bucket.id, task);
+          moveTask(bucket.id, task.id);
         }
       },
       collect: (monitor) => ({

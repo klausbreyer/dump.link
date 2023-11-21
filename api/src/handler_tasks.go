@@ -129,5 +129,10 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// fix missmatch between database column and frontend fields.
+	if updates["bucket_id"] != nil {
+		updates["bucketId"] = updates["bucket_id"]
+		delete(updates, "bucket_id")
+	}
 	app.writeJSON(w, http.StatusOK, updates, nil)
 }

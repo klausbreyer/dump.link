@@ -75,7 +75,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
         const fromBucketId = getBucketForTask(buckets, task)?.id || "";
         if (fromBucketId === bucket.id) return;
 
-        moveTask(bucket.id, task);
+        moveTask(bucket.id, task.id);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
@@ -112,12 +112,19 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   return (
     <div
-      className={`w-full rounded-md overflow-hidden ${bgTop} border-2
+      className={`w-full relative rounded-md overflow-hidden ${bgTop} border-2
       ${showDashed && "border-dashed border-2 border-gray-400"}
       ${showSolid && " border-gray-400"}
       ${showNone && " border-transparent"}
     `}
     >
+      {true && (
+        <div
+          className={`absolute text-slate-800 text-xxs bottom-2 left-1 bg-white z-10`}
+        >
+          ID: {bucket?.id}
+        </div>
+      )}
       <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
         <Header context={TabContext.Group} bucket={bucket} />
