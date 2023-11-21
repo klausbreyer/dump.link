@@ -85,16 +85,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           priority: temporaryPriority.priority,
         });
         setTemporaryPriority({ priority: 0, taskId: "" });
-
-        // const droppedId = item.taskId;
-        // const overIndex = getTaskIndex(sortedTasksForBucket, task);
-        // const didDrop = monitor.didDrop();
-        // if (overIndex === undefined) return;
-        // if (droppedId === undefined) return;
-        // if (droppedId === task?.id) return;
-        // if (!didDrop) {
-        // reorderTask(droppedId, overIndex);
-        // }
       },
     }),
     [
@@ -117,63 +107,33 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const [, dropRef] = useDrop(
     () => ({
       accept: getTaskType(buckets, task),
-      hover: (item, monitor) => {
+      hover: (item: DraggedTask) => {
         const draggedId = item.taskId;
-
         if (draggedId === task?.id) return;
+        if (!task) return;
 
         const draggedTask = getTask(sortedTasksForBucket, draggedId);
+        if (!draggedTask) return;
 
-        const overtask = task;
-        const overIndex = getTaskIndex(sortedTasksForBucket, overtask.id);
-        const beforeIndex = overIndex - 2;
-        const beforeTask = sortedTasksForBucket[beforeIndex];
-        const afterIndex = overIndex;
-        const afterTask = sortedTasksForBucket[afterIndex];
+        const overIndex = getTaskIndex(sortedTasksForBucket, task.id);
+        if (overIndex === -1) return;
 
-        let newPriority;
+        const newPriority = calculateNewPriority(
+          draggedTask,
+          task,
+          sortedTasksForBucket,
+          overIndex,
+        );
 
-        if (overIndex === 0) {
-          // Special case: dragged task is moved to the top of the list
-          console.log("zero");
-
-          newPriority = overtask.priority - PRIORITY_INCREMENT;
-        } else if (overIndex === sortedTasksForBucket.length - 1) {
-          // Special case: dragged task is moved to the bottom of the list
-          newPriority = overtask.priority + PRIORITY_INCREMENT;
-        } else {
-          // General case: dragged task is moved within the list
-          if (draggedTask.priority < overtask.priority) {
-            // Moving upwards: use the average of overtask and beforeTask's priority
-            newPriority = Math.round(
-              (overtask.priority +
-                sortedTasksForBucket[overIndex - 1].priority) /
-                2,
-            );
-          } else {
-            // Moving downwards: use the average of overtask and afterTask's priority
-            newPriority = Math.round(
-              (overtask.priority +
-                sortedTasksForBucket[overIndex + 1].priority) /
-                2,
-            );
-          }
-        }
-
-        // console.log(overIndex, beforeIndex, afterIndex);
         console.log(task?.id, overIndex, newPriority);
-
-        // console.dir(overtask?.priority, beforeTask?.priority, newPriority);
-
-        if (newPriority > -1) {
-          setTemporaryPriority({ priority: newPriority, taskId: draggedId });
-        }
+        setTemporaryPriority({ priority: newPriority, taskId: draggedId });
       },
     }),
     [
       task,
       buckets,
       sortedTasksForBucket,
+      calculateNewPriority,
       getTaskIndex,
       getTask,
       setTemporaryPriority,
@@ -293,7 +253,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   return (
     <div
       ref={(node) => previewRev(dropRef(node))}
-      style={{ order: localPriority > 0 ? localPriority : -999999999 }}
+      style={{ order: !task ? -9999999999 : localPriority }}
     >
       <div
         // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
@@ -370,3 +330,36 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 };
 
 export default TaskItem;
+
+function calculateNewPriority(
+  draggedTask: Task,
+  overTask: Task,
+  sortedTasksForBucket: Task[],
+  overIndex: number,
+): number {
+  const beforeIndex = overIndex - 1;
+  const afterIndex = overIndex + 1;
+
+  let newPriority = overTask.priority; // Standardwert als aktuelle Priorität des übergeordneten Tasks
+
+  if (overIndex === 0) {
+    newPriority = overTask.priority - PRIORITY_INCREMENT;
+  } else if (overIndex === sortedTasksForBucket.length - 1) {
+    newPriority = overTask.priority + PRIORITY_INCREMENT;
+  } else {
+    if (draggedTask.priority < overTask.priority && beforeIndex >= 0) {
+      newPriority = Math.round(
+        (overTask.priority + sortedTasksForBucket[afterIndex].priority) / 2,
+      );
+    } else if (
+      draggedTask.priority > overTask.priority &&
+      afterIndex < sortedTasksForBucket.length
+    ) {
+      newPriority = Math.round(
+        (overTask.priority + sortedTasksForBucket[beforeIndex].priority) / 2,
+      );
+    }
+  }
+
+  return newPriority;
+}

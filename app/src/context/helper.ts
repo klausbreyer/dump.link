@@ -604,10 +604,7 @@ export const getTask = (tasks: Task[], taskId: TaskID) => {
   return tasks.find((t) => t.id === taskId);
 };
 
-export const getTaskIndex = (
-  tasks: Task[],
-  taskId: TaskID,
-): number | undefined => {
+export const getTaskIndex = (tasks: Task[], taskId: TaskID): number => {
   // Find and return the index of the task in the tasks array
   return tasks.findIndex((t) => t.id === taskId);
 };
