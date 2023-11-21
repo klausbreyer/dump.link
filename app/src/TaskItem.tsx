@@ -303,9 +303,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             rows={1}
             ref={textAreaRef}
           ></textarea>
-          {true && (
+          {process.env.NODE_ENV !== "production" && (
             <div
-              className={`absolute text-slate-800 text-xxs bottom-2 left-1 bg-white`}
+              className={`absolute text-slate-800 text-xxxs bottom-2 right-1 bg-white`}
             >
               ID: {task?.id} Prio:
               {task?.priority}

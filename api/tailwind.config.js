@@ -3,9 +3,7 @@ module.exports = {
   content: ["./src/**/*.{html,go}"],
   theme: {
     extend: {
-      fontSize: {
-        xxs: "0.6rem", // Your custom text size
-      },
+      fontSize: {},
     },
   },
   plugins: [],

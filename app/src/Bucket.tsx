@@ -118,9 +118,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
       ${showNone && " border-transparent"}
     `}
     >
-      {true && (
+      {process.env.NODE_ENV !== "production" && (
         <div
-          className={`absolute text-slate-800 text-xxs bottom-2 left-1 bg-white z-10`}
+          className={`absolute text-slate-800 text-xxxs bottom-2 right-1 bg-white z-10`}
         >
           ID: {bucket?.id}
         </div>

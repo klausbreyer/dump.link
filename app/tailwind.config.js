@@ -5,6 +5,7 @@ module.exports = {
     extend: {
       fontSize: {
         xxs: "0.6rem", // Your custom text size
+        xxxs: "0.4rem", // Your custom text size
       },
     },
   },
