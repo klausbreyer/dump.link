@@ -15,7 +15,6 @@ import {
   getTask,
   getTasksByClosed,
   getTasksForBucket,
-  sortTasksByPriority,
 } from "./context/helper";
 import {
   Bucket,
@@ -43,6 +42,9 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
 
   const [recentlyDone, setRecentlyDone] = useState<TaskID[]>([]);
+
+  const open = getTasksByClosed(tasksForbucket, false);
+  const closed = getTasksByClosed(tasksForbucket, true);
 
   const handleTaskClosed = (taskId: string) => {
     // Add the closed task to the recentlyDone list if it's not already there
@@ -73,10 +75,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
         const fromBucketId = getBucketForTask(buckets, task)?.id || "";
         if (fromBucketId === bucket.id) return;
 
-        updateTask(taskId, {
-          title: task?.title || "",
-          closed: false,
-        });
         moveTask(bucket.id, task);
       },
       collect: (monitor) => ({
@@ -97,9 +95,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
-
-  const open = sortTasksByPriority(getTasksByClosed(tasksForbucket, false));
-  const closed = sortTasksByPriority(getTasksByClosed(tasksForbucket, true));
 
   const aboveFoldClosed = closed.filter((t) => recentlyDone.includes(t.id));
   const belowFoldClosed = closed.filter((t) => !recentlyDone.includes(t.id));
@@ -165,13 +160,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
               Done
             </div>
           )}
-
-          {/* {showCantDropWarning && (
-            <div className="flex items-center justify-center gap-2 text-center">
-              <ExclamationTriangleIcon className="w-5 h-5" />
-              Can't drop - this bucket is done! Undone?
-            </div>
-          )} */}
           {showTasksAndBar && <MicroProgress bucket={bucket} />}
           <CardList>
             {open.map((task) => (

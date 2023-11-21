@@ -3,55 +3,13 @@ import {
   BucketID,
   BucketState,
   Dependency,
-  Project,
-  State,
   Task,
   TaskID,
 } from "../types";
 
 const crypto = window.crypto || (window as any).msCrypto;
-export const transformApiResponseToProject = (apiResponse: any): State => {
-  // Mapping tasks
-  const tasks: Task[] = apiResponse.tasks.map((task: any) => ({
-    id: task.id,
-    bucketId: task.bucketId,
-    title: task.title,
-    closed: task.closed,
-    priority: task.priority,
-  }));
 
-  // Mapping buckets without nested tasks
-  const buckets: Bucket[] = apiResponse.buckets.map((bucket: any) => ({
-    id: bucket.id,
-    projectId: bucket.projectId,
-    name: bucket.name,
-    done: bucket.done,
-    dump: bucket.dump,
-    layer: bucket.layer ?? undefined, // Convert 'null' in API response to 'undefined'
-    flagged: bucket.flagged,
-  }));
-
-  // Mapping dependencies
-  const dependencies: Dependency[] = apiResponse.dependencies.map(
-    (dep: any) => ({
-      bucketId: dep.bucketId,
-      dependencyId: dep.dependencyId,
-    }),
-  );
-
-  // Constructing the entire State object
-  return {
-    project: {
-      id: apiResponse.project.id,
-      name: apiResponse.project.name,
-      startedAt: new Date(apiResponse.project.startedAt),
-      appetite: apiResponse.project.appetite,
-    },
-    buckets: buckets,
-    tasks: tasks,
-    dependencies: dependencies,
-  };
-};
+export const PRIORITY_INCREMENT = 100000;
 
 export const extractIdFromUrl = () => {
   const url = window.location.pathname;
@@ -59,22 +17,23 @@ export const extractIdFromUrl = () => {
   return parts[parts.length - 1];
 };
 
-// NewID generates a random base-58 ID.
-export function NewID(): string {
+// NewID generates a random base-58 ID with optional prefixes.
+export function NewID(...prefixes: string[]): string {
   const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; // base58
   const size = 11;
 
-  // Create a Uint8Array and fill it with random values
-  const idBuffer = new Uint8Array(size);
-  crypto.getRandomValues(idBuffer);
+  // Concatenate all prefixes if provided
+  const prefix = prefixes.join("");
 
-  // Convert Uint8Array to array of numbers
-  const idArray = Array.from(idBuffer);
+  // Create an array for the ID
+  const id = new Array(size);
 
-  // Map each byte to a character in the base58 alphabet
-  const id = idArray.map((p) => alphabet[p % alphabet.length]).join("");
+  for (let i = 0; i < size; i++) {
+    const randomValue = crypto.getRandomValues(new Uint8Array(1))[0];
+    id[i] = alphabet[randomValue % alphabet.length];
+  }
 
-  return id;
+  return prefix + id.join("");
 }
 
 /**
@@ -362,10 +321,6 @@ export function getBucketState(bucket: Bucket, tasks: Task[]): BucketState {
   throw new Error("Undefined bucket state.");
 }
 
-export const sortTasksByPriority = (tasks: Task[]): Task[] => {
-  return [...tasks].sort((a, b) => a.priority - b.priority);
-};
-
 export const getBucketsDependingOn = (
   dependencies: Dependency[],
   dependencyId: BucketID,
@@ -649,14 +604,9 @@ export const getTask = (tasks: Task[], taskId: TaskID) => {
   return tasks.find((t) => t.id === taskId);
 };
 
-export const getTaskIndex = (
-  tasks: Task[],
-  task: Task | null,
-): number | undefined => {
-  if (!task) return undefined;
-
+export const getTaskIndex = (tasks: Task[], taskId: TaskID): number => {
   // Find and return the index of the task in the tasks array
-  return tasks.findIndex((t) => t.id === task.id);
+  return tasks.findIndex((t) => t.id === taskId);
 };
 
 export const getTasksForBucket = (
@@ -665,4 +615,18 @@ export const getTasksForBucket = (
 ): Task[] => {
   // Filter and return tasks that belong to the given bucket
   return tasks.filter((task) => task.bucketId === bucketId);
+};
+
+export function calculateHighestPriority(tasks: Task[]) {
+  let highestPriority = 0;
+  tasks.forEach((task) => {
+    if (task.priority > highestPriority) {
+      highestPriority = task.priority;
+    }
+  });
+  return highestPriority;
+}
+
+export const sortTasksByPriority = (tasks: Task[]): Task[] => {
+  return [...tasks].sort((a, b) => a.priority - b.priority);
 };

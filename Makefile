@@ -5,6 +5,7 @@ kill:
 
 start:
 	make kill
+	rm -rf app/.parcel-cache
 	(cd api && air) & (cd api && ./tailwindcss -i ./css/tailwind.css -o ./static/tailwind.css --watch) & (cd app && bun start)
 
 test:

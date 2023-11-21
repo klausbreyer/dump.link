@@ -2,25 +2,30 @@ import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import React, {
   ChangeEvent,
   KeyboardEvent,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
+import { getInputBorderColor } from "./common/colors";
+import { isSafari } from "./common/helper";
 import config from "./config";
 import { useData } from "./context/data";
 import { useGlobalDragging } from "./context/dragging";
-import usePasteListener from "./hooks/usePasteListener";
-import { Bucket, DraggedTask, DraggingType, Task } from "./types";
-import { isSafari } from "./common/helper";
-import { getInputBorderColor } from "./common/colors";
 import {
-  getBucketForTask,
+  NewID,
+  PRIORITY_INCREMENT,
+  calculateHighestPriority,
+  getTask,
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
+  sortTasksByPriority,
 } from "./context/helper";
+import usePasteListener from "./hooks/usePasteListener";
+import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 
 interface TaskItemProps {
   task: Task | null;
@@ -30,13 +35,16 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
-  const { addTask, updateTask, deleteTask, getBuckets, getTasks, reorderTask } =
+  const { addTask, updateTask, deleteTask, getProject, getBuckets, getTasks } =
     useData();
 
+  const { setGlobalDragging, temporaryPriority, setTemporaryPriority } =
+    useGlobalDragging();
   const buckets = getBuckets();
-
+  const project = getProject();
   const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
+  const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
@@ -44,14 +52,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   usePasteListener(textAreaRef, (title: string) => {
     title = title.substring(0, config.TASK_MAX_LENGTH);
 
-    if (!task) {
-      addTask(bucket.id, { title: title, closed: false });
-    }
-    if (task) {
-      const bucket = getBucketForTask(buckets, task);
-      if (!bucket) return;
-      addTask(bucket.id, { title: title, closed: false });
-    }
+    addTask({
+      id: NewID(project.id),
+      priority:
+        calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
+      title: val,
+      closed: false,
+      bucketId: bucket.id,
+    });
   });
 
   const [val, setVal] = useState<string>(task?.title || "");
@@ -70,23 +78,25 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         isDragging: !!monitor.isDragging(),
       }),
       end: (item, monitor) => {
-        const droppedId = item.taskId;
-        const overIndex = getTaskIndex(tasksForbucket, task);
-        const didDrop = monitor.didDrop();
+        if (!task) return;
 
-        if (overIndex === undefined) return;
-        if (droppedId === undefined) return;
-        if (droppedId === task?.id) return;
-
-        if (!didDrop) {
-          reorderTask(droppedId, overIndex);
-        }
+        updateTask(temporaryPriority.taskId, {
+          ...task,
+          priority: temporaryPriority.priority,
+        });
+        setTemporaryPriority({ priority: 0, taskId: "" });
       },
     }),
-    [reorderTask, task, buckets, tasksForbucket],
+    [
+      task,
+      buckets,
+      sortedTasksForBucket,
+      getTaskType,
+      updateTask,
+      setTemporaryPriority,
+    ],
   );
 
-  const { setGlobalDragging } = useGlobalDragging();
   useEffect(() => {
     setGlobalDragging(
       isDragging ? DraggingType.TASK : DraggingType.NONE,
@@ -97,18 +107,37 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const [, dropRef] = useDrop(
     () => ({
       accept: getTaskType(buckets, task),
-      hover(item: DraggedTask) {
+      hover: (item: DraggedTask) => {
         const draggedId = item.taskId;
-        const overIndex = getTaskIndex(tasksForbucket, task);
-
-        // avoid flickering.
-        if (overIndex === undefined) return;
         if (draggedId === task?.id) return;
+        if (!task) return;
 
-        reorderTask(draggedId, overIndex);
+        const draggedTask = getTask(sortedTasksForBucket, draggedId);
+        if (!draggedTask) return;
+
+        const overIndex = getTaskIndex(sortedTasksForBucket, task.id);
+        if (overIndex === -1) return;
+
+        const newPriority = calculateNewPriority(
+          draggedTask,
+          task,
+          sortedTasksForBucket,
+          overIndex,
+        );
+
+        console.log(task?.id, overIndex, newPriority);
+        setTemporaryPriority({ priority: newPriority, taskId: draggedId });
       },
     }),
-    [reorderTask, task, buckets, tasksForbucket],
+    [
+      task,
+      buckets,
+      sortedTasksForBucket,
+      calculateNewPriority,
+      getTaskIndex,
+      getTask,
+      setTemporaryPriority,
+    ],
   );
 
   useEffect(() => {
@@ -144,7 +173,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     // For a new task
     if (task === null) {
       if (val.length === 0) return;
-      addTask(bucket.id, { title: val, closed: false });
+      addTask({
+        id: NewID(project.id),
+        priority:
+          calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
+        title: val,
+        closed: false,
+        bucketId: bucket.id,
+      });
       setVal("");
       setTimeout(() => {
         textAreaRef?.current?.focus();
@@ -166,7 +202,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       "Are you sure you want to delete this task?",
     );
     if (isConfirmed) {
-      deleteTask(getBucketForTask(buckets, task)?.id || "", task.id);
+      deleteTask(task.id);
     }
   }
 
@@ -209,8 +245,16 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       : "border-orange-300"
     : getInputBorderColor(bucket);
 
+  const localPriority =
+    temporaryPriority.taskId === task?.id
+      ? temporaryPriority.priority
+      : task?.priority;
+
   return (
-    <div ref={(node) => previewRev(dropRef(node))}>
+    <div
+      ref={(node) => previewRev(dropRef(node))}
+      style={{ order: !task ? -9999999999 : localPriority }}
+    >
       <div
         // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
         className={`flex gap-1 items-center
@@ -259,6 +303,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             rows={1}
             ref={textAreaRef}
           ></textarea>
+          <div
+            className={`absolute text-slate-800 text-xxs bottom-2 left-1 bg-white`}
+          >
+            ID: {task?.id} Prio:
+            {task?.priority}
+          </div>
           {showCounter && (
             <div
               className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
@@ -280,3 +330,36 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 };
 
 export default TaskItem;
+
+function calculateNewPriority(
+  draggedTask: Task,
+  overTask: Task,
+  sortedTasksForBucket: Task[],
+  overIndex: number,
+): number {
+  const beforeIndex = overIndex - 1;
+  const afterIndex = overIndex + 1;
+
+  let newPriority = overTask.priority; // Standardwert als aktuelle Priorität des übergeordneten Tasks
+
+  if (overIndex === 0) {
+    newPriority = overTask.priority - PRIORITY_INCREMENT;
+  } else if (overIndex === sortedTasksForBucket.length - 1) {
+    newPriority = overTask.priority + PRIORITY_INCREMENT;
+  } else {
+    if (draggedTask.priority < overTask.priority && beforeIndex >= 0) {
+      newPriority = Math.round(
+        (overTask.priority + sortedTasksForBucket[afterIndex].priority) / 2,
+      );
+    } else if (
+      draggedTask.priority > overTask.priority &&
+      afterIndex < sortedTasksForBucket.length
+    ) {
+      newPriority = Math.round(
+        (overTask.priority + sortedTasksForBucket[beforeIndex].priority) / 2,
+      );
+    }
+  }
+
+  return newPriority;
+}
