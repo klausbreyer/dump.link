@@ -1,4 +1,11 @@
-import { Bucket, Dependency, State, Task } from "../types";
+import {
+  Bucket,
+  BucketUpdates,
+  Dependency,
+  State,
+  Task,
+  TaskUpdates,
+} from "../types";
 
 export const BASE_URL =
   process.env.NODE_ENV === "production"
@@ -116,16 +123,10 @@ export const apiDeleteTask = async (
   }
 };
 
-export type TaskUpdateData = {
-  title?: string;
-  closed?: boolean;
-  priority?: number;
-};
-
 export const apiPatchTask = async (
   projectId: string,
   taskId: string,
-  updateData: TaskUpdateData,
+  updateData: TaskUpdates,
 ): Promise<Task | null> => {
   try {
     const response = await fetch(
@@ -147,6 +148,34 @@ export const apiPatchTask = async (
     return updatedTask;
   } catch (error) {
     console.error("Error while updating the task:", error);
+    return null;
+  }
+};
+export const apiPatchBucket = async (
+  projectId: string,
+  bucketId: string,
+  updateData: BucketUpdates,
+): Promise<Bucket | null> => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/v1/projects/${projectId}/buckets/${bucketId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const updatedBucket: Bucket = await response.json();
+    return updatedBucket;
+  } catch (error) {
+    console.error("Error while updating the bucket:", error);
     return null;
   }
 };

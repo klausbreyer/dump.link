@@ -3,17 +3,20 @@ import React, { createContext, useContext, useEffect, useReducer } from "react";
 import {
   Bucket,
   BucketID,
+  BucketUpdates,
   Dependency,
   Project,
   State,
   Task,
   TaskID,
+  TaskUpdates,
 } from "../types";
 import {
   apiDeleteTask,
   apiGetProject,
   apiPostTask,
   apiPatchTask,
+  apiPatchBucket,
 } from "./calls";
 import {
   PRIORITY_INCREMENT,
@@ -48,12 +51,7 @@ type ActionType =
   | {
       type: "UPDATE_BUCKET";
       bucketId: BucketID;
-      updates: {
-        name?: string;
-        layer?: number;
-        flagged?: boolean;
-        done?: boolean;
-      };
+      updates: BucketUpdates;
     }
   | {
       type: "CHANGE_TASK_STATE";
@@ -300,10 +298,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     const updateData = reconsileTaskUpdate(task, updates);
 
     apiPatchTask(state.project.id, taskId, updateData).then((updatedTask) => {
-      console.log("updated task");
-
-      console.log(updatedTask, taskId);
-
       if (updatedTask) {
         console.log("ifyes");
 
@@ -368,11 +362,29 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       done?: boolean;
     },
   ) => {
-    dispatch({
-      type: "UPDATE_BUCKET",
-      bucketId: bucketId,
-      updates: updates,
-    });
+    // Find the bucket to update
+    const bucketToUpdate = state.buckets.find(
+      (bucket) => bucket.id === bucketId,
+    );
+    if (!bucketToUpdate) return;
+
+    // Merge the existing bucket data with the updates
+    const updatedBucketData = reconsileBucketUpdate(bucketToUpdate, updates);
+
+    // Call API to update the bucket on the server
+    // Assuming you have an API function like `apiPatchBucket`
+    apiPatchBucket(state.project.id, bucketId, updatedBucketData).then(
+      (updatedBucket) => {
+        if (updatedBucket) {
+          // Dispatch an action to update the bucket in the local state
+          dispatch({
+            type: "UPDATE_BUCKET",
+            bucketId: bucketId,
+            updates: updatedBucket,
+          });
+        }
+      },
+    );
   };
 
   const deleteTask = (taskId: TaskID) => {
@@ -427,15 +439,7 @@ type DataContextType = {
   moveTask: (toBucketId: BucketID, taskId: TaskID) => void;
 
   getBuckets: () => Bucket[];
-  updateBucket: (
-    bucketId: BucketID,
-    updates: {
-      name?: string;
-      layer?: number;
-      flagged?: boolean;
-      done?: boolean;
-    },
-  ) => void;
+  updateBucket: (bucketId: BucketID, updates: BucketUpdates) => void;
 
   getDependencies: () => Dependency[];
   getProject: () => Project;
@@ -453,13 +457,6 @@ export const useData = () => {
   return context;
 };
 
-type TaskUpdates = {
-  closed?: Task["closed"];
-  title?: Task["title"];
-  priority?: Task["priority"];
-  bucketId?: Task["bucketId"];
-};
-
 function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
   return {
     ...task,
@@ -467,5 +464,15 @@ function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
     ...(updates.title !== undefined && { title: updates.title }),
     ...(updates.priority !== undefined && { priority: updates.priority }),
     ...(updates.bucketId !== undefined && { bucketId: updates.bucketId }),
+  };
+}
+
+function reconsileBucketUpdate(bucket: Bucket, updates: BucketUpdates): Bucket {
+  return {
+    ...bucket,
+    ...(updates.name !== undefined && { name: updates.name }),
+    ...(updates.layer !== undefined && { layer: updates.layer }),
+    ...(updates.flagged !== undefined && { flagged: updates.flagged }),
+    ...(updates.done !== undefined && { done: updates.done }),
   };
 }

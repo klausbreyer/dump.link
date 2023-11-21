@@ -48,7 +48,7 @@ export function getFlagButtonBackground(bucket: Bucket, tasks: Task[]): string {
 
 export function getBucketFlaggedStyle(bucket: Bucket, tasks: Task[]): string {
   const open = getTasksByClosed(tasks, false);
-  if ((bucket.flagged && open.length > 0) || tasks.length === 0) {
+  if (bucket.flagged && (open.length > 0 || tasks.length === 0)) {
     return " bg-rose-500 ";
   }
   return "";

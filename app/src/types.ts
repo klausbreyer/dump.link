@@ -39,6 +39,19 @@ export type State = {
   dependencies: Dependency[];
 };
 
+export type TaskUpdates = {
+  closed?: Task["closed"];
+  title?: Task["title"];
+  priority?: Task["priority"];
+  bucketId?: Task["bucketId"];
+};
+
+export type BucketUpdates = {
+  name?: Bucket["name"];
+  layer?: Bucket["layer"];
+  flagged?: Bucket["flagged"];
+  done?: Bucket["done"];
+};
 export type DraggedTask = {
   taskId: TaskID;
 };
