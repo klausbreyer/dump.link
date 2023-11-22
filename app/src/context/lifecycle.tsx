@@ -5,6 +5,8 @@ export enum LifecycleState {
   Initialized = "initialized",
   Loaded = "loaded",
   Error = "error",
+  Error404 = "error404",
+  ErrorApi = "errorSocket",
 }
 
 interface LifecycleContextType {

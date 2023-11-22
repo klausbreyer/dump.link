@@ -43,6 +43,10 @@ const Main = function Main() {
     return <Loading />;
   }
 
+  if (lifecycle === LifecycleState.Error) {
+    return <Error lifecycle={lifecycle} />;
+  }
+
   const renderComponentBasedOnQueryParam = () => {
     switch (currentQueryParam) {
       case TabContext.Settings:
@@ -75,6 +79,29 @@ const Loading = function Loading() {
   );
 };
 
+type ErrorProps = {
+  lifecycle: LifecycleState;
+};
+
+const Error = function Error(props: ErrorProps) {
+  const { lifecycle } = props;
+
+  let error = "";
+  switch (lifecycle) {
+    case LifecycleState.Error404:
+      error = "404 :(";
+
+    default:
+    case LifecycleState.Error:
+      error = "Something went wrong :(";
+  }
+
+  return (
+    <div className="flex items-center justify-center w-screen h-screen">
+      <div className="text-rose-500">{error}</div>
+    </div>
+  );
+};
 const container = document.getElementById("app");
 const root = createRoot(container!);
 root.render(<App />);

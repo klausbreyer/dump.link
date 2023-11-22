@@ -212,9 +212,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   useEffect(() => {
     const loadInitialState = async () => {
       const id = extractIdFromUrl(); // Stellen Sie sicher, dass diese Funktion existiert und richtig importiert wird
-      const initialState = await apiFunctions.getProject(id);
-      if (initialState) {
-        dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
+
+      try {
+        const initialState = await apiFunctions.getProject(id);
+        if (initialState) {
+          dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
+        }
+      } catch (error) {
+        setLifecycle(LifecycleState.ErrorApi);
       }
     };
 
