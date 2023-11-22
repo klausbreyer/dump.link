@@ -69,8 +69,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
         const taskId = item.taskId;
         const task = getTask(tasks, taskId);
 
-        console.log("dropped", tasksForbucket);
-
         if (!task) return;
         const fromBucketId = getBucketForTask(buckets, task)?.id || "";
         if (fromBucketId === bucket.id) return;

@@ -48,7 +48,6 @@ func secureHeaders(next http.Handler) http.Handler {
 }
 
 func (app *application) enableCORS(next http.Handler) http.Handler {
-	allowedOrigins := []string{"http://localhost:1234", "https://beta.dump-link.com"}
 	allowedMethods := "GET, POST, PATCH, DELETE"
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -56,11 +55,11 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
 
 		if origin != "" {
-			for i := range allowedOrigins {
-				if origin == allowedOrigins[i] {
+			for _, allowedOrigin := range allowedOrigins {
+				if origin == allowedOrigin {
 					w.Header().Set("Access-Control-Allow-Origin", origin)
 					w.Header().Set("Access-Control-Allow-Methods", allowedMethods)
-					w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+					w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Upgrade, Connection")
 					break
 				}
 			}

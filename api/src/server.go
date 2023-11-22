@@ -8,11 +8,18 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"sync"
 
 	"dump.link/src/models"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/websocket"
 )
 
+type wsClient struct {
+	conn        *websocket.Conn
+	projectId   string
+	clientToken string
+}
 type application struct {
 	contentFS embed.FS
 
@@ -21,6 +28,9 @@ type application struct {
 	tasks        *models.TaskModel
 	projects     *models.ProjectModel
 	dependencies *models.DependencyModel
+
+	clients map[string]map[*wsClient]bool // Map projectId to Clients
+	mutex   sync.Mutex
 }
 
 func Run(contentFS embed.FS) error {
@@ -45,6 +55,8 @@ func Run(contentFS embed.FS) error {
 		tasks:        &models.TaskModel{DB: db},
 		projects:     &models.ProjectModel{DB: db},
 		dependencies: &models.DependencyModel{DB: db},
+
+		clients: make(map[string]map[*wsClient]bool),
 	}
 
 	logger.Info(fmt.Sprintf("starting server at http://%s", *addr))

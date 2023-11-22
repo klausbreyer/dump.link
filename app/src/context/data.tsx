@@ -11,21 +11,18 @@ import {
   TaskID,
   TaskUpdates,
 } from "../types";
+
 import {
-  apiDeleteTask,
-  apiGetProject,
-  apiPostTask,
-  apiPatchTask,
-  apiPatchBucket,
-  apiAddBucketDependency,
-  apiRemoveBucketDependency,
-} from "./calls";
-import {
+  NewID,
   PRIORITY_INCREMENT,
   extractIdFromUrl,
   hasCyclicDependencyWithBucket,
 } from "./helper";
 import { LifecycleState, useLifecycle } from "./lifecycle";
+import { setupWebSocket } from "./websocket";
+import { apiFunctions } from "./calls";
+
+export const CLIENT_TOKEN = NewID(new Date().toISOString());
 
 const initialState: State = {
   buckets: [],
@@ -39,7 +36,7 @@ const initialState: State = {
   },
 };
 
-type ActionType =
+export type ActionType =
   | { type: "SET_INITIAL_STATE"; payload: State }
   | {
       type: "ADD_TASK";
@@ -54,12 +51,6 @@ type ActionType =
       type: "UPDATE_BUCKET";
       bucketId: BucketID;
       updates: BucketUpdates;
-    }
-  | {
-      type: "CHANGE_TASK_STATE";
-      bucketId: BucketID;
-      taskId: TaskID;
-      closed: boolean;
     }
   | {
       type: "UPDATE_TASK";
@@ -108,20 +99,6 @@ const dataReducer = (state: State, action: ActionType): State => {
 
       // Filter out the task to be deleted from the state's tasks array
       const updatedTasks = state.tasks.filter((task) => task.id !== taskId);
-
-      return {
-        ...state,
-        tasks: updatedTasks,
-      };
-    }
-
-    case "CHANGE_TASK_STATE": {
-      const { taskId, closed } = action;
-
-      // Map through the tasks array to find and update the specific task
-      const updatedTasks = state.tasks.map((task) =>
-        task.id === taskId ? { ...task, closed: closed } : task,
-      );
 
       return {
         ...state,
@@ -223,7 +200,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   useEffect(() => {
     const loadInitialState = async () => {
       const id = extractIdFromUrl(); // Stellen Sie sicher, dass diese Funktion existiert und richtig importiert wird
-      const initialState = await apiGetProject(id);
+      const initialState = await apiFunctions.getProject(id);
       if (initialState) {
         dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
       }
@@ -233,13 +210,22 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    // Hier wird jetzt die neue setupWebSocket Methode aufgerufen
+    const wsCleanup = setupWebSocket(state.project.id, dispatch);
+
+    return () => {
+      if (wsCleanup) wsCleanup();
+    };
+  }, [state.project.id]);
+
+  useEffect(() => {
     if (state.project.id === "") return;
     setLifecycle(LifecycleState.Loaded);
   }, [state.project.id]);
 
   const addTask = (task: Task) => {
     (async () => {
-      const newTask = await apiPostTask(state.project.id, task);
+      const newTask = await apiFunctions.postTask(state.project.id, task);
 
       if (!newTask) {
         console.error("Error while adding the task");
@@ -285,10 +271,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       const task = state.tasks.find((task) => task.id === taskId);
       if (!task) return;
 
-      const updatedTask = await apiPatchTask(state.project.id, taskId, updates);
+      const updatedTask = await apiFunctions.patchTask(
+        state.project.id,
+        taskId,
+        updates,
+      );
       if (updatedTask) {
-        console.log("ifyes");
-
         dispatch({
           type: "UPDATE_TASK",
           taskId: taskId,
@@ -300,7 +288,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const deleteTask = (taskId: TaskID) => {
     (async () => {
-      const success = await apiDeleteTask(state.project.id, taskId);
+      const success = await apiFunctions.deleteTask(state.project.id, taskId);
       if (success) {
         dispatch({
           type: "DELETE_TASK",
@@ -317,7 +305,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       );
       if (!bucketToUpdate) return;
 
-      const updatedBucket = await apiPatchBucket(
+      const updatedBucket = await apiFunctions.patchBucket(
         state.project.id,
         bucketId,
         updates,
@@ -353,7 +341,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         return;
       }
 
-      const newDependency = await apiAddBucketDependency(
+      const newDependency = await apiFunctions.addBucketDependency(
         state.project.id,
         bucketId,
         dependencyId,
@@ -373,7 +361,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     dependencyId: BucketID,
   ) => {
     (async () => {
-      const success = await apiRemoveBucketDependency(
+      const success = await apiFunctions.removeBucketDependency(
         state.project.id,
         bucketId,
         dependencyId,

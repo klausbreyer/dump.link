@@ -6,6 +6,11 @@ import (
 )
 
 func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request) {
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
+		return
+	}
+
 	var input struct {
 		BucketID     *string `json:"bucketId"`
 		DependencyId *string `json:"dependencyId"`
@@ -47,10 +52,18 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 		"bucketId":     *input.BucketID,
 		"dependencyId": *input.DependencyId,
 	}
+
+	senderToken := app.extractTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddBucketDependency, data)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 }
 
 func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Request) {
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
+		return
+	}
+
 	bucketId, valid := app.getAndValidateID(w, r, "bucketId")
 	if !valid {
 		return
@@ -76,5 +89,8 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 		"bucketId":     bucketId,
 		"dependencyId": dependencyId,
 	}
+
+	senderToken := app.extractTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionRemoveBucketDependency, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 }

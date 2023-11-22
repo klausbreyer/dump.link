@@ -7,6 +7,8 @@ import (
 	"github.com/justinas/alice"
 )
 
+var allowedOrigins = []string{"http://localhost:1234", "https://beta.dump-link.com"}
+
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
@@ -32,7 +34,15 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects/:projectId/dependencies", app.ApiAddDependency)
 	router.HandlerFunc(http.MethodDelete, "/api/v1/projects/:projectId/dependencies/:bucketId/:dependencyId", app.ApiRemoveDependency)
 
+	router.HandlerFunc(http.MethodGet, "/api/v1/ws/:projectId", app.adaptHandler(app.apiHandleWebSocket))
+
 	standard := alice.New(app.recoverPanic, app.enableCORS, app.logRequest, secureHeaders)
 
 	return standard.Then(router)
+}
+func (app *application) adaptHandler(h httprouter.Handle) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ps := httprouter.ParamsFromContext(r.Context())
+		h(w, r, ps)
+	}
 }
