@@ -80,8 +80,10 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       end: (item, monitor) => {
         if (!task) return;
 
+        //it could also be that a task was not changed in priority, but moved to a different bucket. then we do not want to call updateTask!
+        if (temporaryPriority.priority === 0) return;
+
         updateTask(temporaryPriority.taskId, {
-          ...task,
           priority: temporaryPriority.priority,
         });
         setTemporaryPriority({ priority: 0, taskId: "" });
@@ -189,7 +191,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
     // For an existing task
     if (task && val !== task.title) {
-      updateTask(task.id, { ...task, title: val });
+      updateTask(task.id, { title: val });
     }
   }
 

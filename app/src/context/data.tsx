@@ -236,30 +236,26 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, [state.project.id]);
 
   const addTask = (task: Task) => {
+    dispatch({
+      type: "ADD_TASK",
+      task: task,
+    });
+
     (async () => {
-      const newTask = await apiFunctions.postTask(state.project.id, task);
-
-      if (!newTask) {
-        console.error("Error while adding the task");
-        return;
+      try {
+        await apiFunctions.postTask(state.project.id, task);
+      } catch (error) {
+        alert("Error while adding the task");
       }
-
-      dispatch({
-        type: "ADD_TASK",
-        task: newTask,
-      });
     })();
   };
 
   const moveTask = (toBucketId: BucketID, taskId: TaskID) => {
-    // Find the task to move
     const taskToMove = state.tasks.find((task) => task.id === taskId);
     if (!taskToMove) return;
 
-    // Check if the task is already in the target bucket
     if (taskToMove.bucketId === toBucketId) return;
 
-    // Calculate the new priority for the task in the new bucket
     const tasksInNewBucket = state.tasks.filter(
       (task) => task.bucketId === toBucketId,
     );
@@ -268,108 +264,104 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         ? Math.max(...tasksInNewBucket.map((t) => t.priority))
         : 0;
 
-    // Prepare the updates for the task
     const updates = {
       bucketId: toBucketId,
       priority: highestPriority + PRIORITY_INCREMENT,
     };
+    console.log("outer");
 
-    // Update the task using the updateTask function
+    console.log(updates);
     updateTask(taskId, updates);
   };
 
   const updateTask = (taskId: TaskID, updates: TaskUpdates) => {
-    (async () => {
-      const task = state.tasks.find((task) => task.id === taskId);
-      if (!task) return;
+    console.log("inner");
 
-      const updatedTask = await apiFunctions.patchTask(
-        state.project.id,
-        taskId,
-        updates,
-      );
-      if (updatedTask) {
-        dispatch({
-          type: "UPDATE_TASK",
-          taskId: taskId,
-          updates: updatedTask,
-        });
+    console.log(updates);
+
+    dispatch({
+      type: "UPDATE_TASK",
+      taskId: taskId,
+      updates: updates,
+    });
+
+    (async () => {
+      try {
+        await apiFunctions.patchTask(state.project.id, taskId, updates);
+      } catch (error) {
+        alert("Error while updating the task");
       }
     })();
   };
 
   const deleteTask = (taskId: TaskID) => {
+    dispatch({
+      type: "DELETE_TASK",
+      taskId: taskId,
+    });
+
     (async () => {
-      const success = await apiFunctions.deleteTask(state.project.id, taskId);
-      if (success) {
-        dispatch({
-          type: "DELETE_TASK",
-          taskId: taskId,
-        });
+      try {
+        await apiFunctions.deleteTask(state.project.id, taskId);
+      } catch (error) {
+        alert("Error while deleting the task");
       }
     })();
   };
 
   const updateBucket = (bucketId: BucketID, updates: BucketUpdates) => {
-    (async () => {
-      const bucketToUpdate = state.buckets.find(
-        (bucket) => bucket.id === bucketId,
-      );
-      if (!bucketToUpdate) return;
+    dispatch({
+      type: "UPDATE_BUCKET",
+      bucketId: bucketId,
+      updates: updates,
+    });
 
-      const updatedBucket = await apiFunctions.patchBucket(
-        state.project.id,
-        bucketId,
-        updates,
-      );
-      if (updatedBucket) {
-        dispatch({
-          type: "UPDATE_BUCKET",
-          bucketId: bucketId,
-          updates: updatedBucket,
-        });
+    (async () => {
+      try {
+        await apiFunctions.patchBucket(state.project.id, bucketId, updates);
+      } catch (error) {
+        alert("Error while updating the bucket");
       }
     })();
   };
 
   const resetLayersForAllBuckets = () => {
+    dispatch({
+      type: "RESET_LAYERS_FOR_ALL_BUCKETS",
+    });
+
     (async () => {
-      const success = await apiFunctions.postProjectResetLayers(
-        state.project.id,
-      );
-      if (success) {
-        dispatch({
-          type: "RESET_LAYERS_FOR_ALL_BUCKETS",
-        });
+      try {
+        await apiFunctions.postProjectResetLayers(state.project.id);
+      } catch (error) {
+        alert("Error while resetting layers for all buckets");
       }
     })();
   };
 
   const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
+    const bucketId = bucket.id;
+    if (
+      hasCyclicDependencyWithBucket(bucket.id, dependencyId, state.dependencies)
+    ) {
+      console.error("Cyclic dependency detected!");
+      return;
+    }
+    dispatch({
+      type: "ADD_BUCKET_DEPENDENCY",
+      bucketId: bucket.id,
+      dependencyId: dependencyId,
+    });
+
     (async () => {
-      const bucketId = bucket.id;
-      if (
-        hasCyclicDependencyWithBucket(
+      try {
+        await apiFunctions.postDependency(
+          state.project.id,
           bucket.id,
           dependencyId,
-          state.dependencies,
-        )
-      ) {
-        console.error("Cyclic dependency detected!");
-        return;
-      }
-
-      const newDependency = await apiFunctions.postDepenency(
-        state.project.id,
-        bucketId,
-        dependencyId,
-      );
-      if (newDependency) {
-        dispatch({
-          type: "ADD_BUCKET_DEPENDENCY",
-          bucketId,
-          dependencyId,
-        });
+        );
+      } catch (error) {
+        alert("Error while adding bucket dependency");
       }
     })();
   };
@@ -378,18 +370,21 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     bucketId: BucketID,
     dependencyId: BucketID,
   ) => {
+    dispatch({
+      type: "REMOVE_BUCKET_DEPENDENCY",
+      bucketId: bucketId,
+      dependencyId: dependencyId,
+    });
+
     (async () => {
-      const success = await apiFunctions.deleteDependency(
-        state.project.id,
-        bucketId,
-        dependencyId,
-      );
-      if (success) {
-        dispatch({
-          type: "REMOVE_BUCKET_DEPENDENCY",
+      try {
+        await apiFunctions.deleteDependency(
+          state.project.id,
           bucketId,
           dependencyId,
-        });
+        );
+      } catch (error) {
+        alert("Error while removing bucket dependency");
       }
     })();
   };

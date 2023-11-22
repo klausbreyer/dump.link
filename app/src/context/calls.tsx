@@ -83,7 +83,7 @@ const createApiFunctions = () => {
         method: "PATCH",
         body: updateData,
       }),
-    postDepenency: (
+    postDependency: (
       projectId: string,
       bucketId: string,
       dependencyId: string,
