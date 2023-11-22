@@ -464,9 +464,10 @@ export const getLayers = (
   // Process each id
   ids.forEach((id) => {
     const bucket = getBucket(buckets, id);
+    if (!bucket) return;
     let index: number;
 
-    if (bucket?.layer !== undefined) {
+    if (bucket.layer !== null) {
       // Use bucket.layer if set, otherwise use findSubarrayIndex
       index = bucket.layer;
     } else {
