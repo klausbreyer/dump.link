@@ -9,7 +9,6 @@ import (
 
 const DEFAULT_PROJECT_APPETITE = 6
 const DEFAULT_TASK_PRIORITY = 100000
-const DEFAULT_TASK_NAME = "Your first task"
 
 func (app *application) initProject(w http.ResponseWriter, r *http.Request) string {
 	name := ProjectName()
@@ -24,18 +23,8 @@ func (app *application) initProject(w http.ResponseWriter, r *http.Request) stri
 
 	//insert 10 buckets + 1 dump
 	for i := 0; i < 11; i++ {
-		dump := i == 0
-		bucketId, err := app.buckets.Insert("", false, dump, nil, false, projectId)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return ""
-		}
-		if !dump {
-			continue
-		}
-
-		//insert Task into Dump
-		_, err = app.tasks.Insert(models.NewID(projectId), DEFAULT_TASK_NAME, false, bucketId, DEFAULT_TASK_PRIORITY, projectId)
+		isDump := i == 0
+		_, err := app.buckets.Insert("", false, isDump, nil, false, projectId)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return ""
