@@ -7,13 +7,11 @@ import (
 	"dump.link/src/models"
 )
 
-const DEFAULT_PROJECT_APPETITE = 6
-const DEFAULT_TASK_PRIORITY = 100000
-
 func (app *application) initProject(w http.ResponseWriter, r *http.Request) string {
-	name := ProjectName()
+	currentDate := time.Now().Format("Jan 2nd, 2006") // Formatting the date as "Nov 22nd 2023"
+	name := "Untitled Project from " + currentDate
 	started_at := time.Now()
-	appetite := DEFAULT_PROJECT_APPETITE
+	appetite := 6
 
 	projectId, err := app.projects.Insert(name, started_at, appetite)
 	if err != nil {
