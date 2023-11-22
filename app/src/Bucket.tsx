@@ -99,8 +99,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
 
-  // const showCantDropWarning =
-  //   globalDragging.type === DraggingType.TASK && bucket.done;
   const showTasksAndBar = tasksForbucket.length > 0;
   const showFigured = showTasksAndBar && !bucket.done;
   const showDone = showTasksAndBar && bucket.done;
@@ -165,7 +163,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
               Done
             </div>
           )}
-          {showTasksAndBar && <MicroProgress bucket={bucket} />}
+          <MicroProgress bucket={bucket} />
           <CardList>
             {open.map((task) => (
               <TaskItem

@@ -13,6 +13,7 @@ const MicroProgress: React.FC<MicroProgressProps> = (props) => {
   const { getTasks } = useData();
   const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
+
   // to account for NaN on unstarted buckets
   const percentageCompleted = getBucketPercentage(tasksForbucket) || 0;
 
@@ -25,6 +26,11 @@ const MicroProgress: React.FC<MicroProgressProps> = (props) => {
       ? "bg-green-500"
       : "bg-orange-300";
 
+  const showTasksAndBar = tasksForbucket.length > 0;
+
+  if (!showTasksAndBar) {
+    return null;
+  }
   return (
     <div className="flex items-center justify-between gap-1 p-1 ">
       <div
