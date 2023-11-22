@@ -7,7 +7,7 @@ import {
   TaskUpdates,
 } from "../types";
 
-export const BASE_URL =
+const apiUrl =
   process.env.NODE_ENV === "production"
     ? window.location.origin
     : "http://localhost:8080";
@@ -59,7 +59,7 @@ export const apiGetProject = async (
   projectId: string,
 ): Promise<State | null> => {
   try {
-    const response = await fetch(`${BASE_URL}/api/v1/projects/${projectId}`);
+    const response = await fetch(`${apiUrl}/api/v1/projects/${projectId}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -79,7 +79,7 @@ export const apiPostTask = async (
 ): Promise<Task> => {
   try {
     const response = await fetch(
-      `${BASE_URL}/api/v1/projects/${projectId}/tasks`,
+      `${apiUrl}/api/v1/projects/${projectId}/tasks`,
       {
         method: "POST",
         headers: {
@@ -106,7 +106,7 @@ export const apiDeleteTask = async (
 ): Promise<boolean> => {
   try {
     const response = await fetch(
-      `${BASE_URL}/api/v1/projects/${projectId}/tasks/${taskId}`,
+      `${apiUrl}/api/v1/projects/${projectId}/tasks/${taskId}`,
       {
         method: "DELETE",
       },
@@ -130,7 +130,7 @@ export const apiPatchTask = async (
 ): Promise<Task | null> => {
   try {
     const response = await fetch(
-      `${BASE_URL}/api/v1/projects/${projectId}/tasks/${taskId}`,
+      `${apiUrl}/api/v1/projects/${projectId}/tasks/${taskId}`,
       {
         method: "PATCH",
         headers: {
@@ -158,7 +158,7 @@ export const apiPatchBucket = async (
 ): Promise<Bucket | null> => {
   try {
     const response = await fetch(
-      `${BASE_URL}/api/v1/projects/${projectId}/buckets/${bucketId}`,
+      `${apiUrl}/api/v1/projects/${projectId}/buckets/${bucketId}`,
       {
         method: "PATCH",
         headers: {
@@ -187,7 +187,7 @@ export const apiAddBucketDependency = async (
 ): Promise<Dependency | null> => {
   try {
     const response = await fetch(
-      `${BASE_URL}/api/v1/projects/${projectId}/dependencies`,
+      `${apiUrl}/api/v1/projects/${projectId}/dependencies`,
       {
         method: "POST",
         headers: {
@@ -216,7 +216,7 @@ export const apiRemoveBucketDependency = async (
 ): Promise<boolean> => {
   try {
     const response = await fetch(
-      `${BASE_URL}/api/v1/projects/${projectId}/dependencies/${bucketId}/${dependencyId}`,
+      `${apiUrl}/api/v1/projects/${projectId}/dependencies/${bucketId}/${dependencyId}`,
       {
         method: "DELETE",
       },
