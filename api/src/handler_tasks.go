@@ -1,6 +1,7 @@
 package src
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -49,6 +50,15 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		"task": task,
 	}
 
+	// Konvertieren Sie das Task-Objekt in JSON
+	taskJSON, err := json.Marshal(data)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// Senden Sie die JSON-Nachricht an alle verbundenen WebSocket-Clients
+	app.sendMessageToAllClients(taskJSON)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 }
 
