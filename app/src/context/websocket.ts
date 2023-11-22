@@ -1,26 +1,49 @@
-import { Dispatch, useEffect } from "react";
+import { Dispatch } from "react";
 import { ActionType, CLIENT_TOKEN } from "./data";
 
 type DispatchType = Dispatch<ActionType>;
 export const setupWebSocket = (projectId: string, dispatch: DispatchType) => {
   if (!projectId) return;
 
-  const wsURL = new URL(
-    process.env.NODE_ENV === "production"
-      ? `wss://${window.location.host}/api/v1/ws/${projectId}`
-      : `ws://localhost:8080/api/v1/ws/${projectId}`,
-  );
-  wsURL.searchParams.append("token", CLIENT_TOKEN);
-  const ws = new WebSocket(wsURL.href);
+  let ws: WebSocket | null = null;
+  let retries = 0;
+  const maxRetries = 5;
 
-  ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    // Hier wird `dispatch` verwendet, wie zuvor in der useEffect-Methode
-    handleWebSocketMessage(message, dispatch);
+  const connectWebSocket = () => {
+    const wsURL = new URL(
+      process.env.NODE_ENV === "production"
+        ? `wss://${window.location.host}/api/v1/ws/${projectId}`
+        : `ws://localhost:8080/api/v1/ws/${projectId}`,
+    );
+    wsURL.searchParams.append("token", CLIENT_TOKEN);
+    ws = new WebSocket(wsURL.href);
+
+    ws.onopen = () => {
+      retries = 0;
+    };
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      handleWebSocketMessage(message, dispatch);
+    };
+
+    ws.onclose = (e) => {
+      if (retries < maxRetries) {
+        setTimeout(connectWebSocket, Math.pow(2, retries) * 1000);
+        retries++;
+      }
+    };
+
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      ws?.close();
+    };
   };
 
+  connectWebSocket();
+
   return () => {
-    ws.close();
+    ws?.close();
   };
 };
 
