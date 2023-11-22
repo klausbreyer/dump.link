@@ -22,7 +22,7 @@ func (app *application) initProject(w http.ResponseWriter, r *http.Request) stri
 	//insert 10 buckets + 1 dump
 	for i := 0; i < 11; i++ {
 		isDump := i == 0
-		_, err := app.buckets.Insert("", false, isDump, nil, false, projectId)
+		_, err := app.buckets.Insert("", false, isDump, nil, false, projectId, i)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return ""

@@ -17,13 +17,14 @@ type Bucket struct {
 	ProjectID string    `json:"projectId"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	Priority  int       `json:"priority"`
 }
 
 type BucketModel struct {
 	DB *sql.DB
 }
 
-func (m *BucketModel) Insert(name string, done bool, dump bool, layer *int, flagged bool, projectID string) (string, error) {
+func (m *BucketModel) Insert(name string, done bool, dump bool, layer *int, flagged bool, projectID string, priority int) (string, error) {
 	var id string
 	for {
 		id = NewID(projectID)
@@ -31,8 +32,8 @@ func (m *BucketModel) Insert(name string, done bool, dump bool, layer *int, flag
 			break
 		}
 	}
-	stmt := `INSERT INTO buckets (id, name, done, dump, layer, flagged, project_id) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, done, dump, layer, flagged, projectID)
+	stmt := `INSERT INTO buckets (id, name, done, dump, layer, flagged, project_id, priority) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, name, done, dump, layer, flagged, projectID, priority)
 	if err != nil {
 		return "", err
 	}
@@ -52,7 +53,7 @@ func (m *BucketModel) IDExists(id string) bool {
 }
 
 func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
-	stmt := `SELECT id, name, done, dump, layer, flagged, project_id, created_at, updated_at FROM buckets WHERE project_id = ?`
+	stmt := `SELECT id, name, done, dump, layer, flagged, project_id, created_at, updated_at, priority FROM buckets WHERE project_id = ? ORDER BY priority`
 	rows, err := m.DB.Query(stmt, projectId)
 	if err != nil {
 		return nil, err
@@ -64,7 +65,7 @@ func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
 		var createdAtStr, updatedAtStr string
 		b := &Bucket{}
 
-		err = rows.Scan(&b.ID, &b.Name, &b.Done, &b.Dump, &b.Layer, &b.Flagged, &b.ProjectID, &createdAtStr, &updatedAtStr)
+		err = rows.Scan(&b.ID, &b.Name, &b.Done, &b.Dump, &b.Layer, &b.Flagged, &b.ProjectID, &createdAtStr, &updatedAtStr, &b.Priority)
 		if err != nil {
 			return nil, err
 		}
