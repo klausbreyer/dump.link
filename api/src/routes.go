@@ -1,7 +1,6 @@
 package src
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -33,17 +32,15 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects/:projectId/dependencies", app.ApiAddDependency)
 	router.HandlerFunc(http.MethodDelete, "/api/v1/projects/:projectId/dependencies/:bucketId/:dependencyId", app.ApiRemoveDependency)
 
-	router.GET("/ws", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			app.logger.Info(fmt.Sprintf("Failed to upgrade to websocket: %v", err))
-			return
-		}
-
-		app.WebSocketHandler(conn)
-	})
+	router.HandlerFunc(http.MethodGet, "/api/v1/ws/:projectId", app.adaptHandler(app.apiHandleWebSocket))
 
 	standard := alice.New(app.recoverPanic, app.enableCORS, app.logRequest, secureHeaders)
 
 	return standard.Then(router)
+}
+func (app *application) adaptHandler(h httprouter.Handle) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ps := httprouter.ParamsFromContext(r.Context())
+		h(w, r, ps)
+	}
 }

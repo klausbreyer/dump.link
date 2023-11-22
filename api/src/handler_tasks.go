@@ -58,7 +58,7 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Senden Sie die JSON-Nachricht an alle verbundenen WebSocket-Clients
-	app.sendMessageToAllClients(taskJSON)
+	app.sendMessageToProjectClients(projectId, taskJSON)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 }
 

@@ -15,6 +15,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type wsClient struct {
+	conn      *websocket.Conn
+	projectId string
+}
 type application struct {
 	contentFS embed.FS
 
@@ -24,7 +28,7 @@ type application struct {
 	projects     *models.ProjectModel
 	dependencies *models.DependencyModel
 
-	clients map[*websocket.Conn]bool
+	clients map[string]map[*wsClient]bool // Map projectId to Clients
 	mutex   sync.Mutex
 }
 
@@ -51,7 +55,7 @@ func Run(contentFS embed.FS) error {
 		projects:     &models.ProjectModel{DB: db},
 		dependencies: &models.DependencyModel{DB: db},
 
-		clients: make(map[*websocket.Conn]bool),
+		clients: make(map[string]map[*wsClient]bool),
 	}
 
 	logger.Info(fmt.Sprintf("starting server at http://%s", *addr))
