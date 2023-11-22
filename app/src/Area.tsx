@@ -71,6 +71,8 @@ const Area: React.FC<AreaProps> = (props) => {
           {tasksForbucket.map((task) => (
             <TaskItem bucket={bucket} task={task} key={task.id} />
           ))}
+        </CardList>
+        <CardList>
           <TaskItem bucket={bucket} task={null} />
         </CardList>
       </div>

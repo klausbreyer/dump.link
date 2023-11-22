@@ -16,8 +16,9 @@ import (
 )
 
 type wsClient struct {
-	conn      *websocket.Conn
-	projectId string
+	conn        *websocket.Conn
+	projectId   string
+	clientToken string
 }
 type application struct {
 	contentFS embed.FS

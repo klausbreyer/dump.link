@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - websockets
 
 jobs:
   build-and-deploy:

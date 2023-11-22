@@ -125,7 +125,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           overIndex,
         );
 
-        console.log(task?.id, overIndex, newPriority);
         setTemporaryPriority({ priority: newPriority, taskId: draggedId });
       },
     }),
@@ -195,8 +194,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   function handleDelete() {
-    console.log(task);
-
     if (!task) return;
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this task?",

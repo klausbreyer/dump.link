@@ -41,11 +41,18 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+func (app *application) extractTokenFromRequest(r *http.Request) string {
+	token := r.URL.Query().Get("token")
+	return token
+}
+
 func (app *application) apiHandleWebSocket(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
 	}
+
+	token := app.extractTokenFromRequest(r)
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -54,12 +61,15 @@ func (app *application) apiHandleWebSocket(w http.ResponseWriter, r *http.Reques
 	}
 
 	app.logger.Info(fmt.Sprintf("WebSocket connection established for project: %s", projectId))
-	app.WebSocketHandler(conn, projectId)
+	app.WebSocketHandler(conn, token, projectId)
 }
 
-func (app *application) WebSocketHandler(conn *websocket.Conn, projectId string) {
-	client := &wsClient{conn: conn, projectId: projectId}
-
+func (app *application) WebSocketHandler(conn *websocket.Conn, token string, projectId string) {
+	client := &wsClient{
+		conn:        conn,
+		projectId:   projectId,
+		clientToken: token,
+	}
 	app.mutex.Lock()
 	if app.clients[projectId] == nil {
 		app.clients[projectId] = make(map[*wsClient]bool)
@@ -111,17 +121,29 @@ func (app *application) sendMessageToProjectClients(projectId string, message []
 /**
  * Abstracted version, so we can send any data to any project.
  */
-func (app *application) sendActionDataToProjectClients(projectId string, action ActionType, data interface{}) {
+func (app *application) sendActionDataToProjectClients(projectId string, senderToken string, action ActionType, data interface{}) {
 	wsData := wsEnvelope{
 		Action: action,
 		Data:   data,
 	}
 
-	taskJSON, err := json.Marshal(wsData)
+	messageJSON, err := json.Marshal(wsData)
 	if err != nil {
-		app.logger.Info(fmt.Sprintf("Error marshalling message: %v", err))
+		app.logger.Info(fmt.Sprintf("Error marshalling WebSocket data: %v", err))
 		return
 	}
 
-	app.sendMessageToProjectClients(projectId, taskJSON)
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+
+	for client := range app.clients[projectId] {
+		if client.clientToken != senderToken {
+			err := client.conn.WriteMessage(websocket.TextMessage, messageJSON)
+			if err != nil {
+				app.logger.Info(fmt.Sprintf("Error sending message to WebSocket client: %v", err))
+				client.conn.Close()
+				delete(app.clients[projectId], client)
+			}
+		}
+	}
 }

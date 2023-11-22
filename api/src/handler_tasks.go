@@ -45,10 +45,11 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := envelope{
-		"task": task,
-	}
-	app.sendActionDataToProjectClients(projectId, ActionAddTask, data)
+	data := task
+
+	senderToken := app.extractTokenFromRequest(r)
+
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddTask, data)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 }
 
@@ -76,8 +77,8 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	data := envelope{
 		"taskId": taskId,
 	}
-
-	app.sendActionDataToProjectClients(projectId, ActionDeleteTask, data)
+	senderToken := app.extractTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionDeleteTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 }
 
@@ -145,6 +146,10 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 		delete(data, "bucket_id")
 	}
 
-	app.sendActionDataToProjectClients(projectId, ActionUpdateTask, data)
+	//always send the id, ws needs it.
+	data["id"] = taskId
+
+	senderToken := app.extractTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 }

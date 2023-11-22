@@ -11,21 +11,18 @@ import {
   TaskID,
   TaskUpdates,
 } from "../types";
+
 import {
-  apiDeleteTask,
-  apiGetProject,
-  apiPostTask,
-  apiPatchTask,
-  apiPatchBucket,
-  apiAddBucketDependency,
-  apiRemoveBucketDependency,
-} from "./calls";
-import {
+  NewID,
   PRIORITY_INCREMENT,
   extractIdFromUrl,
   hasCyclicDependencyWithBucket,
 } from "./helper";
 import { LifecycleState, useLifecycle } from "./lifecycle";
+import { setupWebSocket } from "./websocket";
+import { apiFunctions } from "./calls";
+
+export const CLIENT_TOKEN = NewID(new Date().toISOString());
 
 const initialState: State = {
   buckets: [],
@@ -39,7 +36,7 @@ const initialState: State = {
   },
 };
 
-type ActionType =
+export type ActionType =
   | { type: "SET_INITIAL_STATE"; payload: State }
   | {
       type: "ADD_TASK";
@@ -203,7 +200,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   useEffect(() => {
     const loadInitialState = async () => {
       const id = extractIdFromUrl(); // Stellen Sie sicher, dass diese Funktion existiert und richtig importiert wird
-      const initialState = await apiGetProject(id);
+      const initialState = await apiFunctions.getProject(id);
       if (initialState) {
         dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
       }
@@ -213,65 +210,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const projectId = state.project.id;
-    if (projectId === "") return;
-
-    const wsURL =
-      process.env.NODE_ENV === "production"
-        ? `wss://${window.location.host}/api/v1/ws/${projectId}`
-        : `ws://localhost:8080/api/v1/ws/${projectId}`;
-    const ws = new WebSocket(wsURL);
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-
-      switch (message.action) {
-        case "ADD_TASK":
-          dispatch({
-            type: "ADD_TASK",
-            task: message.data.task,
-          });
-          break;
-        case "DELETE_TASK":
-          dispatch({
-            type: "DELETE_TASK",
-            taskId: message.taskId,
-          });
-          break;
-        case "UPDATE_TASK":
-          dispatch({
-            type: "UPDATE_TASK",
-            taskId: message.taskId,
-            updates: message.updates,
-          });
-          break;
-        case "UPDATE_BUCKET":
-          dispatch({
-            type: "UPDATE_BUCKET",
-            bucketId: message.bucketId,
-            updates: message.updates,
-          });
-          break;
-        case "ADD_BUCKET_DEPENDENCY":
-          dispatch({
-            type: "ADD_BUCKET_DEPENDENCY",
-            bucketId: message.bucketId,
-            dependencyId: message.dependencyId,
-          });
-          break;
-        case "REMOVE_BUCKET_DEPENDENCY":
-          dispatch({
-            type: "REMOVE_BUCKET_DEPENDENCY",
-            bucketId: message.bucketId,
-            dependencyId: message.dependencyId,
-          });
-          break;
-        // Fügen Sie hier weitere Fälle hinzu, falls erforderlich
-      }
-    };
+    // Hier wird jetzt die neue setupWebSocket Methode aufgerufen
+    const wsCleanup = setupWebSocket(state.project.id, dispatch);
 
     return () => {
-      ws.close();
+      if (wsCleanup) wsCleanup();
     };
   }, [state.project.id]);
 
@@ -282,7 +225,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const addTask = (task: Task) => {
     (async () => {
-      const newTask = await apiPostTask(state.project.id, task);
+      const newTask = await apiFunctions.postTask(state.project.id, task);
 
       if (!newTask) {
         console.error("Error while adding the task");
@@ -328,10 +271,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       const task = state.tasks.find((task) => task.id === taskId);
       if (!task) return;
 
-      const updatedTask = await apiPatchTask(state.project.id, taskId, updates);
+      const updatedTask = await apiFunctions.patchTask(
+        state.project.id,
+        taskId,
+        updates,
+      );
       if (updatedTask) {
-        console.log("ifyes");
-
         dispatch({
           type: "UPDATE_TASK",
           taskId: taskId,
@@ -343,7 +288,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const deleteTask = (taskId: TaskID) => {
     (async () => {
-      const success = await apiDeleteTask(state.project.id, taskId);
+      const success = await apiFunctions.deleteTask(state.project.id, taskId);
       if (success) {
         dispatch({
           type: "DELETE_TASK",
@@ -360,7 +305,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       );
       if (!bucketToUpdate) return;
 
-      const updatedBucket = await apiPatchBucket(
+      const updatedBucket = await apiFunctions.patchBucket(
         state.project.id,
         bucketId,
         updates,
@@ -396,7 +341,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         return;
       }
 
-      const newDependency = await apiAddBucketDependency(
+      const newDependency = await apiFunctions.addBucketDependency(
         state.project.id,
         bucketId,
         dependencyId,
@@ -416,7 +361,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     dependencyId: BucketID,
   ) => {
     (async () => {
-      const success = await apiRemoveBucketDependency(
+      const success = await apiFunctions.removeBucketDependency(
         state.project.id,
         bucketId,
         dependencyId,

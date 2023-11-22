@@ -59,6 +59,10 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.sendActionDataToProjectClients(projectId, ActionUpdateBucket, data)
+	//always send the id, ws needs it.
+	data["id"] = bucketId
+
+	senderToken := app.extractTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateBucket, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 }
