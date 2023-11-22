@@ -56,12 +56,6 @@ type ActionType =
       updates: BucketUpdates;
     }
   | {
-      type: "CHANGE_TASK_STATE";
-      bucketId: BucketID;
-      taskId: TaskID;
-      closed: boolean;
-    }
-  | {
       type: "UPDATE_TASK";
       taskId: TaskID;
       updates: TaskUpdates;
@@ -108,20 +102,6 @@ const dataReducer = (state: State, action: ActionType): State => {
 
       // Filter out the task to be deleted from the state's tasks array
       const updatedTasks = state.tasks.filter((task) => task.id !== taskId);
-
-      return {
-        ...state,
-        tasks: updatedTasks,
-      };
-    }
-
-    case "CHANGE_TASK_STATE": {
-      const { taskId, closed } = action;
-
-      // Map through the tasks array to find and update the specific task
-      const updatedTasks = state.tasks.map((task) =>
-        task.id === taskId ? { ...task, closed: closed } : task,
-      );
 
       return {
         ...state,

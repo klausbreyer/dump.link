@@ -7,6 +7,8 @@ import (
 	"github.com/justinas/alice"
 )
 
+var allowedOrigins = []string{"http://localhost:1234", "https://beta.dump-link.com"}
+
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 

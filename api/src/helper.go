@@ -5,8 +5,6 @@ import (
 	"net/http"
 )
 
-type envelope map[string]any
-
 func (app *application) logError(r *http.Request, err error) {
 	var (
 		method = r.Method

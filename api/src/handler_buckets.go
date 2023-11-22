@@ -11,6 +11,11 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
+		return
+	}
+
 	if !app.buckets.IDExists(bucketId) {
 		app.notFoundResponse(w, r)
 		return
@@ -29,30 +34,31 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updates := make(envelope)
+	data := make(envelope)
 	if input.Name != nil {
-		updates["name"] = *input.Name
+		data["name"] = *input.Name
 	}
 	if input.Done != nil {
-		updates["done"] = *input.Done
+		data["done"] = *input.Done
 	}
 	if input.Layer != nil {
-		updates["layer"] = *input.Layer
+		data["layer"] = *input.Layer
 	}
 	if input.Flagged != nil {
-		updates["flagged"] = *input.Flagged
+		data["flagged"] = *input.Flagged
 	}
 
-	if len(updates) == 0 {
+	if len(data) == 0 {
 		app.badRequestResponse(w, r, fmt.Errorf("no updates provided"))
 		return
 	}
 
-	err = app.buckets.Update(bucketId, updates)
+	err = app.buckets.Update(bucketId, data)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	app.writeJSON(w, http.StatusOK, updates, nil)
+	app.sendActionDataToProjectClients(projectId, ActionUpdateBucket, data)
+	app.writeJSON(w, http.StatusOK, data, nil)
 }

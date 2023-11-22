@@ -1,7 +1,6 @@
 package src
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -49,21 +48,16 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 	data := envelope{
 		"task": task,
 	}
-
-	// Konvertieren Sie das Task-Objekt in JSON
-	taskJSON, err := json.Marshal(data)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	// Senden Sie die JSON-Nachricht an alle verbundenen WebSocket-Clients
-	app.sendMessageToProjectClients(projectId, taskJSON)
+	app.sendActionDataToProjectClients(projectId, ActionAddTask, data)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 }
 
 func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	taskId, valid := app.getAndValidateID(w, r, "taskId")
+	if !valid {
+		return
+	}
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
 	}
@@ -83,11 +77,17 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 		"taskId": taskId,
 	}
 
+	app.sendActionDataToProjectClients(projectId, ActionDeleteTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 }
 
 func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	taskId, valid := app.getAndValidateID(w, r, "taskId")
+	if !valid {
+		return
+	}
+
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
 	}
@@ -110,39 +110,41 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updates := make(envelope)
+	data := make(envelope)
 	if input.BucketID != nil {
 		if !app.buckets.IDExists(*input.BucketID) {
 			app.notFoundResponse(w, r)
 			return
 		}
-		updates["bucket_id"] = *input.BucketID
+		data["bucket_id"] = *input.BucketID
 	}
 	if input.Closed != nil {
-		updates["closed"] = *input.Closed
+		data["closed"] = *input.Closed
 	}
 	if input.Title != nil {
-		updates["title"] = *input.Title
+		data["title"] = *input.Title
 	}
 	if input.Priority != nil {
-		updates["priority"] = *input.Priority
+		data["priority"] = *input.Priority
 	}
 
-	if len(updates) == 0 {
+	if len(data) == 0 {
 		app.badRequestResponse(w, r, fmt.Errorf("no updates provided"))
 		return
 	}
 
-	err = app.tasks.Update(taskId, updates)
+	err = app.tasks.Update(taskId, data)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	// fix missmatch between database column and frontend fields.
-	if updates["bucket_id"] != nil {
-		updates["bucketId"] = updates["bucket_id"]
-		delete(updates, "bucket_id")
+	if data["bucket_id"] != nil {
+		data["bucketId"] = data["bucket_id"]
+		delete(data, "bucket_id")
 	}
-	app.writeJSON(w, http.StatusOK, updates, nil)
+
+	app.sendActionDataToProjectClients(projectId, ActionUpdateTask, data)
+	app.writeJSON(w, http.StatusOK, data, nil)
 }

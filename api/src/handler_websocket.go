@@ -1,6 +1,7 @@
 package src
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -8,11 +9,36 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type ActionType string
+
+const (
+	// ActionSetInitialState        ActionType = "SET_INITIAL_STATE"
+	ActionAddTask                ActionType = "ADD_TASK"
+	ActionUpdateBucket           ActionType = "UPDATE_BUCKET"
+	ActionChangeTaskState        ActionType = "CHANGE_TASK_STATE"
+	ActionUpdateTask             ActionType = "UPDATE_TASK"
+	ActionAddBucketDependency    ActionType = "ADD_BUCKET_DEPENDENCY"
+	ActionRemoveBucketDependency ActionType = "REMOVE_BUCKET_DEPENDENCY"
+	ActionDeleteTask             ActionType = "DELETE_TASK"
+)
+
+type wsEnvelope struct {
+	Action ActionType  `json:"action"`
+	Data   interface{} `json:"data"`
+}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	// Achten Sie auf Sicherheitsaspekte bezüglich der Herkunftsüberprüfung!
-	CheckOrigin: func(r *http.Request) bool { return true },
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header.Get("Origin")
+		for _, allowedOrigin := range allowedOrigins {
+			if origin == allowedOrigin {
+				return true
+			}
+		}
+		return false
+	},
 }
 
 func (app *application) apiHandleWebSocket(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -61,12 +87,13 @@ func (app *application) WebSocketHandler(conn *websocket.Conn, projectId string)
 			break
 		}
 
-		// Hier können Sie die empfangene Nachricht verarbeiten.
-		// Zum Beispiel: Echo der Nachricht an alle Clients senden
 		app.sendMessageToProjectClients(projectId, message)
 	}
 }
 
+/**
+ * Underlying sending method
+ */
 func (app *application) sendMessageToProjectClients(projectId string, message []byte) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
@@ -79,4 +106,22 @@ func (app *application) sendMessageToProjectClients(projectId string, message []
 			delete(app.clients[projectId], client)
 		}
 	}
+}
+
+/**
+ * Abstracted version, so we can send any data to any project.
+ */
+func (app *application) sendActionDataToProjectClients(projectId string, action ActionType, data interface{}) {
+	wsData := wsEnvelope{
+		Action: action,
+		Data:   data,
+	}
+
+	taskJSON, err := json.Marshal(wsData)
+	if err != nil {
+		app.logger.Info(fmt.Sprintf("Error marshalling message: %v", err))
+		return
+	}
+
+	app.sendMessageToProjectClients(projectId, taskJSON)
 }
