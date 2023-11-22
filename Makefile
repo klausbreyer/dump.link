@@ -27,7 +27,7 @@ reset:
 	make down
 	make up
 
-db:
+dump:
 	rm -rf dump;
 	pscale database dump dumplink main --output dump
 	mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" -e "DROP DATABASE IF EXISTS $$DB_NAME; CREATE DATABASE $$DB_NAME;"

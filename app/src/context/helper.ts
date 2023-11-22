@@ -631,3 +631,27 @@ export function calculateHighestPriority(tasks: Task[]) {
 export const sortTasksByPriority = (tasks: Task[]): Task[] => {
   return [...tasks].sort((a, b) => a.priority - b.priority);
 };
+
+//it is there, from the api. But I do not want to have it in the rest of the app.
+type TaskWithUpdatedAt = Task & {
+  updatedAt: Date;
+};
+
+export const sortTasksByUpdatedAt = (tasks: Task[]): Task[] => {
+  console.log(tasks);
+
+  return [...tasks].sort((a, b) => {
+    // Ensure that both a and b are treated as TaskWithUpdatedAt
+    const taskA = a as TaskWithUpdatedAt;
+    const taskB = b as TaskWithUpdatedAt;
+
+    // Convert date strings to Date objects or use a default date
+    const dateA = taskA.updatedAt || new Date(0);
+    const dateB = taskB.updatedAt || new Date(0);
+
+    // Compare the Date objects
+    if (dateA > dateB) return -1;
+    if (dateA < dateB) return 1;
+    return 0;
+  });
+};

@@ -15,6 +15,7 @@ import {
   getTask,
   getTasksByClosed,
   getTasksForBucket,
+  sortTasksByUpdatedAt,
 } from "./context/helper";
 import {
   Bucket,
@@ -44,7 +45,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
   const [recentlyDone, setRecentlyDone] = useState<TaskID[]>([]);
 
   const open = getTasksByClosed(tasksForbucket, false);
-  const closed = getTasksByClosed(tasksForbucket, true);
+  const closed = sortTasksByUpdatedAt(getTasksByClosed(tasksForbucket, true));
 
   const handleTaskClosed = (taskId: string) => {
     // Add the closed task to the recentlyDone list if it's not already there

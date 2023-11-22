@@ -247,11 +247,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       ? temporaryPriority.priority
       : task?.priority;
 
+  const style = task && !task.closed ? { order: localPriority } : {};
   return (
-    <div
-      ref={(node) => previewRev(dropRef(node))}
-      style={{ order: !task ? -9999999999 : localPriority }}
-    >
+    <div ref={(node) => previewRev(dropRef(node))} style={style}>
       <div
         // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
         className={`flex gap-1 items-center
