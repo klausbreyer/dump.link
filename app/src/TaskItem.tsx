@@ -292,7 +292,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             }
             ${bg}
             `}
-            placeholder="type more here"
+            placeholder="Add a task"
             value={val}
             onBlur={handleBlur}
             onFocus={handleFocus}
