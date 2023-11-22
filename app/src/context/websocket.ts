@@ -35,7 +35,7 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
     case "DELETE_TASK":
       dispatch({
         type: "DELETE_TASK",
-        taskId: message.taskId,
+        taskId: message.data.taskId,
       });
       break;
     case "UPDATE_TASK":
