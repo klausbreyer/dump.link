@@ -394,6 +394,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     })();
   };
 
+  const removeAllBucketDependencies = () => {
+    state.dependencies.forEach((dependency) =>
+      removeBucketDependency(dependency.bucketId, dependency.dependencyId),
+    );
+    resetLayersForAllBuckets();
+  };
+
   const getTasks = () => {
     return state.tasks;
   };
@@ -427,6 +434,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getBuckets,
         addBucketDependency,
         removeBucketDependency,
+        removeAllBucketDependencies,
         updateBucket,
       }}
     >
@@ -453,6 +461,7 @@ type DataContextType = {
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
 
   resetLayersForAllBuckets: () => void;
+  removeAllBucketDependencies: () => void;
 };
 
 export const useData = () => {

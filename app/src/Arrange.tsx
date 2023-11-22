@@ -73,8 +73,8 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
 
   return (
     <Container>
-      <Title title="Arrange to discuss order" />
-      <div className="flex justify-end w-full">
+      <div className="flex justify-between w-full">
+        <Title title="Arrange to discuss order" />
         <SimpleButton
           color="slate"
           onClick={() =>

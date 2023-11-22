@@ -197,9 +197,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   function handleDelete() {
     if (!task) return;
-    const isConfirmed = window.confirm(
-      "Are you sure you want to delete this task?",
-    );
+    const isConfirmed = confirm("Are you sure you want to delete this task?");
     if (isConfirmed) {
       deleteTask(task.id);
     }

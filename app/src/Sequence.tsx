@@ -13,6 +13,7 @@ import {
 } from "./common/coordinates";
 import FollowArrow from "./FollowArrow";
 import Title from "./common/Title";
+import SimpleButton from "./common/SimpleButton";
 
 interface SequenceProps {}
 
@@ -31,7 +32,8 @@ const positions: { top: number; left: number }[] = [
 ];
 
 const Sequence: React.FC<SequenceProps> = (props) => {
-  const { getBuckets, getDependencies } = useData();
+  const { getBuckets, getDependencies, removeAllBucketDependencies } =
+    useData();
 
   const buckets = getBuckets();
   const dependencies = getDependencies();
@@ -118,7 +120,22 @@ const Sequence: React.FC<SequenceProps> = (props) => {
 
   return (
     <Container>
-      <Title title="Sequence Clusters unlocks Arranging" />
+      <div className="flex justify-between w-full">
+        <Title title="Sequence Clusters unlocks Arranging" />
+        <SimpleButton
+          color="slate"
+          onClick={() =>
+            confirm(
+              "Are you certain you wish to remove all dependencies from your Taskgroups?",
+            )
+              ? removeAllBucketDependencies()
+              : null
+          }
+        >
+          Reset
+        </SimpleButton>
+      </div>
+
       <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
