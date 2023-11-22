@@ -111,3 +111,28 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 }
+
+func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Request) {
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
+		return
+	}
+
+	if !app.projects.IDExists(projectId) {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err := app.buckets.ResetProjectLayers(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	data := make(envelope)
+	data["message"] = "All layers in the project have been reset successfully"
+
+	senderToken := app.extractTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetLayersForAllBuckets, data)
+	app.writeJSON(w, http.StatusOK, data, nil)
+}

@@ -52,6 +52,7 @@ export type ActionType =
       bucketId: BucketID;
       updates: BucketUpdates;
     }
+  | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" }
   | {
       type: "UPDATE_TASK";
       taskId: TaskID;
@@ -132,6 +133,17 @@ const dataReducer = (state: State, action: ActionType): State => {
           return reconsileBucketUpdate(bucket, updates);
         }
         return bucket;
+      });
+
+      return {
+        ...state,
+        buckets: updatedBuckets,
+      };
+    }
+
+    case "RESET_LAYERS_FOR_ALL_BUCKETS": {
+      const updatedBuckets = state.buckets.map((bucket) => {
+        return { ...bucket, layer: null };
       });
 
       return {
@@ -321,10 +333,16 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const resetLayersForAllBuckets = () => {
-    state.buckets.forEach((bucket) => {
-      // Call updateBucket for each bucket to reset the layer
-      updateBucket(bucket.id, { layer: null });
-    });
+    (async () => {
+      const success = await apiFunctions.postProjectResetLayers(
+        state.project.id,
+      );
+      if (success) {
+        dispatch({
+          type: "RESET_LAYERS_FOR_ALL_BUCKETS",
+        });
+      }
+    })();
   };
 
   const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
@@ -341,7 +359,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         return;
       }
 
-      const newDependency = await apiFunctions.addBucketDependency(
+      const newDependency = await apiFunctions.postDepenency(
         state.project.id,
         bucketId,
         dependencyId,
@@ -361,7 +379,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     dependencyId: BucketID,
   ) => {
     (async () => {
-      const success = await apiFunctions.removeBucketDependency(
+      const success = await apiFunctions.deleteDependency(
         state.project.id,
         bucketId,
         dependencyId,

@@ -50,6 +50,8 @@ const createApiFunctions = () => {
   return {
     getProject: (projectId: string): Promise<State> =>
       apiCall({ url: `/projects/${projectId}` }),
+    postProjectResetLayers: (projectId: string): Promise<State> =>
+      apiCall({ url: `/projects/${projectId}/resetLayers`, method: "POST" }),
     postTask: (projectId: string, task: Task): Promise<Task> =>
       apiCall({
         url: `/projects/${projectId}/tasks`,
@@ -81,7 +83,7 @@ const createApiFunctions = () => {
         method: "PATCH",
         body: updateData,
       }),
-    addBucketDependency: (
+    postDepenency: (
       projectId: string,
       bucketId: string,
       dependencyId: string,
@@ -91,7 +93,7 @@ const createApiFunctions = () => {
         method: "POST",
         body: { bucketId, dependencyId },
       }),
-    removeBucketDependency: (
+    deleteDependency: (
       projectId: string,
       bucketId: string,
       dependencyId: string,
@@ -100,7 +102,6 @@ const createApiFunctions = () => {
         url: `/projects/${projectId}/dependencies/${bucketId}/${dependencyId}`,
         method: "DELETE",
       }),
-    // Weitere API-Aufrufe können hier hinzugefügt werden
   };
 };
 
