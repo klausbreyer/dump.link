@@ -1,5 +1,6 @@
 import { Dispatch } from "react";
 import { ActionType, CLIENT_TOKEN } from "./data";
+import { ISOToDate } from "./helper";
 
 type DispatchType = Dispatch<ActionType>;
 export const setupWebSocket = (projectId: string, dispatch: DispatchType) => {
@@ -49,6 +50,20 @@ export const setupWebSocket = (projectId: string, dispatch: DispatchType) => {
 
 const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
   switch (message.action) {
+    case "UPDATE_PROJECT":
+      console.log(message.data);
+      console.log(message.data.startedAt);
+      console.log(ISOToDate(message.data.startedAt));
+
+      const updates = {
+        ...message.data,
+        startedAt: ISOToDate(message.data.startedAt),
+      };
+      dispatch({
+        type: "UPDATE_PROJECT",
+        updates: updates,
+      });
+      break;
     case "ADD_TASK":
       dispatch({
         type: "ADD_TASK",

@@ -15,6 +15,7 @@ const (
 	// ActionSetInitialState        ActionType = "SET_INITIAL_STATE"
 	ActionAddTask                  ActionType = "ADD_TASK"
 	ActionUpdateBucket             ActionType = "UPDATE_BUCKET"
+	ActionUpdateProject            ActionType = "UPDATE_PROJECT"
 	ActionResetLayersForAllBuckets ActionType = "RESET_LAYERS_FOR_ALL_BUCKETS"
 	ActionChangeTaskState          ActionType = "CHANGE_TASK_STATE"
 	ActionUpdateTask               ActionType = "UPDATE_TASK"

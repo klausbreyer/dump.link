@@ -1,20 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import Box from "./Box";
-import Container from "./common/Container";
-import { useData } from "./context/data";
-import { getOtherBuckets } from "./context/helper";
-import { BucketID, TabContext } from "./types";
 import { useDragLayer } from "react-dnd";
+import Box from "./Box";
+import FollowArrow from "./FollowArrow";
+import Container from "./common/Container";
+import InfoButton from "./common/InfoButton";
+import InfoModal from "./common/InfoModal";
+import Title from "./common/Title";
 import {
   Coordinates,
   getBorderCenterCoordinates,
   shortenLineEnd,
 } from "./common/coordinates";
-import FollowArrow from "./FollowArrow";
-import Title from "./common/Title";
-import SimpleButton from "./common/SimpleButton";
-import InfoModal from "./common/InfoModal";
+import { useData } from "./context/data";
+import { getOtherBuckets } from "./context/helper";
+import { BucketID, TabContext } from "./types";
 
 interface SequenceProps {}
 
@@ -121,7 +121,7 @@ const Sequence: React.FC<SequenceProps> = (props) => {
 
   return (
     <Container>
-      <div className="flex justify-between w-full">
+      <div className="flex items-center justify-between w-full">
         <div className="flex items-center justify-start gap-2">
           <Title title="Task Group Sequencer" />
           <InfoModal
@@ -131,7 +131,7 @@ The Task Group Sequencer lets you know when you have the required inputs complet
           />
         </div>
 
-        <SimpleButton
+        <InfoButton
           color="slate"
           onClick={() =>
             confirm(
@@ -142,7 +142,7 @@ The Task Group Sequencer lets you know when you have the required inputs complet
           }
         >
           Reset
-        </SimpleButton>
+        </InfoButton>
       </div>
 
       <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">

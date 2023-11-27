@@ -655,3 +655,7 @@ export const sortTasksByUpdatedAt = (tasks: Task[]): Task[] => {
     return 0;
   });
 };
+export const dateToISO = (date: Date) =>
+  date instanceof Date ? date.toISOString().split("T")[0] : date;
+
+export const ISOToDate = (isoDate: string) => new Date(isoDate);

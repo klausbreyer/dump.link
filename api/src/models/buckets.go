@@ -109,6 +109,7 @@ func (m *BucketModel) Update(bucketId string, updates map[string]interface{}) er
 
 	return nil
 }
+
 func (m *BucketModel) ResetProjectLayers(projectId string) error {
 	query := `UPDATE buckets SET layer = NULL WHERE project_id = ?`
 	_, err := m.DB.Exec(query, projectId)

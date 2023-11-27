@@ -31,11 +31,11 @@ const steps: Step[] = [
     name: "Arrange",
     icon: <ArrangeIcon className="w-6 h-6 text-slate-600 " />,
   },
-  // {
-  //   id: TabContext.Settings,
-  //   name: "Alpha Settings",
-  //   icon: <CogIcon className="w-6 h-6 text-slate-600" />,
-  // },
+  {
+    id: TabContext.Settings,
+    name: "Settings",
+    icon: <CogIcon className="w-6 h-6 text-slate-600" />,
+  },
 ];
 
 // Utility function to conditionally join class names, implementation needed

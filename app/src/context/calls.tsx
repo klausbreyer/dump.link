@@ -1,12 +1,16 @@
 import {
+  ApiMessage,
   Bucket,
   BucketUpdates,
   Dependency,
+  Project,
+  ProjectUpdates,
   State,
   Task,
   TaskUpdates,
 } from "../types";
 import { CLIENT_TOKEN } from "./data";
+import { ISOToDate, dateToISO } from "./helper";
 
 const createApiFunctions = () => {
   const baseUrl = new URL(
@@ -48,9 +52,39 @@ const createApiFunctions = () => {
   };
 
   return {
-    getProject: (projectId: string): Promise<State> =>
-      apiCall({ url: `/projects/${projectId}` }),
-    postProjectResetLayers: (projectId: string): Promise<State> =>
+    getProject: async (projectId: string): Promise<State> => {
+      const response = await apiCall({ url: `/projects/${projectId}` });
+      return {
+        ...response,
+        project: {
+          ...response.project,
+          startedAt: ISOToDate(response.project.startedAt),
+        },
+      };
+    },
+    patchProject: async (
+      projectId: string,
+      updateData: ProjectUpdates,
+    ): Promise<Project> => {
+      const updatedData = {
+        ...updateData,
+        startedAt: updateData.startedAt
+          ? dateToISO(updateData.startedAt)
+          : undefined,
+      };
+
+      const response = await apiCall({
+        url: `/projects/${projectId}`,
+        method: "PATCH",
+        body: updatedData,
+      });
+
+      return {
+        ...response,
+        startedAt: ISOToDate(response.startedAt),
+      };
+    },
+    postProjectResetLayers: (projectId: string): Promise<ApiMessage> =>
       apiCall({ url: `/projects/${projectId}/resetLayers`, method: "POST" }),
     postTask: (projectId: string, task: Task): Promise<Task> =>
       apiCall({

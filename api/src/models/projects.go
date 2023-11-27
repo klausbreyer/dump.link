@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -80,4 +81,24 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 	}
 
 	return &p, nil
+}
+
+func (m *ProjectModel) Update(projectId string, updates map[string]interface{}) error {
+	queryParts := []string{}
+	args := []interface{}{}
+
+	for key, value := range updates {
+		queryParts = append(queryParts, fmt.Sprintf("%s = ?", key))
+		args = append(args, value)
+	}
+
+	sql := fmt.Sprintf("UPDATE projects SET %s WHERE id = ?", strings.Join(queryParts, ", "))
+	args = append(args, projectId)
+
+	_, err := m.DB.Exec(sql, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

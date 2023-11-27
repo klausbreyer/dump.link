@@ -52,6 +52,17 @@ export type BucketUpdates = {
   flagged?: Bucket["flagged"];
   done?: Bucket["done"];
 };
+
+export type ProjectUpdates = {
+  name?: Project["name"];
+  startedAt?: Project["startedAt"];
+  appetite?: Project["appetite"];
+};
+
+export type ApiMessage = {
+  message: string;
+};
+
 export type DraggedTask = {
   taskId: TaskID;
 };
