@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="984px" height="984px" viewBox="0 0 984 984" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>favicon</title>
+    <g id="favicon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Rectangle" fill="#FFFFFF" fill-rule="nonzero" x="163" y="217" width="697" height="478"></rect>
+        <g id="noun-dumpling-3520906" fill="#1E293B" fill-rule="nonzero">
+            <path d="M492,0 C220.8,0 0,220.8 0,492 C0,763.2 220.8,984 492,984 C763.2,984 984,763.2 984,492 C984,220.8 763.2,0 492,0 Z M756,588 C756,601.199 745.199,612 732,612 L252,612 C238.801,612 228,601.199 228,588 L228,540 C228,394.8 346.8,276 492,276 C637.2,276 756,394.8 756,540 L756,588 Z M492,324 C373.2,324 276,421.199 276,540 L276,564 L708,564 L708,540 C708,421.2 610.801,324 492,324 Z M588,492 L396,492 C382.801,492 372,481.199 372,468 C372,454.801 382.801,444 396,444 L588,444 C601.199,444 612,454.801 612,468 C612,481.199 601.199,492 588,492 Z" id="Shape"></path>
+        </g>
+    </g>
+</svg>

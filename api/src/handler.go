@@ -35,20 +35,21 @@ func (app *application) RootGet(w http.ResponseWriter, r *http.Request) {
 	styledHTML := addTailwindClasses(htmlContent)
 
 	template := fmt.Sprintf(`
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>dump-link.com</title>
-<link rel="stylesheet" href="/static/tailwind.css" />
-</head>
-<body>
-<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-%s
-</div>
-</body>
-</html>
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>dump.link</title>
+		<link rel="stylesheet" href="/static/tailwind.css" />
+		<link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
+	</head>
+	<body>
+		<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+		%s
+		</div>
+	</body>
+	</html>
 `, string(styledHTML))
 
 	w.Header().Set("Content-Type", "text/html")

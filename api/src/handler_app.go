@@ -19,8 +19,9 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
 	projectId := params.ByName("projectId")
 
-	if projectId == "" {
-		http.Error(w, "Not Found", http.StatusNotFound)
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -34,6 +35,8 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 	<!DOCTYPE html>
 	<html>
 	<head>
+		<title>dump.link - %s</title>
+		<link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="/%s" rel="stylesheet">
@@ -46,7 +49,7 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 		<script src="/%s" type="module"></script>
 	</body>
 	</html>
-	`, cssFile, jsFile)
+	`, project.Name, cssFile, jsFile)
 
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(template))
