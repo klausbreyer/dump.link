@@ -14,6 +14,7 @@ import {
 import FollowArrow from "./FollowArrow";
 import Title from "./common/Title";
 import SimpleButton from "./common/SimpleButton";
+import InfoModal from "./common/InfoModal";
 
 interface SequenceProps {}
 
@@ -121,12 +122,20 @@ const Sequence: React.FC<SequenceProps> = (props) => {
   return (
     <Container>
       <div className="flex justify-between w-full">
-        <Title title="Sequence Clusters unlocks Arranging" />
+        <div className="flex items-center justify-start gap-2">
+          <Title title="Task Group Sequencer" />
+          <InfoModal
+            title="Task Group Sequencer"
+            info={`The Task Group Sequencer lets you draw an arrow from one task group to another illustrating the causal structure of how things are connected.
+The Task Group Sequencer lets you know when you have the required inputs completed that the next task group needs.`}
+          />
+        </div>
+
         <SimpleButton
           color="slate"
           onClick={() =>
             confirm(
-              "Are you certain you wish to remove all dependencies from your Taskgroups?",
+              "Are you certain you want to remove all interrelated connections from your task groups?",
             )
               ? removeAllBucketDependencies()
               : null

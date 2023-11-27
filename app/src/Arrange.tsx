@@ -18,6 +18,7 @@ import {
 } from "./context/helper";
 import { Bucket, BucketID, TabContext } from "./types";
 import Title from "./common/Title";
+import InfoModal from "./common/InfoModal";
 
 interface ArrangeProps {}
 
@@ -74,18 +75,26 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
   return (
     <Container>
       <div className="flex justify-between w-full">
-        <Title title="Arrange to discuss order" />
+        <div className="flex items-center justify-start gap-2">
+          <Title title="Task Group Arranger" />
+          <InfoModal
+            title="Task Group Arranger"
+            info={`Dumplink recognizes task groups with more outgoing than incoming connections so teams know where to start building and solving problems first.
+The Task Group Arranger helps you and your colleagues easily see what has to be done first in terms of dependencies and unknowns but also lets you sort, e.g., by ease/effort, and move them up or down in the arrangement layer stack.`}
+          />
+        </div>
+
         <SimpleButton
           color="slate"
           onClick={() =>
             confirm(
-              "Are you certain you wish to revert your customized layers to their default settings?",
+              "Are you certain you want to revert your customized layers to their default settings?",
             )
               ? resetLayersForAllBuckets()
               : null
           }
         >
-          Adjust
+          Revert
         </SimpleButton>
       </div>
       <div className="relative w-full parent ">

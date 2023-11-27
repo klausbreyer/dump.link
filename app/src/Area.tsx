@@ -56,26 +56,22 @@ const Area: React.FC<AreaProps> = (props) => {
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
   return (
-    <div className={`w-full h-full`}>
-      <Title title="Dump" />
-
-      <div
-        ref={dropRef}
-        className={`w-full h-full pr-4 bg-slate-100 border-2 rounded-md overflow-hidden
+    <div
+      ref={dropRef}
+      className={`w-full h-full pr-4 bg-slate-100 border-2 rounded-md overflow-hidden
           ${canDrop && !isOver && "border-dashed border-gray-400"}
           ${isOver && "border-solid border-gray-400"}
          ${!isOver && !canDrop && "border-solid border-transparent"}
           `}
-      >
-        <CardList>
-          {tasksForbucket.map((task) => (
-            <TaskItem bucket={bucket} task={task} key={task.id} />
-          ))}
-        </CardList>
-        <CardList>
-          <TaskItem bucket={bucket} task={null} />
-        </CardList>
-      </div>
+    >
+      <CardList>
+        {tasksForbucket.map((task) => (
+          <TaskItem bucket={bucket} task={task} key={task.id} />
+        ))}
+      </CardList>
+      <CardList>
+        <TaskItem bucket={bucket} task={null} />
+      </CardList>
     </div>
   );
 };

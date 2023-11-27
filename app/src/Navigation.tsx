@@ -88,8 +88,8 @@ const Navigation: React.FC<NavigationProps> = (props) => {
                   onClick={() => handleTabClick(tab)}
                   className={classNames(
                     isCurrent
-                      ? "border-slate-500 text-slate-600"
-                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                      ? "border-slate-800 text-slate-800"
+                      : "border-transparent text-slate-500 hover:border-slate-800 hover:text-slate-800",
                     "group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium",
                   )}
                   aria-current={isCurrent ? "page" : undefined}

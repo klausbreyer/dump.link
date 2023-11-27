@@ -21,7 +21,7 @@ const usePasteListener = (
       if (pastedData.includes("\n")) {
         // Ask the user for confirmation
         const isConfirmed = confirm(
-          "Are you sure you want to paste multiple lines, which will create multiple tasks in this bucket?",
+          "Are you sure you want to paste multiple lines, which will create multiple tasks?",
         );
 
         if (isConfirmed) {
