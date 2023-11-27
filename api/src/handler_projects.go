@@ -9,8 +9,8 @@ import (
 )
 
 func (app *application) initProject(w http.ResponseWriter, r *http.Request) string {
-	currentDate := time.Now().Format("Jan 2nd, 2006") // Formatting the date as "Nov 22nd 2023"
-	name := "Untitled Project from " + currentDate
+	currentDate := time.Now().Format("Jan 2nd") // Formatting the date as "Nov 22nd 2023"
+	name := "Untitled Project - " + currentDate
 	started_at := time.Now()
 	appetite := 6
 
