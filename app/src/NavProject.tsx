@@ -2,9 +2,29 @@ import React from "react";
 import { DumplinkIcon } from "./common/icons";
 import { useData } from "./context/data";
 import { filterBucketsFiguringOut } from "./context/helper";
-import { Bucket } from "./types";
+import { Bucket, TabContext } from "./types";
+
+import {
+  Cog8ToothIcon,
+  EllipsisHorizontalCircleIcon,
+  ShareIcon,
+} from "@heroicons/react/24/solid";
 
 export interface NavProjectProps {}
+
+function currentUrl() {
+  const { protocol, hostname, port, pathname } = window.location;
+
+  const isStandardPort =
+    (protocol === "http:" && port === "80") ||
+    (protocol === "https:" && port === "443");
+
+  const baseUrl = `${protocol}//${hostname}${
+    !isStandardPort && port ? `:${port}` : ""
+  }${pathname}`;
+
+  return baseUrl;
+}
 
 const NavProject: React.FC<NavProjectProps> = (props) => {
   const { getProject, getBuckets, getTasks } = useData();
@@ -23,8 +43,13 @@ const NavProject: React.FC<NavProjectProps> = (props) => {
           <DumplinkIcon className="w-12 h-12 text-slate-700" />
         </a>
         <div className="grid w-full gap-x-4">
-          <div className="text-lg font-bold underline truncate text-slate-700 ">
-            {project.name}
+          <div className="flex items-center gap-4">
+            <a
+              className="text-lg font-bold underline text-slate-700"
+              href={currentUrl()}
+            >
+              {project.name}
+            </a>
           </div>
           <div className="flex gap-4 w-52">
             <span className="text-sm">

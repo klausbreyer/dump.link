@@ -15,6 +15,7 @@ import {
 import { useData } from "./context/data";
 import { getOtherBuckets } from "./context/helper";
 import { BucketID, TabContext } from "./types";
+import { InformationCircleIcon } from "@heroicons/react/24/solid";
 
 interface SequenceProps {}
 
@@ -125,10 +126,21 @@ const Sequence: React.FC<SequenceProps> = (props) => {
         <div className="flex items-center justify-start gap-2">
           <Title title="Task Group Sequencer" />
           <InfoModal
+            icon={
+              <InformationCircleIcon className="w-5 h-5 cursor-pointer text-slate-500" />
+            }
             title="Task Group Sequencer"
-            info={`The Task Group Sequencer lets you draw an arrow from one task group to another illustrating the causal structure of how things are connected.
-The Task Group Sequencer lets you know when you have the required inputs completed that the next task group needs.`}
-          />
+            buttonText="Got it, thanks!"
+          >
+            {`The Task Group Sequencer lets you draw an arrow from one task group to another illustrating the causal structure of how things are connected.
+The Task Group Sequencer lets you know when you have the required inputs completed that the next task group needs.`
+              .split("\n")
+              .map((p, i) => (
+                <p key={i} className="mb-2 text-sm text-slate-500">
+                  {p}
+                </p>
+              ))}
+          </InfoModal>
         </div>
 
         <InfoButton

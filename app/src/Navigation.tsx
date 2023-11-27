@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 
-import { CogIcon } from "@heroicons/react/24/solid";
+import { Cog8ToothIcon, CogIcon, ShareIcon } from "@heroicons/react/24/solid";
 
+import NavProgress from "./NavProgress";
+import NavProject from "./NavProject";
 import Container from "./common/Container";
 import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
-import { useData } from "./context/data";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
-import NavProject from "./NavProject";
-import NavProgress from "./NavProgress";
+import { EllipsisHorizontalCircleIcon } from "@heroicons/react/24/outline";
+import InfoModal from "./common/InfoModal";
 
 interface Step {
-  id: string;
+  id: TabContext;
   name: string;
   href?: string;
   icon?: React.ReactNode;
@@ -34,11 +35,6 @@ const steps: Step[] = [
     name: "Arrange",
     icon: <ArrangeIcon className="w-6 h-6 text-slate-700 " />,
   },
-  {
-    id: TabContext.Settings,
-    name: "Settings",
-    icon: <CogIcon className="w-6 h-6 text-slate-700" />,
-  },
 ];
 
 // Utility function to conditionally join class names, implementation needed
@@ -47,66 +43,74 @@ function classNames(...classes: string[]) {
 }
 interface NavigationProps {}
 
+const handleTabClick = (tab: TabContext) => {
+  const params = new URLSearchParams(window.location.search);
+  params.set("p", tab);
+  window.history.pushState({}, "", "?" + params.toString());
+
+  // Dispatch a custom event after changing the URL
+  window.dispatchEvent(new Event("urlchanged"));
+};
+
 const Navigation: React.FC<NavigationProps> = (props) => {
-  const { getProject } = useData();
-  const project = getProject();
   const currentQueryParam = useQueryParamChange("p");
-  const initialTab = currentQueryParam || TabContext.Group;
-  const [currentTab, setCurrentTab] = useState<string | null>(initialTab);
-
-  const handleTabClick = (step: Step) => {
-    setCurrentTab(step.id);
-
-    const params = new URLSearchParams(window.location.search);
-    params.set("p", step.id);
-    window.history.pushState({}, "", "?" + params.toString());
-
-    // Dispatch a custom event after changing the URL
-    window.dispatchEvent(new Event("urlchanged"));
-  };
-
-  useEffect(() => {
-    // Function to handle hash change events
-    const handleHashChange = () => {
-      setCurrentTab(window.location.hash.slice(1));
-    };
-
-    // Attach event listener
-    window.addEventListener("hashchange", handleHashChange);
-
-    // Cleanup function to detach the event listener when the component is unmounted
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange);
-    };
-  }, []);
+  const currentTab = (currentQueryParam as TabContext) || TabContext.Group;
 
   return (
     <Container>
-      <div className="flex items-center justify-between gap-4 border-b border-gray-200">
-        <nav className="flex items-center justify-between w-full gap-8">
+      <div className="w-full border-b border-gray-200">
+        <div className="flex items-center justify-between gap-4 mb-8 ">
           <NavProject />
+
           <NavProgress />
-          <div className="flex items-center justify-between -mb-px space-x-8">
-            {steps.map((tab) => {
-              const isCurrent = currentTab === tab.id;
-              return (
-                <button
-                  key={tab.name}
-                  onClick={() => handleTabClick(tab)}
-                  className={classNames(
-                    isCurrent
-                      ? "border-slate-700 text-slate-700"
-                      : "border-transparent text-slate-500 hover:border-slate-700 hover:text-slate-700",
-                    "group inline-flex items-center border-b-2 py-4 text-sm font-medium",
-                  )}
-                  aria-current={isCurrent ? "page" : undefined}
-                >
-                  {tab.icon}
-                  <span className="ml-2">{tab.name}</span>
-                </button>
-              );
-            })}
+          <div className="flex gap-1">
+            <Cog8ToothIcon
+              onClick={() => handleTabClick(TabContext.Settings)}
+              className={`inline-block w-5 h-5 cursor-pointer  hover:text-slate-800 ${
+                currentTab === TabContext.Settings
+                  ? "text-slate-800"
+                  : "text-slate-500"
+              }`}
+            />
+            <InfoModal
+              icon={
+                <ShareIcon className="w-5 h-5 cursor-pointer text-slate-500 hover:text-slate-800 " />
+              }
+              title="Share"
+              buttonText="Got it, thanks!"
+            >
+              {`Copy Link to Clipboard, etc. `.split("\n").map((p, i) => (
+                <p key={i} className="mb-2 text-sm text-slate-500">
+                  {p}
+                </p>
+              ))}
+            </InfoModal>
+
+            <EllipsisHorizontalCircleIcon className="inline-block w-5 h-5 cursor-pointer text-slate-500 hover:text-slate-800" />
           </div>
+        </div>
+        <nav className="flex items-center justify-center w-full space-x-8">
+          {steps.map((tab) => {
+            // Render the first tabs
+
+            const isCurrent = currentTab === tab.id;
+            return (
+              <button
+                key={tab.name}
+                onClick={() => handleTabClick(tab.id)}
+                className={classNames(
+                  isCurrent
+                    ? "border-slate-700 text-slate-700"
+                    : "border-transparent text-slate-500 hover:border-slate-700 hover:text-slate-700",
+                  "group inline-flex items-center border-b-2 py-1 text-sm font-medium",
+                )}
+                aria-current={isCurrent ? "page" : undefined}
+              >
+                {tab.icon}
+                <span className="ml-2">{tab.name}</span>
+              </button>
+            );
+          })}
         </nav>
       </div>
     </Container>

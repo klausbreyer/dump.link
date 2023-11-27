@@ -19,6 +19,7 @@ import {
   uniqueValues,
 } from "./context/helper";
 import { Bucket, BucketID, TabContext } from "./types";
+import { InformationCircleIcon } from "@heroicons/react/24/solid";
 
 interface ArrangeProps {}
 
@@ -78,10 +79,21 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
         <div className="flex items-center justify-start gap-2">
           <Title title="Task Group Arranger" />
           <InfoModal
+            icon={
+              <InformationCircleIcon className="w-5 h-5 cursor-pointer text-slate-500" />
+            }
             title="Task Group Arranger"
-            info={`Dumplink recognizes task groups with more outgoing than incoming connections so teams know where to start building and solving problems first.
-The Task Group Arranger helps you and your colleagues easily see what has to be done first in terms of dependencies and unknowns but also lets you sort, e.g., by ease/effort, and move them up or down in the arrangement layer stack.`}
-          />
+            buttonText="Got it, thanks!"
+          >
+            {`Dumplink recognizes task groups with more outgoing than incoming connections so teams know where to start building and solving problems first.
+The Task Group Arranger helps you and your colleagues easily see what has to be done first in terms of dependencies and unknowns but also lets you sort, e.g., by ease/effort, and move them up or down in the arrangement layer stack.`
+              .split("\n")
+              .map((p, i) => (
+                <p key={i} className="mb-2 text-sm text-slate-500">
+                  {p}
+                </p>
+              ))}
+          </InfoModal>
         </div>
 
         <InfoButton
