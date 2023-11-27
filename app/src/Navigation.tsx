@@ -3,16 +3,12 @@ import React, { useEffect, useState } from "react";
 import { CogIcon } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
-import {
-  ArrangeIcon,
-  DumplinkIcon,
-  GroupIcon,
-  SequenceIcon,
-} from "./common/icons";
+import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
+import { useData } from "./context/data";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
-import MacroProgress from "./MacroProgress";
-import { useData } from "./context/data";
+import NavProject from "./NavProject";
+import NavProgress from "./NavProgress";
 
 interface Step {
   id: string;
@@ -86,29 +82,31 @@ const Navigation: React.FC<NavigationProps> = (props) => {
 
   return (
     <Container>
-      {/* <MacroProgress /> */}
       <div className="flex items-center justify-between gap-4 border-b border-gray-200">
-        <MacroProgress />
-        <nav className="flex items-center justify-between -mb-px space-x-8">
-          {steps.map((tab) => {
-            const isCurrent = currentTab === tab.id;
-            return (
-              <button
-                key={tab.name}
-                onClick={() => handleTabClick(tab)}
-                className={classNames(
-                  isCurrent
-                    ? "border-slate-700 text-slate-700"
-                    : "border-transparent text-slate-500 hover:border-slate-700 hover:text-slate-700",
-                  "group inline-flex items-center border-b-2 py-4 text-sm font-medium",
-                )}
-                aria-current={isCurrent ? "page" : undefined}
-              >
-                {tab.icon}
-                <span className="ml-2">{tab.name}</span>
-              </button>
-            );
-          })}
+        <nav className="flex items-center justify-between w-full gap-8">
+          <NavProject />
+          <NavProgress />
+          <div className="flex items-center justify-between -mb-px space-x-8">
+            {steps.map((tab) => {
+              const isCurrent = currentTab === tab.id;
+              return (
+                <button
+                  key={tab.name}
+                  onClick={() => handleTabClick(tab)}
+                  className={classNames(
+                    isCurrent
+                      ? "border-slate-700 text-slate-700"
+                      : "border-transparent text-slate-500 hover:border-slate-700 hover:text-slate-700",
+                    "group inline-flex items-center border-b-2 py-4 text-sm font-medium",
+                  )}
+                  aria-current={isCurrent ? "page" : undefined}
+                >
+                  {tab.icon}
+                  <span className="ml-2">{tab.name}</span>
+                </button>
+              );
+            })}
+          </div>
         </nav>
       </div>
     </Container>
