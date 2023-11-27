@@ -639,8 +639,6 @@ type TaskWithUpdatedAt = Task & {
 };
 
 export const sortTasksByUpdatedAt = (tasks: Task[]): Task[] => {
-  console.log(tasks);
-
   return [...tasks].sort((a, b) => {
     // Ensure that both a and b are treated as TaskWithUpdatedAt
     const taskA = a as TaskWithUpdatedAt;

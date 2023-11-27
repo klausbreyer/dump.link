@@ -65,6 +65,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const [val, setVal] = useState<string>(task?.title || "");
 
   useEffect(() => {
+    if (task) {
+      setVal(task.title);
+    }
+  }, [task]);
+
+  useEffect(() => {
     if (task?.id === null && textAreaRef.current) {
       textAreaRef.current.focus();
     }
