@@ -53,22 +53,22 @@ const MacroProgress: React.FC<MacroProgressProps> = (props) => {
                 <span className="text-sm">
                   <span
                     className={`px-1 mr-0.5 rounded
-                  ${done.length > 0 && "bg-green-500"}
-                `}
-                  >
-                    {done.length}
-                  </span>
-                  Done
-                </span>
-                <span className="text-sm">
-                  <span
-                    className={`px-1 mr-0.5 rounded
                   ${figuringOut.length > 0 && "bg-yellow-300"}
                   `}
                   >
                     {figuringOut.length}
                   </span>
                   Figuring Out
+                </span>
+                <span className="text-sm">
+                  <span
+                    className={`px-1 mr-0.5 rounded
+                  ${done.length > 0 && "bg-green-500"}
+                `}
+                  >
+                    {done.length}
+                  </span>
+                  Done
                 </span>
               </div>
             </div>
