@@ -217,3 +217,22 @@ export const SequenceIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
     </svg>
   );
 };
+export const DumplinkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props,
+) => {
+  return (
+    <svg
+      width="1200"
+      height="1200"
+      viewBox="0 0 1200 1200"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="m600 108c-271.2 0-492 220.8-492 492s220.8 492 492 492 492-220.8 492-492-220.8-492-492-492zm264 588c0 13.199-10.801 24-24 24h-480c-13.199 0-24-10.801-24-24v-48c0-145.2 118.8-264 264-264s264 118.8 264 264zm-264-264c-118.8 0-216 97.199-216 216v24h432v-24c0-118.8-97.199-216-216-216zm96 168h-192c-13.199 0-24-10.801-24-24s10.801-24 24-24h192c13.199 0 24 10.801 24 24s-10.801 24-24 24z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};

@@ -31,8 +31,8 @@ const InfoModal: React.FC<InfoModal> = ({ title, info }) => {
             >
               {title}
             </Dialog.Title>
-            {info.split("\n").map((line) => (
-              <Dialog.Description className={"text-slate-500 text-sm"}>
+            {info.split("\n").map((line, i) => (
+              <Dialog.Description key={i} className={"text-slate-500 text-sm"}>
                 {line}
               </Dialog.Description>
             ))}

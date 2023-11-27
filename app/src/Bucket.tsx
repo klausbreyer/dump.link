@@ -100,9 +100,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
 
-  const showTasksAndBar = tasksForbucket.length > 0;
-  const showFigured = showTasksAndBar && !bucket.done;
-  const showDone = showTasksAndBar && bucket.done;
   const showDashed = canDrop && !isOver && !bucket.done;
   const showSolid = isOver && !bucket.done;
   const showNone = !canDrop;
@@ -130,40 +127,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
           className={`min-h-[2.5rem]
           `}
         >
-          {showFigured && (
-            <div
-              className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
-            >
-              <span>
-                Figuring Out:{" "}
-                <span
-                  className={`px-1 rounded
-                  ${open.length > 0 && !bucket.done && "bg-orange-300"}
-                `}
-                >
-                  {open.length}
-                </span>
-              </span>
-              <span>
-                Figured Out:{" "}
-                <span
-                  className={`px-1 rounded
-                  ${closed.length > 0 && !bucket.done && "bg-yellow-300"}
-                  `}
-                >
-                  {closed.length}
-                </span>
-              </span>
-            </div>
-          )}
-
-          {showDone && (
-            <div
-              className={`flex items-center justify-center w-full gap-1 text-sm text-center px-1`}
-            >
-              Done
-            </div>
-          )}
           <MicroProgress bucket={bucket} />
           <CardList>
             {open.map((task) => (

@@ -141,6 +141,7 @@ export const hasCyclicDependencyWithBucket = (
   // Start the traversal with the dependencyId
   return traverse(dependencyId, new Set());
 };
+
 export function getTasksByClosed(tasks: Task[], closed: boolean): Task[] {
   return tasks.filter((task) => task.closed === closed);
 }
@@ -659,3 +660,14 @@ export const dateToISO = (date: Date) =>
   date instanceof Date ? date.toISOString().split("T")[0] : date;
 
 export const ISOToDate = (isoDate: string) => new Date(isoDate);
+
+// figuring out means: not all tasks of the bucket are closed
+export function filterBucketsFiguringOut(
+  buckets: Bucket[],
+  tasks: Task[],
+): Bucket[] {
+  return buckets.filter((bucket) => {
+    const bucketTasks = getTasksForBucket(tasks, bucket.id);
+    return !bucketTasks.every((task) => task.closed);
+  });
+}
