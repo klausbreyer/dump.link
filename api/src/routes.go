@@ -24,8 +24,10 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/a/:projectId", app.ProjectGet)
 
 	router.HandlerFunc(http.MethodGet, "/api/v1/health", app.HealthGet)
+
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects", app.ApiProjectsPost)
 	router.HandlerFunc(http.MethodGet, "/api/v1/projects/:projectId", app.ApiProjectGet)
+	router.HandlerFunc(http.MethodPatch, "/api/v1/projects/:projectId", app.ApiProjectPatch)
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects/:projectId/resetLayers", app.ApiResetProjectLayers)
 
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects/:projectId/tasks", app.ApiAddTask)

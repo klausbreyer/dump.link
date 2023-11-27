@@ -6,6 +6,7 @@ import {
   BucketUpdates,
   Dependency,
   Project,
+  ProjectUpdates,
   State,
   Task,
   TaskID,
@@ -71,6 +72,10 @@ export type ActionType =
   | {
       type: "DELETE_TASK";
       taskId: TaskID;
+    }
+  | {
+      type: "UPDATE_PROJECT";
+      updates: ProjectUpdates;
     };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -80,6 +85,18 @@ const dataReducer = (state: State, action: ActionType): State => {
   switch (action.type) {
     case "SET_INITIAL_STATE":
       return action.payload;
+
+    case "UPDATE_PROJECT": {
+      const { updates } = action;
+
+      return {
+        ...state,
+        project: {
+          ...state.project,
+          ...updates,
+        },
+      };
+    }
 
     case "ADD_TASK": {
       const { task } = action;
@@ -344,8 +361,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     })();
   };
 
+  const updateProject = (updates: ProjectUpdates) => {
+    dispatch({
+      type: "UPDATE_PROJECT",
+      updates: updates,
+    });
+
+    (async () => {
+      try {
+        await apiFunctions.patchProject(state.project.id, updates);
+      } catch (error) {
+        console.error(error);
+        alert("Error while updating the project");
+      }
+    })();
+  };
+
   const addBucketDependency = (bucket: Bucket, dependencyId: BucketID) => {
-    const bucketId = bucket.id;
     if (
       hasCyclicDependencyWithBucket(bucket.id, dependencyId, state.dependencies)
     ) {
@@ -428,6 +460,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getTasks,
         getDependencies,
         getProject,
+        updateProject,
         moveTask,
         updateTask,
         resetLayersForAllBuckets,
@@ -445,6 +478,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 type DataContextType = {
   state: State;
+
+  updateProject: (updates: ProjectUpdates) => void;
 
   getTasks: () => Task[];
   addTask: (task: Task) => void;

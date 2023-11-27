@@ -3,7 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import Box from "./Box";
 import Lane from "./Lane";
 import Container from "./common/Container";
-import SimpleButton from "./common/SimpleButton";
+import InfoButton from "./common/InfoButton";
+import InfoModal from "./common/InfoModal";
+import Title from "./common/Title";
 import {
   getBorderCenterCoordinates,
   shortenLineEnd,
@@ -17,8 +19,6 @@ import {
   uniqueValues,
 } from "./context/helper";
 import { Bucket, BucketID, TabContext } from "./types";
-import Title from "./common/Title";
-import InfoModal from "./common/InfoModal";
 
 interface ArrangeProps {}
 
@@ -74,7 +74,7 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
 
   return (
     <Container>
-      <div className="flex justify-between w-full">
+      <div className="flex items-center justify-between w-full">
         <div className="flex items-center justify-start gap-2">
           <Title title="Task Group Arranger" />
           <InfoModal
@@ -84,8 +84,7 @@ The Task Group Arranger helps you and your colleagues easily see what has to be 
           />
         </div>
 
-        <SimpleButton
-          color="slate"
+        <InfoButton
           onClick={() =>
             confirm(
               "Are you certain you want to revert your customized layers to their default settings?",
@@ -95,7 +94,7 @@ The Task Group Arranger helps you and your colleagues easily see what has to be 
           }
         >
           Revert
-        </SimpleButton>
+        </InfoButton>
       </div>
       <div className="relative w-full parent ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">

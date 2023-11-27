@@ -3,9 +3,16 @@ import React, { useEffect, useState } from "react";
 import { CogIcon } from "@heroicons/react/24/solid";
 
 import Container from "./common/Container";
-import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
+import {
+  ArrangeIcon,
+  DumplinkIcon,
+  GroupIcon,
+  SequenceIcon,
+} from "./common/icons";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
+import MacroProgress from "./MacroProgress";
+import { useData } from "./context/data";
 
 interface Step {
   id: string;
@@ -18,24 +25,24 @@ const steps: Step[] = [
   {
     id: TabContext.Group,
     name: "Group",
-    icon: <GroupIcon className="w-6 h-6 text-slate-600" />,
+    icon: <GroupIcon className="w-6 h-6 text-slate-700" />,
   },
   {
     id: TabContext.Sequence,
     name: "Sequence",
 
-    icon: <SequenceIcon className="w-6 h-6 text-slate-600" />,
+    icon: <SequenceIcon className="w-6 h-6 text-slate-700" />,
   },
   {
     id: TabContext.Arrange,
     name: "Arrange",
-    icon: <ArrangeIcon className="w-6 h-6 text-slate-600 " />,
+    icon: <ArrangeIcon className="w-6 h-6 text-slate-700 " />,
   },
-  // {
-  //   id: TabContext.Settings,
-  //   name: "Alpha Settings",
-  //   icon: <CogIcon className="w-6 h-6 text-slate-600" />,
-  // },
+  {
+    id: TabContext.Settings,
+    name: "Settings",
+    icon: <CogIcon className="w-6 h-6 text-slate-700" />,
+  },
 ];
 
 // Utility function to conditionally join class names, implementation needed
@@ -45,6 +52,8 @@ function classNames(...classes: string[]) {
 interface NavigationProps {}
 
 const Navigation: React.FC<NavigationProps> = (props) => {
+  const { getProject } = useData();
+  const project = getProject();
   const currentQueryParam = useQueryParamChange("p");
   const initialTab = currentQueryParam || TabContext.Group;
   const [currentTab, setCurrentTab] = useState<string | null>(initialTab);
@@ -77,30 +86,30 @@ const Navigation: React.FC<NavigationProps> = (props) => {
 
   return (
     <Container>
-      <div className="mb-2">
-        <div className="flex items-center justify-between border-b border-gray-200">
-          <nav className="flex -mb-px space-x-8" aria-label="Tabs">
-            {steps.map((tab) => {
-              const isCurrent = currentTab === tab.id;
-              return (
-                <button
-                  key={tab.name}
-                  onClick={() => handleTabClick(tab)}
-                  className={classNames(
-                    isCurrent
-                      ? "border-slate-800 text-slate-800"
-                      : "border-transparent text-slate-500 hover:border-slate-800 hover:text-slate-800",
-                    "group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium",
-                  )}
-                  aria-current={isCurrent ? "page" : undefined}
-                >
-                  {tab.icon}
-                  <span className="ml-2">{tab.name}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+      {/* <MacroProgress /> */}
+      <div className="flex items-center justify-between gap-4 border-b border-gray-200">
+        <MacroProgress />
+        <nav className="flex items-center justify-between -mb-px space-x-8">
+          {steps.map((tab) => {
+            const isCurrent = currentTab === tab.id;
+            return (
+              <button
+                key={tab.name}
+                onClick={() => handleTabClick(tab)}
+                className={classNames(
+                  isCurrent
+                    ? "border-slate-700 text-slate-700"
+                    : "border-transparent text-slate-500 hover:border-slate-700 hover:text-slate-700",
+                  "group inline-flex items-center border-b-2 py-4 text-sm font-medium",
+                )}
+                aria-current={isCurrent ? "page" : undefined}
+              >
+                {tab.icon}
+                <span className="ml-2">{tab.name}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
     </Container>
   );
