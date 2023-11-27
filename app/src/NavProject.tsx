@@ -19,7 +19,9 @@ const NavProject: React.FC<NavProjectProps> = (props) => {
   return (
     <>
       <div className="flex flex-row items-center w-full h-full gap-1 ">
-        <DumplinkIcon className="w-12 h-12 text-slate-700" />
+        <a href="/" title="dump.link" target="_blank">
+          <DumplinkIcon className="w-12 h-12 text-slate-700" />
+        </a>
         <div className="grid w-full gap-x-4">
           <div className="text-lg font-bold underline truncate text-slate-700 ">
             {project.name}
