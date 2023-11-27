@@ -8,6 +8,7 @@ import {
   sortTasksByUpdatedAt,
 } from "./context/helper";
 import { useData } from "./context/data";
+import { DumplinkIcon } from "./common/icons";
 
 export interface MacroProgressProps {}
 
@@ -39,65 +40,72 @@ const MacroProgress: React.FC<MacroProgressProps> = (props) => {
 
   return (
     <>
-      {/* <div className="grid grid-cols-12">
-        <span className="text-sm">
-          Done:{" "}
-          <span
-            className={`px-1 rounded
+      <div className="grid w-full grid-cols-12">
+        <div className="col-span-6">
+          <div className="flex items-center gap-1 ">
+            <DumplinkIcon className="w-16 h-16 text-slate-700" />
+            <div className="flex flex-col">
+              <div className="text-xl font-bold underline text-slate-700">
+                {project.name}
+              </div>
+              <div className="flex flex-row gap-2">
+                <span className="text-sm">Task Groups:</span>
+                <span className="text-sm">
+                  <span
+                    className={`px-1 mr-0.5 rounded
                   ${done.length > 0 && "bg-green-500"}
                 `}
-          >
-            {done.length}
-          </span>
-        </span>
-        <div className="flex items-center justify-between col-span-10 gap-1 p-1 ">
-          <div
-            className={`relative w-full h-2  rounded-xl overflow-hidden bg-orange-300  `}
-          >
-            <div
-              className={`h-full absolute top-0 left-0 bg-green-500 `}
-              style={{ width: `${100 - percentBuckets}%` }}
-            ></div>
-            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">
-              <span className={` font-bold`}></span>
-            </div>
-          </div>
-        </div>
-        <span className="text-sm">
-          Figured Out:{" "}
-          <span
-            className={`px-1 rounded
-                  ${figuringOut.length > 0 && "bg-orange-300"}
+                  >
+                    {done.length}
+                  </span>
+                  Done
+                </span>
+                <span className="text-sm">
+                  <span
+                    className={`px-1 mr-0.5 rounded
+                  ${figuringOut.length > 0 && "bg-yellow-300"}
                   `}
-          >
-            {figuringOut.length}
-          </span>
-        </span>
-      </div> */}
-      <div className="grid grid-cols-12">
-        <span className="text-sm">
-          {startedAt.getFullYear()}-
-          {startedAt.getMonth().toString().padStart(2, "0")}-
-          {startedAt.getDate().toString().padStart(2, "0")}
-        </span>
-        <div className="flex items-center justify-between col-span-10 gap-1 p-1 ">
-          <div
-            className={`relative w-full h-2  rounded-xl overflow-hidden bg-slate-300  `}
-          >
-            <div
-              className={`h-full absolute top-0 left-0 bg-slate-700 `}
-              style={{ width: `${100 - percentDate}%` }}
-            ></div>
-            <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">
-              <span className={` font-bold`}></span>
+                  >
+                    {figuringOut.length}
+                  </span>
+                  Figuring Out
+                </span>
+              </div>
             </div>
           </div>
         </div>
-        <span className="text-sm">
-          {endingAt.getFullYear()}-
-          {endingAt.getMonth().toString().padStart(2, "0")}-
-          {endingAt.getDate().toString().padStart(2, "0")}
-        </span>
+        <div className="col-span-6 ">
+          <div className="flex flex-col justify-end h-full gap-2">
+            <div className="flex flex-row items-center">
+              <div
+                className={`relative w-full h-2  rounded-xl overflow-hidden bg-slate-300  `}
+              >
+                <div
+                  className={`h-full absolute top-0 left-0 bg-slate-700 `}
+                  style={{ width: `${100 - percentDate}%` }}
+                ></div>
+                <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">
+                  <span className={` font-bold`}></span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between mb-2">
+              <span className="text-sm ">
+                {startedAt.getFullYear()}-
+                {startedAt.getMonth().toString().padStart(2, "0")}-
+                {startedAt.getDate().toString().padStart(2, "0")}
+              </span>
+
+              <span className="text-sm ">6 weeks</span>
+              <span className="text-sm ">
+                {endingAt.getFullYear()}-
+                {endingAt.getMonth().toString().padStart(2, "0")}-
+                {endingAt.getDate().toString().padStart(2, "0")}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

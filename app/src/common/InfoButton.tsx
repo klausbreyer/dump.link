@@ -23,16 +23,24 @@ const InfoButton = React.forwardRef<
   HTMLButtonElement,
   InfoButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>
 >((props, ref) => {
-  const { onClick, children, className, color = "slate", ...rest } = props; // Standardfarbe auf 'slate' setzen
+  const {
+    onClick,
+    children,
+    disabled,
+    className,
+    color = "slate",
+    ...rest
+  } = props;
 
-  // Bestimmen Sie die Farbklasse basierend auf der übergebenen Farbe
   const colorClass = colorMap[color] || colorMap.slate;
+  const disabledClass = disabled ? "opacity-50 cursor-not-allowed" : "";
 
   return (
     <button
+      disabled={disabled}
       ref={ref}
       onClick={onClick ? () => onClick() : () => {}}
-      className={`${className} inline-flex justify-center px-4 py-2 text-sm font-medium text-slate-900 ${colorClass} border border-transparent rounded-md hover:ring-2 hover:ring-slate-500 hover:ring-offset-2`}
+      className={`${className} ${disabledClass} inline-flex justify-center px-4 py-2 text-sm font-medium text-slate-900 ${colorClass} border border-transparent rounded-md hover:ring-2 hover:ring-slate-500 hover:ring-offset-2`}
       {...rest}
     >
       {children}

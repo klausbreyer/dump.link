@@ -9,28 +9,39 @@ const Settings: React.FC<SettingsProps> = (props) => {
   const { updateProject, getProject } = useData();
   const project = getProject();
 
+  const [isDirty, setIsDirty] = useState(false);
   const [name, setName] = useState(project.name);
   const [startedAt, setStartedAt] = useState(
     project.startedAt.toISOString().split("T")[0],
   );
   const [appetite, setAppetite] = useState(project.appetite.toString());
 
+  const handleChange =
+    (setter: (value: string) => void) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setter(e.target.value);
+      setIsDirty(true);
+    };
+
   useEffect(() => {
     setName(project.name);
     setStartedAt(project.startedAt.toISOString().split("T")[0]);
     setAppetite(project.appetite.toString());
+    setIsDirty(false);
   }, [project]);
-
-  console.log(startedAt);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     updateProject({
       name,
       startedAt: new Date(startedAt),
       appetite: parseInt(appetite, 10),
     });
+    setTimeout(() => {
+      console.log("timeout");
+
+      setIsDirty(false);
+    }, 1000);
   };
 
   return (
@@ -51,7 +62,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
             type="text"
             id="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleChange(setName)}
             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           />
         </div>
@@ -67,7 +78,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
             type="date"
             id="startedAt"
             value={startedAt}
-            onChange={(e) => setStartedAt(e.target.value)}
+            onChange={handleChange(setStartedAt)}
             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           />
         </div>
@@ -82,7 +93,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
           <select
             id="appetite"
             value={appetite}
-            onChange={(e) => setAppetite(e.target.value)}
+            onChange={handleChange(setAppetite)}
             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           >
             {Array.from({ length: 8 }, (_, i) => i + 1).map((week) => (
@@ -93,8 +104,10 @@ const Settings: React.FC<SettingsProps> = (props) => {
           </select>
         </div>
 
-        <div className="flex items-center justify-end">
-          <InfoButton type="submit">Save Settings</InfoButton>
+        <div className="flex items-center justify-start">
+          <InfoButton type="submit" disabled={!isDirty}>
+            Save Settings
+          </InfoButton>
         </div>
       </form>
     </div>

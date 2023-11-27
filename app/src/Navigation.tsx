@@ -86,12 +86,9 @@ const Navigation: React.FC<NavigationProps> = (props) => {
 
   return (
     <Container>
-      <MacroProgress />
-      <div className="flex items-center justify-between border-b border-gray-200">
-        <div className="flex items-center gap-1 text-xl font-bold text-slate-700">
-          <DumplinkIcon className="w-8 h-8 " />
-          {project.name}
-        </div>
+      {/* <MacroProgress /> */}
+      <div className="flex items-center justify-between gap-4 border-b border-gray-200">
+        <MacroProgress />
         <nav className="flex items-center justify-between -mb-px space-x-8">
           {steps.map((tab) => {
             const isCurrent = currentTab === tab.id;
@@ -103,7 +100,7 @@ const Navigation: React.FC<NavigationProps> = (props) => {
                   isCurrent
                     ? "border-slate-700 text-slate-700"
                     : "border-transparent text-slate-500 hover:border-slate-700 hover:text-slate-700",
-                  "group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium",
+                  "group inline-flex items-center border-b-2 py-4 text-sm font-medium",
                 )}
                 aria-current={isCurrent ? "page" : undefined}
               >
