@@ -22,12 +22,8 @@ const MacroProgress: React.FC<MacroProgressProps> = (props) => {
   const done = buckets.filter((b: Bucket) => b.done);
   const figuringOut = filterBucketsFiguringOut(buckets, tasks);
 
-  const percentBuckets =
-    (done.length / (done.length + figuringOut.length)) * 100;
-
-  // to account for NaN on unstarted buckets
-
   const startedAt = project.startedAt;
+
   // startedAt + project.appetiate * weeks
   const endingAt = new Date(
     startedAt.getTime() + project.appetite * 7 * 24 * 60 * 60 * 1000,
@@ -37,6 +33,8 @@ const MacroProgress: React.FC<MacroProgressProps> = (props) => {
   const totalDuration = endingAt.getTime() - startedAt.getTime();
   const timeElapsed = currentDate.getTime() - startedAt.getTime();
   const percentDate = (timeElapsed / totalDuration) * 100;
+
+  console.log(startedAt, currentDate, endingAt, percentDate);
 
   return (
     <>
@@ -82,7 +80,7 @@ const MacroProgress: React.FC<MacroProgressProps> = (props) => {
               >
                 <div
                   className={`h-full absolute top-0 left-0 bg-slate-700 `}
-                  style={{ width: `${100 - percentDate}%` }}
+                  style={{ width: `${percentDate}%` }}
                 ></div>
                 <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between h-full gap-1 p-1 text-sm">
                   <span className={` font-bold`}></span>
