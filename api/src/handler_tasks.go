@@ -3,13 +3,16 @@ package src
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
 	}
+	fmt.Printf("Validierung der Projekt-ID abgeschlossen in %v\n", time.Since(startTime))
 
 	var input struct {
 		Id       string `json:"id"`
@@ -33,24 +36,35 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	insertTime := time.Now()
 	newTaskID, err := app.tasks.Insert(input.Id, input.Title, false, input.BucketID, input.Priority, projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+	app.logger.Info(fmt.Sprintf("Task insertion completed in %v", time.Since(insertTime)))
 
+	getTime := time.Now()
 	task, err := app.tasks.Get(newTaskID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+	app.logger.Info(fmt.Sprintf("Task retrieval completed in %v", time.Since(getTime)))
 
 	data := task
 
 	senderToken := app.extractTokenFromRequest(r)
 
+	sendTime := time.Now()
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddTask, data)
+	app.logger.Info(fmt.Sprintf("Sending action data to project clients completed in %v", time.Since(sendTime)))
+
+	writeTime := time.Now()
 	app.writeJSON(w, http.StatusCreated, data, nil)
+	app.logger.Info(fmt.Sprintf("Writing JSON response completed in %v", time.Since(writeTime)))
+
+	app.logger.Info(fmt.Sprintf("Total duration of ApiAddTask request: %v", time.Since(startTime)))
 }
 
 func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
