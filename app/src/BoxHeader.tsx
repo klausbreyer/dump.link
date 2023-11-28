@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 
 import FlagButton from "./common/FlagButton";
 import {
@@ -27,6 +27,11 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
   const open = getTasksByClosed(tasksForbucket, false);
 
   const [inputValue, setInputValue] = useState(bucket?.name);
+
+  useEffect(() => {
+    setInputValue(bucket?.name);
+  }, [bucket?.name]);
+
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {

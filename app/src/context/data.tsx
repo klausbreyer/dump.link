@@ -146,6 +146,7 @@ const dataReducer = (state: State, action: ActionType): State => {
       const { bucketId, updates } = action;
 
       // Map through the buckets array to find and update the specific bucket
+
       const updatedBuckets = state.buckets.map((bucket) => {
         if (bucket.id === bucketId) {
           return reconsileBucketUpdate(bucket, updates);
@@ -290,17 +291,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       bucketId: toBucketId,
       priority: highestPriority + PRIORITY_INCREMENT,
     };
-    console.log("outer");
-
-    console.log(updates);
     updateTask(taskId, updates);
   };
 
   const updateTask = (taskId: TaskID, updates: TaskUpdates) => {
-    console.log("inner");
-
-    console.log(updates);
-
     dispatch({
       type: "UPDATE_TASK",
       taskId: taskId,
