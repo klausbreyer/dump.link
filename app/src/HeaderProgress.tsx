@@ -38,7 +38,7 @@ const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
           <span className="text-sm">{formatDate(startedAt)}</span>
 
           <span className="text-sm">
-            {calculateRemainingTime(startedAt, endingAt)} left
+            {calculateRemainingTime(startedAt, endingAt)}
           </span>
           <span className="text-sm">{formatDate(endingAt)}</span>
         </div>

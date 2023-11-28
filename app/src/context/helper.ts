@@ -714,17 +714,27 @@ export function calculateRemainingTime(
 
   // Function to determine singular or plural form
   const formatTime = (count: number, singular: string, plural: string) =>
-    `${count} ${count === 1 ? singular : plural}`;
+    `${count} ${count === 1 ? singular : plural} left`;
 
   // Ensure the current date is within the range
-  if (today < startedAt || today > endingAt) {
-    return ""; // Return empty string if the date is out of range
+  if (today < startedAt) {
+    return ""; // Return empty string if the date is before the start
+  }
+
+  if (today > endingAt) {
+    // Handling the case where today's date is past the ending date
+    return "Time budget ended";
   }
 
   // Calculate the difference in days
   const diffDays = Math.round(
     Math.abs((endingAt.getTime() - today.getTime()) / oneDay),
   );
+
+  // Check if the time budget has ended
+  if (diffDays === 0) {
+    return "Time budget ended";
+  }
 
   // Decide whether to return days or weeks
   if (diffDays < 7) {
