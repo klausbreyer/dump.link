@@ -1,4 +1,4 @@
-import { Popover } from "@headlessui/react";
+import { Popover, Transition } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { extractIdFromUrl } from "./context/helper";
 import { lastAccessedProject } from "./types";
@@ -30,41 +30,52 @@ function RecentLinks() {
   };
 
   return (
-    <Popover className="relative">
+    //   z for the whole thing because of the transition.
+    <Popover className="relative z-50">
       <Popover.Button>
         <Tooltip info="Recent">
-          <RecentIcon className="w-5 h-5 cursor-pointer text-slate-500 hover:text-slate-800" />
+          <RecentIcon className="w-6 h-6 cursor-pointer text-slate-500 hover:text-slate-800" />
         </Tooltip>
       </Popover.Button>
-      <Popover.Panel className="absolute right-0 z-10 bg-white border rounded-md shadow-lg min-w-max border-slate-200">
-        <div className="">
-          {recentProjects.length > 0 ? (
-            recentProjects.map((project) => (
-              <Tooltip
-                key={project.id}
-                info={`Last accessed: ${new Date(
-                  project.lastAccessed,
-                ).toLocaleDateString()}`}
-              >
-                <a
-                  href={createProjectLink(project)}
-                  className={`block px-4 w-full py-2 text-sm ${
-                    project.id === currentProjectId
-                      ? "bg-slate-300 text-slate-900"
-                      : "text-slate-700 hover:bg-slate-100"
-                  }`}
+
+      <Transition
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0"
+      >
+        <Popover.Panel className="absolute right-0 bg-white border rounded-md shadow-lg min-w-max border-slate-200">
+          <div className="">
+            {recentProjects.length > 0 ? (
+              recentProjects.map((project) => (
+                <Tooltip
+                  key={project.id}
+                  info={`Last accessed: ${new Date(
+                    project.lastAccessed,
+                  ).toLocaleDateString()}`}
                 >
-                  {project.name}
-                </a>
-              </Tooltip>
-            ))
-          ) : (
-            <div className="px-4 py-2 text-sm text-slate-500">
-              No recent projects
-            </div>
-          )}
-        </div>
-      </Popover.Panel>
+                  <a
+                    href={createProjectLink(project)}
+                    className={`block px-4 w-full py-2 text-sm ${
+                      project.id === currentProjectId
+                        ? "bg-slate-300 text-slate-900"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    {project.name}
+                  </a>
+                </Tooltip>
+              ))
+            ) : (
+              <div className="px-4 py-2 text-sm text-slate-500">
+                No recent projects
+              </div>
+            )}
+          </div>
+        </Popover.Panel>
+      </Transition>
     </Popover>
   );
 }

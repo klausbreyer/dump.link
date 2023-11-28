@@ -16,7 +16,7 @@ const HeaderSettings: React.FC = () => {
   const currentTab = (currentQueryParam as TabContext) || TabContext.Group;
 
   return (
-    <div className="flex items-start gap-1">
+    <div className="flex items-start gap-2">
       <InfoModal
         icon={
           <Tooltip info="Share">
