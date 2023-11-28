@@ -41,10 +41,11 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodGet, "/api/v1/ws/:projectId", app.adaptHandler(app.apiHandleWebSocket))
 
-	standard := alice.New(app.recoverPanic, app.enableCORS, app.logRequest, secureHeaders)
+	standard := alice.New(app.recoverPanic, app.enableCORS, app.logRequest, app.measureResponseTime, secureHeaders)
 
 	return standard.Then(router)
 }
+
 func (app *application) adaptHandler(h httprouter.Handle) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ps := httprouter.ParamsFromContext(r.Context())

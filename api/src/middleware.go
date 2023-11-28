@@ -3,6 +3,7 @@ package src
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func (app *application) logRequest(next http.Handler) http.Handler {
@@ -72,5 +73,16 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) measureResponseTime(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		next.ServeHTTP(w, r)
+
+		duration := time.Since(start)
+		app.logger.Info("request processed", "duration", duration)
 	})
 }
