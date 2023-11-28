@@ -2,15 +2,9 @@ import React from "react";
 import { DumplinkIcon } from "./common/icons";
 import { useData } from "./context/data";
 import { filterBucketsFiguringOut } from "./context/helper";
-import { Bucket, TabContext } from "./types";
+import { Bucket } from "./types";
 
-import {
-  Cog8ToothIcon,
-  EllipsisHorizontalCircleIcon,
-  ShareIcon,
-} from "@heroicons/react/24/solid";
-
-export interface NavProjectProps {}
+export interface HeaderProjectProps {}
 
 function currentUrl() {
   const { protocol, hostname, port, pathname } = window.location;
@@ -26,7 +20,7 @@ function currentUrl() {
   return baseUrl;
 }
 
-const NavProject: React.FC<NavProjectProps> = (props) => {
+const HeaderProject: React.FC<HeaderProjectProps> = (props) => {
   const { getProject, getBuckets, getTasks } = useData();
 
   const project = getProject();
@@ -79,4 +73,4 @@ const NavProject: React.FC<NavProjectProps> = (props) => {
   );
 };
 
-export default NavProject;
+export default HeaderProject;

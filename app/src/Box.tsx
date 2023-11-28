@@ -6,7 +6,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-import Header from "./Header";
+import BoxHeader from "./BoxHeader";
 import {
   getBucketBackgroundColorTop,
   getHeaderTextColor,
@@ -188,7 +188,7 @@ const Box: React.FC<BoxProps> = (props) => {
       }
     >
       <div className={`${bgTop}`}>
-        <Header bucket={bucket} context={context} />
+        <BoxHeader bucket={bucket} context={context} />
         <MicroProgress bucket={bucket} />
 
         <div className={`min-h-[1rem] `}>

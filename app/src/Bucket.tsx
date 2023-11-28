@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
 
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
-import Header from "./Header";
+import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
@@ -121,7 +121,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       )}
       <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
-        <Header context={TabContext.Group} bucket={bucket} />
+        <BoxHeader context={TabContext.Group} bucket={bucket} />
         <div
           ref={dropRef}
           className={`min-h-[2.5rem]

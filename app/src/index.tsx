@@ -7,7 +7,7 @@ import Group from "./Group";
 import Arrange from "./Arrange";
 import Sequence from "./Sequence";
 import { GlobalDraggingProvider } from "./context/dragging";
-import Navigation from "./Navigation";
+import Header from "./Header";
 import Settings from "./Settings";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
@@ -65,7 +65,7 @@ const Main = function Main() {
 
   return (
     <>
-      <Navigation />
+      <Header />
       {renderComponentBasedOnQueryParam()}
     </>
   );

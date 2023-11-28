@@ -1,28 +1,15 @@
 import React from "react";
-import { DumplinkIcon } from "./common/icons";
 import { useData } from "./context/data";
-import {
-  calculateRemainingTime,
-  filterBucketsFiguringOut,
-  formatDate,
-} from "./context/helper";
-import { Bucket } from "./types";
+import { calculateRemainingTime, formatDate } from "./context/helper";
 
-export interface NavProgressProps {}
+export interface HeaderProgressProps {}
 
-const NavProgress: React.FC<NavProgressProps> = (props) => {
-  const { getBuckets, getTasks, getProject } = useData();
+const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
+  const { getProject } = useData();
 
   const project = getProject();
-  const buckets = getBuckets();
-  const tasks = getTasks();
-
-  const done = buckets.filter((b: Bucket) => b.done);
-  const figuringOut = filterBucketsFiguringOut(buckets, tasks);
-
   const startedAt = project.startedAt;
 
-  // startedAt + project.appetiate * weeks
   const endingAt = new Date(
     startedAt.getTime() + project.appetite * 7 * 24 * 60 * 60 * 1000,
   );
@@ -31,8 +18,6 @@ const NavProgress: React.FC<NavProgressProps> = (props) => {
   const totalDuration = endingAt.getTime() - startedAt.getTime();
   const timeElapsed = currentDate.getTime() - startedAt.getTime();
   const percentDate = (timeElapsed / totalDuration) * 100;
-
-  console.log(startedAt, currentDate, endingAt, percentDate);
 
   return (
     <>
@@ -62,4 +47,4 @@ const NavProgress: React.FC<NavProgressProps> = (props) => {
   );
 };
 
-export default NavProgress;
+export default HeaderProgress;

@@ -1,110 +1,35 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import FlagButton from "./common/FlagButton";
-import {
-  getBucketBackgroundColorTop,
-  getBucketFlaggedStyle,
-  getInputBorderColor,
-} from "./common/colors";
-import config from "./config";
-import { useData } from "./context/data";
-import { getTasksByClosed, getTasksForBucket } from "./context/helper";
-import { Bucket, TabContext } from "./types";
-import { isSafari } from "./common/helper";
+import { Cog8ToothIcon, CogIcon, ShareIcon } from "@heroicons/react/24/solid";
 
-export interface HeaderProps {
-  bucket: Bucket;
-  context: TabContext;
-}
+import HeaderProgress from "./HeaderProgress";
+import HeaderProject from "./HeaderProject";
+import Container from "./common/Container";
+import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
+import { useQueryParamChange } from "./hooks/useQueryParamChange";
+import { TabContext } from "./types";
+import { EllipsisHorizontalCircleIcon } from "@heroicons/react/24/outline";
+import InfoModal from "./common/InfoModal";
+import HeaderNav, { handleTabClick } from "./HeaderNav";
+import HeaderSettings from "./HeaderSettings";
+
+interface HeaderProps {}
 
 const Header: React.FC<HeaderProps> = (props) => {
-  const { bucket, context } = props;
-  const { updateBucket, getTasks } = useData();
-
-  const tasks = getTasks();
-  const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const open = getTasksByClosed(tasksForbucket, false);
-
-  const [inputValue, setInputValue] = useState(bucket?.name);
-  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    if (newValue.length <= config.BUCKET_MAX_LENGTH) {
-      setInputValue(newValue);
-    } else {
-      setInputValue(newValue.substring(0, config.BUCKET_MAX_LENGTH));
-    }
-  };
-
-  const handleFlagClick = () => {
-    updateBucket(bucket.id, { flagged: !bucket?.flagged });
-  };
-
-  const handleCheckboxClick = () => {
-    updateBucket(bucket.id, { done: !bucket.done });
-  };
-
-  function handleInputFocus() {
-    setIsTextAreaFocused(true);
-  }
-
-  function handleInputBlur() {
-    setIsTextAreaFocused(false);
-    updateBucket(bucket.id, { name: inputValue });
-  }
-
-  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
-  const inputBorder = getInputBorderColor(bucket);
-
-  const flaggedStyles = getBucketFlaggedStyle(bucket, tasksForbucket);
-
-  const hasTasks = tasksForbucket.length > 0;
-  const showDone = hasTasks && open.length === 0;
+  const currentQueryParam = useQueryParamChange("p");
+  const currentTab = (currentQueryParam as TabContext) || TabContext.Group;
 
   return (
-    <div className={`w-full ${bgTop}`}>
-      <div className={` p-1 flex gap-1 flex-row items-center `}>
-        <div className="relative w-full">
-          <input
-            type="text"
-            className={`w-full h-8 px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}`}
-            placeholder="Unnamed"
-            value={inputValue}
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
-            onFocus={handleInputFocus}
-          />
-
-          <div
-            className={`absolute text-slate-800 text-xxs bottom-1.5 right-2 ${
-              isTextAreaFocused ? "block" : "hidden"
-            }`}
-          >
-            {bucket?.name.length}/{config.BUCKET_MAX_LENGTH}
-          </div>
+    <Container>
+      <div className="w-full border-b border-gray-200">
+        <div className="flex items-center justify-between gap-4 mb-8 ">
+          <HeaderProject />
+          <HeaderProgress />
+          <HeaderSettings />
         </div>
-        {!showDone && context === TabContext.Group && (
-          <>
-            <FlagButton
-              tasks={tasksForbucket}
-              onClick={handleFlagClick}
-              bucket={bucket}
-            />
-          </>
-        )}
-        {showDone && context === TabContext.Group && (
-          <input
-            type="checkbox"
-            className={`w-7 h-7 accent-green-500
-            ring-2 ring-green-500
-            ${isSafari() && "safari-only-checkbox-big"} `}
-            checked={bucket.done || false}
-            onChange={handleCheckboxClick}
-          />
-        )}
+        <HeaderNav />
       </div>
-    </div>
+    </Container>
   );
 };
 
