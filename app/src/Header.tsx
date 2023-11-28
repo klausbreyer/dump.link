@@ -1,28 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-import { Cog8ToothIcon, CogIcon, ShareIcon } from "@heroicons/react/24/solid";
-
+import HeaderNav from "./HeaderNav";
 import HeaderProgress from "./HeaderProgress";
 import HeaderProject from "./HeaderProject";
-import Container from "./common/Container";
-import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
-import { useQueryParamChange } from "./hooks/useQueryParamChange";
-import { TabContext } from "./types";
-import { EllipsisHorizontalCircleIcon } from "@heroicons/react/24/outline";
-import InfoModal from "./common/InfoModal";
-import HeaderNav, { handleTabClick } from "./HeaderNav";
 import HeaderSettings from "./HeaderSettings";
+import Container from "./common/Container";
 
 interface HeaderProps {}
 
 const Header: React.FC<HeaderProps> = (props) => {
-  const currentQueryParam = useQueryParamChange("p");
-  const currentTab = (currentQueryParam as TabContext) || TabContext.Group;
-
   return (
     <Container>
-      <div className="w-full">
-        <div className="flex items-center justify-between gap-4 mb-8 ">
+      <div className="w-full mt-2">
+        <div className="flex items-center justify-between gap-4 mb-4 ">
           <HeaderProject />
           <HeaderProgress />
           <HeaderSettings />

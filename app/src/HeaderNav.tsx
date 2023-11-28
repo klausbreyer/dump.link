@@ -1,40 +1,94 @@
-import React from "react";
+import React, { ReactNode } from "react";
 
 import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
 import { CheckIcon } from "@heroicons/react/24/outline";
+import InfoModal from "./common/InfoModal";
+import { InformationCircleIcon } from "@heroicons/react/24/solid";
+import { Dialog } from "@headlessui/react";
 
 interface Step {
   id: TabContext;
   name: string;
-  href?: string;
-  icon?: React.ReactNode;
+  icon: ReactNode;
+  infoTitle: string;
+  infoChildren: ReactNode;
 }
 
 const steps: Step[] = [
   {
     id: TabContext.Group,
-    name: "Group",
+    name: "Dump & Task Grouper",
+    infoTitle: "",
     icon: <GroupIcon className="w-6 h-6 " />,
+    infoChildren: (
+      <>
+        <Dialog.Title className="mb-2 text-lg font-medium leading-6 text-gray-900">
+          Dump
+        </Dialog.Title>
+        {`Put everything you think you will have to do here into the dump.
+This helps you consider "the whole" by turning the whole thing into, e.g., rough implementation tasks without concerning yourself with structure and order before starting on any one area.`
+          .split("\n")
+          .map((p, i) => (
+            <p key={i} className="mb-2 text-sm text-slate-500">
+              {p}
+            </p>
+          ))}
+        <Dialog.Title className="mb-2 text-lg font-medium leading-6 text-gray-900">
+          Task Grouper
+        </Dialog.Title>
+        {`Drag the initial tasks (and, as things progress, any discovered tasks) from the dump (or add directly to a named task group) into unnamed groups by asking yourself: "What can be completed together and in isolation from the rest?".
+Task group boxes are usually named after you and your team cluster the tasks and look at the actual work to ensure the task groups show real relationships in the work and not arbitrary categories. Then, consider which task groups, if any, have risky unknowns and flag them.
+You can track the movement of work between “Figuring out”, “Figured out”, and “Done” states. When you add a task to a task group, it is by default considered an "In-progress Figuring out" state.
+When a task item is checked, the task’s state auto-switches to "Figured out". Only after all tasks are "Figured out" does the task group's "Done" checkbox appear, which you can click when the task group is done.
+All task groups are considered at risk so long as at least one task is in a "Figuring out" state since all tasks are assumed to work together to make one piece, or slice, work so you can move on to the next task group or finish the project.`
+          .split("\n")
+          .map((p, i) => (
+            <p key={i} className="mb-2 text-sm text-slate-500">
+              {p}
+            </p>
+          ))}
+      </>
+    ),
   },
   {
     id: TabContext.Sequence,
-    name: "Sequence",
-
+    name: "Task Group Sequencer",
+    infoTitle: "Task Group Sequencer",
     icon: <SequenceIcon className="w-6 h-6 " />,
+    infoChildren: (
+      <>
+        {`The Task Group Sequencer lets you draw an arrow from one task group to another illustrating the causal structure of how things are connected.
+The Task Group Sequencer lets you know when you have the required inputs completed that the next task group needs.`
+          .split("\n")
+          .map((p, i) => (
+            <p key={i} className="mb-2 text-sm text-slate-500">
+              {p}
+            </p>
+          ))}
+      </>
+    ),
   },
   {
     id: TabContext.Arrange,
-    name: "Arrange",
+    name: "Task Group Arranger",
+    infoTitle: "Task Group Arranger",
     icon: <ArrangeIcon className="w-6 h-6 " />,
+    infoChildren: (
+      <>
+        {`Dumplink recognizes task groups with more outgoing than incoming connections so teams know where to start building and solving problems first.
+The Task Group Arranger helps you and your colleagues easily see what has to be done first in terms of dependencies and unknowns but also lets you sort, e.g., by ease/effort, and move them up or down in the arrangement layer stack.`
+          .split("\n")
+          .map((p, i) => (
+            <p key={i} className="mb-2 text-sm text-slate-500">
+              {p}
+            </p>
+          ))}
+      </>
+    ),
   },
 ];
-
-// Utility function to conditionally join class names, implementation needed
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
 
 interface HeaderNavProps {}
 
@@ -51,6 +105,7 @@ const HeaderNav: React.FC<HeaderNavProps> = (props) => {
   const currentQueryParam = useQueryParamChange("p");
   const currentTab = (currentQueryParam as TabContext) || TabContext.Group;
 
+  const openOnLoad = false;
   return (
     <>
       <nav>
@@ -61,11 +116,13 @@ const HeaderNav: React.FC<HeaderNavProps> = (props) => {
           {steps.map((tab, i) => (
             <li
               key={tab.name}
-              className="relative flex flex-1 cursor-pointer group"
-              onClick={() => handleTabClick(tab.id)}
+              className="relative flex items-center justify-start flex-1 "
             >
               {currentTab === tab.id ? (
-                <div className="flex items-center px-6 py-2 text-sm font-medium ">
+                <div
+                  className="flex items-center py-2 pl-6 pr-2 text-sm font-medium cursor-pointer group"
+                  onClick={() => handleTabClick(tab.id)}
+                >
                   <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-slate-600">
                     {tab.icon}
                   </span>
@@ -74,19 +131,34 @@ const HeaderNav: React.FC<HeaderNavProps> = (props) => {
                   </span>
                 </div>
               ) : (
-                <div className="flex items-center">
-                  <span className="flex items-center px-6 py-2 text-sm font-medium">
+                <div
+                  className="flex items-center cursor-pointer group "
+                  onClick={() => handleTabClick(tab.id)}
+                >
+                  <span className="flex items-center py-2 pl-6 pr-2 text-sm font-medium">
                     <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-slate-300 group-hover:border-slate-400">
-                      <span className="text-slate-500 group-hover:text-slate-900">
+                      <span className="text-slate-500 group-hover:text-slate-800">
                         {tab.icon}
                       </span>
                     </span>
-                    <span className="ml-4 text-sm font-medium text-slate-500 group-hover:text-slate-900">
+                    <span className="ml-4 text-sm font-medium text-slate-500 group-hover:text-slate-800">
                       {tab.name}
                     </span>
                   </span>
                 </div>
               )}
+              <div className="mr-8">
+                <InfoModal
+                  icon={
+                    <InformationCircleIcon className="w-5 h-5 cursor-pointer text-slate-500 hover:text-slate-800" />
+                  }
+                  title={tab.infoTitle}
+                  buttonText="Got it, thanks!"
+                  open={openOnLoad}
+                >
+                  {tab.infoChildren}
+                </InfoModal>
+              </div>
 
               {i !== steps.length - 1 ? (
                 <>

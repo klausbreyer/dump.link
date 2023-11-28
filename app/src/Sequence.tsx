@@ -122,28 +122,6 @@ const Sequence: React.FC<SequenceProps> = (props) => {
 
   return (
     <Container>
-      <div className="flex items-center justify-between w-full">
-        <div className="flex items-center justify-start gap-2">
-          <Title title="Task Group Sequencer" />
-          <InfoModal
-            icon={
-              <InformationCircleIcon className="w-5 h-5 cursor-pointer text-slate-500" />
-            }
-            title="Task Group Sequencer"
-            buttonText="Got it, thanks!"
-          >
-            {`The Task Group Sequencer lets you draw an arrow from one task group to another illustrating the causal structure of how things are connected.
-The Task Group Sequencer lets you know when you have the required inputs completed that the next task group needs.`
-              .split("\n")
-              .map((p, i) => (
-                <p key={i} className="mb-2 text-sm text-slate-500">
-                  {p}
-                </p>
-              ))}
-          </InfoModal>
-        </div>
-      </div>
-
       <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
           {allBoxesRendered &&
