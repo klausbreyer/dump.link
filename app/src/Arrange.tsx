@@ -95,18 +95,6 @@ The Task Group Arranger helps you and your colleagues easily see what has to be 
               ))}
           </InfoModal>
         </div>
-
-        <InfoButton
-          onClick={() =>
-            confirm(
-              "Are you certain you want to revert your customized layers to their default settings?",
-            )
-              ? resetLayersForAllBuckets()
-              : null
-          }
-        >
-          Revert
-        </InfoButton>
       </div>
       <div className="relative w-full parent ">
         <svg className="absolute top-0 left-0 w-full h-full -z-10">
@@ -171,6 +159,19 @@ The Task Group Arranger helps you and your colleagues easily see what has to be 
             hoverable
           />
         </div>
+      </div>
+      <div className="flex items-center justify-end w-full">
+        <InfoButton
+          onClick={() =>
+            confirm(
+              "Are you certain you want to revert your customized layers to their default settings?",
+            )
+              ? resetLayersForAllBuckets()
+              : null
+          }
+        >
+          Revert
+        </InfoButton>
       </div>
     </Container>
   );

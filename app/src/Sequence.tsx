@@ -142,19 +142,6 @@ The Task Group Sequencer lets you know when you have the required inputs complet
               ))}
           </InfoModal>
         </div>
-
-        <InfoButton
-          color="slate"
-          onClick={() =>
-            confirm(
-              "Are you certain you want to remove all interrelated connections from your task groups?",
-            )
-              ? removeAllBucketDependencies()
-              : null
-          }
-        >
-          Reset
-        </InfoButton>
       </div>
 
       <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
@@ -241,6 +228,20 @@ The Task Group Sequencer lets you know when you have the required inputs complet
             </div>
           );
         })}
+      </div>
+      <div className="flex items-center justify-end w-full">
+        <InfoButton
+          color="slate"
+          onClick={() =>
+            confirm(
+              "Are you certain you want to remove all interrelated connections from your task groups?",
+            )
+              ? removeAllBucketDependencies()
+              : null
+          }
+        >
+          Reset
+        </InfoButton>
       </div>
     </Container>
   );

@@ -3,6 +3,7 @@ import React from "react";
 import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
+import { CheckIcon } from "@heroicons/react/24/outline";
 
 interface Step {
   id: TabContext;
@@ -15,18 +16,18 @@ const steps: Step[] = [
   {
     id: TabContext.Group,
     name: "Group",
-    icon: <GroupIcon className="w-6 h-6 text-slate-700" />,
+    icon: <GroupIcon className="w-6 h-6 " />,
   },
   {
     id: TabContext.Sequence,
     name: "Sequence",
 
-    icon: <SequenceIcon className="w-6 h-6 text-slate-700" />,
+    icon: <SequenceIcon className="w-6 h-6 " />,
   },
   {
     id: TabContext.Arrange,
     name: "Arrange",
-    icon: <ArrangeIcon className="w-6 h-6 text-slate-700 " />,
+    icon: <ArrangeIcon className="w-6 h-6 " />,
   },
 ];
 
@@ -51,27 +52,66 @@ const HeaderNav: React.FC<HeaderNavProps> = (props) => {
   const currentTab = (currentQueryParam as TabContext) || TabContext.Group;
 
   return (
-    <nav className="flex items-center justify-center w-full space-x-8">
-      {steps.map((tab) => {
-        const isCurrent = currentTab === tab.id;
-        return (
-          <button
-            key={tab.name}
-            onClick={() => handleTabClick(tab.id)}
-            className={classNames(
-              isCurrent
-                ? "border-slate-700 text-slate-700"
-                : "border-transparent text-slate-500 hover:border-slate-700 hover:text-slate-700",
-              "group inline-flex items-center border-b-2 py-1 text-sm font-medium",
-            )}
-            aria-current={isCurrent ? "page" : undefined}
-          >
-            {tab.icon}
-            <span className="ml-2">{tab.name}</span>
-          </button>
-        );
-      })}
-    </nav>
+    <>
+      <nav>
+        <ol
+          role="list"
+          className="flex border divide-y-0 rounded-md border-slate-300 divide-slate-300"
+        >
+          {steps.map((tab, i) => (
+            <li
+              key={tab.name}
+              className="relative flex flex-1 cursor-pointer group"
+              onClick={() => handleTabClick(tab.id)}
+            >
+              {currentTab === tab.id ? (
+                <div className="flex items-center px-6 py-2 text-sm font-medium ">
+                  <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-slate-600">
+                    {tab.icon}
+                  </span>
+                  <span className="ml-4 text-sm font-medium text-slate-600">
+                    {tab.name}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <span className="flex items-center px-6 py-2 text-sm font-medium">
+                    <span className="flex items-center justify-center flex-shrink-0 w-10 h-10 border-2 rounded-full border-slate-300 group-hover:border-slate-400">
+                      <span className="text-slate-500 group-hover:text-slate-900">
+                        {tab.icon}
+                      </span>
+                    </span>
+                    <span className="ml-4 text-sm font-medium text-slate-500 group-hover:text-slate-900">
+                      {tab.name}
+                    </span>
+                  </span>
+                </div>
+              )}
+
+              {i !== steps.length - 1 ? (
+                <>
+                  <div className="absolute top-0 right-0 w-5 h-full">
+                    <svg
+                      className="w-full h-full text-slate-300"
+                      viewBox="0 0 22 80"
+                      fill="none"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M0 -2L20 40L0 82"
+                        vectorEffect="non-scaling-stroke"
+                        stroke="currentcolor"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </>
+              ) : null}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </>
   );
 };
 

@@ -32,9 +32,9 @@ const HeaderProject: React.FC<HeaderProjectProps> = (props) => {
 
   return (
     <>
-      <div className="flex flex-row items-center h-full gap-1 ">
+      <div className="flex flex-row items-center h-full gap-2 ">
         <a href="/" title="dump.link" target="_blank">
-          <DumplinkIcon className="w-12 h-12 text-slate-700" />
+          <DumplinkIcon className="w-10 h-10 text-slate-700" />
         </a>
         <div className="grid w-full gap-x-4">
           <div className="flex items-center gap-4">

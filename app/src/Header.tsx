@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   return (
     <Container>
-      <div className="w-full border-b border-gray-200">
+      <div className="w-full">
         <div className="flex items-center justify-between gap-4 mb-8 ">
           <HeaderProject />
           <HeaderProgress />
