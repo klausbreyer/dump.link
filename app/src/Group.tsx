@@ -1,14 +1,11 @@
 import React from "react";
 
 import Area from "./Area";
+import Bucket from "./Bucket";
 import Container from "./common/Container";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
 import { getDumpBucket, getOtherBuckets } from "./context/helper";
-import Bucket from "./Bucket";
-import Title from "./common/Title";
-import InfoModal from "./common/InfoModal";
-import { InformationCircleIcon } from "@heroicons/react/24/solid";
 
 interface GroupProps {}
 

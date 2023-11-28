@@ -1,11 +1,17 @@
-import React from "react";
+import { Dialog } from "@headlessui/react";
+import React, { ReactNode } from "react";
 interface TitleProps {
-  title: string;
+  children: ReactNode;
+  className?: string;
 }
 
-const Title: React.FC<TitleProps> = ({ title }) => {
+const Title: React.FC<TitleProps> = ({ children, className }) => {
   return (
-    <div className="gap-2 py-2 text-lg font-bold text-slate-700">{title}</div>
+    <h3
+      className={`text-lg font-medium leading-6 text-gray-900 mb-2 ${className}`}
+    >
+      {children}
+    </h3>
   );
 };
 

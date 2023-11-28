@@ -1,6 +1,7 @@
 import React from "react";
 import { useDrop } from "react-dnd";
 
+import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import { useData } from "./context/data";
 import {
@@ -9,9 +10,7 @@ import {
   getTask,
   getTasksForBucket,
 } from "./context/helper";
-import TaskItem from "./TaskItem";
 import { Bucket, DraggedTask, DropCollectedProps } from "./types";
-import Title from "./common/Title";
 
 export interface AreaProps {
   bucket: Bucket;

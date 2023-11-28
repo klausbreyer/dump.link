@@ -5,8 +5,6 @@ import Box from "./Box";
 import FollowArrow from "./FollowArrow";
 import Container from "./common/Container";
 import InfoButton from "./common/InfoButton";
-import InfoModal from "./common/InfoModal";
-import Title from "./common/Title";
 import {
   Coordinates,
   getBorderCenterCoordinates,
@@ -15,7 +13,6 @@ import {
 import { useData } from "./context/data";
 import { getOtherBuckets } from "./context/helper";
 import { BucketID, TabContext } from "./types";
-import { InformationCircleIcon } from "@heroicons/react/24/solid";
 
 interface SequenceProps {}
 
