@@ -19,15 +19,15 @@ interface SequenceProps {}
 // clockwise.
 const positions: { top: number; left: number }[] = [
   { top: 10, left: 50 }, // 12
-  { top: 15.112, left: 75.8091 },
+  { top: 15.112, left: 70.8091 },
   { top: 35.1115, left: 90.4338 }, // 3
   { top: 65.8885, left: 90.4338 }, // 3
-  { top: 85.8885, left: 75.8091 },
+  { top: 85.8885, left: 70.8091 },
   { top: 95, left: 50 }, // 6
-  { top: 85.8885, left: 25.1909 },
+  { top: 85.8885, left: 30.1909 },
   { top: 65.8885, left: 10.5662 }, //9
   { top: 35.1115, left: 10.5662 }, //9
-  { top: 15.112, left: 25.1909 },
+  { top: 15.112, left: 30.1909 },
 ];
 
 const Sequence: React.FC<SequenceProps> = (props) => {
