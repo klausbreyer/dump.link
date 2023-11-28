@@ -183,7 +183,7 @@ const Sequence: React.FC<SequenceProps> = (props) => {
           return (
             <div
               ref={boxRefs.current[bucket.id]}
-              className="absolute w-52 "
+              className="absolute w-48 "
               style={{
                 top: `${y}%`,
                 left: `${x}%`,

@@ -48,26 +48,26 @@ const MicroProgress: React.FC<MicroProgressProps> = (props) => {
         <div
           className={`flex items-center justify-between w-full gap-1 text-sm text-center px-1`}
         >
-          <span>
+          <div className="flex items-center gap-1">
             <span
-              className={`px-1 mr-0.5 rounded
+              className={`px-1 mr-0.5 rounded text-xl
                   ${open.length > 0 && !bucket.done && "bg-orange-300"}
                 `}
             >
               {open.length}
             </span>
-            Figuring out
-          </span>
-          <span>
+            <div className="text-xs text-left ">Figuring out</div>
+          </div>
+          <div className="flex items-center gap-1">
             <span
-              className={`px-1 mr-0.5 rounded
+              className={`px-1 mr-0.5 rounded text-xl
                   ${closed.length > 0 && !bucket.done && "bg-yellow-300"}
                   `}
             >
               {closed.length}
             </span>
-            Figured out
-          </span>
+            <div className="text-xs text-left ">Figured out</div>
+          </div>
         </div>
       )}
 

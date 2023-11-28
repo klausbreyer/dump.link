@@ -45,27 +45,27 @@ const HeaderProject: React.FC<HeaderProjectProps> = (props) => {
               {project.name}
             </a>
           </div>
-          <div className="flex gap-4 w-52">
-            <span className="text-sm">
+          <div className="flex items-center gap-4 w-52">
+            <div className="flex items-center gap-1">
               <span
-                className={`px-1 mr-0.5 rounded
-                  ${figuringOut.length > 0 && "bg-yellow-300"}
+                className={`px-1 mr-0.5 rounded text-xl
+                  ${figuringOut.length > 0 && "bg-orange-300"}
                   `}
               >
                 {figuringOut.length}
               </span>
-              Figuring out
-            </span>
-            <span className="text-sm">
+              <div className="text-xs">Figuring out</div>
+            </div>
+            <div className="flex items-center gap-1">
               <span
-                className={`px-1 mr-0.5 rounded
+                className={`px-1 mr-0.5 rounded text-xl
                   ${done.length > 0 && "bg-green-500"}
                 `}
               >
                 {done.length}
               </span>
-              Done
-            </span>
+              <div className="text-xs">Done</div>
+            </div>
           </div>
         </div>
       </div>
