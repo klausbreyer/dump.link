@@ -10,10 +10,12 @@ export const Tooltip: React.FC<TooltipProps> = ({ info, children }) => {
   const [show, setShow] = useState(false);
 
   return (
-    <div className="relative flex items-center">
+    <div className="relative">
       <div
+        className="w-full"
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
+        onClick={() => setShow(false)}
       >
         {children}
       </div>

@@ -61,7 +61,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
             <div className="mb-4">
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-slate-700"
               >
                 Project Name
               </label>
@@ -78,7 +78,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
             <div className="w-40 mb-4">
               <label
                 htmlFor="startedAt"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-slate-700"
               >
                 Start Date
               </label>
@@ -94,7 +94,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
             <div className="w-40 mb-4">
               <label
                 htmlFor="appetite"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-slate-700"
               >
                 Appetite
               </label>

@@ -18,6 +18,7 @@ import {
   LifecycleState,
   useLifecycle,
 } from "./context/lifecycle";
+import { extractIdFromUrl } from "./context/helper";
 
 const App = function App() {
   return (
@@ -102,6 +103,7 @@ const Error = function Error(props: ErrorProps) {
     </div>
   );
 };
+
 const container = document.getElementById("app");
 const root = createRoot(container!);
 root.render(<App />);

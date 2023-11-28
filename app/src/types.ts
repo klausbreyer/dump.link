@@ -58,6 +58,11 @@ export type ProjectUpdates = {
   startedAt?: Project["startedAt"];
   appetite?: Project["appetite"];
 };
+export interface lastAccessedProject {
+  id: string;
+  name: string;
+  lastAccessed: string; // assuming lastAccessed is a string
+}
 
 export type ApiMessage = {
   message: string;

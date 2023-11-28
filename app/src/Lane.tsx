@@ -94,8 +94,8 @@ const Lane: React.FC<LaneProps> = (props) => {
       <div
         ref={dropRef}
         className={`border-2 min-h-[5rem] w-full relative flex flex-row gap-8
-        ${dropActive && "border-dashed border-gray-400"}
-        ${dropOver && "border-solid border-gray-400"}
+        ${dropActive && "border-dashed border-slate-400"}
+        ${dropOver && "border-solid border-slate-400"}
         ${!dropActive && !dropOver && "border-solid border-transparent"}
         ${showWhileDragging ? "opacity-100" : "opacity-0"}
       `}

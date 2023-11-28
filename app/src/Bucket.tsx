@@ -107,8 +107,8 @@ const Bucket: React.FC<BucketProps> = (props) => {
   return (
     <div
       className={`w-full relative rounded-md overflow-hidden ${bgTop} border-2
-      ${showDashed && "border-dashed border-2 border-gray-400"}
-      ${showSolid && " border-gray-400"}
+      ${showDashed && "border-dashed border-2 border-slate-400"}
+      ${showSolid && " border-slate-400"}
       ${showNone && " border-transparent"}
     `}
     >

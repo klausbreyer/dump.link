@@ -18,6 +18,7 @@ import {
   PRIORITY_INCREMENT,
   extractIdFromUrl,
   hasCyclicDependencyWithBucket,
+  saveProjectIdToLocalStorage,
 } from "./helper";
 import { LifecycleState, useLifecycle } from "./lifecycle";
 import { setupWebSocket } from "./websocket";
@@ -228,10 +229,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const loadInitialState = async () => {
-      const id = extractIdFromUrl(); // Stellen Sie sicher, dass diese Funktion existiert und richtig importiert wird
-
+      const projectId = extractIdFromUrl();
       try {
-        const initialState = await apiFunctions.getProject(id);
+        const initialState = await apiFunctions.getProject(projectId);
+        saveProjectIdToLocalStorage(projectId, initialState.project.name);
         if (initialState) {
           dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
         }
@@ -244,7 +245,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Hier wird jetzt die neue setupWebSocket Methode aufgerufen
     const wsCleanup = setupWebSocket(state.project.id, dispatch);
 
     return () => {
@@ -366,6 +366,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       type: "UPDATE_PROJECT",
       updates: updates,
     });
+
+    if (updates.name) {
+      saveProjectIdToLocalStorage(state.project.id, updates.name);
+    }
 
     (async () => {
       try {

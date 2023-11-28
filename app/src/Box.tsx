@@ -178,8 +178,8 @@ const Box: React.FC<BoxProps> = (props) => {
        ${isMovable || context === TabContext.Sequence ? "cursor-move" : ""}
       ${hoverBorder}
       border-slate-300
-           ${canDrop && !isOver && "border-dashed border-2 border-gray-400"}
-            ${isOver && " border-gray-400"}
+           ${canDrop && !isOver && "border-dashed border-2 border-slate-400"}
+            ${isOver && " border-slate-400"}
 
 
       `}
