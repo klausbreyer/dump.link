@@ -94,20 +94,29 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
             />
           </>
         )}
-        {showDone && context === TabContext.Group && !bucket.done && (
-          <EmptyChekboxIcon
-            className="text-green-600 hover:text-green-700 w-7 h-7"
-            onClick={handleCheckboxClick}
-          />
-        )}
-        {showDone && context === TabContext.Group && bucket.done && (
-          <input
-            type="checkbox"
-            className={`w-7 h-7 accent-green-500
+        {showDone && context === TabContext.Group && (
+          <div className="relative w-8 h-8">
+            {!bucket.done && (
+              <>
+                <EmptyChekboxIcon
+                  className="absolute top-0 left-0 z-10 w-8 h-8 text-green-500 hover:text-green-600"
+                  onClick={handleCheckboxClick}
+                />
+                <div className="absolute w-7 h-7 bg-white top-0.5 left-0.5">
+                  &nbsp;
+                </div>
+              </>
+            )}
+            {bucket.done && (
+              <input
+                type="checkbox"
+                className={`w-8 h-8 accent-green-500 absolute top-0 left-0
             ${isSafari() && "safari-only-checkbox-big"} `}
-            checked={bucket.done || false}
-            onChange={handleCheckboxClick}
-          />
+                checked={bucket.done || false}
+                onChange={handleCheckboxClick}
+              />
+            )}
+          </div>
         )}
       </div>
     </div>
