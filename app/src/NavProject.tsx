@@ -60,7 +60,7 @@ const NavProject: React.FC<NavProjectProps> = (props) => {
               >
                 {figuringOut.length}
               </span>
-              Figuring Out
+              Figuring out
             </span>
             <span className="text-sm">
               <span

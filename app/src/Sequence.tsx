@@ -221,7 +221,7 @@ The Task Group Sequencer lets you know when you have the required inputs complet
           return (
             <div
               ref={boxRefs.current[bucket.id]}
-              className="absolute w-40 "
+              className="absolute w-52 "
               style={{
                 top: `${y}%`,
                 left: `${x}%`,

@@ -659,7 +659,7 @@ export const dateToISO = (date: Date) =>
 
 export const ISOToDate = (isoDate: string) => new Date(isoDate);
 
-// figuring out means: not all tasks of the bucket are closed
+// Figuring out means: not all tasks of the bucket are closed
 export function filterBucketsFiguringOut(
   buckets: Bucket[],
   tasks: Task[],

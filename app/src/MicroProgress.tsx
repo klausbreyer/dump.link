@@ -56,7 +56,7 @@ const MicroProgress: React.FC<MicroProgressProps> = (props) => {
             >
               {open.length}
             </span>
-            Figuring Out
+            Figuring out
           </span>
           <span>
             <span
@@ -66,7 +66,7 @@ const MicroProgress: React.FC<MicroProgressProps> = (props) => {
             >
               {closed.length}
             </span>
-            Figured Out
+            Figured out
           </span>
         </div>
       )}

@@ -158,7 +158,7 @@ The Task Group Arranger helps you and your colleagues easily see what has to be 
           {layersWithBuckets.map((lane, i) => (
             <Lane defaultHidden={false} index={i} hoverable={true} key={i}>
               {lane.map((bucket, j) => (
-                <div key={j} ref={boxRefs.current[bucket.id]} className="w-40">
+                <div key={j} ref={boxRefs.current[bucket.id]} className="w-52">
                   <Box bucket={bucket} context={TabContext.Arrange} />
                 </div>
               ))}
