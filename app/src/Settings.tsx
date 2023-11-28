@@ -97,9 +97,9 @@ const Settings: React.FC<SettingsProps> = (props) => {
             onChange={handleChange(setAppetite)}
             className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           >
-            {Array.from({ length: 8 }, (_, i) => i + 1).map((week) => (
+            {[2, 3, 4, 6, 8].map((week) => (
               <option key={week} value={week}>
-                {week} Week{week > 1 ? "s" : ""}
+                {week} Weeks
               </option>
             ))}
           </select>
