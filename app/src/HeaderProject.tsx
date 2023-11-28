@@ -6,7 +6,7 @@ import { Bucket } from "./types";
 
 export interface HeaderProjectProps {}
 
-function currentUrl() {
+export function currentUrl() {
   const { protocol, hostname, port, pathname } = window.location;
 
   const isStandardPort =

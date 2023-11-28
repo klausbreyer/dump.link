@@ -4,7 +4,7 @@ import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
 import { CheckIcon } from "@heroicons/react/24/outline";
-import InfoModal from "./common/InfoModal";
+import InfoModal, { InfoTitle } from "./common/InfoModal";
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
 import { Dialog } from "@headlessui/react";
 
@@ -24,9 +24,7 @@ const steps: Step[] = [
     icon: <GroupIcon className="w-6 h-6 " />,
     infoChildren: (
       <>
-        <Dialog.Title className="mb-2 text-lg font-medium leading-6 text-gray-900">
-          Dump
-        </Dialog.Title>
+        <InfoTitle className="mb-2">Dump</InfoTitle>
         {`Put everything you think you will have to do here into the dump.
 This helps you consider "the whole" by turning the whole thing into, e.g., rough implementation tasks without concerning yourself with structure and order before starting on any one area.`
           .split("\n")
@@ -35,9 +33,7 @@ This helps you consider "the whole" by turning the whole thing into, e.g., rough
               {p}
             </p>
           ))}
-        <Dialog.Title className="mb-2 text-lg font-medium leading-6 text-gray-900">
-          Task Grouper
-        </Dialog.Title>
+        <InfoTitle className="mb-2">Task Grouper</InfoTitle>
         {`Drag the initial tasks (and, as things progress, any discovered tasks) from the dump (or add directly to a named task group) into unnamed groups by asking yourself: "What can be completed together and in isolation from the rest?".
 Task group boxes are usually named after you and your team cluster the tasks and look at the actual work to ensure the task groups show real relationships in the work and not arbitrary categories. Then, consider which task groups, if any, have risky unknowns and flag them.
 You can track the movement of work between “Figuring out”, “Figured out”, and “Done” states. When you add a task to a task group, it is by default considered an "In-progress Figuring out" state.

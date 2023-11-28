@@ -284,7 +284,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           ref={allowedToDrag ? dragRef : null}
         >
           <textarea
-            className={` resize-none w-full px-1 rounded-sm shadow-md relative
+            className={`resize-none w-full px-1 rounded-sm shadow-md relative
             border-b-2 select-text overflow-hidden
             ${activeTask && "cursor-move"}
             ${
