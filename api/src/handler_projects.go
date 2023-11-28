@@ -41,7 +41,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 
 	project, err := app.projects.Get(projectId)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.notFoundResponse(w, r)
 		return
 	}
 
