@@ -11,6 +11,7 @@ import { useData } from "./context/data";
 import { getTasksByClosed, getTasksForBucket } from "./context/helper";
 import { Bucket, TabContext } from "./types";
 import { isSafari } from "./common/helper";
+import { EmptyChekboxIcon } from "./common/icons";
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -93,11 +94,16 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
             />
           </>
         )}
-        {showDone && context === TabContext.Group && (
+        {showDone && context === TabContext.Group && !bucket.done && (
+          <EmptyChekboxIcon
+            className="text-green-600 hover:text-green-700 w-7 h-7"
+            onClick={handleCheckboxClick}
+          />
+        )}
+        {showDone && context === TabContext.Group && bucket.done && (
           <input
             type="checkbox"
             className={`w-7 h-7 accent-green-500
-            ring-2 ring-green-500
             ${isSafari() && "safari-only-checkbox-big"} `}
             checked={bucket.done || false}
             onChange={handleCheckboxClick}
