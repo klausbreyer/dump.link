@@ -8,3 +8,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+function openModal() {
+  const modal = document.querySelector(".modal-make");
+
+  modal.classList.remove("hidden");
+}
+
+function closeModal() {
+  const modal = document.querySelector(".modal-make");
+  modal.classList.add("hidden");
+}
+
+document.querySelectorAll(".openModalButton").forEach((button) => {
+  button.addEventListener("click", openModal);
+});
+
+document.querySelectorAll(".closeModalButton").forEach((button) => {
+  button.addEventListener("click", closeModal);
+});
