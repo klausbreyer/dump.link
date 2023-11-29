@@ -770,11 +770,5 @@ export function calculateRemainingTime(
     return "Time budget ended";
   }
 
-  // Decide whether to return days or weeks
-  if (diffDays < 7) {
-    return formatTime(diffDays, "day", "days");
-  } else {
-    const weeks = Math.round(diffDays / 7);
-    return formatTime(weeks, "week", "weeks");
-  }
+  return formatTime(diffDays, "day", "days");
 }
