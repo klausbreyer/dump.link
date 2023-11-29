@@ -71,12 +71,13 @@ func (m *TaskModel) Get(id string) (*Task, error) {
 }
 
 func (m *TaskModel) GetForProjectId(projectId string) ([]*Task, error) {
-	stmt := `
-	SELECT t.id, t.title, t.closed, t.bucket_id, t.priority, t.created_at, t.updated_at
-	FROM tasks AS t
-	INNER JOIN buckets AS b ON t.bucket_id = b.id
-	WHERE b.project_id = ?
-	`
+	stmt := `SELECT t.id, t.title, t.closed, t.bucket_id, t.priority, t.created_at, t.updated_at
+		FROM tasks AS t
+		WHERE t.bucket_id IN (
+			SELECT b.id
+			FROM buckets AS b
+			WHERE b.project_id = ?)`
+
 	rows, err := m.DB.Query(stmt, projectId)
 	if err != nil {
 		return nil, err

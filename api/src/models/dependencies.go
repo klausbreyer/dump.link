@@ -31,9 +31,11 @@ func (m *DependencyModel) Exists(bucketID, dependencyID string) (bool, error) {
 
 func (m *DependencyModel) GetForProjectId(projectId string) ([]*Dependency, error) {
 	stmt := `SELECT bd.bucket_id, bd.dependency_id, bd.created_at
-             FROM dependencies bd
-             INNER JOIN buckets b ON bd.bucket_id = b.id
-             WHERE b.project_id = ?`
+         FROM dependencies bd
+         WHERE bd.bucket_id IN (
+             SELECT b.id
+             FROM buckets b
+             WHERE b.project_id = ?)`
 
 	rows, err := m.DB.Query(stmt, projectId)
 	if err != nil {
