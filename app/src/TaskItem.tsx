@@ -52,11 +52,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   usePasteListener(textAreaRef, (title: string) => {
     title = title.substring(0, config.TASK_MAX_LENGTH);
 
+    console.log(title);
+
     addTask({
       id: NewID(project.id),
       priority:
         calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
-      title: val,
+      title: title,
       closed: false,
       bucketId: bucket.id,
     });
