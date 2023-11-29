@@ -46,14 +46,14 @@
 								<div class="sm:col-span-3">
 									<label for="project-name" class="block text-sm font-medium leading-6 text-gray-900">Project name</label>
 									<div class="mt-2">
-										<input type="text" name="project-name" id="project-name" autocomplete="given-name" class="block w-full  h-9 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+										<input type="text" name="project-name" id="project-name" autocomplete="given-name" class="block w-full  h-9 px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6">
 									</div>
 								</div>
 
 								<div class="sm:col-span-3">
 									<label for="appetite" class="block text-sm font-medium leading-6 text-gray-900">Appetite</label>
 									<div class="mt-2">
-										<select id="appetite" name="appetite" class="block h-9 px-1 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+										<select id="appetite" name="appetite" class="block h-9 px-2  w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6">
 											<option value="2">2 Weeks</option>
 											<option value="3">3 Weeks</option>
 											<option value="4">4 Weeks</option>
@@ -77,21 +77,21 @@
 								<div class="sm:col-span-3">
 									<label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">First name</label>
 									<div class="mt-2">
-										<input type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 h-9 sm:text-sm sm:leading-6">
+										<input type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 h-9 px-2 sm:text-sm sm:leading-6">
 									</div>
 								</div>
 
 								<div class="sm:col-span-3">
 									<label for="last-name" class="block text-sm font-medium leading-6 text-gray-900">Last name</label>
 									<div class="mt-2">
-										<input type="text" name="last-name" id="last-name" autocomplete="family-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 h-9 sm:text-sm sm:leading-6">
+										<input type="text" name="last-name" id="last-name" autocomplete="family-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 h-9 px-2 sm:text-sm sm:leading-6">
 									</div>
 								</div>
 
 								<div class="sm:col-span-5">
 									<label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
 									<div class="mt-2">
-										<input id="email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 h-9 sm:text-sm sm:leading-6">
+										<input id="email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 h-9 px-2 sm:text-sm sm:leading-6">
 									</div>
 								</div>
 							</div>
@@ -99,7 +99,7 @@
 					</div>
 
 					<div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-						<button type="button" class="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-1 openModalButton">Make a dump.link</button>
+						<button type="button" class="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-slate-600 hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600 sm:col-start-1 submitModalButton">Make a dump.link</button>
 						<button type="button" class="inline-flex justify-center w-full px-3 py-2 mt-3 text-sm font-semibold text-gray-900 bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-2 sm:mt-0 closeModalButton">Cancel</button>
 					</div>
 				</div>
@@ -235,7 +235,7 @@
 						</dl>
 						<p class="mt-6 text-lg leading-8 text-gray-600">This lets teams seamlessly share progress from unsolved to solved states so anyone at the company can understand the risk profile of in-flight work instead of getting into the wrong level of detail while keeping everything on track and refining and adapting as the project unfolds.</p>
 						<p class="mt-6 text-lg leading-8 text-gray-600">It's perfect for product development teams looking to adopt, or teams who already are engaging with, the
-							<a href="https://youtu.be/h_8M23wVjXk?si=ORQ4TR68wC_ryZ9f" class="text-blue-500 hover:text-blue-700">Shape Up Method</a>.
+							<a href="https://youtu.be/h_8M23wVjXk?si=ORQ4TR68wC_ryZ9f" class="text-slate-500 hover:text-slate-700">Shape Up Method</a>.
 						</p>
 					</div>
 				</div>
@@ -248,7 +248,7 @@
 			<div class="max-w-2xl mx-auto lg:mx-0 lg:max-w-none">
 				<p class="text-base font-semibold leading-7 text-slate-600">Product</p>
 				<h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">No More Assembly Lines, No More Never-ending Sprints</h2>
-				<div class="mt-8 aspect-w-16 aspect-h-9 bg-slate-100">
+				<div class="px-1 mt-8 aspect-w-16 aspect-h-9 bg-slate-100">
 					<iframe class="w-full aspect-video" src="https://www.youtube-nocookie.com/embed/lHEAkaHExXU?si=WCq1Zqkc_0DImQCJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 					</iframe>
 				</div>

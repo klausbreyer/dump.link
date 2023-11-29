@@ -12,10 +12,7 @@ import (
 )
 
 func (app *application) ProjectRoot(w http.ResponseWriter, r *http.Request) {
-	projectId := app.initProject(w, r)
-
-	//redirect
-	http.Redirect(w, r, fmt.Sprintf("/a/%s", projectId), http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // AppGet handles the request and serves the HTML with dynamic script and stylesheet links.

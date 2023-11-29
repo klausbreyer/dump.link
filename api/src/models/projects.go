@@ -14,13 +14,16 @@ type Project struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	Appetite  int       `json:"appetite"`
+	// OwnerEmail    string    `json:"ownerEmail"`    // never read. Only ingested.
+	// OwnerFirstName string   `json:"ownerFirstName"` // never read. Only ingested.
+	// OwnerLastName string    `json:"ownerLastName"`  // never read. Only ingested.
 }
 
 type ProjectModel struct {
 	DB *sql.DB
 }
 
-func (m *ProjectModel) Insert(name string, started_at time.Time, appetite int) (string, error) {
+func (m *ProjectModel) Insert(name string, startedAt time.Time, appetite int, ownerEmail, ownerFirstName, ownerLastName string) (string, error) {
 	var id string
 	for {
 		id = NewID()
@@ -28,15 +31,14 @@ func (m *ProjectModel) Insert(name string, started_at time.Time, appetite int) (
 			break
 		}
 	}
-	stmt := `INSERT INTO projects (id, name, started_at, appetite) VALUES (?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, started_at, appetite)
+	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName)
 	if err != nil {
 		return "", err
 	}
 
 	return id, nil
 }
-
 func (m *ProjectModel) IDExists(id string) bool {
 	stmt := `SELECT COUNT(id) FROM projects WHERE id = ?`
 	var count int
