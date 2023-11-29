@@ -106,6 +106,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   return (
     <div
+      ref={dropRef}
       className={`w-full relative rounded-md overflow-hidden ${bgTop} border-2
       ${showDashed && "border-dashed border-2 border-slate-400"}
       ${showSolid && " border-slate-400"}
@@ -123,7 +124,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
         <BoxHeader context={TabContext.Group} bucket={bucket} />
         <div
-          ref={dropRef}
           className={`min-h-[2.5rem]
           `}
         >
