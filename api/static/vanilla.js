@@ -44,6 +44,10 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("lastName", lastName);
     localStorage.setItem("email", email);
 
+    if (!validateForm(projectName, appetite, firstName, lastName, email)) {
+      return;
+    }
+
     const payload = {
       name: projectName,
       appetite: parseInt(appetite, 10),
@@ -94,4 +98,55 @@ function loadFormData() {
   if (savedEmail) {
     document.getElementById("email").value = savedEmail;
   }
+}
+
+function validateForm(projectName, appetite, firstName, lastName, email) {
+  console.log("Validating form");
+
+  let isValid = true;
+  clearValidationErrors();
+
+  if (projectName === "") {
+    showError("project-name");
+    isValid = false;
+  }
+  if (appetite === "") {
+    showError("appetite");
+    isValid = false;
+  }
+  if (firstName === "") {
+    showError("first-name");
+    isValid = false;
+  }
+  if (lastName === "") {
+    showError("last-name");
+    isValid = false;
+  }
+  if (email === "") {
+    showError("email");
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function showError(fieldId) {
+  const field = document.getElementById(fieldId);
+  console.log(field, fieldId);
+
+  field.classList.add("ring-2", "ring-rose-500");
+}
+
+function clearValidationErrors() {
+  const fields = [
+    "project-name",
+    "appetite",
+    "first-name",
+    "last-name",
+    "email",
+  ];
+  fields.forEach((fieldId) => {
+    const field = document.getElementById(fieldId);
+    field.classList.remove("ring-2", "ring-rose-500");
+  });
 }
