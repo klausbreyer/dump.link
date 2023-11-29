@@ -21,7 +21,7 @@ type wsClient struct {
 	clientToken string
 }
 type application struct {
-	contentFS embed.FS
+	templatesFS embed.FS
 
 	logger       *slog.Logger
 	buckets      *models.BucketModel
@@ -33,7 +33,7 @@ type application struct {
 	mutex   sync.Mutex
 }
 
-func Run(contentFS embed.FS) error {
+func Run(templatesFS embed.FS) error {
 	addr := flag.String("addr", "0.0.0.0:8080", "HTTP network address")
 	flag.Parse()
 	// Use the slog.New() function to initialize a new structured logger, which
@@ -48,8 +48,8 @@ func Run(contentFS embed.FS) error {
 	defer db.Close()
 
 	app := &application{
-		contentFS: contentFS,
-		logger:    logger,
+		templatesFS: templatesFS,
+		logger:      logger,
 
 		buckets:      &models.BucketModel{DB: db},
 		tasks:        &models.TaskModel{DB: db},

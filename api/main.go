@@ -8,12 +8,12 @@ import (
 	"dump.link/src"
 )
 
-//go:embed content/index.md
-var contentFS embed.FS
+//go:embed templates/*.html
+var templatesFS embed.FS
 
 func main() {
 	fmt.Println("Hello, world!")
-	if err := src.Run(contentFS); err != nil {
+	if err := src.Run(templatesFS); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
