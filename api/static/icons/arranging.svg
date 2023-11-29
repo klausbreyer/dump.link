@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1229px" height="1229px" viewBox="0 0 1229 1229" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>ordering</title>
+    <g id="ordering" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path id="Line-Copy-4" d="M445.475976,355.648545 L463.413716,373.06226 L726.166,628.138 L797.214242,554.95293 L891,823 L620.290889,737.200365 L691.338,664.014 L428.586284,408.93774 L410.648545,391.524024 L445.475976,355.648545 Z" fill="currentColor" fill-rule="nonzero"></path>
+        <path id="Line-Copy-5" d="M284.763769,411.593236 L332.406764,426.763769 L324.821497,450.585266 L280.887,588.558 L378.079512,619.50674 L180,823 L136.053099,542.440434 L233.244,573.388 L277.178503,435.414734 L284.763769,411.593236 Z" fill="currentColor" fill-rule="nonzero"></path>
+        <rect id="Rectangle-Copy-18" fill="currentColor" x="121" y="215" width="360" height="228"></rect>
+        <rect id="Rectangle-Copy-18" fill="currentColor" x="0" y="797" width="360" height="228"></rect>
+        <rect id="Rectangle-Copy-19" fill="currentColor" x="869" y="797" width="360" height="228"></rect>
+    </g>
+</svg>
