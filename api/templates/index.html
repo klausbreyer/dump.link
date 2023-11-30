@@ -12,48 +12,29 @@
 
 <body>
 	<div class="relative z-10 hidden modal-make" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-		<!--
-	    Background backdrop, show/hide based on modal state.
 
-	    Entering: "ease-out duration-300"
-	      From: "opacity-0"
-	      To: "opacity-100"
-	    Leaving: "ease-in duration-200"
-	      From: "opacity-100"
-	      To: "opacity-0"
-	  -->
-		<div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 modal-backdrop"></div>
+		<div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 "></div>
 
 		<div class="fixed inset-0 z-10 w-screen overflow-y-auto ">
-			<div class="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
-				<!--
-	        Modal panel, show/hide based on modal state.
+			<div class="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0 modal-backdrop">
 
-	        Entering: "ease-out duration-300"
-	          From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-	          To: "opacity-100 translate-y-0 sm:scale-100"
-	        Leaving: "ease-in duration-200"
-	          From: "opacity-100 translate-y-0 sm:scale-100"
-	          To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-	      -->
 				<div class="relative px-4 pt-5 pb-4 overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
 					<div>
-						<h2 class="mt-2 mb-4 text-lg font-bold tracking-tight text-gray-900 ">Make a dump.link</h2>
-						<form class="bg-white shadow-sm sm:rounded-xl md:col-span-2">
-
+						<h2 class="mb-2 text-lg font-bold tracking-tight text-gray-900 ">Make a dump.link</h2>
+						<form class="flex flex-col">
 							<div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-6">
-
-								<div class="sm:col-span-3">
-									<label for="project-name" class="block text-sm font-medium leading-6 text-gray-900">Project name</label>
-									<div class="mt-2">
-										<input type="text" name="project-name" id="project-name" class="block w-full  h-9 px-2 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6">
+								<div class="mb-2 sm:col-span-6">
+									<label for="project-name" class="block text-sm font-bold text-slate-700">Project name</label>
+									<div class="">
+										<input type="text" name="project-name" id="project-name" maxlength="40" class="relative overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600">
 									</div>
+									<p class="mt-1 text-sm italic text-slate-500">The project name is the unique identifier for your initiative. It's how you and your team refer to the project in discussions and documentation. Choose a name that is both meaningful and concise.</p>
 								</div>
 
-								<div class="sm:col-span-3">
-									<label for="appetite" class="block text-sm font-medium leading-6 text-gray-900">Appetite</label>
-									<div class="mt-2">
-										<select id="appetite" name="appetite" class="block h-9 px-2  w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 sm:text-sm sm:leading-6">
+								<div class="mb-2 sm:col-span-6">
+									<label for="appetite" class="block text-sm font-bold text-slate-700">Appetite</label>
+									<div class="">
+										<select id="appetite" name="appetite" class="relative overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600 w-36">
 											<option value="2">2 Weeks</option>
 											<option value="3">3 Weeks</option>
 											<option value="4">4 Weeks</option>
@@ -63,45 +44,47 @@
 											<option value="8">8 Weeks</option>
 										</select>
 									</div>
+									<p class="mt-1 text-sm italic text-slate-500">With an appetite, the question is about how much time we want to spend getting some version of something we want to do. It is a strategic question about the value of what we want to do with a fixed-time-variable-scope constraint.</p>
 								</div>
 
-								<div class="mb-4 sm:col-span-6">
+								<div class=" sm:col-span-6">
+									<h2 class="text-base font-semibold leading-7 text-slate-900">Personal Information</h2>
 								</div>
 
-
-								<div class="sm:col-span-6">
-									<h2 class="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
-									<p class="mt-1 text-sm leading-6 text-gray-600">We will not spam you. We do not sell your information.</p>
-								</div>
-
-								<div class="sm:col-span-3">
-									<label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">First name</label>
-									<div class="mt-2">
-										<input type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 h-9 px-2 sm:text-sm sm:leading-6">
+								<div class="mb-2 sm:col-span-3">
+									<label for="first-name" class="block text-sm font-bold text-slate-700">First name</label>
+									<div class="">
+										<input type="text" name="first-name" id="first-name" autocomplete="given-name" class="relative overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600">
 									</div>
 								</div>
 
 								<div class="sm:col-span-3">
-									<label for="last-name" class="block text-sm font-medium leading-6 text-gray-900">Last name</label>
-									<div class="mt-2">
-										<input type="text" name="last-name" id="last-name" autocomplete="family-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 h-9 px-2 sm:text-sm sm:leading-6">
+									<label for="last-name" class="block text-sm font-bold text-slate-700">Last name</label>
+									<div class="">
+										<input type="text" name="last-name" id="last-name" autocomplete="family-name" class="relative overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600">
 									</div>
 								</div>
 
-								<div class="sm:col-span-5">
-									<label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
-									<div class="mt-2">
-										<input id="email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-slate-600 h-9 px-2 sm:text-sm sm:leading-6">
+								<div class="mb-2 sm:col-span-5">
+									<label for="email" class="block text-sm font-bold text-slate-700">E-Mail</label>
+									<div class="">
+										<input id="email" name="email" type="email" autocomplete="email" class="relative w-full overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600">
 									</div>
+									<p class="mt-1 text-sm italic text-slate-500">We will not spam you. We do not sell your information.</p>
 								</div>
 							</div>
+
+							<div class="flex items-center justify-start mt-2">
+								<button id="submitbutton" class="justify-center w-40 px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md submitModalButton bg-slate-600 hover:bg-slate-400 border-slate-700 hover:ring-2 hover:ring-slate-500 hover:ring-offset-2">Make a dumplink</button>
+								<button id="loadingbutton" disabled class="justify-center hidden w-40 px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md submitModalButton bg-slate-600 border-slate-700 animate-pulse">
+									<div id="loading" class="mx-auto text-left w-18">Loading.</div>
+								</button>
+							</div>
+
 						</form>
+
 					</div>
 
-					<div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-						<button type="button" class="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-white rounded-md shadow-sm bg-slate-600 hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600 sm:col-start-1 submitModalButton">Make a dump.link</button>
-						<button type="button" class="inline-flex justify-center w-full px-3 py-2 mt-3 text-sm font-semibold text-gray-900 bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-2 sm:mt-0 closeModalButton">Cancel</button>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -113,7 +96,7 @@
 				<div class="flex lg:flex-1">
 					<a href="/" class="-m-1.5 p-1.5">
 						<span class="sr-only">dump.link</span>
-						<img src="/static/icons/favicon.svg" alt="dump.link" class="w-auto h-8">
+						<img src="/static/icons/favicon.svg" alt="dump.link" class="w-auto h-16">
 					</a>
 				</div>
 				<div class="flex lg:hidden">

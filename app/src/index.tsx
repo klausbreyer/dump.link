@@ -2,13 +2,13 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { createRoot } from "react-dom/client";
 
-import { DataProvider } from "./context/data";
-import Group from "./Group";
 import Arrange from "./Arrange";
-import Sequence from "./Sequence";
-import { GlobalDraggingProvider } from "./context/dragging";
+import Group from "./Group";
 import Header from "./Header";
+import Sequence from "./Sequence";
 import Settings from "./Settings";
+import { DataProvider } from "./context/data";
+import { GlobalDraggingProvider } from "./context/dragging";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
 
@@ -18,7 +18,6 @@ import {
   LifecycleState,
   useLifecycle,
 } from "./context/lifecycle";
-import { extractIdFromUrl } from "./context/helper";
 
 const App = function App() {
   return (

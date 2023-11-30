@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
 function openModal() {
   const modal = document.querySelector(".modal-make");
 
@@ -48,6 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    document.getElementById("submitbutton").classList.add("hidden");
+    document.getElementById("loadingbutton").classList.remove("hidden");
     const payload = {
       name: projectName,
       appetite: parseInt(appetite, 10),
@@ -134,7 +137,7 @@ function showError(fieldId) {
   const field = document.getElementById(fieldId);
   console.log(field, fieldId);
 
-  field.classList.add("ring-2", "ring-rose-500");
+  field.classList.add("border-rose-500");
 }
 
 function clearValidationErrors() {
@@ -147,6 +150,29 @@ function clearValidationErrors() {
   ];
   fields.forEach((fieldId) => {
     const field = document.getElementById(fieldId);
-    field.classList.remove("ring-2", "ring-rose-500");
+    field.classList.remove("border-rose-500");
   });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const loadingElement = document.getElementById("loading");
+
+  let dotCount = 0;
+
+  function updateLoadingText() {
+    dotCount = (dotCount % 3) + 1;
+    loadingElement.innerText = "Creating " + ".".repeat(dotCount);
+  }
+
+  setInterval(updateLoadingText, 1000);
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  document
+    .querySelector(".modal-backdrop")
+    .addEventListener("click", function (event) {
+      if (event.target === this) {
+        closeModal();
+      }
+    });
+});
