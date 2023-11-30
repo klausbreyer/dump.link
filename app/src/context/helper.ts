@@ -713,6 +713,10 @@ export function filterBucketsFiguredOut(
     .filter((bucket) => !bucket.dump && !bucket.done)
     .filter((bucket) => {
       const bucketTasks = getTasksForBucket(tasks, bucket.id);
+      return bucketTasks.length > 0;
+    })
+    .filter((bucket) => {
+      const bucketTasks = getTasksForBucket(tasks, bucket.id);
       return bucketTasks.every((task) => task.closed);
     });
 }
