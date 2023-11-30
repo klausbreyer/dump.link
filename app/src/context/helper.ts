@@ -698,10 +698,23 @@ export function filterBucketsFiguringOut(
   buckets: Bucket[],
   tasks: Task[],
 ): Bucket[] {
-  return buckets.filter((bucket) => {
-    const bucketTasks = getTasksForBucket(tasks, bucket.id);
-    return !bucketTasks.every((task) => task.closed);
-  });
+  return buckets
+    .filter((bucket) => !bucket.dump)
+    .filter((bucket) => {
+      const bucketTasks = getTasksForBucket(tasks, bucket.id);
+      return !bucketTasks.every((task) => task.closed);
+    });
+} // Figuring out means: not all tasks of the bucket are closed
+export function filterBucketsFiguredOut(
+  buckets: Bucket[],
+  tasks: Task[],
+): Bucket[] {
+  return buckets
+    .filter((bucket) => !bucket.dump && !bucket.done)
+    .filter((bucket) => {
+      const bucketTasks = getTasksForBucket(tasks, bucket.id);
+      return bucketTasks.every((task) => task.closed);
+    });
 }
 
 export function formatDate(date: Date): string {

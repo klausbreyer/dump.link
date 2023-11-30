@@ -1,7 +1,10 @@
 import React from "react";
 import { DumplinkIcon } from "./common/icons";
 import { useData } from "./context/data";
-import { filterBucketsFiguringOut } from "./context/helper";
+import {
+  filterBucketsFiguredOut,
+  filterBucketsFiguringOut,
+} from "./context/helper";
 import { Bucket } from "./types";
 
 export interface HeaderProjectProps {}
@@ -29,6 +32,7 @@ const HeaderProject: React.FC<HeaderProjectProps> = (props) => {
 
   const done = buckets.filter((b: Bucket) => b.done);
   const figuringOut = filterBucketsFiguringOut(buckets, tasks);
+  const figuredOut = filterBucketsFiguredOut(buckets, tasks);
 
   return (
     <>
@@ -45,27 +49,45 @@ const HeaderProject: React.FC<HeaderProjectProps> = (props) => {
               {project.name}
             </a>
           </div>
-          <div className="flex items-center gap-4 w-52">
-            <div className="flex items-center gap-1">
-              <span
-                className={`px-1 mr-0.5 rounded text-xl
+          <div className="flex items-center gap-4 w-60">
+            {figuringOut.length > 0 && (
+              <div className="flex items-center w-1/3 gap-1">
+                <span
+                  className={`px-1 mr-0.5 rounded text-xl
                   ${figuringOut.length > 0 && "bg-orange-300"}
                   `}
-              >
-                {figuringOut.length}
-              </span>
-              <div className="text-xs">Figuring out</div>
-            </div>
-            <div className="flex items-center gap-1">
-              <span
-                className={`px-1 mr-0.5 rounded text-xl
+                >
+                  {figuringOut.length}
+                </span>
+                <div className="text-xs">Figuring out</div>
+              </div>
+            )}
+
+            {figuredOut.length > 0 && (
+              <div className="flex items-center w-1/3 gap-1">
+                <span
+                  className={`px-1 mr-0.5 rounded text-xl
+                  ${figuredOut.length > 0 && "bg-yellow-300"}
+                  `}
+                >
+                  {figuredOut.length}
+                </span>
+                <div className="text-xs">Figured out</div>
+              </div>
+            )}
+
+            {done.length > 0 && (
+              <div className="flex items-center w-1/3 gap-1">
+                <span
+                  className={`px-1 mr-0.5 rounded text-xl
                   ${done.length > 0 && "bg-green-500"}
                 `}
-              >
-                {done.length}
-              </span>
-              <div className="text-xs">Done</div>
-            </div>
+                >
+                  {done.length}
+                </span>
+                <div className="text-xs">Done</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
