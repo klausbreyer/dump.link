@@ -47,7 +47,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
   };
 
   const inputClassNames =
-    "  bg-white w-full rounded-sm shadow-md relative border-b-2 select-text overflow-hidden focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600";
+    "  bg-white rounded-sm shadow-md relative border-b-2 select-text overflow-hidden focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600";
 
   return (
     <Container>
@@ -72,26 +72,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 The project name is the unique identifier for your initiative.
                 It's how you and your team refer to the project in discussions
                 and documentation. Choose a name that is both meaningful and
-                concise, reflecting the essence of what you're aiming to do.
-              </Explanation>
-            </div>
-
-            <div className="mb-4">
-              <Label htmlFor="startedAt">Start Date</Label>
-              <input
-                type="date"
-                id="startedAt"
-                value={startedAt}
-                onChange={handleChange(setStartedAt)}
-                className={`${inputClassNames} w-36`}
-              />
-              <Explanation>
-                "The 'Start Date' marks the commencement of your project and is
-                the point from which your project's appetite is measured. It's
-                essential for aligning the team's efforts and establishing a
-                clear timeline. This date not only aids in planning and resource
-                allocation but also serves as a critical reference for tracking
-                progress against your project's objectives and milestones.
+                concise.
               </Explanation>
             </div>
 
@@ -113,8 +94,22 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 With an appetite, the question is about how much time we want to
                 spend getting some version of something we want to do. It is a
                 strategic question about the value of what we want to do with a
-                fixed-time-variable-scope constraint. With an appetite, we start
-                with a number and end with an approach/solution.
+                fixed-time-variable-scope constraint.
+              </Explanation>
+            </div>
+
+            <div className="mb-4">
+              <Label htmlFor="startedAt">Start Date</Label>
+              <input
+                type="date"
+                id="startedAt"
+                value={startedAt}
+                onChange={handleChange(setStartedAt)}
+                className={`${inputClassNames} w-36`}
+              />
+              <Explanation>
+                The 'Start Date' marks the commencement of your project and is
+                the point from which your project's appetite is measured.
               </Explanation>
             </div>
 
