@@ -169,10 +169,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.addEventListener("DOMContentLoaded", function () {
   document
-    .querySelector(".modal-backdrop")
-    .addEventListener("click", function (event) {
-      if (event.target === this) {
-        closeModal();
-      }
+    .querySelectorAll(".modal-closelistener")
+    .forEach(function (backdrop) {
+      backdrop.addEventListener("click", function (event) {
+        if (event.target === this) {
+          closeModal();
+        }
+      });
     });
 });

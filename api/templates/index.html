@@ -16,12 +16,15 @@
 		<div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 "></div>
 
 		<div class="fixed inset-0 z-10 w-screen overflow-y-auto ">
-			<div class="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0 modal-backdrop">
+			<div class="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0 modal-closelistener">
 
 				<div class="relative px-4 pt-5 pb-4 overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
 					<div>
 						<h2 class="mb-2 text-lg font-bold tracking-tight text-gray-900 ">Make a dumplink</h2>
-						<form class="flex flex-col">
+						<div class="flex-col block lg:hidden">
+							Thank you for your interest in our tool! Our tool is designed to deliver its fullest potential on a desktop platform. We invite you to access our services using a desktop browser to experience the best we have to offer. Your understanding and cooperation are greatly appreciated!
+						</div>
+						<form class="flex-col hidden lg:flex">
 							<div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-6">
 								<div class="mb-2 sm:col-span-6">
 									<label for="project-name" class="block text-sm font-bold text-slate-700">Project name</label>
