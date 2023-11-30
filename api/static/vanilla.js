@@ -125,9 +125,17 @@ function validateForm(projectName, appetite, firstName, lastName, email) {
   if (email === "") {
     showError("email");
     isValid = false;
+  } else if (!validateEmail(email)) {
+    showError("email");
+    isValid = false;
   }
 
   return isValid;
+}
+
+function validateEmail(email) {
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,10}$/;
+  return emailRegex.test(email);
 }
 
 function showError(fieldId) {

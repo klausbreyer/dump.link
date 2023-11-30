@@ -5,7 +5,7 @@ import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import InfoModal from "./common/InfoModal";
-import { InformationCircleIcon } from "@heroicons/react/24/solid";
+import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
 import { Dialog } from "@headlessui/react";
 import Title from "./common/Title";
 
@@ -147,7 +147,7 @@ const HeaderNav: React.FC<HeaderNavProps> = (props) => {
               <div className="mr-8">
                 <InfoModal
                   icon={
-                    <InformationCircleIcon className="w-5 h-5 cursor-pointer text-slate-500 hover:text-slate-800" />
+                    <QuestionMarkCircleIcon className="w-5 h-5 cursor-pointer text-slate-500 hover:text-slate-800" />
                   }
                   title={tab.infoTitle}
                   buttonText="Got it, thanks!"

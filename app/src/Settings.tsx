@@ -4,6 +4,7 @@ import Title from "./common/Title";
 import { useData } from "./context/data";
 import Container from "./common/Container";
 import ShareLink from "./ShareLink";
+import InfoTooltip from "./common/InfoTooltip";
 
 interface SettingsProps {}
 
@@ -47,7 +48,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
   };
 
   const inputClassNames =
-    "  bg-white w-full rounded-sm shadow-md relative border-b-2 select-text overflow-hidden focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600";
+    "  bg-white  rounded-sm shadow-md relative border-b-2 select-text overflow-hidden focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600";
 
   return (
     <Container>
@@ -57,9 +58,17 @@ const Settings: React.FC<SettingsProps> = (props) => {
             <Title>Settings</Title>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col">
-            <div className="mb-4">
-              <Label htmlFor="name">Project Name</Label>
+          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+            <div className="">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="name">Project Name</Label>
+                <InfoTooltip>
+                  The project name is the unique identifier for your initiative.
+                  It's how you and your team refer to the project in discussions
+                  and documentation. Choose a name that is both meaningful and
+                  concise, reflecting the essence of what you're aiming to do.
+                </InfoTooltip>
+              </div>
               <input
                 type="text"
                 id="name"
@@ -68,35 +77,18 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 onChange={handleChange(setName)}
                 className={`${inputClassNames}`}
               />
-              <Explanation>
-                The project name is the unique identifier for your initiative.
-                It's how you and your team refer to the project in discussions
-                and documentation. Choose a name that is both meaningful and
-                concise, reflecting the essence of what you're aiming to do.
-              </Explanation>
             </div>
-
-            <div className="mb-4">
-              <Label htmlFor="startedAt">Start Date</Label>
-              <input
-                type="date"
-                id="startedAt"
-                value={startedAt}
-                onChange={handleChange(setStartedAt)}
-                className={`${inputClassNames} w-36`}
-              />
-              <Explanation>
-                "The 'Start Date' marks the commencement of your project and is
-                the point from which your project's appetite is measured. It's
-                essential for aligning the team's efforts and establishing a
-                clear timeline. This date not only aids in planning and resource
-                allocation but also serves as a critical reference for tracking
-                progress against your project's objectives and milestones.
-              </Explanation>
-            </div>
-
-            <div className="mb-4 ">
-              <Label htmlFor="appetite">Appetite</Label>
+            <div className="">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="appetite">Appetite</Label>
+                <InfoTooltip>
+                  With an appetite, the question is about how much time we want
+                  to spend getting some version of something we want to do. It
+                  is a strategic question about the value of what we want to do
+                  with a fixed-time-variable-scope constraint. With an appetite,
+                  we start with a number and end with an approach/solution.
+                </InfoTooltip>
+              </div>
               <select
                 id="appetite"
                 value={appetite}
@@ -109,14 +101,30 @@ const Settings: React.FC<SettingsProps> = (props) => {
                   </option>
                 ))}
               </select>
-              <Explanation>
-                With an appetite, the question is about how much time we want to
-                spend getting some version of something we want to do. It is a
-                strategic question about the value of what we want to do with a
-                fixed-time-variable-scope constraint. With an appetite, we start
-                with a number and end with an approach/solution.
-              </Explanation>
             </div>
+
+            <div className="">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="startedAt">Start Date</Label>
+                <InfoTooltip>
+                  "The 'Start Date' marks the commencement of your project and
+                  is the point from which your project's appetite is measured.
+                  It's essential for aligning the team's efforts and
+                  establishing a clear timeline. This date not only aids in
+                  planning and resource allocation but also serves as a critical
+                  reference for tracking progress against your project's
+                  objectives and milestones.
+                </InfoTooltip>
+              </div>
+              <input
+                type="date"
+                id="startedAt"
+                value={startedAt}
+                onChange={handleChange(setStartedAt)}
+                className={`${inputClassNames} w-36`}
+              />
+            </div>
+            <div></div>
 
             <div className="flex items-center justify-start">
               <InfoButton type="submit" disabled={!isDirty}>
@@ -131,13 +139,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
 };
 
 export default Settings;
-interface ExplanationProps {
-  children: React.ReactNode;
-}
 
-const Explanation: React.FC<ExplanationProps> = ({ children }) => {
-  return <p className="mt-1 text-sm italic text-slate-500">{children}</p>;
-};
 interface LabelProps {
   children: React.ReactNode;
   htmlFor: string;
@@ -145,7 +147,10 @@ interface LabelProps {
 
 const Label: React.FC<LabelProps> = ({ children, htmlFor }) => {
   return (
-    <label htmlFor={htmlFor} className="block text-sm font-bold text-slate-700">
+    <label
+      htmlFor={htmlFor}
+      className="block text-sm font-medium text-slate-700"
+    >
       {children}
     </label>
   );
