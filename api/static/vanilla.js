@@ -178,3 +178,15 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  var videos = document.querySelectorAll(".video");
+
+  videos.forEach(function (video) {
+    video.onended = function () {
+      setTimeout(function () {
+        video.play();
+      }, 2000);
+    };
+  });
+});
