@@ -30,9 +30,7 @@ import React from "react";
 Bugsnag.start({
   apiKey: "dfa678c21426fc846674ce32690760ff",
   plugins: [new BugsnagPluginReact()],
-  enabledReleaseStages: [
-    process.env.NODE_ENV === "production" ? "production" : "development",
-  ],
+  enabledReleaseStages: [window.location.host],
 });
 BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
 
