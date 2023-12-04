@@ -1,10 +1,9 @@
-name: Unified Build and Deploy Workflow
+name: Deploy Kitchen
 
 on:
   push:
-    branches:
+    branches-ignore:
       - main
-      - bugsnag
 
 jobs:
   build-and-deploy:
@@ -51,7 +50,7 @@ jobs:
       - name: Deploy to Fly
         run: |
           cd api
-          flyctl deploy --remote-only
+          flyctl deploy --remote-only --config fly.kitchen.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -60,5 +59,5 @@ jobs:
         uses: vovavc/migrate-github-action@v0.2.1
         with:
           path: ./api/migrations
-          database: mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASS }}@tcp(${{ secrets.DB_HOST }})/${{ secrets.DB_NAME }}?tls=${{ secrets.DB_TLS }}&interpolateParams=true
+          database: mysql://${{ secrets.DB_USER_KITCHEN }}:${{ secrets.DB_PASS_KITCHEN }}@tcp(${{ secrets.DB_HOST_KITCHEN }})/${{ secrets.DB_NAME_KITCHEN }}?tls=${{ secrets.DB_TLS_KITCHEN }}&interpolateParams=true
           command: up

@@ -1,0 +1,63 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Build Frontend and Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v3
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Build Frontend
+        run: |
+          cd app
+          bun install && bun run build
+
+      # Run lifting script at the root of the repository
+      - name: Run Lifting Script
+        run: ./lifting.sh
+
+      # Backend Deployment Steps
+      # Setup flyctl for deployment
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # Run tests in the backend
+      # - name: Run Tests
+      #   run: |
+      #     cd api
+      #     make test
+
+      # Download Tailwind for the backend
+      - name: Download Tailwind
+        run: |
+          cd api
+          make tailwind-download
+
+      # Build Tailwind in the backend
+      - name: Build Tailwind
+        run: |
+          cd api
+          make tailwind-build
+
+      # Deploy backend to Fly.io
+      - name: Deploy to Fly
+        run: |
+          cd api
+          flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      # Migrate the database
+      - name: Migrate Database
+        uses: vovavc/migrate-github-action@v0.2.1
+        with:
+          path: ./api/migrations
+          database: mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASS }}@tcp(${{ secrets.DB_HOST }})/${{ secrets.DB_NAME }}?tls=${{ secrets.DB_TLS }}&interpolateParams=true
+          command: up
