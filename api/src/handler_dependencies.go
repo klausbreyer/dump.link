@@ -3,9 +3,11 @@ package src
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -56,9 +58,16 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 	senderToken := app.extractTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddBucketDependency, data)
 	app.writeJSON(w, http.StatusCreated, data, nil)
+
+	err = app.actions.Log(projectId, input.BucketID, nil, startTime, string(ActionAddBucketDependency))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -93,4 +102,10 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 	senderToken := app.extractTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionRemoveBucketDependency, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
+
+	err = app.actions.Log(projectId, &bucketId, nil, startTime, string(ActionRemoveBucketDependency))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }

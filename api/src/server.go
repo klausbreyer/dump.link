@@ -28,6 +28,7 @@ type application struct {
 	tasks        *models.TaskModel
 	projects     *models.ProjectModel
 	dependencies *models.DependencyModel
+	actions      *models.ActionModel
 
 	clients map[string]map[*wsClient]bool // Map projectId to Clients
 	mutex   sync.Mutex
@@ -55,6 +56,7 @@ func Run(templatesFS embed.FS) error {
 		tasks:        &models.TaskModel{DB: db},
 		projects:     &models.ProjectModel{DB: db},
 		dependencies: &models.DependencyModel{DB: db},
+		actions:      &models.ActionModel{DB: db},
 
 		clients: make(map[string]map[*wsClient]bool),
 	}

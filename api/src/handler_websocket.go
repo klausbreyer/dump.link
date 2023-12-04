@@ -12,7 +12,6 @@ import (
 type ActionType string
 
 const (
-	// ActionSetInitialState        ActionType = "SET_INITIAL_STATE"
 	ActionAddTask                  ActionType = "ADD_TASK"
 	ActionUpdateBucket             ActionType = "UPDATE_BUCKET"
 	ActionUpdateProject            ActionType = "UPDATE_PROJECT"
@@ -22,6 +21,12 @@ const (
 	ActionAddBucketDependency      ActionType = "ADD_BUCKET_DEPENDENCY"
 	ActionRemoveBucketDependency   ActionType = "REMOVE_BUCKET_DEPENDENCY"
 	ActionDeleteTask               ActionType = "DELETE_TASK"
+
+	//not for websocket
+	ActionSetInitialState ActionType = "SET_INITIAL_STATE"
+
+	// only in the backend.
+	ActionCreateProject ActionType = "CREATE_PROJECT"
 )
 
 type wsEnvelope struct {

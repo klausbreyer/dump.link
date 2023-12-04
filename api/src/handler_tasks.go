@@ -8,6 +8,7 @@ import (
 
 func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -36,38 +37,35 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	insertTime := time.Now()
 	newTaskID, err := app.tasks.Insert(input.Id, input.Title, false, input.BucketID, input.Priority, projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
-	app.logger.Info(fmt.Sprintf("Task insertion completed in %v", time.Since(insertTime)))
 
-	getTime := time.Now()
 	task, err := app.tasks.Get(newTaskID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
-	app.logger.Info(fmt.Sprintf("Task retrieval completed in %v", time.Since(getTime)))
 
 	data := task
 
 	senderToken := app.extractTokenFromRequest(r)
 
-	sendTime := time.Now()
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddTask, data)
-	app.logger.Info(fmt.Sprintf("Sending action data to project clients completed in %v", time.Since(sendTime)))
 
-	writeTime := time.Now()
 	app.writeJSON(w, http.StatusCreated, data, nil)
-	app.logger.Info(fmt.Sprintf("Writing JSON response completed in %v", time.Since(writeTime)))
-
-	app.logger.Info(fmt.Sprintf("Total duration of ApiAddTask request: %v", time.Since(startTime)))
+	app.actions.Log(projectId, nil, &task.ID, startTime, string(ActionAddTask))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+
 	taskId, valid := app.getAndValidateID(w, r, "taskId")
 	if !valid {
 		return
@@ -94,9 +92,16 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	senderToken := app.extractTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionDeleteTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
+
+	app.actions.Log(projectId, nil, &taskId, startTime, string(ActionDeleteTask))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	taskId, valid := app.getAndValidateID(w, r, "taskId")
 	if !valid {
 		return
@@ -166,4 +171,10 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	senderToken := app.extractTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
+
+	err = app.actions.Log(projectId, nil, &taskId, startTime, string(ActionUpdateTask))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
