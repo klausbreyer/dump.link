@@ -274,6 +274,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         } else {
           Bugsnag.notify(new Error("Unknown error occurred"));
         }
+        console.error(error);
         alert("Error while adding the task");
       }
     })();
@@ -316,6 +317,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         } else {
           Bugsnag.notify(new Error("Unknown error occurred"));
         }
+        console.error(error);
         alert("Error while updating the task");
       }
     })();
@@ -336,6 +338,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         } else {
           Bugsnag.notify(new Error("Unknown error occurred"));
         }
+        console.error(error);
         alert("Error while deleting the task");
       }
     })();
@@ -357,6 +360,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         } else {
           Bugsnag.notify(new Error("Unknown error occurred"));
         }
+        console.error(error);
         alert("Error while updating the bucket");
       }
     })();
@@ -376,6 +380,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         } else {
           Bugsnag.notify(new Error("Unknown error occurred"));
         }
+        console.error(error);
         alert("Error while resetting layers for all buckets");
       }
     })();
@@ -401,6 +406,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         } else {
           Bugsnag.notify(new Error("Unknown error occurred"));
         }
+        console.error(error);
         alert("Error while updating the project");
       }
     })();
@@ -432,6 +438,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         } else {
           Bugsnag.notify(new Error("Unknown error occurred"));
         }
+        console.error(error);
         alert("Error while adding bucket dependency");
       }
     })();
@@ -460,6 +467,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         } else {
           Bugsnag.notify(new Error("Unknown error occurred"));
         }
+        console.error(error);
         alert("Error while removing bucket dependency");
       }
     })();
