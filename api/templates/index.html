@@ -236,18 +236,18 @@
 							</p>
 						</div>
 					</div>
-					<div class="col-span-2 pt-8 video-container lg:pt-0" style="position: relative;">
-						<video id="videoPlayer" style="width: 100%;" controls>
-							<source src="https://static.dump.link/2023-12-04-dumplink-demo.mp4" type="video/mp4">
-							Ihr Browser unterstützt das Video-Tag nicht.
-						</video>
+					<div class="col-span-2 pt-8 lg:pt-0">
+						<div class="w-full overflow-hidden shadow-xl ring-1 ring-gray-400/10 aspect-[16/10] bg-cover rounded-xl" style="background-image: url(/static/images/preview.png)">
+							<video id="videoPlayer" style="width: 100%;" controls>
+								<source src="https://static.dump.link/2023-12-04-dumplink-demo.mp4" type="video/mp4">
+								Ihr Browser unterstützt das Video-Tag nicht.
+							</video>
+						</div>
 					</div>
 				</div>
 
 			</div>
 		</div>
-
-
 
 
 		<div class="py-24 bg-white sm:py-32" id="product">
@@ -303,7 +303,7 @@
 
 					</div>
 					<div class="order-last lg:pl-4 lg:order-none">
-						<video class="shadow-2xl rounded-3xl video" autoplay muted>
+						<video class="shadow-2xl rounded-3xl video" autoplay muted playsinline>
 							<source src="/static/videos/grouper.mp4" type="video/mp4">
 							Your browser does not support the video tag.
 						</video>
@@ -316,7 +316,7 @@
 			<div class="px-6 mx-auto max-w-7xl lg:px-8">
 				<div class="grid items-start max-w-2xl grid-cols-1 mx-auto gap-x-8 gap-y-8 sm:gap-y-24 lg:mx-0 lg:max-w-none lg:grid-cols-2">
 					<div class="order-last lg:pr-4 lg:order-none">
-						<video class="shadow-2xl rounded-3xl video" autoplay muted>
+						<video class="shadow-2xl rounded-3xl video" autoplay muted playsinline>
 							<source src="/static/videos/sequencer.mp4" type="video/mp4">
 							Your browser does not support the video tag.
 						</video>
@@ -351,7 +351,7 @@
 
 					</div>
 					<div class="order-last lg:pl-4 lg:order-none">
-						<video class="shadow-2xl rounded-3xl video" autoplay muted>
+						<video class="shadow-2xl rounded-3xl video" autoplay muted playsinline>
 							<source src="/static/videos/arranger.mp4" type="video/mp4">
 							Your browser does not support the video tag.
 						</video>
@@ -365,11 +365,10 @@
 			<div class="px-6 mx-auto max-w-7xl lg:px-8">
 				<div class="grid items-start max-w-2xl grid-cols-1 mx-auto gap-x-8 gap-y-8 sm:gap-y-24 lg:mx-0 lg:max-w-none lg:grid-cols-2">
 					<div class="order-last lg:pr-4 lg:order-none">
-						<video class="shadow-2xl rounded-3xl video" autoplay muted>
+						<video class="shadow-2xl rounded-3xl video" autoplay muted playsinline>
 							<source src="/static/videos/appetite.mp4" type="video/mp4">
 							Your browser does not support the video tag.
 						</video>
-
 					</div>
 					<div>
 						<div class="text-base leading-7 text-gray-700 lg:max-w-lg">
@@ -553,61 +552,100 @@
 				<h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Founders</h2>
 
 				<ul role="list" class="grid max-w-2xl grid-cols-1 mx-auto mt-20 gap-x-6 gap-y-20 sm:grid-cols-2 lg:max-w-4xl lg:gap-x-8 xl:max-w-none">
-					<li class="flex flex-col gap-6 xl:flex-row">
-						<img class="aspect-[4/5] w-52 flex-none rounded-2xl object-cover" src="/static/images/kb.jpg" alt="">
-						<div class="flex-auto">
-							<h3 class="text-lg font-semibold leading-8 tracking-tight text-gray-900">Klaus Breyer</h3>
-							<p class="text-base leading-7 text-gray-600">Technology</p>
-							<p class="mt-6 text-base leading-7 text-gray-600">Klaus is your go-to guy for shaking up the tech scene, a seasoned wizard known for blending skill and charisma in his roles as CTO and CTPO. Since his first venture in 2010, he's been redefining collaboration between designers and developers, with his Shape Up revelation advocating for the synergy of small teams, fixed time, and variable scope.</p>
-							<ul role="list" class="flex mt-6 gap-x-6">
-								<li>
-									<a target="_blank" href="https://twitter.com/klausbreyer" class="text-gray-400 hover:text-gray-500">
-										<span class="sr-only">Twitter</span>
-										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-											<path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
-										</svg>
-									</a>
-								</li>
-								<li>
-									<a target="_blank" href="https://www.linkedin.com/in/klaus-breyer/" class="text-gray-400 hover:text-gray-500">
-										<span class="sr-only">LinkedIn</span>
-										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-											<path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clip-rule="evenodd" />
-										</svg>
-									</a>
-								</li>
-							</ul>
-						</div>
+					<li class="flex flex-col gap-6">
+						<div class="flex gap-6">
+							<img class="aspect-[4/5] w-32 flex-none rounded-2xl object-cover" src="/static/images/kb.jpg" alt="Klaus Breyer">
+							<div class="flex-auto">
+								<h3 class="text-2xl font-semibold leading-8 tracking-tight text-gray-900">Klaus Breyer</h3>
+								<p class="text-base leading-7 text-gray-600">Technology</p>
 
-					</li>
-					<li class="flex flex-col gap-6 xl:flex-row">
-						<img class="aspect-[4/5] w-52 flex-none rounded-2xl object-cover" src="/static/images/ml.jpg" alt="">
-						<div class="flex-auto">
-							<h3 class="text-lg font-semibold leading-8 tracking-tight text-gray-900">Matt Lane</h3>
-							<p class="text-base leading-7 text-gray-600">Product</p>
-							<p class="mt-6 text-base leading-7 text-gray-600">Matt is a future-of-work geek who has a deep passion for elevating craftspeople into artists. Matt loves making music, writing on various topics, mountain biking, and being part of building a future where more human and natural ways of working models and tools are adopted for those in the software product development ecosystem.</p>
-							<ul role="list" class="flex mt-6 gap-x-6">
-								<li>
-									<a target="_blank" href="https://twitter.com/mattlane66" class="text-gray-400 hover:text-gray-500">
-										<span class="sr-only">Twitter</span>
-										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-											<path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
-										</svg>
-									</a>
-								</li>
-								<li>
-									<a target="_blank" href="https://www.linkedin.com/in/matthewhlane/" class="text-gray-400 hover:text-gray-500">
-										<span class="sr-only">LinkedIn</span>
-										<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-											<path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clip-rule="evenodd" />
-										</svg>
-									</a>
-								</li>
-							</ul>
+								<ul role="list" class="flex mt-2 gap-x-6">
+									<li>
+										<a target="_blank" href="https://twitter.com/klausbreyer" class="text-gray-400 hover:text-gray-500">
+											<span class="sr-only">Twitter</span>
+											<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+												<path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
+											</svg>
+										</a>
+									</li>
+									<li>
+										<a target="_blank" href="https://www.linkedin.com/in/klaus-breyer/" class="text-gray-400 hover:text-gray-500">
+											<span class="sr-only">LinkedIn</span>
+											<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+												<path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clip-rule="evenodd" />
+											</svg>
+										</a>
+									</li>
+								</ul>
+							</div>
+
+						</div>
+						<div class="">
+
+							<div class="mb-4">
+								<h2 class="mb-2 text-lg font-semibold text-gray-800">What irks you the most?</h2>
+								<p class="text-base leading-7 text-gray-600">I am most irked by the indirect bandwidth issues caused by the 'design wall' that separates designers and developers in tech projects.</p>
+							</div>
+
+							<div class="mb-4">
+								<h2 class="mb-2 text-lg font-semibold text-gray-800">What do you love about work?</h2>
+								<p class="text-base leading-7 text-gray-600">I find joy in bringing together small, focused teams who have the flexibility to figure out the work and create with precision and purpose.</p>
+							</div>
+
+							<div>
+								<h2 class="mb-2 text-lg font-semibold text-gray-800">Wishes for Product Teams</h2>
+								<p class="text-base leading-7 text-gray-600">More adoption of the principles behind the Shape Up methodology, emphasizing the importance of small teams, fixed time frames with variable scopes, and more designers capable of implementing their designs into code.</p>
+							</div>
 						</div>
 					</li>
+					<li class="flex flex-col gap-6">
+						<div class="flex gap-6">
+							<img class="aspect-[4/5] w-32 flex-none rounded-2xl object-cover" src="/static/images/ml.jpg" alt="Matt Lane">
+							<div class="flex-auto">
+								<h3 class="text-2xl font-semibold leading-8 tracking-tight text-gray-900">Matt Lane</h3>
+								<p class="text-base leading-7 text-gray-600">Product</p>
 
-					<!-- More people... -->
+								<ul role="list" class="flex mt-2 gap-x-6">
+									<li>
+										<a target="_blank" href="https://twitter.com/mattlane66" class="text-gray-400 hover:text-gray-500">
+											<span class="sr-only">Twitter</span>
+											<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+												<path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
+											</svg>
+										</a>
+									</li>
+									<li>
+										<a target="_blank" href="https://www.linkedin.com/in/matthewhlane/" class="text-gray-400 hover:text-gray-500">
+											<span class="sr-only">LinkedIn</span>
+											<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+												<path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clip-rule="evenodd" />
+											</svg>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="">
+							<div class="">
+
+								<div class="mb-4">
+									<h2 class="mb-2 text-lg font-semibold text-gray-800">What irks you the most?</h2>
+									<p class="text-base leading-7 text-gray-600">I am most irked when people plan too far into the future, neglecting the essential tasks of product positioning to create focus and direction and developing multiple strategic paths to do things that build on other things.</p>
+								</div>
+
+								<div class="mb-4">
+									<h2 class="mb-2 text-lg font-semibold text-gray-800">What do you love about work?</h2>
+									<p class="text-base leading-7 text-gray-600">I love doing the work—listening to customers and shaping step-by-step adaptations of concepts at the right levels of abstraction.</p>
+								</div>
+
+								<div>
+									<h2 class="mb-2 text-lg font-semibold text-gray-800">Wishes for Product Teams</h2>
+									<p class="text-base leading-7 text-gray-600">I would like to see teams having more conviction and trust their intuition, and get better at contextual async communication.</p>
+								</div>
+							</div>
+
+					</li>
+
 				</ul>
 			</div>
 		</div>
