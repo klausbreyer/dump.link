@@ -41,7 +41,7 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodGet, "/api/v1/ws/:projectId", app.adaptHandler(app.apiHandleWebSocket))
 
-	standard := alice.New(app.recoverPanic, app.enableCORS, app.logRequest, app.measureResponseTime, secureHeaders)
+	standard := alice.New(BugsnagMiddleware, app.recoverPanic, app.enableCORS, app.logRequest, app.measureResponseTime, secureHeaders)
 
 	return standard.Then(router)
 }
