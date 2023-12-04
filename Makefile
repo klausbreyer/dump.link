@@ -29,9 +29,13 @@ reset:
 load:
 	for file in ./pscale-dump/*.sql; do mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" < "$$file"; done
 
-dump:
+prod:
 	rm -rf pscale-dump;
 	pscale database dump dumplink main --output pscale-dump
+
+kitchen:
+	rm -rf pscale-dump;
+	pscale database dump dumplink kitchen --output pscale-dump
 
 db:
 	make reset
