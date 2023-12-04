@@ -10,6 +10,7 @@ import (
 )
 
 func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -60,9 +61,16 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionSetInitialState))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -122,9 +130,16 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateProject, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
+
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	var input struct {
 		Name           string `json:"name"`
 		Appetite       int    `json:"appetite"`
@@ -175,9 +190,16 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionCreateProject))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -200,4 +222,10 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	senderToken := app.extractTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetLayersForAllBuckets, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
+
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetLayersForAllBuckets))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }

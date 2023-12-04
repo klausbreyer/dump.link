@@ -23,11 +23,13 @@ type wsClient struct {
 type application struct {
 	templatesFS embed.FS
 
-	logger       *slog.Logger
-	buckets      *models.BucketModel
-	tasks        *models.TaskModel
-	projects     *models.ProjectModel
-	dependencies *models.DependencyModel
+	logger           *slog.Logger
+	buckets          *models.BucketModel
+	tasks            *models.TaskModel
+	projects         *models.ProjectModel
+	dependencies     *models.DependencyModel
+	actions          *models.LogActionModel
+	logSubscriptions *models.LogSubscriptionModel
 
 	clients map[string]map[*wsClient]bool // Map projectId to Clients
 	mutex   sync.Mutex
@@ -51,10 +53,12 @@ func Run(templatesFS embed.FS) error {
 		templatesFS: templatesFS,
 		logger:      logger,
 
-		buckets:      &models.BucketModel{DB: db},
-		tasks:        &models.TaskModel{DB: db},
-		projects:     &models.ProjectModel{DB: db},
-		dependencies: &models.DependencyModel{DB: db},
+		buckets:          &models.BucketModel{DB: db},
+		tasks:            &models.TaskModel{DB: db},
+		projects:         &models.ProjectModel{DB: db},
+		dependencies:     &models.DependencyModel{DB: db},
+		actions:          &models.LogActionModel{DB: db},
+		logSubscriptions: &models.LogSubscriptionModel{DB: db},
 
 		clients: make(map[string]map[*wsClient]bool),
 	}

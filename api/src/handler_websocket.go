@@ -12,7 +12,6 @@ import (
 type ActionType string
 
 const (
-	// ActionSetInitialState        ActionType = "SET_INITIAL_STATE"
 	ActionAddTask                  ActionType = "ADD_TASK"
 	ActionUpdateBucket             ActionType = "UPDATE_BUCKET"
 	ActionUpdateProject            ActionType = "UPDATE_PROJECT"
@@ -22,6 +21,12 @@ const (
 	ActionAddBucketDependency      ActionType = "ADD_BUCKET_DEPENDENCY"
 	ActionRemoveBucketDependency   ActionType = "REMOVE_BUCKET_DEPENDENCY"
 	ActionDeleteTask               ActionType = "DELETE_TASK"
+
+	//not for websocket
+	ActionSetInitialState ActionType = "SET_INITIAL_STATE"
+
+	// only in the backend.
+	ActionCreateProject ActionType = "CREATE_PROJECT"
 )
 
 type wsEnvelope struct {
@@ -80,6 +85,7 @@ func (app *application) WebSocketHandler(conn *websocket.Conn, token string, pro
 	app.mutex.Unlock()
 
 	app.logger.Info(fmt.Sprintf("New WebSocket client registered for project: %s", projectId))
+	app.logClientCount(projectId)
 
 	defer func() {
 		app.mutex.Lock()
@@ -90,6 +96,8 @@ func (app *application) WebSocketHandler(conn *websocket.Conn, token string, pro
 		app.mutex.Unlock()
 		conn.Close()
 		app.logger.Info(fmt.Sprintf("WebSocket client disconnected from project: %s", projectId))
+
+		app.logClientCount(projectId)
 	}()
 
 	for {
@@ -147,5 +155,18 @@ func (app *application) sendActionDataToProjectClients(projectId string, senderT
 				delete(app.clients[projectId], client)
 			}
 		}
+	}
+}
+
+func (app *application) logClientCount(projectId string) {
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+
+	count := len(app.clients[projectId])
+
+	app.logger.Info(fmt.Sprintf("Number of WebSocket clients for project '%s': %d", projectId, count))
+	err := app.logSubscriptions.Insert(projectId, count)
+	if err != nil {
+		app.logger.Info(fmt.Sprintf("Error logging WebSocket client count: %v", err))
 	}
 }
