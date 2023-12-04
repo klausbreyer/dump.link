@@ -62,7 +62,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.actions.Log(projectId, nil, nil, startTime, string(ActionSetInitialState))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionSetInitialState))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -131,7 +131,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateProject, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Log(projectId, nil, nil, startTime, string(ActionUpdateProject))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -191,7 +191,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = app.actions.Log(projectId, nil, nil, startTime, string(ActionCreateProject))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionCreateProject))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -223,7 +223,7 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetLayersForAllBuckets, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Log(projectId, nil, nil, startTime, string(ActionResetLayersForAllBuckets))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetLayersForAllBuckets))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

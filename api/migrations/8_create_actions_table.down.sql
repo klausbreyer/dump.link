@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS `actions`;
+DROP TABLE IF EXISTS `log_actions`;

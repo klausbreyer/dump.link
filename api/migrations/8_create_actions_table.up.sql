@@ -1,4 +1,4 @@
-CREATE TABLE `actions` (
+CREATE TABLE `log_actions` (
 	`project_id` VARCHAR(11) NOT NULL,
 	`bucket_id` VARCHAR(22) NULL,
 	`task_id` VARCHAR(22) NULL,

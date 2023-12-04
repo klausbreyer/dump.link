@@ -56,7 +56,7 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddTask, data)
 
 	app.writeJSON(w, http.StatusCreated, data, nil)
-	app.actions.Log(projectId, nil, &task.ID, startTime, string(ActionAddTask))
+	app.actions.Insert(projectId, nil, &task.ID, startTime, string(ActionAddTask))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -93,7 +93,7 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionDeleteTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	app.actions.Log(projectId, nil, &taskId, startTime, string(ActionDeleteTask))
+	app.actions.Insert(projectId, nil, &taskId, startTime, string(ActionDeleteTask))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -172,7 +172,7 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Log(projectId, nil, &taskId, startTime, string(ActionUpdateTask))
+	err = app.actions.Insert(projectId, nil, &taskId, startTime, string(ActionUpdateTask))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

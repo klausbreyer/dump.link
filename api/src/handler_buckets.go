@@ -68,7 +68,7 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateBucket, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Log(projectId, &bucketId, nil, startTime, string(ActionUpdateBucket))
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionUpdateBucket))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

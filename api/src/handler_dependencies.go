@@ -59,7 +59,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddBucketDependency, data)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 
-	err = app.actions.Log(projectId, input.BucketID, nil, startTime, string(ActionAddBucketDependency))
+	err = app.actions.Insert(projectId, input.BucketID, nil, startTime, string(ActionAddBucketDependency))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -103,7 +103,7 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionRemoveBucketDependency, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Log(projectId, &bucketId, nil, startTime, string(ActionRemoveBucketDependency))
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionRemoveBucketDependency))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
