@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bugsnag/bugsnag-go/v2"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -69,7 +68,6 @@ func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (app *application) RootGet(w http.ResponseWriter, r *http.Request) {
-	bugsnag.Notify(fmt.Errorf("Test error"))
 	htmlTemplatePath := "templates/index.html"
 
 	htmlContent, err := app.templatesFS.ReadFile(htmlTemplatePath)

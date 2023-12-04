@@ -4,7 +4,9 @@ import { createRoot } from "react-dom/client";
 
 import BugsnagPerformance from "@bugsnag/browser-performance";
 import Bugsnag from "@bugsnag/js";
-import BugsnagPluginReact from "@bugsnag/plugin-react";
+import BugsnagPluginReact, {
+  BugsnagPluginReactResult,
+} from "@bugsnag/plugin-react";
 
 import Arrange from "./Arrange";
 import Group from "./Group";
@@ -24,6 +26,7 @@ import {
 import "../public/styles.css";
 import React from "react";
 
+// Initialize Bugsnag
 Bugsnag.start({
   apiKey: "dfa678c21426fc846674ce32690760ff",
   plugins: [new BugsnagPluginReact()],
@@ -32,7 +35,24 @@ Bugsnag.start({
   ],
 });
 BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
-const ErrorBoundary = Bugsnag.getPlugin("react").createErrorBoundary(React);
+
+interface DefaultErrorBoundaryProps {
+  children?: React.ReactNode;
+}
+
+// Default Error Boundary as a fallback
+const DefaultErrorBoundary: React.FC<DefaultErrorBoundaryProps> = ({
+  children,
+}) => {
+  return <>{children}</>;
+};
+
+// Define ErrorBoundary using Bugsnag's React plugin
+const reactPlugin = Bugsnag.getPlugin("react") as
+  | BugsnagPluginReactResult
+  | undefined;
+const ErrorBoundary =
+  reactPlugin?.createErrorBoundary(React) || DefaultErrorBoundary; // Fallback to a default error boundary
 
 const App = function App() {
   return (
@@ -51,7 +71,6 @@ const App = function App() {
 };
 
 const Main = function Main() {
-  Bugsnag.notify(new Error("Test error"));
   const { lifecycle } = useLifecycle();
   const currentQueryParam = useQueryParamChange("p");
 
