@@ -21,7 +21,7 @@ func main() {
 	}
 
 	bugsnag.Configure(bugsnag.Configuration{
-		APIKey:       os.Getenv("BUGSNAG_API_KEY"),
+		APIKey:       "3d11e08cb78e5bfb37ab3df68a96bffe",
 		ReleaseStage: releaseStage,
 		// The import paths for the Go packages containing your source files
 		ProjectPackages: []string{"main", "github.com/org/myapp"},

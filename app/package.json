@@ -22,6 +22,9 @@
     "buildtsx": "rm -rf .parcel-cache && rm -rf dist && parcel build src/index.tsx --public-url '.' --reporter @parcel/reporter-bundle-analyzer"
   },
   "dependencies": {
+    "@bugsnag/browser-performance": "^2.0.0",
+    "@bugsnag/js": "^7.22.2",
+    "@bugsnag/plugin-react": "^7.19.0",
     "@headlessui/react": "1.7.17",
     "@heroicons/react": "2.0.18",
     "react": "18.2.0",

@@ -2,6 +2,10 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { createRoot } from "react-dom/client";
 
+import BugsnagPerformance from "@bugsnag/browser-performance";
+import Bugsnag from "@bugsnag/js";
+import BugsnagPluginReact from "@bugsnag/plugin-react";
+
 import Arrange from "./Arrange";
 import Group from "./Group";
 import Header from "./Header";
@@ -11,29 +15,43 @@ import { DataProvider } from "./context/data";
 import { GlobalDraggingProvider } from "./context/dragging";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
-
-import "../public/styles.css";
 import {
   LifecycleProvider,
   LifecycleState,
   useLifecycle,
 } from "./context/lifecycle";
 
+import "../public/styles.css";
+import React from "react";
+
+Bugsnag.start({
+  apiKey: "dfa678c21426fc846674ce32690760ff",
+  plugins: [new BugsnagPluginReact()],
+  enabledReleaseStages: [
+    process.env.NODE_ENV === "production" ? "production" : "development",
+  ],
+});
+BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
+const ErrorBoundary = Bugsnag.getPlugin("react").createErrorBoundary(React);
+
 const App = function App() {
   return (
-    <LifecycleProvider>
-      <GlobalDraggingProvider>
-        <DataProvider>
-          <DndProvider backend={HTML5Backend}>
-            <Main />
-          </DndProvider>
-        </DataProvider>
-      </GlobalDraggingProvider>
-    </LifecycleProvider>
+    <ErrorBoundary>
+      <LifecycleProvider>
+        <GlobalDraggingProvider>
+          <DataProvider>
+            <DndProvider backend={HTML5Backend}>
+              <Main />
+            </DndProvider>
+          </DataProvider>
+        </GlobalDraggingProvider>
+      </LifecycleProvider>
+    </ErrorBoundary>
   );
 };
 
 const Main = function Main() {
+  Bugsnag.notify(new Error("Test error"));
   const { lifecycle } = useLifecycle();
   const currentQueryParam = useQueryParamChange("p");
 
