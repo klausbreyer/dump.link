@@ -2,6 +2,12 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { createRoot } from "react-dom/client";
 
+import BugsnagPerformance from "@bugsnag/browser-performance";
+import Bugsnag from "@bugsnag/js";
+import BugsnagPluginReact, {
+  BugsnagPluginReactResult,
+} from "@bugsnag/plugin-react";
+
 import Arrange from "./Arrange";
 import Group from "./Group";
 import Header from "./Header";
@@ -11,25 +17,56 @@ import { DataProvider } from "./context/data";
 import { GlobalDraggingProvider } from "./context/dragging";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
-
-import "../public/styles.css";
 import {
   LifecycleProvider,
   LifecycleState,
   useLifecycle,
 } from "./context/lifecycle";
 
+import "../public/styles.css";
+import React from "react";
+
+// Initialize Bugsnag
+Bugsnag.start({
+  apiKey: "dfa678c21426fc846674ce32690760ff",
+  plugins: [new BugsnagPluginReact()],
+  enabledReleaseStages: [
+    process.env.NODE_ENV === "production" ? "production" : "development",
+  ],
+});
+BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
+
+interface DefaultErrorBoundaryProps {
+  children?: React.ReactNode;
+}
+
+// Default Error Boundary as a fallback
+const DefaultErrorBoundary: React.FC<DefaultErrorBoundaryProps> = ({
+  children,
+}) => {
+  return <>{children}</>;
+};
+
+// Define ErrorBoundary using Bugsnag's React plugin
+const reactPlugin = Bugsnag.getPlugin("react") as
+  | BugsnagPluginReactResult
+  | undefined;
+const ErrorBoundary =
+  reactPlugin?.createErrorBoundary(React) || DefaultErrorBoundary; // Fallback to a default error boundary
+
 const App = function App() {
   return (
-    <LifecycleProvider>
-      <GlobalDraggingProvider>
-        <DataProvider>
-          <DndProvider backend={HTML5Backend}>
-            <Main />
-          </DndProvider>
-        </DataProvider>
-      </GlobalDraggingProvider>
-    </LifecycleProvider>
+    <ErrorBoundary>
+      <LifecycleProvider>
+        <GlobalDraggingProvider>
+          <DataProvider>
+            <DndProvider backend={HTML5Backend}>
+              <Main />
+            </DndProvider>
+          </DataProvider>
+        </GlobalDraggingProvider>
+      </LifecycleProvider>
+    </ErrorBoundary>
   );
 };
 

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/bugsnag/bugsnag-go/v2"
 )
 
 func (app *application) logRequest(next http.Handler) http.Handler {
@@ -84,5 +86,13 @@ func (app *application) measureResponseTime(next http.Handler) http.Handler {
 
 		duration := time.Since(start)
 		app.logger.Info("request processed", "duration", duration)
+	})
+}
+func BugsnagMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Hier können Sie zusätzliche Logik hinzufügen, die vor oder nach der Anfrage ausgeführt werden soll
+
+		// Bugsnag-Handler aufrufen, der die Anfrage bearbeitet und Fehler an Bugsnag meldet
+		bugsnag.Handler(next).ServeHTTP(w, r)
 	})
 }
