@@ -85,6 +85,7 @@ func (app *application) WebSocketHandler(conn *websocket.Conn, token string, pro
 	app.mutex.Unlock()
 
 	app.logger.Info(fmt.Sprintf("New WebSocket client registered for project: %s", projectId))
+	app.logClientCount(projectId)
 
 	defer func() {
 		app.mutex.Lock()
@@ -95,6 +96,8 @@ func (app *application) WebSocketHandler(conn *websocket.Conn, token string, pro
 		app.mutex.Unlock()
 		conn.Close()
 		app.logger.Info(fmt.Sprintf("WebSocket client disconnected from project: %s", projectId))
+
+		app.logClientCount(projectId)
 	}()
 
 	for {
@@ -152,5 +155,18 @@ func (app *application) sendActionDataToProjectClients(projectId string, senderT
 				delete(app.clients[projectId], client)
 			}
 		}
+	}
+}
+
+func (app *application) logClientCount(projectId string) {
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+
+	count := len(app.clients[projectId])
+
+	app.logger.Info(fmt.Sprintf("Number of WebSocket clients for project '%s': %d", projectId, count))
+	err := app.logSubscriptions.Insert(projectId, count)
+	if err != nil {
+		app.logger.Info(fmt.Sprintf("Error logging WebSocket client count: %v", err))
 	}
 }
