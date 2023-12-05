@@ -6,4 +6,4 @@ CREATE TABLE `log_actions` (
 	/* in ms */
 	`duration` INT NOT NULL,
 	`created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3;
+) ENGINE = InnoDB CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;

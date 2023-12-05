@@ -6,4 +6,4 @@ CREATE TABLE `projects` (
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `appetite` INT NOT NULL,
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb3;
+) ENGINE = InnoDB CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;

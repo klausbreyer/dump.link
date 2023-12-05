@@ -1,1 +1,1 @@
-DROP VIEW IF EXISTS `view_subscribers_daily`;
+DROP VIEW IF EXISTS `view_subscriptions_daily`;
