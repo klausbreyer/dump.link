@@ -42,11 +42,15 @@ const createApiFunctions = () => {
     try {
       const response = await fetch(fullUrl, fetchOptions);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(
+          `${response.status} ${
+            response.statusText
+          } ${method} ${fullUrl} -> ${await response.text()}`,
+        );
       }
       return await response.json();
     } catch (error) {
-      console.error(`Error during API call to ${url}:`, error);
+      console.error(error);
       throw error;
     }
   };

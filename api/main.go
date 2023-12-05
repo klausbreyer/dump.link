@@ -15,10 +15,11 @@ var templatesFS embed.FS
 func main() {
 	releaseStage := "localhost:8080"
 
-	env := os.Getenv("ENV")
-	if env == "" {
+	if env := os.Getenv("ENV"); env != "" {
 		releaseStage = env
 	}
+
+	fmt.Println("releaseStage:", releaseStage)
 	bugsnag.Configure(bugsnag.Configuration{
 		APIKey:       "3d11e08cb78e5bfb37ab3df68a96bffe",
 		ReleaseStage: releaseStage,

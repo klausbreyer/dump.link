@@ -11,7 +11,6 @@ interface GroupProps {}
 
 const Group: React.FC<GroupProps> = (props) => {
   const { getBuckets } = useData();
-
   const buckets = getBuckets();
   const others = getOtherBuckets(buckets);
   const dump = getDumpBucket(buckets);

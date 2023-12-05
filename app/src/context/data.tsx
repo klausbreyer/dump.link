@@ -13,6 +13,7 @@ import {
   TaskUpdates,
 } from "../types";
 
+import { apiFunctions } from "./calls";
 import {
   NewID,
   PRIORITY_INCREMENT,
@@ -22,10 +23,9 @@ import {
 } from "./helper";
 import { LifecycleState, useLifecycle } from "./lifecycle";
 import { setupWebSocket } from "./websocket";
-import { apiFunctions } from "./calls";
-import Bugsnag from "@bugsnag/js";
+import { notifyBugsnag } from "..";
 
-export const CLIENT_TOKEN = NewID(new Date().toISOString());
+export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
 
 const initialState: State = {
   buckets: [],
@@ -239,6 +239,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
         }
       } catch (error) {
+        notifyBugsnag(error);
         setLifecycle(LifecycleState.ErrorApi);
       }
     };
@@ -269,12 +270,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.postTask(state.project.id, task);
       } catch (error) {
-        if (error instanceof Error) {
-          Bugsnag.notify(error);
-        } else {
-          Bugsnag.notify(new Error("Unknown error occurred"));
-        }
-        console.error(error);
+        notifyBugsnag(error);
         alert("Error while adding the task");
       }
     })();
@@ -312,12 +308,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.patchTask(state.project.id, taskId, updates);
       } catch (error) {
-        if (error instanceof Error) {
-          Bugsnag.notify(error);
-        } else {
-          Bugsnag.notify(new Error("Unknown error occurred"));
-        }
-        console.error(error);
+        notifyBugsnag(error);
         alert("Error while updating the task");
       }
     })();
@@ -333,12 +324,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.deleteTask(state.project.id, taskId);
       } catch (error) {
-        if (error instanceof Error) {
-          Bugsnag.notify(error);
-        } else {
-          Bugsnag.notify(new Error("Unknown error occurred"));
-        }
-        console.error(error);
+        notifyBugsnag(error);
         alert("Error while deleting the task");
       }
     })();
@@ -355,12 +341,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.patchBucket(state.project.id, bucketId, updates);
       } catch (error) {
-        if (error instanceof Error) {
-          Bugsnag.notify(error);
-        } else {
-          Bugsnag.notify(new Error("Unknown error occurred"));
-        }
-        console.error(error);
+        notifyBugsnag(error);
         alert("Error while updating the bucket");
       }
     })();
@@ -375,12 +356,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.postProjectResetLayers(state.project.id);
       } catch (error) {
-        if (error instanceof Error) {
-          Bugsnag.notify(error);
-        } else {
-          Bugsnag.notify(new Error("Unknown error occurred"));
-        }
-        console.error(error);
+        notifyBugsnag(error);
         alert("Error while resetting layers for all buckets");
       }
     })();
@@ -400,13 +376,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.patchProject(state.project.id, updates);
       } catch (error) {
-        console.error(error);
-        if (error instanceof Error) {
-          Bugsnag.notify(error);
-        } else {
-          Bugsnag.notify(new Error("Unknown error occurred"));
-        }
-        console.error(error);
+        notifyBugsnag(error);
         alert("Error while updating the project");
       }
     })();
@@ -433,12 +403,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           dependencyId,
         );
       } catch (error) {
-        if (error instanceof Error) {
-          Bugsnag.notify(error);
-        } else {
-          Bugsnag.notify(new Error("Unknown error occurred"));
-        }
-        console.error(error);
+        notifyBugsnag(error);
         alert("Error while adding bucket dependency");
       }
     })();
@@ -462,12 +427,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           dependencyId,
         );
       } catch (error) {
-        if (error instanceof Error) {
-          Bugsnag.notify(error);
-        } else {
-          Bugsnag.notify(new Error("Unknown error occurred"));
-        }
-        console.error(error);
+        notifyBugsnag(error);
         alert("Error while removing bucket dependency");
       }
     })();
