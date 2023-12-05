@@ -9,6 +9,18 @@ import { Bucket } from "./types";
 
 export interface HeaderProjectProps {}
 
+function determineIconColor(): string {
+  const hostname = window.location.hostname;
+
+  if (hostname === "localhost") {
+    return "text-rose-700";
+  } else if (hostname === "kitchen.dump.link") {
+    return "text-teal-700";
+  } else {
+    return "text-slate-700";
+  }
+}
+
 export function currentUrl() {
   const { protocol, hostname, port, pathname } = window.location;
 
@@ -38,7 +50,7 @@ const HeaderProject: React.FC<HeaderProjectProps> = (props) => {
     <>
       <div className="flex flex-row items-center h-full gap-2 ">
         <a href="/" title="dump.link" target="_blank">
-          <DumplinkIcon className="w-10 h-10 text-slate-700" />
+          <DumplinkIcon className={`w-10 h-10 ${determineIconColor()}`} />
         </a>
         <div className="grid w-full gap-x-4">
           <div className="flex items-center gap-4">
