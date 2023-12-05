@@ -14,11 +14,11 @@ import { ISOToDate, dateToISO } from "./helper";
 
 const createApiFunctions = () => {
   const baseUrl = new URL(
-    process.env.NODE_ENV === "production"
+    process.env.NODE_ENV === "production" &&
+    window.location.hostname !== "localhost"
       ? `${window.location.origin}/api/v1`
       : "http://localhost:8080/api/v1",
   );
-
   const apiCall = async ({
     url = "",
     method = "GET",

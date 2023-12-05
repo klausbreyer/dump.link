@@ -13,10 +13,10 @@ test:
 
 frontend:
 	cd app && bun install && bun run build
+	sh lifting.sh
 
 fly:
 	make frontend
-	sh lifting.sh
 	cd api && fly deploy
 
 # https://github.com/golang-migrate/migrate
