@@ -43,8 +43,10 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 		<link href="/%s" rel="stylesheet">
 	</head>
 	<body>
-
-		<div id="app" class=""></div>
+		<div class="flex items-center justify-center w-screen h-screen text-center lg:hidden">
+			This site is not optimized for mobile. Please use a desktop browser.
+		</div>
+		<div id="app" class="hidden lg:block"></div>
 		<script src="/%s" type="module"></script>
 	</body>
 	</html>
