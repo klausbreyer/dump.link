@@ -16,7 +16,6 @@ const (
 	ActionUpdateBucket             ActionType = "UPDATE_BUCKET"
 	ActionUpdateProject            ActionType = "UPDATE_PROJECT"
 	ActionResetLayersForAllBuckets ActionType = "RESET_LAYERS_FOR_ALL_BUCKETS"
-	ActionChangeTaskState          ActionType = "CHANGE_TASK_STATE"
 	ActionUpdateTask               ActionType = "UPDATE_TASK"
 	ActionAddBucketDependency      ActionType = "ADD_BUCKET_DEPENDENCY"
 	ActionRemoveBucketDependency   ActionType = "REMOVE_BUCKET_DEPENDENCY"
