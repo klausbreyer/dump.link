@@ -7,7 +7,7 @@ import (
 	"github.com/justinas/alice"
 )
 
-var allowedOrigins = []string{"http://localhost:1234", "https://kitchen.dump.link", "https://dump.link"}
+var allowedOrigins = []string{"http://localhost:1234", "http://localhost:8080", "https://kitchen.dump.link", "https://dump.link"}
 
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
