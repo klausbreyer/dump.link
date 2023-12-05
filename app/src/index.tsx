@@ -30,9 +30,8 @@ import React from "react";
 Bugsnag.start({
   apiKey: "dfa678c21426fc846674ce32690760ff",
   plugins: [new BugsnagPluginReact()],
-  enabledReleaseStages: [
-    process.env.NODE_ENV === "production" ? "production" : "development",
-  ],
+  releaseStage: window.location.host,
+  enabledReleaseStages: [window.location.host],
 });
 BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
 
@@ -53,6 +52,14 @@ const reactPlugin = Bugsnag.getPlugin("react") as
   | undefined;
 const ErrorBoundary =
   reactPlugin?.createErrorBoundary(React) || DefaultErrorBoundary; // Fallback to a default error boundary
+
+export function notifyBugsnag(error: unknown): void {
+  if (error instanceof Error) {
+    Bugsnag.notify(error);
+  } else {
+    Bugsnag.notify(new Error("Unknown error occurred"));
+  }
+}
 
 const App = function App() {
   return (
@@ -81,7 +88,7 @@ const Main = function Main() {
   }
 
   if (lifecycle === LifecycleState.Error) {
-    return <Error lifecycle={lifecycle} />;
+    return <ErrorState lifecycle={lifecycle} />;
   }
 
   const renderComponentBasedOnQueryParam = () => {
@@ -116,11 +123,11 @@ const Loading = function Loading() {
   );
 };
 
-type ErrorProps = {
+type ErrorStateProps = {
   lifecycle: LifecycleState;
 };
 
-const Error = function Error(props: ErrorProps) {
+function ErrorState(props: ErrorStateProps) {
   const { lifecycle } = props;
 
   let error = "";
@@ -138,7 +145,7 @@ const Error = function Error(props: ErrorProps) {
       <div className="text-rose-500">{error}</div>
     </div>
   );
-};
+}
 
 const container = document.getElementById("app");
 const root = createRoot(container!);
