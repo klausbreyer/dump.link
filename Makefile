@@ -11,8 +11,11 @@ start:
 test:
 	cd api && make test
 
-fly:
+frontend:
 	cd app && bun install && bun run build
+
+fly:
+	make frontend
 	sh lifting.sh
 	cd api && fly deploy
 

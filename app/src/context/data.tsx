@@ -229,26 +229,30 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(dataReducer, initialState);
   const { setLifecycle } = useLifecycle();
 
-  useEffect(() => {
-    const loadInitialState = async () => {
-      const projectId = extractIdFromUrl();
-      try {
-        const initialState = await apiFunctions.getProject(projectId);
-        saveProjectIdToLocalStorage(projectId, initialState.project.name);
-        if (initialState) {
-          dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
-        }
-      } catch (error) {
-        notifyBugsnag(error);
-        setLifecycle(LifecycleState.ErrorApi);
+  const loadInitialState = async () => {
+    const projectId = extractIdFromUrl();
+    try {
+      const initialState = await apiFunctions.getProject(projectId);
+      saveProjectIdToLocalStorage(projectId, initialState.project.name);
+      if (initialState) {
+        dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
       }
-    };
+    } catch (error) {
+      notifyBugsnag(error);
+      setLifecycle(LifecycleState.ErrorApi);
+    }
+  };
 
+  useEffect(() => {
     loadInitialState();
   }, []);
 
   useEffect(() => {
-    const wsCleanup = setupWebSocket(state.project.id, dispatch);
+    const wsCleanup = setupWebSocket(
+      state.project.id,
+      dispatch,
+      loadInitialState,
+    );
 
     return () => {
       if (wsCleanup) wsCleanup();
