@@ -3,11 +3,16 @@ import { ActionType, CLIENT_TOKEN } from "./data";
 import { ISOToDate } from "./helper";
 
 type DispatchType = Dispatch<ActionType>;
-export const setupWebSocket = (projectId: string, dispatch: DispatchType) => {
+export const setupWebSocket = (
+  projectId: string,
+  dispatch: DispatchType,
+  onReconnect: () => void,
+) => {
   if (!projectId) return;
 
   let ws: WebSocket | null = null;
   let retries = 0;
+  let hasAttemptedReconnect = false;
   const maxRetries = 5;
 
   const connectWebSocket = () => {
@@ -19,22 +24,26 @@ export const setupWebSocket = (projectId: string, dispatch: DispatchType) => {
     wsURL.searchParams.append("token", CLIENT_TOKEN);
     ws = new WebSocket(wsURL.href);
 
-    ws.onopen = () => {
-      retries = 0;
-    };
-
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
       handleWebSocketMessage(message, dispatch);
+    };
+
+    ws.onopen = () => {
+      if (hasAttemptedReconnect) {
+        onReconnect();
+        hasAttemptedReconnect = false;
+      }
+      retries = 0;
     };
 
     ws.onclose = (e) => {
       if (retries < maxRetries) {
         setTimeout(connectWebSocket, Math.pow(2, retries) * 1000);
         retries++;
+        hasAttemptedReconnect = true;
       }
     };
-
     ws.onerror = (err) => {
       console.error("WebSocket error:", err);
       ws?.close();
