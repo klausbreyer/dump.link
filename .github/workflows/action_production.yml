@@ -54,6 +54,17 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
+  migrate-database:
+    name: Migrate Database
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout ist erforderlich, um auf das Repository zuzugreifen
+      - uses: actions/checkout@v3
+
+      # Hier können Sie erforderliche Setup-Schritte hinzufügen
+
       # Migrate the database
       - name: Migrate Database
         uses: vovavc/migrate-github-action@v0.2.1
