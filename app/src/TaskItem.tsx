@@ -2,14 +2,16 @@ import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import React, {
   ChangeEvent,
   KeyboardEvent,
-  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
-import { getInputBorderColor } from "./common/colors";
+import {
+  getBucketBackgroundColorTop,
+  getInputBorderColor,
+} from "./common/colors";
 import { isSafari } from "./common/helper";
 import config from "./config";
 import { useData } from "./context/data";
@@ -180,18 +182,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     setVal(newValue);
   };
 
-  function handleFocus() {
-    // Little hack to allow for dragging and positioning mouse cursor inside the textarea.
-    setTimeout(() => {
-      setIsTextAreaFocused(true);
-    }, 100);
-  }
-
   function handleBlur() {
     setIsClicked(false);
-    setTimeout(() => {
-      setIsTextAreaFocused(false);
-    }, 200);
 
     // For an existing task
     if (task && val !== task.title) {
@@ -252,18 +244,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true;
 
-  const showCounter =
-    isTextAreaFocused &&
-    textAreaRef.current &&
-    textAreaRef.current.scrollHeight > 30;
-  const showDelete = isTextAreaFocused && task;
-
   const bucketTask = task && !bucket.dump;
-  const bg = bucketTask
+  const borderColor = bucketTask
     ? task?.closed
       ? "border-yellow-300"
       : "border-orange-300"
     : getInputBorderColor(bucket);
+
+  const bgColor = getBucketBackgroundColorTop(bucket, tasksForbucket);
 
   const localPriority =
     temporaryPriority.taskId === task?.id
@@ -302,18 +290,20 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           {task && (
             <div
               onClick={() => handleClick()}
-              className={`w-full px-1 rounded-sm shadow-md
-            border-b-2 hover:bg-slate-200 absolute z-10
-            bg-slate-100 group
+              className={`w-full px-1 rounded-sm
+            border-b-2 hover:bg-slate-50 absolute z-10
+             group shadow-md
              ${activeTask && "cursor-move"}
+             ${!activeTask && "cursor-pointer"}
              ${isClicked && "hidden"}
-             ${bg}
+             ${borderColor}
+             bg-slate-100
              `}
             >
               {val}
               <XMarkIcon
                 onClick={() => handleDelete()}
-                className={`group-hover:block hidden absolute w-5 h-5 cursor-pointer text-slate-800 top-0.5 right-1 bg-slate-100 hover:bg-slate-300 rounded-full`}
+                className={`group-hover:block hidden absolute w-6 h-6 cursor-pointer text-slate-800 top-0 right-1 bg-slate-200 hover:bg-slate-300 p-0.5 rounded-full`}
               />
             </div>
           )}
@@ -322,32 +312,28 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             <textarea
               data-enable-grammarly="false"
               className={`top-0 left-0 resize-none w-full px-1 rounded-sm shadow-md relative
-            border-b-2 select-text overflow-hidden
-
+             select-text overflow-hidden
             ${
               val.length >= config.TASK_MAX_LENGTH
                 ? "focus:outline outline-2 outline-rose-500"
                 : "focus:outline outline-2 outline-indigo-500"
             }
-            ${bg}
+            ${borderColor}
             `}
               placeholder="Add a task"
               value={val}
               onBlur={handleBlur}
-              onFocus={handleFocus}
               onKeyDown={handleKeyDown}
               onChange={handleChange}
               ref={textAreaRef}
               rows={1}
             ></textarea>
 
-            {showCounter && (
-              <div
-                className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
-              >
-                {val.length}/{config.TASK_MAX_LENGTH}
-              </div>
-            )}
+            <div
+              className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
+            >
+              {val.length}/{config.TASK_MAX_LENGTH}
+            </div>
           </div>
         </div>
       </div>

@@ -22,6 +22,9 @@ export function getBucketBackgroundColorTop(
   bucket: Bucket,
   tasks: Task[],
 ): string {
+  if (bucket.dump === true) {
+    return "bg-slate-100";
+  }
   const statusToColor = {
     [BucketState.UNSOLVED]: "bg-slate-200",
     [BucketState.SOLVED]: "bg-slate-200",
