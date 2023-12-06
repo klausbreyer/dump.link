@@ -47,6 +47,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [isClicked, setIsClicked] = useState<boolean>(false);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
   usePasteListener(textAreaRef, (title: string) => {
@@ -156,6 +157,16 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     }
   }, [val]);
 
+  const handleClick = () => {
+    console.log("handleClick");
+    console.log(task, textAreaRef.current);
+
+    if (task && textAreaRef.current) {
+      setIsClicked(true);
+      textAreaRef.current.focus();
+    }
+  };
+
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newValue = e.target.value;
 
@@ -175,6 +186,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   function handleBlur() {
+    setIsClicked(false);
     setTimeout(() => {
       setIsTextAreaFocused(false);
     }, 200);
@@ -280,16 +292,35 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             <PencilSquareIcon className="w-5 h-5" />
           </div>
         )}
-
         <div
           className={`relative w-full `}
           ref={allowedToDrag ? dragRef : null}
         >
-          <textarea
-            data-enable-grammarly="false"
-            className={`resize-none w-full px-1 rounded-sm shadow-md relative
+          {task && (
+            <div
+              onClick={() => handleClick()}
+              className={`w-full px-1 rounded-sm shadow-md
+            border-b-2 hover:bg-slate-200 absolute z-10
+            bg-slate-100 group
+             ${activeTask && "cursor-move"}
+             ${isClicked && "hidden"}
+             ${bg}
+             `}
+            >
+              {val}
+              <XMarkIcon
+                onClick={() => handleDelete()}
+                className={`group-hover:block hidden absolute w-5 h-5 cursor-pointer text-slate-800 top-0.5 right-1 bg-slate-100 hover:bg-slate-300 rounded-full`}
+              />
+            </div>
+          )}
+
+          <div className={`relative w-full `}>
+            <textarea
+              data-enable-grammarly="false"
+              className={`top-0 left-0 resize-none w-full px-1 rounded-sm shadow-md relative
             border-b-2 select-text overflow-hidden
-            ${activeTask && "cursor-move"}
+
             ${
               val.length >= config.TASK_MAX_LENGTH
                 ? "focus:outline outline-2 outline-rose-500"
@@ -297,38 +328,24 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             }
             ${bg}
             `}
-            placeholder="Add a task"
-            value={val}
-            onBlur={handleBlur}
-            onFocus={handleFocus}
-            onKeyDown={handleKeyDown}
-            onChange={handleChange}
-            // disabled={task?.closed}
-            rows={1}
-            ref={textAreaRef}
-          ></textarea>
-          {process.env.NODE_ENV !== "production" && (
-            <div
-              className={`absolute text-slate-800 text-xxxs bottom-2 right-1 bg-white`}
-            >
-              ID: {task?.id} Prio:
-              {task?.priority}
-            </div>
-          )}
-          {showCounter && (
-            <div
-              className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
-            >
-              {val.length}/{config.TASK_MAX_LENGTH}
-            </div>
-          )}
+              placeholder="Add a task"
+              value={val}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
+              onKeyDown={handleKeyDown}
+              onChange={handleChange}
+              ref={textAreaRef}
+              rows={1}
+            ></textarea>
 
-          {showDelete && (
-            <XMarkIcon
-              onClick={() => handleDelete()}
-              className={`absolute w-5 h-5 cursor-pointer text-slate-800 top-0.5 right-1`}
-            />
-          )}
+            {showCounter && (
+              <div
+                className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
+              >
+                {val.length}/{config.TASK_MAX_LENGTH}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
