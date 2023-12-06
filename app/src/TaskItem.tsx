@@ -300,7 +300,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
              bg-slate-100
              `}
             >
-              {val}
+              {val.split("\n").map((line, index) => (
+                <div key={index}>{line}&nbsp;</div>
+              ))}
               <XMarkIcon
                 onClick={() => handleDelete()}
                 className={`group-hover:block hidden absolute w-6 h-6 cursor-pointer text-slate-800 top-0 right-1 bg-slate-200 hover:bg-slate-300 p-0.5 rounded-full`}
