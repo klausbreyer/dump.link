@@ -52,7 +52,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const [isClicked, setIsClicked] = useState<boolean>(false);
 
   usePasteListener(
-    textAreaRef,
+    editRef,
     task === null && val.length === 0,
     (title: string) => {
       title = title.substring(0, config.TASK_MAX_LENGTH);
@@ -219,7 +219,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         });
         setVal("");
         setTimeout(() => {
-          textAreaRef?.current?.focus();
+          editRef?.current?.focus();
         }, 100);
         return;
       }
