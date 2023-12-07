@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - main
+      - new-dragging-affordance-even-more-colors
 
 jobs:
   build-and-deploy:

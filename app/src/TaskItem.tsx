@@ -241,11 +241,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const allowedToDrag = activeTask === true;
 
   const bucketTask = task && !bucket.dump;
-  const borderColor = bucketTask
-    ? task?.closed
-      ? "border-yellow-300"
-      : "border-orange-300"
-    : getInputBorderColor(bucket);
+  const bgColor = bucket.dump
+    ? "bg-slate-100 outline-slate-400"
+    : bucketTask
+      ? task?.closed
+        ? "bg-yellow-200 outline-yellow-400"
+        : "bg-orange-200 outline-orange-400"
+      : getInputBorderColor(bucket);
+
   const textAreaClasses =
     "overflow-hidden px-1 resize-none rounded-sm shadow-md w-full";
 
@@ -290,10 +293,10 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                   spellCheck="false"
                   readOnly
                   onClick={() => handleClick()}
-                  className={`border-b-2 group-hover:bg-slate-50 absolute z-10 cursor-move bg-slate-100
-                  hover:outline outline-2 outline-slate-500
+                  className={` absolute z-10 cursor-move
+                  hover:outline outline-2
                     ${textAreaClasses}
-                    ${borderColor}
+                    ${bgColor}
                     ${activeTask && "cursor-move"}
                     ${!activeTask && "cursor-pointer"}
                     ${isClicked && "hidden"}
@@ -313,11 +316,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             <textarea
               data-enable-grammarly="false"
               spellCheck="false"
-              className={`${textAreaClasses} top-0 left-0 relative select-text ${
+              className={`top-0 left-0 relative select-text bg-white
+              ${textAreaClasses}
+              ${
                 val.length >= config.TASK_MAX_LENGTH
                   ? "focus:outline outline-2 outline-rose-500"
                   : "focus:outline outline-2 outline-indigo-500"
-              } ${borderColor}`}
+              } `}
               placeholder="Add a task"
               value={val}
               onBlur={handleBlur}
