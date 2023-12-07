@@ -8,10 +8,7 @@ import React, {
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
-import {
-  getBucketBackgroundColorTop,
-  getInputBorderColor,
-} from "./common/colors";
+import { getInputBorderColor } from "./common/colors";
 import { isSafari } from "./common/helper";
 import config from "./config";
 import { useData } from "./context/data";
@@ -48,11 +45,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
 
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const editRef = useRef<HTMLTextAreaElement>(null);
+  const showRef = useRef<HTMLTextAreaElement>(null);
   const [isClicked, setIsClicked] = useState<boolean>(false);
-  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
-  usePasteListener(textAreaRef, (title: string) => {
+  usePasteListener(editRef, (title: string) => {
     title = title.substring(0, config.TASK_MAX_LENGTH);
 
     console.log(title);
@@ -76,8 +73,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }, [task]);
 
   useEffect(() => {
-    if (task?.id === null && textAreaRef.current) {
-      textAreaRef.current.focus();
+    if (task?.id === null && editRef.current) {
+      editRef.current.focus();
     }
   }, [task]);
 
@@ -153,19 +150,21 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   );
 
   useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "auto";
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    if (editRef.current) {
+      editRef.current.style.height = "auto";
+      editRef.current.style.height = `${editRef.current.scrollHeight}px`;
+      if (showRef.current) {
+        showRef.current.style.height = "auto";
+        showRef.current.style.height = `${editRef.current.scrollHeight}px`;
+      }
     }
-  }, [val]);
+    // needs to be both, val reference does not update after submitting a new task, but the other field also needs to be udpated.
+  }, [task?.title, val]);
 
   const handleClick = () => {
-    console.log("handleClick");
-    console.log(task, textAreaRef.current);
-
-    if (task && textAreaRef.current) {
+    if (task && editRef.current) {
       setIsClicked(true);
-      textAreaRef.current.focus();
+      editRef.current.focus();
     }
   };
 
@@ -196,7 +195,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       });
       setVal("");
       setTimeout(() => {
-        textAreaRef?.current?.focus();
+        editRef?.current?.focus();
       }, 100);
       return;
     }
@@ -247,8 +246,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       ? "border-yellow-300"
       : "border-orange-300"
     : getInputBorderColor(bucket);
-
-  const bgColor = getBucketBackgroundColorTop(bucket, tasksForbucket);
+  const textAreaClasses =
+    "overflow-hidden px-1 resize-none rounded-sm shadow-md w-full";
 
   const localPriority =
     temporaryPriority.taskId === task?.id
@@ -280,51 +279,51 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             <PencilSquareIcon className="w-5 h-5" />
           </div>
         )}
-        <div
-          className={`relative w-full `}
-          ref={allowedToDrag ? dragRef : null}
-        >
+        <div className={`relative w-full group `}>
           {task && (
-            <div
-              onClick={() => handleClick()}
-              className={`w-full px-1 rounded-sm
-            border-b-2 hover:bg-slate-50 absolute z-10
-             group shadow-md
-             ${activeTask && "cursor-move"}
-             ${!activeTask && "cursor-pointer"}
-             ${isClicked && "hidden"}
-             ${borderColor}
-             bg-slate-100
-             `}
-            >
-              {val.split("\n").map((line, index) => (
-                <div key={index}>{line}&nbsp;</div>
-              ))}
+            <>
+              {/* needs to be separate. or it is not possible to click inside the textarea to position cursor */}
+              <div ref={allowedToDrag ? dragRef : null}>
+                <textarea
+                  ref={showRef}
+                  data-enable-grammarly="false"
+                  spellCheck="false"
+                  readOnly
+                  onClick={() => handleClick()}
+                  className={`border-b-2 group-hover:bg-slate-50 absolute z-10 cursor-move bg-slate-100
+                  hover:outline outline-2 outline-slate-500
+                    ${textAreaClasses}
+                    ${borderColor}
+                    ${activeTask && "cursor-move"}
+                    ${!activeTask && "cursor-pointer"}
+                    ${isClicked && "hidden"}
+                  `}
+                  value={val}
+                  rows={1}
+                ></textarea>
+              </div>
               <XMarkIcon
                 onClick={() => handleDelete()}
                 className={`group-hover:block hidden absolute w-6 h-6 cursor-pointer text-slate-800 top-0 right-1 bg-slate-200 hover:bg-slate-300 p-0.5 rounded-full`}
               />
-            </div>
+            </>
           )}
 
           <div className={`relative w-full `}>
             <textarea
               data-enable-grammarly="false"
-              className={`top-0 left-0 resize-none w-full px-1 rounded-sm shadow-md relative
-             select-text overflow-hidden
-            ${
-              val.length >= config.TASK_MAX_LENGTH
-                ? "focus:outline outline-2 outline-rose-500"
-                : "focus:outline outline-2 outline-indigo-500"
-            }
-            ${borderColor}
-            `}
+              spellCheck="false"
+              className={`${textAreaClasses} top-0 left-0 relative select-text ${
+                val.length >= config.TASK_MAX_LENGTH
+                  ? "focus:outline outline-2 outline-rose-500"
+                  : "focus:outline outline-2 outline-indigo-500"
+              } ${borderColor}`}
               placeholder="Add a task"
               value={val}
               onBlur={handleBlur}
               onKeyDown={handleKeyDown}
               onChange={handleChange}
-              ref={textAreaRef}
+              ref={editRef}
               rows={1}
             ></textarea>
 
