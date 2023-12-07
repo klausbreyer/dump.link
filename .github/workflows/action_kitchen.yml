@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - main
+      - fix-multi-paste
 
 jobs:
   build-and-deploy:
