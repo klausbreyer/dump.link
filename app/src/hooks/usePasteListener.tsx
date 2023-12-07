@@ -9,10 +9,12 @@ import { useEffect, RefObject } from "react";
  */
 const usePasteListener = (
   targetRef: RefObject<HTMLElement>,
+  active: boolean,
   callback: (value: string) => void,
 ) => {
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
+      if (!active) return;
       if (!e.clipboardData) return; // Return early if clipboardData is null
 
       const pastedData = e.clipboardData.getData("Text");
@@ -29,9 +31,13 @@ const usePasteListener = (
             return line.replace(/-/g, "").trim();
           });
 
-          lines.forEach((line) => {
+          lines.forEach((line, i) => {
             if (line) {
-              callback(line);
+              // Improving on the race condition. Also nice on an interface perspective.
+              // Without it, stuff can be in the wrong order.  Dirty hack, yes.But good enough.
+              setTimeout(() => {
+                callback(line);
+              }, i * 100);
             }
           });
 

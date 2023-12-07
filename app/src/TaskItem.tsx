@@ -43,28 +43,30 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const buckets = getBuckets();
   const project = getProject();
   const tasks = getTasks();
+
+  const [val, setVal] = useState<string>(task?.title || "");
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
 
-  usePasteListener(textAreaRef, (title: string) => {
-    title = title.substring(0, config.TASK_MAX_LENGTH);
+  usePasteListener(
+    textAreaRef,
+    task === null && val.length === 0,
+    (title: string) => {
+      title = title.substring(0, config.TASK_MAX_LENGTH);
 
-    console.log(title);
-
-    addTask({
-      id: NewID(project.id),
-      priority:
-        calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
-      title: title,
-      closed: false,
-      bucketId: bucket.id,
-    });
-  });
-
-  const [val, setVal] = useState<string>(task?.title || "");
+      addTask({
+        id: NewID(project.id),
+        priority:
+          calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
+        title: title,
+        closed: false,
+        bucketId: bucket.id,
+      });
+    },
+  );
 
   useEffect(() => {
     if (task) {
@@ -179,24 +181,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       setIsTextAreaFocused(false);
     }, 200);
 
-    // For a new task
-    if (task === null) {
-      if (val.length === 0) return;
-      addTask({
-        id: NewID(project.id),
-        priority:
-          calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
-        title: val,
-        closed: false,
-        bucketId: bucket.id,
-      });
-      setVal("");
-      setTimeout(() => {
-        textAreaRef?.current?.focus();
-      }, 100);
-      return;
-    }
-
     // For an existing task
     if (task && val !== task.title) {
       updateTask(task.id, { title: val });
@@ -218,6 +202,25 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         return;
       }
       e.preventDefault(); // Verhindert den Zeilenumbruch im Textbereich
+
+      // For a new task
+      if (task === null) {
+        if (val.length === 0) return;
+        addTask({
+          id: NewID(project.id),
+          priority:
+            calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
+          title: val,
+          closed: false,
+          bucketId: bucket.id,
+        });
+        setVal("");
+        setTimeout(() => {
+          textAreaRef?.current?.focus();
+        }, 100);
+        return;
+      }
+
       handleBlur();
     }
   }
