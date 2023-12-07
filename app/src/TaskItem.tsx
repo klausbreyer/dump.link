@@ -314,8 +314,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
           <div className={`relative w-full `}>
             <textarea
-              data-enable-grammarly="false"
-              spellCheck="false"
               className={`${textAreaClasses} top-0 left-0 relative select-text ${
                 val.length >= config.TASK_MAX_LENGTH
                   ? "focus:outline outline-2 outline-rose-500"
