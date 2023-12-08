@@ -30,7 +30,11 @@ reset:
 	mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" -e "DROP DATABASE IF EXISTS $$DB_NAME; CREATE DATABASE $$DB_NAME;"
 
 load:
-	for file in ./pscale-dump/*.sql; do mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" < "$$file"; done
+	make reset
+	for file in ./pscale-dump/*.sql; do \
+		sed -i.bak -e 's/DEFINER[ ]*=[ ]*[^ ]*@[ ]*[^ ]*//g' "$$file"; \
+		mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" < "$$file"; \
+	done
 
 prod:
 	rm -rf pscale-dump;
