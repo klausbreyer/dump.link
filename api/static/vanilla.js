@@ -104,8 +104,6 @@ function loadFormData() {
 }
 
 function validateForm(projectName, appetite, firstName, lastName, email) {
-  console.log("Validating form");
-
   let isValid = true;
   clearValidationErrors();
 
@@ -135,7 +133,6 @@ function validateForm(projectName, appetite, firstName, lastName, email) {
 
 function showError(fieldId) {
   const field = document.getElementById(fieldId);
-  console.log(field, fieldId);
 
   field.classList.add("border-rose-500");
 }

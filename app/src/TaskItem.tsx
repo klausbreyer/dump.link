@@ -153,11 +153,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   );
 
   useEffect(() => {
-    console.log("effect", editRef.current, showRef.current);
-
     if (editRef.current) {
-      console.log("editref", editRef.current.scrollHeight);
-
       editRef.current.style.height = "auto";
       editRef.current.style.height = `${editRef.current.scrollHeight}px`;
       if (showRef.current) {

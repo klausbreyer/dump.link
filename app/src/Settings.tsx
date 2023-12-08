@@ -40,8 +40,6 @@ const Settings: React.FC<SettingsProps> = (props) => {
       appetite: parseInt(appetite, 10),
     });
     setTimeout(() => {
-      console.log("timeout");
-
       setIsDirty(false);
     }, 1000);
   };

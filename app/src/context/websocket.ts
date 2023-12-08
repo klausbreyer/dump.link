@@ -62,10 +62,6 @@ export const setupWebSocket = (
 const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
   switch (message.action) {
     case "UPDATE_PROJECT":
-      console.log(message.data);
-      console.log(message.data.startedAt);
-      console.log(ISOToDate(message.data.startedAt));
-
       const updates = {
         ...message.data,
         startedAt: ISOToDate(message.data.startedAt),

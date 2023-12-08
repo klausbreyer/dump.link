@@ -31,8 +31,6 @@ export const LifecycleProvider: React.FC<LifecycleProviderProps> = ({
     LifecycleState.Initialized,
   );
 
-  console.log(lifecycle);
-
   return (
     <LifecycleContext.Provider value={{ lifecycle, setLifecycle }}>
       {children}
