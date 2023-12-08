@@ -496,8 +496,14 @@ export const getLayers = (
 
   const ids = uniqueValues(chains);
 
+  const allBuckets = getOtherBuckets(buckets);
+  const allBucketsIds = allBuckets.map((bucket) => bucket.id);
+  const allBucketsIdsNotInLayersMap = difference(allBucketsIds, ids);
+
+  const mergedIds = [...ids, ...allBucketsIdsNotInLayersMap];
+
   // Process each id
-  ids.forEach((id) => {
+  mergedIds.forEach((id) => {
     const bucket = getBucket(buckets, id);
     if (!bucket) return;
     let index: number;
