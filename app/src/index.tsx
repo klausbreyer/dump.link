@@ -26,14 +26,22 @@ import {
 import "../public/styles.css";
 import React from "react";
 
-// Initialize Bugsnag
-Bugsnag.start({
-  apiKey: "dfa678c21426fc846674ce32690760ff",
-  plugins: [new BugsnagPluginReact()],
-  releaseStage: window.location.host,
-  enabledReleaseStages: [window.location.host],
-});
-BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
+function isLocalhost(): boolean {
+  return (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  );
+}
+// Initialize Bugsnag only if not on localhost
+if (!isLocalhost()) {
+  Bugsnag.start({
+    apiKey: "dfa678c21426fc846674ce32690760ff",
+    plugins: [new BugsnagPluginReact()],
+    releaseStage: window.location.host,
+    enabledReleaseStages: [window.location.host],
+  });
+  BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
+}
 
 interface DefaultErrorBoundaryProps {
   children?: React.ReactNode;
