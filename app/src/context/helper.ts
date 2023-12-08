@@ -351,6 +351,10 @@ export const getTaskType = (
   return getOpenBucketType(bucket.id);
 };
 
+export const getNamedBuckets = (buckets: Bucket[]) => {
+  return buckets.filter((bucket) => bucket.name !== "");
+};
+
 export const getBucketForTask = (buckets: Bucket[], task: Task) => {
   // Find the bucket that has the same id as the task's bucketId
   return buckets.find((bucket) => bucket.id === task.bucketId);
@@ -369,11 +373,12 @@ export const getLayers = (
   const ids = uniqueValues(chains);
 
   // Get all the buckets that are not in the chains - test.
-  const allBuckets = getOtherBuckets(buckets);
-  const allBucketsIds = allBuckets.map((bucket) => bucket.id);
-  const allBucketsIdsNotInLayersMap = difference(allBucketsIds, ids);
+  const namedBuckets = getNamedBuckets(getOtherBuckets(buckets));
+  const namedBucketIds = namedBuckets.map((bucket) => bucket.id);
 
-  const mergedIds = [...ids, ...allBucketsIdsNotInLayersMap];
+  const namedBucketsMissingInLayersMap = difference(namedBucketIds, ids);
+
+  const mergedIds = [...ids, ...namedBucketsMissingInLayersMap];
 
   // Process each id
   mergedIds.forEach((id) => {
