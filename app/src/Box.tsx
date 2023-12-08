@@ -20,6 +20,7 @@ import {
   getBucketsAvailableFor,
   getBucketsDependingOn,
   getLayerForBucketId,
+  getLayers,
   getSequenceBucketType,
   getTasksForBucket,
 } from "./context/helper";
@@ -58,16 +59,12 @@ const Box: React.FC<BoxProps> = (props) => {
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const availbleIds = getBucketsAvailableFor(buckets, dependencies, bucket.id);
   const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
-  const dependencyIds = getBucketDependencies(dependencies, bucket.id);
+
+  const layers = getLayers(buckets, dependencies);
 
   const currentLayer = getLayerForBucketId(buckets, dependencies, bucket.id);
-  const dependenciesLayers = dependencyIds.map((id) => {
-    return getLayerForBucketId(buckets, dependencies, id);
-  });
 
-  const isMovable: boolean = !dependenciesLayers.some((layer) => {
-    return layer > currentLayer;
-  });
+  const isMovable: boolean = currentLayer !== 0 || layers[0].length > 1;
 
   const layerProps = useDragLayer((monitor) => ({
     item: monitor.getItem(),
@@ -180,8 +177,6 @@ const Box: React.FC<BoxProps> = (props) => {
       border-slate-300
            ${canDrop && !isOver && "border-dashed border-2 border-slate-400"}
             ${isOver && " border-slate-400"}
-
-
       `}
       ref={(node) =>
         dragref(dropRef(arrangePreviewRev(sequencePreviewRev(node))))

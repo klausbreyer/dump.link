@@ -39,21 +39,9 @@ const Lane: React.FC<LaneProps> = (props) => {
   const getAccept = () => {
     // all that is not having any dependents can be moved to the last lane.
 
-    if (index === allowedOnLayers.length) {
-      return getLastValues(chains).map((bucketId) =>
-        getArrangeBucketType(bucketId),
-      );
-    }
-
-    // unconnected buckets lane.
-    if (index === undefined || !allowedOnLayers[index]) {
-      return [];
-    }
-
-    //default behaviour
-    return allowedOnLayers[index].map((bucketId) =>
-      getArrangeBucketType(bucketId),
-    );
+    return buckets
+      .filter((bucket) => !bucket.dump)
+      .map((bucket) => getArrangeBucketType(bucket.id));
   };
 
   const [collectedProps, dropRef] = useDrop(
