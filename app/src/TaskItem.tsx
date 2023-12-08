@@ -1,8 +1,7 @@
-import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import React, {
   ChangeEvent,
   KeyboardEvent,
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -26,6 +25,7 @@ import {
 } from "./context/helper";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
+import { XCircleIcon } from "@heroicons/react/24/solid";
 
 interface TaskItemProps {
   task: Task | null;
@@ -48,11 +48,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
 
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const [isTextAreaFocused, setIsTextAreaFocused] = useState<boolean>(false);
+  const editRef = useRef<HTMLTextAreaElement>(null);
+  const showRef = useRef<HTMLTextAreaElement>(null);
+  const [isClicked, setIsClicked] = useState<boolean>(false);
 
   usePasteListener(
-    textAreaRef,
+    editRef,
     task === null && val.length === 0,
     (title: string) => {
       title = title.substring(0, config.TASK_MAX_LENGTH);
@@ -75,8 +76,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }, [task]);
 
   useEffect(() => {
-    if (task?.id === null && textAreaRef.current) {
-      textAreaRef.current.focus();
+    if (task?.id === null && editRef.current) {
+      editRef.current.focus();
     }
   }, [task]);
 
@@ -152,34 +153,32 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   );
 
   useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.style.height = "auto";
-      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    if (editRef.current) {
+      editRef.current.style.height = "auto";
+      editRef.current.style.height = `${editRef.current.scrollHeight}px`;
+      if (showRef.current) {
+        showRef.current.style.height = "auto";
+        showRef.current.style.height = `${editRef.current.scrollHeight}px`;
+      }
     }
-  }, [val]);
+    // needs to be both, val reference does not update after submitting a new task, but the other field also needs to be udpated.
+  }, [task?.title, val]);
+
+  const handleClick = () => {
+    if (task && editRef.current) {
+      setIsClicked(true);
+      editRef.current.focus();
+    }
+  };
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newValue = e.target.value;
 
-    // Check for max length
-    if (newValue.length > config.TASK_MAX_LENGTH) {
-      newValue = newValue.substring(0, config.TASK_MAX_LENGTH);
-    }
-
     setVal(newValue);
   };
 
-  function handleFocus() {
-    // Little hack to allow for dragging and positioning mouse cursor inside the textarea.
-    setTimeout(() => {
-      setIsTextAreaFocused(true);
-    }, 100);
-  }
-
   function handleBlur() {
-    setTimeout(() => {
-      setIsTextAreaFocused(false);
-    }, 200);
+    setIsClicked(false);
 
     // For an existing task
     if (task && val !== task.title) {
@@ -198,10 +197,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" || e.keyCode === 13) {
       if (e.shiftKey) {
-        // Wenn Shift + Enter gedrückt wird, tun Sie nichts
         return;
       }
-      e.preventDefault(); // Verhindert den Zeilenumbruch im Textbereich
+      e.preventDefault(); // prevent default behavior of adding a new line
 
       // For a new task
       if (task === null) {
@@ -216,7 +214,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         });
         setVal("");
         setTimeout(() => {
-          textAreaRef?.current?.focus();
+          editRef?.current?.focus();
         }, 100);
         return;
       }
@@ -240,18 +238,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true;
 
-  const showCounter =
-    isTextAreaFocused &&
-    textAreaRef.current &&
-    textAreaRef.current.scrollHeight > 30;
-  const showDelete = isTextAreaFocused && task;
-
   const bucketTask = task && !bucket.dump;
-  const bg = bucketTask
+  const borderColor = bucketTask
     ? task?.closed
       ? "border-yellow-300"
       : "border-orange-300"
     : getInputBorderColor(bucket);
+  const textAreaClasses =
+    "overflow-hidden px-1 resize-none rounded-sm shadow-md w-full";
 
   const localPriority =
     temporaryPriority.taskId === task?.id
@@ -260,7 +254,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const style = task && !task.closed ? { order: localPriority } : {};
   return (
-    <div ref={(node) => previewRev(dropRef(node))} style={style}>
+    <div ref={(node) => dropRef(node)} style={style}>
       <div
         // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
         className={`flex gap-1 items-center
@@ -283,55 +277,71 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             <PencilSquareIcon className="w-5 h-5" />
           </div>
         )}
+        <div className={`relative w-full group `}>
+          {task && (
+            <>
+              <div
+                onClick={() => handleClick()}
+                ref={allowedToDrag ? dragRef : null}
+                className={`absolute top-0 left-0 z-20 w-full h-full opacity-0
+                    ${activeTask && "cursor-move"}
+                    ${!activeTask && "cursor-pointer"}
+                     ${isClicked && "hidden"}
+                    `}
+              ></div>
 
-        <div
-          className={`relative w-full `}
-          ref={allowedToDrag ? dragRef : null}
-        >
-          <textarea
-            data-enable-grammarly="false"
-            className={`resize-none w-full px-1 rounded-sm shadow-md relative
-            border-b-2 select-text overflow-hidden
-            ${activeTask && "cursor-move"}
-            ${
-              val.length >= config.TASK_MAX_LENGTH
-                ? "focus:outline outline-2 outline-rose-500"
-                : "focus:outline outline-2 outline-indigo-500"
-            }
-            ${bg}
-            `}
-            placeholder="Add a task"
-            value={val}
-            onBlur={handleBlur}
-            onFocus={handleFocus}
-            onKeyDown={handleKeyDown}
-            onChange={handleChange}
-            // disabled={task?.closed}
-            rows={1}
-            ref={textAreaRef}
-          ></textarea>
-          {process.env.NODE_ENV !== "production" && (
-            <div
-              className={`absolute text-slate-800 text-xxxs bottom-2 right-1 bg-white`}
-            >
-              ID: {task?.id} Prio:
-              {task?.priority}
-            </div>
+              {/* needs to be separate. or it is not possible to click inside the textarea to position cursor */}
+              <div ref={previewRev}>
+                <textarea
+                  ref={showRef}
+                  data-enable-grammarly="false"
+                  spellCheck="false"
+                  readOnly
+                  className={`border-b-2 group-hover:bg-slate-50 absolute z-10 bg-slate-100
+                  group-hover:outline outline-2 outline-slate-500 select-none
+                    ${textAreaClasses}
+                    ${borderColor}
+                    ${isClicked && "hidden"}
+                  `}
+                  value={val}
+                  rows={1}
+                ></textarea>
+              </div>
+
+              <XCircleIcon
+                onClick={() => handleDelete()}
+                className={` z-30 hidden absolute w-5 h-5 cursor-pointer bg-slate-100
+                 text-slate-500 top-0 right-0  hover:text-slate-700 p-0 rounded-full
+                   ${!isDragging && !isClicked && "group-hover:block"}
+                    `}
+              />
+            </>
           )}
-          {showCounter && (
+
+          <div className={`relative w-full `}>
+            <textarea
+              className={`${textAreaClasses} top-0 left-0 relative select-text ${
+                val.length >= config.TASK_MAX_LENGTH
+                  ? "focus:outline outline-2 outline-rose-500"
+                  : "focus:outline outline-2 outline-indigo-500"
+              } ${borderColor}`}
+              data-enable-grammarly="false"
+              placeholder="Add a task"
+              value={val}
+              onBlur={handleBlur}
+              maxLength={config.TASK_MAX_LENGTH}
+              onKeyDown={handleKeyDown}
+              onChange={handleChange}
+              ref={editRef}
+              rows={1}
+            ></textarea>
+
             <div
               className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
             >
               {val.length}/{config.TASK_MAX_LENGTH}
             </div>
-          )}
-
-          {showDelete && (
-            <XMarkIcon
-              onClick={() => handleDelete()}
-              className={`absolute w-5 h-5 cursor-pointer text-slate-800 top-0.5 right-1`}
-            />
-          )}
+          </div>
         </div>
       </div>
     </div>
