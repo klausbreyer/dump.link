@@ -7,16 +7,17 @@ import {
 } from "@heroicons/react/24/outline";
 
 import BoxHeader from "./BoxHeader";
+import MicroProgress from "./MicroProgress";
 import {
   getBucketBackgroundColorTop,
   getHeaderTextColor,
   getHoverBorderColor,
 } from "./common/colors";
 import { useData } from "./context/data";
+import { useGlobalDragging } from "./context/dragging";
 import {
   getArrangeBucketType,
   getBucket,
-  getBucketDependencies,
   getBucketsAvailableFor,
   getBucketsDependingOn,
   getLayerForBucketId,
@@ -24,7 +25,6 @@ import {
   getSequenceBucketType,
   getTasksForBucket,
 } from "./context/helper";
-import { useGlobalDragging } from "./context/dragging";
 import {
   Bucket,
   DraggedBucket,
@@ -32,7 +32,6 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
-import MicroProgress from "./MicroProgress";
 
 interface BoxProps {
   bucket: Bucket;

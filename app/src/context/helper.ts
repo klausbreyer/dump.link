@@ -90,33 +90,6 @@ export const getAllPairs = (chains: BucketID[][]): [BucketID, BucketID][] => {
   );
 };
 
-export function divideIntoSubsets(input: BucketID[][]): BucketID[][][] {
-  const remaining = [...input];
-  const groups: BucketID[][][] = [];
-
-  while (remaining.length > 0) {
-    const currentGroup: BucketID[][] = [remaining[0]];
-    const valuesInCurrentGroup: Set<BucketID> = new Set(remaining[0]);
-    remaining.splice(0, 1);
-
-    let i = 0;
-    while (i < remaining.length) {
-      if (remaining[i].some((value) => valuesInCurrentGroup.has(value))) {
-        for (const value of remaining[i]) {
-          valuesInCurrentGroup.add(value);
-        }
-        currentGroup.push(remaining[i]);
-        remaining.splice(i, 1);
-      } else {
-        i++;
-      }
-    }
-
-    groups.push(currentGroup);
-  }
-
-  return groups;
-}
 export function difference<T>(arr1: T[], arr2: T[]): T[] {
   const set2 = new Set(arr2);
   return arr1.filter((item) => !set2.has(item));
@@ -136,9 +109,6 @@ export const getOtherBuckets = (buckets: Bucket[]): Bucket[] => {
   return buckets.filter((bucket) => bucket.dump !== true);
 };
 
-export const countTasks = (tasks: Task[]): number => {
-  return tasks.length;
-};
 /**
  * Checks if adding a dependency to the given bucket would result in a cyclic relationship.
  *
@@ -180,14 +150,6 @@ export function getTasksByClosed(tasks: Task[], closed: boolean): Task[] {
   return tasks.filter((task) => task.closed === closed);
 }
 
-export function sortTasksNotClosedFirst(tasks: Task[]): Task[] {
-  return [...tasks].sort((a, b) => {
-    if (!a.closed && b.closed) return -1;
-    if (a.closed && !b.closed) return 1;
-    return 0;
-  });
-}
-
 export const getClosedBucketType = (bucketId: BucketID) => {
   return `CLOSED_BUCKET_${bucketId}`;
 };
@@ -225,97 +187,6 @@ export const findLargestSubarrayIndex = (
 
   return largestIndex;
 };
-
-export const isLastInSubarray = (data: BucketID[][], id: BucketID): boolean => {
-  for (const subarray of data) {
-    if (subarray[subarray.length - 1] === id) {
-      return true;
-    }
-  }
-  return false; // Return false if the id is not the last in any subarray
-};
-
-/**
- * Finds the index of a task by its ID in a given array of tasks.
- * @param tasks - The array of tasks.
- * @param taskId - The ID of the task to find.
- * @returns The index of the task if found, otherwise -1.
- */
-export const getTaskIdIndex = (tasks: Task[], taskId: TaskID): number => {
-  return tasks.findIndex((task) => task.id === taskId);
-};
-
-/**
- * Checks if the given id is present in only one sub-array.
- *
- * @param data - The 2D array to search through
- * @param id - The id to look for
- * @returns True if the id is present in only one sub-array, false otherwise
- */
-export const isOnlyInOneSubArray = (
-  data: BucketID[][],
-  id: BucketID,
-): boolean => {
-  let count = 0; // Counter to keep track of how many times the id appears across all sub-arrays
-
-  for (const subarray of data) {
-    if (subarray.includes(id)) {
-      count++;
-    }
-
-    // If count is greater than 1, we can break early as the id is in more than one sub-array
-    if (count > 1) {
-      return false;
-    }
-  }
-
-  // Return true only if the id appears in exactly one sub-array
-  return count === 1;
-};
-export const SubArrayLength = (data: BucketID[][], id: BucketID): number => {
-  for (const subarray of data) {
-    if (subarray.includes(id)) {
-      return subarray.length;
-    }
-  }
-  return -1; // Return -1 if the id is not found in any subarray
-};
-export const getLargestSubArray = (data: BucketID[][]): BucketID[] => {
-  if (data.length === 0) return [];
-
-  return data.reduce((a, b) => (a.length > b.length ? a : b));
-};
-
-export function getTwoLowestUniqueNumbers(arr: number[]): number[] {
-  const uniqueNumbers = Array.from(new Set(arr));
-  const sortedUniqueNumbers = uniqueNumbers.sort((a, b) => a - b);
-  return sortedUniqueNumbers.slice(0, 2);
-}
-// Function to get the first value from each sub-array, deduplicated
-export function getFirstValues(arr: string[][]): string[] {
-  const firstValues: Set<string> = new Set();
-
-  for (const subArr of arr) {
-    if (subArr.length > 0) {
-      firstValues.add(subArr[0]);
-    }
-  }
-
-  return [...firstValues];
-}
-
-// Function to get the last value from each sub-array, deduplicated
-export function getLastValues(arr: string[][]): string[] {
-  const lastValues: Set<string> = new Set();
-
-  for (const subArr of arr) {
-    if (subArr.length > 0) {
-      lastValues.add(subArr[subArr.length - 1]);
-    }
-  }
-
-  return [...lastValues];
-}
 
 // Calculate percentage of tasks closed in a given array of tasks
 export function getBucketPercentage(tasks: Task[]): number {
@@ -395,6 +266,7 @@ export const getBucketsAvailableFor = (
     .map((bucket) => bucket.id); // Extract the bucket IDs
 };
 
+//@todo: maybe remove, when not needed. Could be helpful to move whole blocks.
 const getDependencyChainsForBucket = (
   buckets: Bucket[],
   dependencies: Dependency[],
@@ -496,6 +368,7 @@ export const getLayers = (
 
   const ids = uniqueValues(chains);
 
+  // Get all the buckets that are not in the chains - test.
   const allBuckets = getOtherBuckets(buckets);
   const allBucketsIds = allBuckets.map((bucket) => bucket.id);
   const allBucketsIdsNotInLayersMap = difference(allBucketsIds, ids);
@@ -710,7 +583,9 @@ export function filterBucketsFiguringOut(
       const bucketTasks = getTasksForBucket(tasks, bucket.id);
       return !bucketTasks.every((task) => task.closed);
     });
-} // Figuring out means: not all tasks of the bucket are closed
+}
+
+// Figuring out means: not all tasks of the bucket are closed
 export function filterBucketsFiguredOut(
   buckets: Bucket[],
   tasks: Task[],

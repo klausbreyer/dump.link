@@ -2,15 +2,12 @@ import React from "react";
 import { useDrop } from "react-dnd";
 
 import { useData } from "./context/data";
+import { useGlobalDragging } from "./context/dragging";
 import {
-  getAllDependencyChains,
-  getAllowedBucketsByLayer,
   getArrangeBucketType,
   getBucket,
-  getLastValues,
   getOtherBuckets,
 } from "./context/helper";
-import { useGlobalDragging } from "./context/dragging";
 import { DraggedBucket, DraggingType, DropCollectedProps } from "./types";
 
 interface LaneProps extends React.HTMLProps<HTMLDivElement> {
@@ -22,17 +19,10 @@ interface LaneProps extends React.HTMLProps<HTMLDivElement> {
 
 const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const { getBuckets, getDependencies, updateBucket } = useData();
+  const { getBuckets, updateBucket } = useData();
 
   const buckets = getBuckets();
-  const dependencies = getDependencies();
-  const chains = getAllDependencyChains(buckets, dependencies);
   const others = getOtherBuckets(buckets);
-  const allowedOnLayers = getAllowedBucketsByLayer(
-    buckets,
-    dependencies,
-    index,
-  );
 
   const { globalDragging } = useGlobalDragging();
 
