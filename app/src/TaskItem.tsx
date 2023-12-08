@@ -174,11 +174,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newValue = e.target.value;
 
-    // Check for max length
-    if (newValue.length > config.TASK_MAX_LENGTH) {
-      newValue = newValue.substring(0, config.TASK_MAX_LENGTH);
-    }
-
     setVal(newValue);
   };
 
@@ -202,10 +197,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" || e.keyCode === 13) {
       if (e.shiftKey) {
-        // Wenn Shift + Enter gedrückt wird, tun Sie nichts
         return;
       }
-      e.preventDefault(); // Verhindert den Zeilenumbruch im Textbereich
+      e.preventDefault(); // prevent default behavior of adding a new line
 
       // For a new task
       if (task === null) {
@@ -335,6 +329,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               placeholder="Add a task"
               value={val}
               onBlur={handleBlur}
+              maxLength={config.TASK_MAX_LENGTH}
               onKeyDown={handleKeyDown}
               onChange={handleChange}
               ref={editRef}
