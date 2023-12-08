@@ -153,7 +153,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   );
 
   useEffect(() => {
+    console.log("effect", editRef.current, showRef.current);
+
     if (editRef.current) {
+      console.log("editref", editRef.current.scrollHeight);
+
       editRef.current.style.height = "auto";
       editRef.current.style.height = `${editRef.current.scrollHeight}px`;
       if (showRef.current) {
@@ -162,7 +166,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       }
     }
     // needs to be both, val reference does not update after submitting a new task, but the other field also needs to be udpated.
-  }, [task?.title, val]);
+  }, [task?.title, val, editRef.current, showRef.current]);
 
   const handleClick = () => {
     if (task && editRef.current) {
