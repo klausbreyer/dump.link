@@ -1,4 +1,4 @@
-import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import React, {
   ChangeEvent,
   KeyboardEvent,
@@ -25,6 +25,7 @@ import {
 } from "./context/helper";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
+import { XCircleIcon } from "@heroicons/react/24/solid";
 
 interface TaskItemProps {
   task: Task | null;
@@ -259,7 +260,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const style = task && !task.closed ? { order: localPriority } : {};
   return (
-    <div ref={(node) => previewRev(dropRef(node))} style={style}>
+    <div ref={(node) => dropRef(node)} style={style}>
       <div
         // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
         className={`flex gap-1 items-center
@@ -285,29 +286,40 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         <div className={`relative w-full group `}>
           {task && (
             <>
+              <div
+                onClick={() => handleClick()}
+                ref={allowedToDrag ? dragRef : null}
+                className={`absolute top-0 left-0 z-20 w-full h-full opacity-0
+                    ${activeTask && "cursor-move"}
+                    ${!activeTask && "cursor-pointer"}
+                     ${isClicked && "hidden"}
+                    `}
+              ></div>
+
               {/* needs to be separate. or it is not possible to click inside the textarea to position cursor */}
-              <div ref={allowedToDrag ? dragRef : null}>
+              <div ref={previewRev}>
                 <textarea
                   ref={showRef}
                   data-enable-grammarly="false"
                   spellCheck="false"
                   readOnly
-                  onClick={() => handleClick()}
-                  className={`border-b-2 group-hover:bg-slate-50 absolute z-10 cursor-move bg-slate-100
-                  hover:outline outline-2 outline-slate-500
+                  className={`border-b-2 group-hover:bg-slate-50 absolute z-10 bg-slate-100
+                  group-hover:outline outline-2 outline-slate-500 select-none
                     ${textAreaClasses}
                     ${borderColor}
-                    ${activeTask && "cursor-move"}
-                    ${!activeTask && "cursor-pointer"}
                     ${isClicked && "hidden"}
                   `}
                   value={val}
                   rows={1}
                 ></textarea>
               </div>
-              <XMarkIcon
+
+              <XCircleIcon
                 onClick={() => handleDelete()}
-                className={`group-hover:block hidden absolute w-6 h-6 cursor-pointer text-slate-800 top-0 right-1 bg-slate-200 hover:bg-slate-300 p-0.5 rounded-full`}
+                className={` z-30 hidden absolute w-5 h-5 cursor-pointer bg-slate-100
+                 text-slate-500 top-0 right-0  hover:text-slate-700 p-0 rounded-full
+                   ${!isDragging && !isClicked && "group-hover:block"}
+                    `}
               />
             </>
           )}
@@ -319,6 +331,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                   ? "focus:outline outline-2 outline-rose-500"
                   : "focus:outline outline-2 outline-indigo-500"
               } ${borderColor}`}
+              data-enable-grammarly="false"
               placeholder="Add a task"
               value={val}
               onBlur={handleBlur}
