@@ -95,7 +95,11 @@ const Main = function Main() {
     return <Loading />;
   }
 
-  if (lifecycle === LifecycleState.Error) {
+  if (
+    lifecycle === LifecycleState.Error ||
+    lifecycle === LifecycleState.Error404 ||
+    lifecycle === LifecycleState.ErrorApi
+  ) {
     return <ErrorState lifecycle={lifecycle} />;
   }
 
@@ -142,10 +146,12 @@ function ErrorState(props: ErrorStateProps) {
   switch (lifecycle) {
     case LifecycleState.Error404:
       error = "404 :(";
+      break;
 
     default:
     case LifecycleState.Error:
       error = "Something went wrong :(";
+      break;
   }
 
   return (

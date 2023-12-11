@@ -12,6 +12,15 @@ import {
 import { CLIENT_TOKEN } from "./data";
 import { ISOToDate, dateToISO } from "./helper";
 
+export class APIError extends Error {
+  statusCode: number;
+
+  constructor(message: string, statusCode: number) {
+    super(message);
+    this.name = "APIError";
+    this.statusCode = statusCode;
+  }
+}
 const createApiFunctions = () => {
   const baseUrl = new URL(
     process.env.NODE_ENV === "production" &&
@@ -42,10 +51,11 @@ const createApiFunctions = () => {
     try {
       const response = await fetch(fullUrl, fetchOptions);
       if (!response.ok) {
-        throw new Error(
+        throw new APIError(
           `${response.status} ${
             response.statusText
           } ${method} ${fullUrl} -> ${await response.text()}`,
+          response.status,
         );
       }
       return await response.json();

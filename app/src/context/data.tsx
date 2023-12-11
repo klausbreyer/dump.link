@@ -13,7 +13,7 @@ import {
   TaskUpdates,
 } from "../types";
 
-import { apiFunctions } from "./calls";
+import { APIError, apiFunctions } from "./calls";
 import {
   NewID,
   PRIORITY_INCREMENT,
@@ -239,7 +239,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     } catch (error) {
       notifyBugsnag(error);
-      setLifecycle(LifecycleState.ErrorApi);
+      if (error instanceof APIError) {
+        if (error.statusCode === 404) {
+          setLifecycle(LifecycleState.Error404);
+        } else {
+          setLifecycle(LifecycleState.ErrorApi);
+        }
+      }
     }
   };
 
