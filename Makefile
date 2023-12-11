@@ -31,14 +31,20 @@ reset:
 
 load:
 	make reset
+	mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" -e "SET NAMES 'utf8mb4';"
 	for file in ./pscale-dump/*.sql; do \
-		sed -i.bak -e 's/DEFINER[ ]*=[ ]*[^ ]*@[ ]*[^ ]*//g' "$$file"; \
 		mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" < "$$file"; \
 	done
+
 
 prod:
 	rm -rf pscale-dump;
 	pscale database dump dumplink main --output pscale-dump
+	for file in ./pscale-dump/*.sql; do \
+		sed -i.bak -e 's/DEFINER[ ]*=[ ]*[^ ]*@[ ]*[^ ]*//g' "$$file"; \
+		sed -i.bak '1s/^/SET NAMES '\''utf8mb4'\'';\n/' "$$file"; \
+	done
+
 
 kitchen:
 	rm -rf pscale-dump;
