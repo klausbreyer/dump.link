@@ -32,25 +32,38 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	template := fmt.Sprintf(`
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<title>dump.link - %s</title>
-		<link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link href="/%s" rel="stylesheet">
-	</head>
-	<body>
-		<div class="flex items-center justify-center w-screen h-screen text-center lg:hidden">
-			This site is not optimized for mobile. Please use a desktop browser.
-		</div>
-		<div id="app" class="invisible lg:visible"></div>
-		<script src="/%s" type="module"></script>
-	</body>
-	</html>
-	`, project.Name, cssFile, jsFile)
+	title := fmt.Sprintf("dump.link - %s", project.Name)
+	template := `
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<link href="/{CSS_FILE}" rel="stylesheet">
+
+			<title>dump.link - {TITLE}</title>
+			<meta name="description" content="Streamlining communication and task management for business and technical teams.">
+			<meta property="og:title" content="{TITLE}">
+			<meta property="og:image" content="https://dump.link/static/icons/favicon@2x.png">
+			<meta property="og:description" content="Streamlining communication and task management for business and technical teams.">
+			<meta name="twitter:title" content="{TITLE}">
+			<meta name="twitter:description" content="Streamlining communication and task management for business and technical teams.">
+			<meta name="twitter:image" content="https://dump.link/static/icons/favicon@2x.png">
+		</head>
+		<body>
+			<div class="flex items-center justify-center w-screen h-screen text-center lg:hidden">
+				This site is not optimized for mobile. Please use a desktop browser.
+			</div>
+			<div id="app" class="invisible lg:visible"></div>
+			<script src="/{JS_FILE}" type="module"></script>
+		</body>
+		</html>
+	`
+	template = strings.Replace(template, "{TITLE}", title, -1)
+	template = strings.Replace(template, "{CSS_FILE}", cssFile, -1)
+	template = strings.Replace(template, "{JS_FILE}", jsFile, -1)
+	template = strings.Trim(template, " \n\t")
 
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(template))
