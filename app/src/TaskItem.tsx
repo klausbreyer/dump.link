@@ -48,6 +48,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
 
+  const [isEditRefFocused, setIsEditRefFocused] = useState<boolean>(false);
   const editRef = useRef<HTMLTextAreaElement>(null);
   const showRef = useRef<HTMLTextAreaElement>(null);
   const [isClicked, setIsClicked] = useState<boolean>(false);
@@ -177,7 +178,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     setVal(newValue);
   };
 
+  function handleFocus() {
+    setIsEditRefFocused(true);
+  }
+
   function handleBlur() {
+    setIsEditRefFocused(false);
     setIsClicked(false);
 
     // For an existing task
@@ -317,7 +323,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               />
             </>
           )}
-
           <div className={`relative w-full `}>
             <textarea
               className={`${textAreaClasses} top-0 left-0 relative select-text ${
@@ -329,13 +334,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               placeholder="Add a task"
               value={val}
               onBlur={handleBlur}
+              onFocus={handleFocus}
               maxLength={config.TASK_MAX_LENGTH}
               onKeyDown={handleKeyDown}
               onChange={handleChange}
               ref={editRef}
               rows={1}
             ></textarea>
-
             <div
               className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
             >
@@ -344,6 +349,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           </div>
         </div>
       </div>
+      {!task && isEditRefFocused && (
+        <div className="w-full ml-6 mt-0.5 text-xs text-slate-600 ">
+          Press Enter to create a task
+        </div>
+      )}
     </div>
   );
 };
