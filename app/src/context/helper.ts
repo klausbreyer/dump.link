@@ -458,7 +458,9 @@ export const getBucketForTask = (buckets: Bucket[], task: Task) => {
   // Find the bucket that has the same id as the task's bucketId
   return buckets.find((bucket) => bucket.id === task.bucketId);
 };
-
+export const getNamedBuckets = (buckets: Bucket[]) => {
+  return buckets.filter((bucket) => bucket.name !== "");
+};
 export const getLayers = (
   buckets: Bucket[],
   dependencies: Dependency[],
@@ -470,7 +472,12 @@ export const getLayers = (
   // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
   const layersMap: Map<number, BucketID[]> = new Map();
 
-  const ids = uniqueValues(chains);
+  const uniqueIds = uniqueValues(chains);
+  const namedBuckets = getNamedBuckets(getOtherBuckets(buckets));
+  const namedBucketIds = namedBuckets.map((bucket) => bucket.id);
+  const namedBucketsMissingInLayersMap = difference(namedBucketIds, uniqueIds);
+
+  const ids = [...uniqueIds, ...namedBucketsMissingInLayersMap];
 
   // Process each id
   ids.forEach((id) => {
@@ -483,6 +490,9 @@ export const getLayers = (
       index = bucket.layer;
     } else {
       index = findLargestSubarrayIndex(chains, id);
+      if (index === -1) {
+        index = 0;
+      }
     }
 
     // Adding or updating the layersMap
