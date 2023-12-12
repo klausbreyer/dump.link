@@ -458,6 +458,7 @@ export const getBucketForTask = (buckets: Bucket[], task: Task) => {
   // Find the bucket that has the same id as the task's bucketId
   return buckets.find((bucket) => bucket.id === task.bucketId);
 };
+
 export const getLayers = (
   buckets: Bucket[],
   dependencies: Dependency[],
@@ -497,10 +498,10 @@ export const getLayers = (
   const keys = Array.from(layersMap.keys()).sort((a, b) => a - b); // Sorting the keys in ascending order
 
   // Populate the layersArray with BucketID arrays, ordered by layer
-  const minKey = keys[0];
   const maxKey = keys[keys.length - 1];
 
-  for (let i = minKey; i <= maxKey; i++) {
+  // Ensure layersArray starts from 0
+  for (let i = 0; i <= maxKey; i++) {
     if (layersMap.has(i)) {
       layersArray.push(layersMap.get(i)!);
     } else {
