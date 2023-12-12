@@ -65,9 +65,7 @@ const Box: React.FC<BoxProps> = (props) => {
     return getLayerForBucketId(buckets, dependencies, id);
   });
 
-  const isMovable: boolean = !dependenciesLayers.some((layer) => {
-    return layer > currentLayer;
-  });
+  const isMovable: boolean = true;
 
   const layerProps = useDragLayer((monitor) => ({
     item: monitor.getItem(),
