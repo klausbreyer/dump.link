@@ -2,16 +2,20 @@ import React from "react";
 import { useDrop } from "react-dnd";
 
 import { useData } from "./context/data";
+import { useGlobalDragging } from "./context/dragging";
 import {
-  getAllDependencyChains,
-  getAllowedBucketsByLayer,
   getArrangeBucketType,
   getBucket,
-  getLastValues,
+  getBucketDependencies,
+  getLayers,
   getOtherBuckets,
 } from "./context/helper";
-import { useGlobalDragging } from "./context/dragging";
-import { DraggedBucket, DraggingType, DropCollectedProps } from "./types";
+import {
+  BucketID,
+  DraggedBucket,
+  DraggingType,
+  DropCollectedProps,
+} from "./types";
 
 interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
@@ -25,35 +29,87 @@ const Lane: React.FC<LaneProps> = (props) => {
   const { getBuckets, getDependencies, updateBucket } = useData();
 
   const buckets = getBuckets();
-  const dependencies = getDependencies();
-  const chains = getAllDependencyChains(buckets, dependencies);
-  const others = getOtherBuckets(buckets);
-  const allowedOnLayers = getAllowedBucketsByLayer(
-    buckets,
-    dependencies,
-    index,
-  );
 
+  const dependencies = getDependencies();
+  const others = getOtherBuckets(buckets);
+
+  const layers = getLayers(buckets, dependencies);
   const { globalDragging } = useGlobalDragging();
 
   const getAccept = () => {
-    // all that is not having any dependents can be moved to the last lane.
+    const accept: string[] = [];
 
-    if (index === allowedOnLayers.length) {
-      return getLastValues(chains).map((bucketId) =>
-        getArrangeBucketType(bucketId),
-      );
+    /**
+     * Special Case:
+     * new lane: accepts all. everything can be moved down.
+     */
+    if (index === undefined || !layers[index]) {
+      return buckets.map((bucket) => getArrangeBucketType(bucket.id));
     }
 
-    // unconnected buckets lane.
-    if (index === undefined || !allowedOnLayers[index]) {
-      return [];
-    }
+    /**
+     * Case 1: Upwards-Move
+     *
+     * layer allows all buckets that are a dependent on all the buckets in all the layers above.
+     */
 
-    //default behaviour
-    return allowedOnLayers[index].map((bucketId) =>
-      getArrangeBucketType(bucketId),
+    //map that holds the lowest dependency layer for each bucket
+    // attention: lower = larger number (because top -> down)
+    const lowestDependencyLayer = new Map<BucketID, number>();
+
+    layers.forEach((layer, layerIndex) => {
+      // Iterating through each bucket in the layer
+      for (const bucketId of layer) {
+        // Getting dependencies of the current bucket
+        const bucketDependencies = getBucketDependencies(
+          dependencies,
+          bucketId,
+        );
+        console.log(bucketId, bucketDependencies, layerIndex);
+
+        bucketDependencies.forEach((dependencyId) => {
+          // Updating the lowest layer index for the dependency
+          const currentLowestLayerIndex =
+            lowestDependencyLayer.get(dependencyId);
+          if (
+            !currentLowestLayerIndex ||
+            layerIndex > currentLowestLayerIndex
+          ) {
+            lowestDependencyLayer.set(dependencyId, layerIndex);
+          }
+        });
+      }
+    });
+
+    //push all the lowest dependencies into accept
+    lowestDependencyLayer.forEach((layerIndex, bucketId) => {
+      if (index > layerIndex) {
+        accept.push(getArrangeBucketType(bucketId));
+      }
+    });
+    // such a move needs the update of all dependent boxes.
+
+    /**
+     * Case 2: downward-move
+     * layer allows all that comes from above(because it will push everything down)
+     */
+    accept.push(
+      ...layers
+        .slice(0, index)
+        .flatMap((bucketId) => bucketId)
+        .map((bucketId) => getArrangeBucketType(bucketId)),
     );
+
+    // such a move needs the update of all dependent boxes.
+
+    /**
+     * Case 3: No Move.
+     * All Boxes all that are  currently in the lane can stay there.
+     */
+    accept.push(
+      ...layers[index].map((bucketId) => getArrangeBucketType(bucketId)),
+    );
+    return accept;
   };
 
   const [collectedProps, dropRef] = useDrop(
