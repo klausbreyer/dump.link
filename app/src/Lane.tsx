@@ -2,7 +2,7 @@ import React from "react";
 import { useDrop } from "react-dnd";
 
 import { useData } from "./context/data";
-import { useGlobalDragging } from "./context/dragging";
+import { useGlobalInteraction } from "./context/interaction";
 import {
   getArrangeBucketType,
   getBucket,
@@ -39,7 +39,7 @@ const Lane: React.FC<LaneProps> = (props) => {
   );
 
   const layers = getLayers(buckets, dependencies);
-  const { globalDragging } = useGlobalDragging();
+  const { globalDragging } = useGlobalInteraction();
 
   const getAccept = () => {
     const accept: string[] = [];

@@ -12,7 +12,7 @@ import { getInputBorderColor } from "./common/colors";
 import { isSafari } from "./common/helper";
 import config from "./config";
 import { useData } from "./context/data";
-import { useGlobalDragging } from "./context/dragging";
+import { useGlobalInteraction } from "./context/interaction";
 import {
   NewID,
   PRIORITY_INCREMENT,
@@ -38,8 +38,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { addTask, updateTask, deleteTask, getProject, getBuckets, getTasks } =
     useData();
 
-  const { setGlobalDragging, temporaryPriority, setTemporaryPriority } =
-    useGlobalDragging();
+  const { updateGlobalDragging, temporaryPriority, setTemporaryPriority } =
+    useGlobalInteraction();
   const buckets = getBuckets();
   const project = getProject();
   const tasks = getTasks();
@@ -112,11 +112,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   );
 
   useEffect(() => {
-    setGlobalDragging(
+    updateGlobalDragging(
       isDragging ? DraggingType.TASK : DraggingType.NONE,
       isDragging ? bucket.id : "",
     );
-  }, [bucket.id, isDragging, setGlobalDragging]);
+  }, [bucket.id, isDragging, updateGlobalDragging]);
 
   const [, dropRef] = useDrop(
     () => ({

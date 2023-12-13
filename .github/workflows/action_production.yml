@@ -38,6 +38,12 @@ jobs:
       # Setup flyctl for deployment
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
+      # Install specific Go version
+      - name: Backend - Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.21"
+
       # Run tests in the backend
       - name: Backend - Tests
         run: |

@@ -7,23 +7,25 @@ import {
 } from "@heroicons/react/24/outline";
 
 import BoxHeader from "./BoxHeader";
+import MicroProgress from "./MicroProgress";
 import {
   getBucketBackgroundColorTop,
   getHeaderTextColor,
   getHoverBorderColor,
 } from "./common/colors";
 import { useData } from "./context/data";
+import { useGlobalInteraction } from "./context/interaction";
 import {
   getArrangeBucketType,
   getBucket,
-  getBucketDependencies,
   getBucketsAvailableFor,
   getBucketsDependingOn,
-  getLayerForBucketId,
+  getDependencyChainsForBucket,
+  getOtherBuckets,
   getSequenceBucketType,
   getTasksForBucket,
+  uniqueValues,
 } from "./context/helper";
-import { useGlobalDragging } from "./context/dragging";
 import {
   Bucket,
   DraggedBucket,
@@ -31,7 +33,6 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
-import MicroProgress from "./MicroProgress";
 
 interface BoxProps {
   bucket: Bucket;
@@ -51,15 +52,22 @@ const Box: React.FC<BoxProps> = (props) => {
     getBuckets,
   } = useData();
 
+  const {
+    globalDragging,
+    updateGlobalDragging,
+    hoveredBuckets,
+    updateHoveredBuckets,
+  } = useGlobalInteraction();
+
   const buckets = getBuckets();
-
+  const others = getOtherBuckets(buckets);
   const tasks = getTasks();
-  const dependencies = getDependencies();
+  const deps = getDependencies();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const availbleIds = getBucketsAvailableFor(buckets, dependencies, bucket.id);
-  const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
-
-  const isMovable: boolean = true;
+  const availbleIds = getBucketsAvailableFor(others, deps, bucket.id);
+  const dependingIds = getBucketsDependingOn(deps, bucket.id);
+  const bucketsChains = getDependencyChainsForBucket(others, deps, bucket.id);
+  const uniqueDependingIds = uniqueValues(bucketsChains);
 
   const layerProps = useDragLayer((monitor) => ({
     item: monitor.getItem(),
@@ -67,14 +75,15 @@ const Box: React.FC<BoxProps> = (props) => {
     isDragging: monitor.isDragging(),
   }));
 
-  const { globalDragging, setGlobalDragging } = useGlobalDragging();
-
+  /**
+   * Dropping
+   */
   const [collectedProps, dropRef] = useDrop(
     {
       accept: availbleIds.map((id) => getSequenceBucketType(id)),
 
       drop: (item: DraggedBucket) => {
-        const fromBucket = getBucket(buckets, item.bucketId);
+        const fromBucket = getBucket(others, item.bucketId);
         if (!fromBucket) return;
         addBucketDependency(fromBucket, bucket.id);
       },
@@ -83,9 +92,8 @@ const Box: React.FC<BoxProps> = (props) => {
         canDrop: monitor.canDrop(),
       }),
     },
-    [availbleIds, bucket, buckets, addBucketDependency, getSequenceBucketType],
+    [availbleIds, bucket, others, addBucketDependency, getSequenceBucketType],
   );
-
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
   const [
@@ -108,7 +116,7 @@ const Box: React.FC<BoxProps> = (props) => {
   );
 
   useEffect(() => {
-    setGlobalDragging(
+    updateGlobalDragging(
       sequenceIsDragging ? DraggingType.SEQUENCE : DraggingType.NONE,
       bucket.id,
     );
@@ -119,8 +127,11 @@ const Box: React.FC<BoxProps> = (props) => {
     if (!sequenceIsDragging && props.onDragEnd) {
       props.onDragEnd();
     }
-  }, [sequenceIsDragging, setGlobalDragging]);
+  }, [sequenceIsDragging, updateGlobalDragging]);
 
+  /**
+   * Dragging
+   */
   const [
     { isDragging: foliationIsDragging },
     arrangeDragRef,
@@ -136,53 +147,70 @@ const Box: React.FC<BoxProps> = (props) => {
     }),
     [bucket, getArrangeBucketType],
   );
-
   useEffect(() => {
-    setGlobalDragging(
+    updateGlobalDragging(
       foliationIsDragging ? DraggingType.ARRANGE : DraggingType.NONE,
       bucket.id,
     );
-  }, [foliationIsDragging, setGlobalDragging]);
+  }, [foliationIsDragging, updateGlobalDragging]);
 
+  /**
+   * Handler
+   */
+  const handleMouseOver = () => {
+    updateHoveredBuckets(uniqueDependingIds);
+  };
+  const handleMouseOut = () => {
+    updateHoveredBuckets([]);
+  };
+
+  /**
+   * Styles & View Logic
+   */
   const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
-
-  const dragref =
-    context === TabContext.Sequence
-      ? sequenceDragRef
-      : context === TabContext.Arrange && isMovable
-        ? arrangeDragRef
-        : (x: any) => x;
 
   const showUnavailable =
     globalDragging.type === DraggingType.SEQUENCE &&
     !canDrop &&
     !sequenceIsDragging;
 
-  const hoverBorder =
-    (context === TabContext.Sequence ||
-      (context === TabContext.Arrange && isMovable)) &&
-    getHoverBorderColor(bucket);
+  const isHovered: boolean = hoveredBuckets.includes(bucket.id);
+  const hoverBorder: string = (() => {
+    switch (context) {
+      case TabContext.Arrange:
+        return isHovered ? "border-slate-600" : "border-slate-300";
+      case TabContext.Sequence:
+        return "border-slate-300 hover:border-slate-600";
+      default:
+        return "";
+    }
+  })();
+
+  const dragref =
+    context === TabContext.Sequence
+      ? sequenceDragRef
+      : context === TabContext.Arrange
+        ? arrangeDragRef
+        : (x: any) => x;
 
   return (
     <div
       id={bucket.id}
       className={` w-full rounded-md overflow-hidden opacity-95  border-2
-       ${isMovable || context === TabContext.Sequence ? "cursor-move" : ""}
-      ${hoverBorder}
-      border-slate-300
-           ${canDrop && !isOver && "border-dashed border-2 border-slate-400"}
-            ${isOver && " border-slate-400"}
-
-
+        ${isHovered || context === TabContext.Sequence ? "cursor-move" : ""}
+        ${hoverBorder}
+        ${canDrop && !isOver && "border-dashed border-2 border-slate-400"}
+        ${isOver && " border-slate-400"}
       `}
       ref={(node) =>
         dragref(dropRef(arrangePreviewRev(sequencePreviewRev(node))))
       }
+      onMouseOver={handleMouseOver}
+      onMouseOut={handleMouseOut}
     >
       <div className={`${bgTop}`}>
         <BoxHeader bucket={bucket} context={context} />
         <MicroProgress bucket={bucket} />
-
         <div className={`min-h-[1rem] `}>
           <ul className="p-1 text-sm">
             {TabContext.Sequence === context &&
@@ -191,7 +219,7 @@ const Box: React.FC<BoxProps> = (props) => {
                   key={id}
                   context={context}
                   callback={() => removeBucketDependency(id, bucket.id)}
-                  bucket={getBucket(buckets, id)}
+                  bucket={getBucket(others, id)}
                 />
               ))}
             {TabContext.Sequence === context && (
