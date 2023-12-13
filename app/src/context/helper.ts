@@ -328,6 +328,15 @@ export const getBucketsDependingOn = (
     .map((dep) => dep.bucketId);
 };
 
+export const getBucketsDependingOnNothing = (
+  buckets: Bucket[],
+  dependencies: Dependency[],
+): Bucket[] => {
+  return buckets.filter(
+    (bucket) => getBucketsDependingOn(dependencies, bucket.id).length === 0,
+  );
+};
+
 export const getBucketDependencies = (
   dependencies: Dependency[],
   bucketId: BucketID,

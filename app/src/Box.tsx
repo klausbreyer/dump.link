@@ -58,12 +58,6 @@ const Box: React.FC<BoxProps> = (props) => {
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const availbleIds = getBucketsAvailableFor(buckets, dependencies, bucket.id);
   const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
-  const dependencyIds = getBucketDependencies(dependencies, bucket.id);
-
-  const currentLayer = getLayerForBucketId(buckets, dependencies, bucket.id);
-  const dependenciesLayers = dependencyIds.map((id) => {
-    return getLayerForBucketId(buckets, dependencies, id);
-  });
 
   const isMovable: boolean = true;
 
