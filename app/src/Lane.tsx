@@ -7,6 +7,8 @@ import {
   getArrangeBucketType,
   getBucket,
   getBucketDependencies,
+  getBucketsDependingOn,
+  getBucketsDependingOnNothing,
   getLayers,
   getOtherBuckets,
 } from "./context/helper";
@@ -29,9 +31,12 @@ const Lane: React.FC<LaneProps> = (props) => {
   const { getBuckets, getDependencies, updateBucket } = useData();
 
   const buckets = getBuckets();
-
   const dependencies = getDependencies();
   const others = getOtherBuckets(buckets);
+  const bucketsNotDepending = getBucketsDependingOnNothing(
+    others,
+    dependencies,
+  );
 
   const layers = getLayers(buckets, dependencies);
   const { globalDragging } = useGlobalDragging();
@@ -46,6 +51,13 @@ const Lane: React.FC<LaneProps> = (props) => {
     if (index === undefined || !layers[index]) {
       return buckets.map((bucket) => getArrangeBucketType(bucket.id));
     }
+
+    /**
+     * General Case: Everything that is not depending on something can be moved everywhere
+     */
+    bucketsNotDepending.forEach((bucket) => {
+      accept.push(getArrangeBucketType(bucket.id));
+    });
 
     /**
      * Case 1: Upwards-Move
@@ -65,7 +77,6 @@ const Lane: React.FC<LaneProps> = (props) => {
           dependencies,
           bucketId,
         );
-        console.log(bucketId, bucketDependencies, layerIndex);
 
         bucketDependencies.forEach((dependencyId) => {
           // Updating the lowest layer index for the dependency
