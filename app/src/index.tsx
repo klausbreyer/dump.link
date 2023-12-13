@@ -14,7 +14,7 @@ import Header from "./Header";
 import Sequence from "./Sequence";
 import Settings from "./Settings";
 import { DataProvider } from "./context/data";
-import { GlobalDraggingProvider } from "./context/dragging";
+import { GlobalInteractionProvider } from "./context/interaction";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
 import {
@@ -73,13 +73,13 @@ const App = function App() {
   return (
     <ErrorBoundary>
       <LifecycleProvider>
-        <GlobalDraggingProvider>
+        <GlobalInteractionProvider>
           <DataProvider>
             <DndProvider backend={HTML5Backend}>
               <Main />
             </DndProvider>
           </DataProvider>
-        </GlobalDraggingProvider>
+        </GlobalInteractionProvider>
       </LifecycleProvider>
     </ErrorBoundary>
   );

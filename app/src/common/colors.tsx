@@ -11,7 +11,7 @@ export function getInputBorderColor(bucket: Bucket): string {
 }
 
 export function getHoverBorderColor(bucket: Bucket): string {
-  return "hover:border-slate-600";
+  return "border-slate-600";
 }
 
 export function getHeaderTextColor(bucket: Bucket): string {

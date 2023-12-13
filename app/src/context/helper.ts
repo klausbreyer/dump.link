@@ -379,7 +379,7 @@ export const getBucketsAvailableFor = (
     .map((bucket) => bucket.id); // Extract the bucket IDs
 };
 
-const getDependencyChainsForBucket = (
+export const getDependencyChainsForBucket = (
   buckets: Bucket[],
   dependencies: Dependency[],
   bucketId: BucketID,
