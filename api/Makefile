@@ -17,7 +17,6 @@ kill:
 	lsof -t -i tcp:8080 | xargs kill -9
 	lsof -t -i tcp:13306 | xargs kill -9
 
-
 test:
 	go test -v ./src/...
 
