@@ -10,6 +10,7 @@ start:
 
 test:
 	cd api && make test
+	cd app && bun test
 
 frontend:
 	cd app && bun install && bun run build

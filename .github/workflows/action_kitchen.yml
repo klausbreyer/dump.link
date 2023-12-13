@@ -4,7 +4,6 @@ on:
   push:
     branches-ignore:
       - main
-      - fix-multi-paste
 
 jobs:
   build-and-deploy:
@@ -15,6 +14,11 @@ jobs:
       # Checkout the repository
       - uses: actions/checkout@v3
       - uses: oven-sh/setup-bun@v1
+
+      - name: Test Frontend
+        run: |
+          cd app
+          bun install && bun test
 
       - name: Build Frontend
         run: |

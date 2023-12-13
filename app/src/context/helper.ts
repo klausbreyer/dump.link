@@ -8,8 +8,6 @@ import {
   lastAccessedProject,
 } from "../types";
 
-const crypto = window.crypto || (window as any).msCrypto;
-
 export const PRIORITY_INCREMENT = 100000;
 
 export const extractIdFromUrl = () => {
@@ -53,6 +51,7 @@ export const saveProjectIdToLocalStorage = (
 
 // NewID generates a random base-58 ID with optional prefixes.
 export function NewID(...prefixes: string[]): string {
+  const crypto = window.crypto || (window as any).msCrypto;
   const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; // base58
   const size = 11;
 
@@ -138,42 +137,6 @@ export const getOtherBuckets = (buckets: Bucket[]): Bucket[] => {
 
 export const countTasks = (tasks: Task[]): number => {
   return tasks.length;
-};
-/**
- * Checks if adding a dependency to the given bucket would result in a cyclic relationship.
- *
- * @param {BucketID} bucketId - The ID of the bucket to which a new dependency is being added.
- * @param {BucketID} dependencyId - The proposed dependency ID.
- * @param {Dependency[]} dependencies - List of all dependencies.
- * @param {Bucket[]} allBuckets - List of all buckets.
- * @returns {boolean} - Returns true if adding the dependency would cause a cycle, false otherwise.
- */
-export const hasCyclicDependencyWithBucket = (
-  bucketId: BucketID,
-  dependencyId: BucketID,
-  dependencies: Dependency[],
-): boolean => {
-  // Recursive function to traverse the dependency graph
-  const traverse = (currentId: BucketID, visited: Set<BucketID>): boolean => {
-    if (visited.has(currentId)) return false;
-    visited.add(currentId);
-
-    // Find all buckets that the current bucket depends on
-    const dependentIds = dependencies
-      .filter((dep) => dep.bucketId === currentId)
-      .map((dep) => dep.dependencyId);
-
-    // If we reach the bucketId while traversing from the dependencyId, it indicates a cycle
-    if (dependentIds.includes(bucketId)) return true;
-
-    for (const depId of dependentIds) {
-      if (traverse(depId, visited)) return true;
-    }
-    return false;
-  };
-
-  // Start the traversal with the dependencyId
-  return traverse(dependencyId, new Set());
 };
 
 export function getTasksByClosed(tasks: Task[], closed: boolean): Task[] {
@@ -384,6 +347,18 @@ export const getBucketsAvailableFor = (
   const directDependencies = dependencies
     .filter((dep) => dep.bucketId === givenBucketId)
     .map((dep) => dep.dependencyId);
+
+  const currentBucket = buckets.find((bucket) => bucket.id === givenBucketId);
+
+  // console.log(
+  //   currentBucket,
+  //   buckets.filter(
+  //     (bucket) =>
+  //       bucket.id !== givenBucketId && // Exclude the given bucket itself
+  //       !directDependencies.includes(bucket.id) && // Exclude direct dependencies
+  //       !hasCyclicDependencyWithBucket(bucket.id, givenBucketId, dependencies), // Exclude buckets that would result in a cyclic dependency
+  //   ),
+  // );
 
   return buckets
     .filter(
@@ -789,3 +764,55 @@ export function calculateRemainingTime(
 
   return formatTime(diffDays, "day", "days");
 }
+
+export const hasCyclicDependencyWithBucket = (
+  bucketId: BucketID,
+  dependencyId: BucketID,
+  dependencies: Dependency[],
+): boolean => {
+  // Convert dependencies into a map for easy lookup
+  const dependencyMap = new Map<BucketID, BucketID[]>();
+  dependencies.forEach((dep) => {
+    if (!dependencyMap.has(dep.bucketId)) {
+      dependencyMap.set(dep.bucketId, []);
+    }
+    dependencyMap.get(dep.bucketId)!.push(dep.dependencyId);
+  });
+
+  // Check if the new dependency already exists, indicating a cycle
+  if (dependencyMap.get(bucketId)?.includes(dependencyId)) {
+    return true;
+  }
+
+  // Add the new dependency to the map
+  if (!dependencyMap.has(bucketId)) {
+    dependencyMap.set(bucketId, []);
+  }
+  dependencyMap.get(bucketId)!.push(dependencyId);
+
+  // Helper function for DFS
+  const dfs = (
+    node: BucketID,
+    visited: Set<BucketID>,
+    stack: Set<BucketID>,
+  ): boolean => {
+    visited.add(node);
+    stack.add(node);
+
+    const neighbors = dependencyMap.get(node) || [];
+    for (const neighbor of neighbors) {
+      if (!visited.has(neighbor)) {
+        if (dfs(neighbor, visited, stack)) {
+          return true; // Cycle found
+        }
+      } else if (stack.has(neighbor)) {
+        return true; // Current node is already in the stack, cycle found
+      }
+    }
+
+    stack.delete(node); // Remove node from current path
+    return false;
+  };
+
+  return dfs(bucketId, new Set(), new Set());
+};
