@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 
 import {
+  ArrowsPointingOutIcon,
   ExclamationTriangleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -225,7 +226,6 @@ const Box: React.FC<BoxProps> = (props) => {
         ref={(node) =>
           dragref(dropRef(arrangePreviewRev(sequencePreviewRev(node))))
         }
-        onClick={handleClick}
         onMouseOver={handleMouseOver}
         onMouseOut={handleMouseOut}
       >
@@ -254,6 +254,13 @@ const Box: React.FC<BoxProps> = (props) => {
                 </li>
               )}
             </ul>
+          </div>
+          <div className="flex items-center justify-end w-full gap-1 p-1 text-sm cursor-pointer ">
+            <ArrowsPointingOutIcon
+              title="Show Task Group"
+              className="w-5 h-5 hover:bg-slate-300 "
+              onClick={handleClick}
+            />
           </div>
         </div>
       </div>
