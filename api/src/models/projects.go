@@ -105,3 +105,22 @@ func (m *ProjectModel) Update(projectId string, updates map[string]interface{}) 
 
 	return nil
 }
+
+func (m *ProjectModel) Delete(id string) error {
+	stmt := `DELETE FROM projects WHERE id = ?`
+	result, err := m.DB.Exec(stmt, id)
+	if err != nil {
+		return fmt.Errorf("error deleting project: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking rows affected: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no project found with ID %s", id)
+	}
+
+	return nil
+}

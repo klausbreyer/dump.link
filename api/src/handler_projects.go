@@ -85,6 +85,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		Name      *string `json:"name,omitempty"`
 		StartedAt *string `json:"startedAt,omitempty"`
 		Appetite  *int    `json:"appetite,omitempty"`
+		Archived  *bool   `json:"archived,omitempty"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -105,8 +106,13 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		}
 		data["started_at"] = startedAt
 	}
+
 	if input.Appetite != nil {
 		data["appetite"] = *input.Appetite
+	}
+
+	if input.Archived != nil {
+		data["archived"] = *input.Archived
 	}
 
 	if len(data) == 0 {
@@ -132,6 +138,38 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	app.writeJSON(w, http.StatusOK, data, nil)
 
 	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *application) ApiProjectDelete(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
+		return
+	}
+
+	if !app.projects.IDExists(projectId) {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err := app.projects.Delete(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	data := envelope{
+		"projectId": projectId,
+	}
+	senderToken := app.extractTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionDeleteProject, data)
+	app.writeJSON(w, http.StatusOK, data, nil)
+
+	app.actions.Insert(projectId, nil, nil, startTime, string(ActionDeleteProject))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

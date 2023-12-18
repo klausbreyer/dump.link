@@ -26,6 +26,7 @@ const (
 
 	// only in the backend.
 	ActionCreateProject ActionType = "CREATE_PROJECT"
+	ActionDeleteProject ActionType = "DELETE_PROJECT"
 )
 
 type wsEnvelope struct {

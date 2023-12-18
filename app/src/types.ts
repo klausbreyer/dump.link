@@ -30,6 +30,7 @@ export type Project = {
   name: string;
   startedAt: Date;
   appetite: number;
+  archived: boolean;
 };
 
 export type State = {
