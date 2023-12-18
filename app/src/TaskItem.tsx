@@ -47,8 +47,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const [val, setVal] = useState<string>(task?.title || "");
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
-
-  const [isEditRefFocused, setIsEditRefFocused] = useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
+  const [isfocused, setIsEditRefFocused] = useState<boolean>(false);
   const editRef = useRef<HTMLTextAreaElement>(null);
   const showRef = useRef<HTMLTextAreaElement>(null);
   const [isClicked, setIsClicked] = useState<boolean>(false);
@@ -71,7 +71,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   );
 
   useEffect(() => {
-    if (task) {
+    // only update when not dirty or we would overwrite changes done by the user.
+    if (task && !isDirty) {
       setVal(task.title);
     }
   }, [task]);
@@ -174,7 +175,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newValue = e.target.value;
-
+    setIsDirty(true);
     setVal(newValue);
   };
 
@@ -186,8 +187,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     setIsEditRefFocused(false);
     setIsClicked(false);
 
+    console.log("handleBlur", val, task?.title);
+
     // For an existing task
     if (task && val !== task.title) {
+      setIsDirty(false);
       updateTask(task.id, { title: val });
     }
   }
@@ -349,7 +353,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           </div>
         </div>
       </div>
-      {!task && isEditRefFocused && (
+      {!task && isfocused && (
         <div className="w-full ml-6 mt-0.5 text-xs text-slate-600 ">
           Press Enter to create a task
         </div>
