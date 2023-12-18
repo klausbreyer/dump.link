@@ -243,7 +243,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   const activeTask = task && !task.closed;
-  const allowedToDrag = activeTask === true;
+  const allowedToDrag = activeTask === true && !project.archived;
 
   const bucketTask = task && !bucket.dump;
   const borderColor = bucketTask
@@ -261,7 +261,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const style = task && !task.closed ? { order: localPriority } : {};
   return (
-    <div ref={(node) => dropRef(node)} style={style}>
+    <div ref={(node) => !project.archived && dropRef(node)} style={style}>
       <div
         // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
         className={`flex gap-1 items-center
@@ -273,7 +273,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             type="checkbox"
             className={`w-5 h-5 accent-yellow-300
             ${isSafari() && "safari-only-checkbox-small"} `}
-            disabled={bucket.done}
+            disabled={bucket.done || project.archived}
             checked={task.closed}
             onChange={handleCheckboxChange}
           />
@@ -288,7 +288,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           {task && (
             <>
               <div
-                onClick={() => handleClick()}
+                onClick={() => !project.archived && handleClick()}
                 ref={allowedToDrag ? dragRef : null}
                 className={`absolute top-0 left-0 z-20 w-full h-full opacity-0
                     ${activeTask && "cursor-move"}
@@ -304,8 +304,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                   data-enable-grammarly="false"
                   spellCheck="false"
                   readOnly
-                  className={`border-b-2 group-hover:bg-slate-50 absolute z-10 bg-slate-100
-                  group-hover:outline outline-2 outline-slate-500 select-none
+                  className={`border-b-2  absolute z-10 bg-slate-100
+                  ${
+                    !project.archived &&
+                    "group-hover:outline group-hover:bg-slate-50"
+                  } outline-2 outline-slate-500 select-none
                     ${textAreaClasses}
                     ${borderColor}
                     ${isClicked && "hidden"}
@@ -319,7 +322,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                 onClick={() => handleDelete()}
                 className={` z-30 hidden absolute w-5 h-5 cursor-pointer bg-slate-100
                  text-slate-500 top-0 right-0  hover:text-slate-700 p-0 rounded-full
-                   ${!isDragging && !isClicked && "group-hover:block"}
+                   ${
+                     !isDragging &&
+                     !isClicked &&
+                     !project.archived &&
+                     "group-hover:block"
+                   }
                     `}
               />
             </>
@@ -335,6 +343,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               placeholder="Add a task"
               value={val}
               onBlur={handleBlur}
+              disabled={project.archived}
               onFocus={handleFocus}
               maxLength={config.TASK_MAX_LENGTH}
               onKeyDown={handleKeyDown}

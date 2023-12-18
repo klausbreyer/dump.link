@@ -20,7 +20,8 @@ const FlagButton = React.forwardRef<
   HTMLButtonElement,
   FlagButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>
 >((props, ref) => {
-  const { bucket, tasks, onClick, children, className, ...rest } = props;
+  const { bucket, tasks, onClick, children, disabled, className, ...rest } =
+    props;
 
   const border = getInputBorderColor(bucket);
   const hover = getFlagButtonBackground(bucket, tasks);
@@ -35,7 +36,7 @@ const FlagButton = React.forwardRef<
   return (
     <button
       ref={ref}
-      onClick={onClick ? () => onClick() : () => {}}
+      onClick={onClick && !disabled ? () => onClick() : () => {}}
       className={`active:transform active:scale-95 transition-transform duration-150 h-8 p-0.5 rounded-sm shadow-sm border-b-4 focus:outline-none ${colors} ${className} `}
       {...rest}
     >

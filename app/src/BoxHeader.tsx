@@ -20,7 +20,7 @@ export interface HeaderProps {
 
 const BoxHeader: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { updateBucket, tasks } = useData();
+  const { updateBucket, tasks, project } = useData();
 
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const open = getTasksByClosed(tasksForbucket, false);
@@ -76,6 +76,7 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
             className={`w-full h-8 px-1 text-lg shadow-sm rounded-sm border-b-4 focus:outline-none  ${flaggedStyles} ${inputBorder}`}
             placeholder="Unnamed"
             value={inputValue}
+            disabled={project.archived}
             onChange={handleInputChange}
             onBlur={handleInputBlur}
             onFocus={handleInputFocus}
@@ -94,6 +95,7 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
             <FlagButton
               tasks={tasksForbucket}
               onClick={handleFlagClick}
+              disabled={project.archived}
               bucket={bucket}
             />
           </>
@@ -104,7 +106,7 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
               <>
                 <EmptyChekboxIcon
                   className="absolute top-0 left-0 z-10 w-8 h-8 text-green-500 hover:text-green-600"
-                  onClick={handleCheckboxClick}
+                  onClick={() => !project.archived && handleCheckboxClick()}
                 />
                 <div className="absolute w-7 h-7 bg-white top-0.5 left-0.5">
                   &nbsp;
@@ -114,6 +116,7 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
             {bucket.done && (
               <input
                 type="checkbox"
+                disabled={project.archived}
                 className={`w-8 h-8 accent-green-500 absolute top-0 left-0
             ${isSafari() && "safari-only-checkbox-big"} `}
                 checked={bucket.done || false}

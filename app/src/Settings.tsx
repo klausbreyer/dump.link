@@ -66,7 +66,6 @@ const Settings: React.FC<SettingsProps> = (props) => {
               <input
                 type="text"
                 id="name"
-                disabled={project.archived}
                 maxLength={40}
                 value={name}
                 onChange={handleChange(setName)}
@@ -84,7 +83,6 @@ const Settings: React.FC<SettingsProps> = (props) => {
               <Label htmlFor="appetite">Appetite</Label>
               <select
                 id="appetite"
-                disabled={project.archived}
                 value={appetite}
                 onChange={handleChange(setAppetite)}
                 className={`${inputClassNames} w-36`}
@@ -106,7 +104,6 @@ const Settings: React.FC<SettingsProps> = (props) => {
             <div className="mb-4">
               <Label htmlFor="startedAt">Start Date</Label>
               <input
-                disabled={project.archived}
                 type="date"
                 id="startedAt"
                 value={startedAt}
