@@ -18,10 +18,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         <div className="flex items-center justify-center min-h-screen">
           <Transition.Child
             as={React.Fragment}
-            enter="ease-out duration-300"
+            enter="ease-out duration-250"
             enterFrom="opacity-0"
             enterTo="opacity-100"
-            leave="ease-in duration-200"
+            leave="ease-in duration-150"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
@@ -30,14 +30,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
           <Transition.Child
             as={React.Fragment}
-            enter="ease-out duration-300"
+            enter="ease-out duration-250"
             enterFrom="opacity-0 scale-95"
             enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
+            leave="ease-in duration-150"
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <HeadlessUIDialog.Panel className="w-full max-w-md p-6 bg-white shadow-md rounded-2xl">
+            <HeadlessUIDialog.Panel className="w-full max-w-md bg-white shadow-md rounded-2xl">
               {children}
             </HeadlessUIDialog.Panel>
           </Transition.Child>
