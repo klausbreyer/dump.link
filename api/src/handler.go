@@ -65,6 +65,7 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 	template = strings.Replace(template, "{JS_FILE}", jsFile, -1)
 	template = strings.Trim(template, " \n\t")
 
+	w.Header().Set("Content-Security-Policy", "frame-ancestors *")
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(template))
 }
