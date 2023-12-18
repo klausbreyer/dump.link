@@ -34,12 +34,9 @@ export const GlobalInteractionProvider: React.FC<
     bucketId: "",
   });
 
-  const [temporaryPriority, setTemporaryPriority] = useState<TemporaryPriority>(
-    {
-      priority: 0,
-      taskId: "",
-    },
-  );
+  const [temporaryPriority, setTemporaryPriority] = useState<
+    TemporaryPriority | undefined
+  >();
 
   const [hoveredBuckets, setHoveredBuckets] = useState<BucketID[]>([]);
 
@@ -82,8 +79,8 @@ interface GlobalInteractionContextType {
   updateHoveredBuckets: (input: BucketID[]) => void;
   globalDragging: GlobalDraggingState;
   updateGlobalDragging: (type: DraggingType, entity: BucketID) => void;
-  temporaryPriority: TemporaryPriority;
-  setTemporaryPriority: (input: TemporaryPriority) => void;
+  temporaryPriority: TemporaryPriority | undefined;
+  setTemporaryPriority: (input: TemporaryPriority | undefined) => void;
 }
 
 export const useGlobalInteraction = (): GlobalInteractionContextType => {
