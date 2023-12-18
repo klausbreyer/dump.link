@@ -485,9 +485,7 @@ export const getLayers = (
   dependencies: Dependency[],
 ): BucketID[][] => {
   const chains = getAllDependencyChains(buckets, dependencies);
-  if (chains.length === 0) {
-    return [];
-  }
+
   // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
   const layersMap: Map<number, BucketID[]> = new Map();
 
