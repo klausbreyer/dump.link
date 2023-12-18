@@ -51,5 +51,5 @@ kitchen:
 
 db:
 	make reset
-	make load
+	-make load
 	make up

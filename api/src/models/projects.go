@@ -14,6 +14,7 @@ type Project struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	Appetite  int       `json:"appetite"`
+	Archived  bool      `json:"archived"`
 	// OwnerEmail    string    `json:"ownerEmail"`    // never read. Only ingested.
 	// OwnerFirstName string   `json:"ownerFirstName"` // never read. Only ingested.
 	// OwnerLastName string    `json:"ownerLastName"`  // never read. Only ingested.
@@ -51,7 +52,7 @@ func (m *ProjectModel) IDExists(id string) bool {
 }
 
 func (m *ProjectModel) Get(id string) (*Project, error) {
-	stmt := `SELECT id, name, started_at, created_at, updated_at, appetite FROM projects WHERE id = ?`
+	stmt := `SELECT id, name, started_at, created_at, updated_at, appetite, archived FROM projects WHERE id = ?`
 	row := m.DB.QueryRow(stmt, id)
 
 	var (
@@ -59,7 +60,7 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		p                                           Project
 	)
 
-	err := row.Scan(&p.ID, &p.Name, &started_atStr, &created_atStr, &updated_atStr, &p.Appetite)
+	err := row.Scan(&p.ID, &p.Name, &started_atStr, &created_atStr, &updated_atStr, &p.Appetite, &p.Archived)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Project with ID %s not found", id)
