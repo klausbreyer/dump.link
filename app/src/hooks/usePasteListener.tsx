@@ -1,4 +1,5 @@
 import { useEffect, RefObject } from "react";
+import config from "../config";
 
 /**
  * Custom hook that adds a paste event listener to the specified element.
@@ -16,6 +17,9 @@ const usePasteListener = (
     const handlePaste = (e: ClipboardEvent) => {
       if (!active) return;
       if (!e.clipboardData) return; // Return early if clipboardData is null
+
+      // Prevent default to stop the original pasting
+      e.preventDefault();
 
       const pastedData = e.clipboardData.getData("Text");
 
@@ -40,9 +44,13 @@ const usePasteListener = (
               }, i * 100);
             }
           });
-
-          // Prevent default to stop the original pasting
-          e.preventDefault();
+        } else {
+          let title = pastedData.replace(/-/g, "").trim();
+          if (title.length >= config.TASK_MAX_LENGTH) {
+            // cut last character and add elipsis
+            title = title.substring(0, config.TASK_MAX_LENGTH - 1) + "…";
+          }
+          callback(title);
         }
       }
       // If it's a single line, the default behavior will handle it
