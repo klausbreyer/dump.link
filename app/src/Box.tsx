@@ -11,21 +11,19 @@ import MicroProgress from "./MicroProgress";
 import {
   getBucketBackgroundColorTop,
   getHeaderTextColor,
-  getHoverBorderColor,
 } from "./common/colors";
 import { useData } from "./context/data";
-import { useGlobalInteraction } from "./context/interaction";
 import {
   getArrangeBucketType,
   getBucket,
   getBucketsAvailableFor,
   getBucketsDependingOn,
-  getDependencyChainsForBucket,
   getOtherBuckets,
   getSequenceBucketType,
   getTasksForBucket,
-  uniqueValues,
+  getUniqueDependingIdsForbucket,
 } from "./context/helper";
+import { useGlobalInteraction } from "./context/interaction";
 import {
   Bucket,
   DraggedBucket,
@@ -66,8 +64,11 @@ const Box: React.FC<BoxProps> = (props) => {
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const availbleIds = getBucketsAvailableFor(others, deps, bucket.id);
   const dependingIds = getBucketsDependingOn(deps, bucket.id);
-  const bucketsChains = getDependencyChainsForBucket(others, deps, bucket.id);
-  const uniqueDependingIds = uniqueValues(bucketsChains);
+  const uniqueDependingIds = getUniqueDependingIdsForbucket(
+    others,
+    deps,
+    bucket.id,
+  );
 
   const layerProps = useDragLayer((monitor) => ({
     item: monitor.getItem(),
