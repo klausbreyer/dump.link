@@ -85,6 +85,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		Name      *string `json:"name,omitempty"`
 		StartedAt *string `json:"startedAt,omitempty"`
 		Appetite  *int    `json:"appetite,omitempty"`
+		Archived  *bool   `json:"archived,omitempty"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -94,9 +95,11 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	}
 
 	data := make(map[string]interface{})
+
 	if input.Name != nil {
 		data["name"] = *input.Name
 	}
+
 	if input.StartedAt != nil {
 		startedAt, err := time.Parse("2006-01-02", *input.StartedAt)
 		if err != nil {
@@ -105,8 +108,13 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		}
 		data["started_at"] = startedAt
 	}
+
 	if input.Appetite != nil {
 		data["appetite"] = *input.Appetite
+	}
+
+	if input.Archived != nil {
+		data["archived"] = *input.Archived
 	}
 
 	if len(data) == 0 {

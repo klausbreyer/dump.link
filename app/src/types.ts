@@ -30,6 +30,7 @@ export type Project = {
   name: string;
   startedAt: Date;
   appetite: number;
+  archived: boolean;
 };
 
 export type State = {
@@ -57,6 +58,7 @@ export type ProjectUpdates = {
   name?: Project["name"];
   startedAt?: Project["startedAt"];
   appetite?: Project["appetite"];
+  archived?: Project["archived"];
 };
 export interface lastAccessedProject {
   id: string;

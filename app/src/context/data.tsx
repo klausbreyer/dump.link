@@ -38,6 +38,7 @@ const initialState: State = {
     name: "",
     appetite: 0,
     startedAt: new Date(),
+    archived: false,
   },
 };
 
@@ -97,12 +98,10 @@ const dataReducer = (state: State, action: ActionType): State => {
     case "UPDATE_PROJECT": {
       const { updates } = action;
 
+      const updatedProject = reconsileProjectUpdate(state.project, updates);
       return {
         ...state,
-        project: {
-          ...state.project,
-          ...updates,
-        },
+        project: updatedProject,
       };
     }
 
@@ -605,5 +604,18 @@ function reconsileBucketUpdate(bucket: Bucket, updates: BucketUpdates): Bucket {
     ...(updates.layer !== undefined && { layer: updates.layer }),
     ...(updates.flagged !== undefined && { flagged: updates.flagged }),
     ...(updates.done !== undefined && { done: updates.done }),
+  };
+}
+
+function reconsileProjectUpdate(
+  project: Project,
+  updates: ProjectUpdates,
+): Project {
+  return {
+    ...project,
+    ...(updates.name !== undefined && { name: updates.name }),
+    ...(updates.startedAt !== undefined && { startedAt: updates.startedAt }),
+    ...(updates.appetite !== undefined && { appetite: updates.appetite }),
+    ...(updates.archived !== undefined && { archived: updates.archived }),
   };
 }

@@ -18,6 +18,12 @@ const Settings: React.FC<SettingsProps> = (props) => {
   );
   const [appetite, setAppetite] = useState(project.appetite.toString());
 
+  const toggleArchiveStatus = () => {
+    const updatedProject = { ...project, archived: !project.archived };
+    updateProject(updatedProject);
+    // Optional: Add logic to navigate away or show a confirmation message
+  };
+
   const handleChange =
     (setter: (value: string) => void) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -49,7 +55,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
 
   return (
     <Container>
-      <div className="grid max-w-xl grid-cols-1 gap-10 mt-4">
+      <div className="grid grid-cols-2 gap-10 mt-4">
         <div>
           <div className="flex items-center justify-start gap-2">
             <Title>Settings</Title>
@@ -117,6 +123,39 @@ const Settings: React.FC<SettingsProps> = (props) => {
               </InfoButton>
             </div>
           </form>
+        </div>
+        <div>
+          {/* Danger Zone for Archiving */}
+          <div className="p-4 mt-10 bg-gray-100 border border-gray-300 rounded">
+            <h3 className="font-semibold text-gray-700 text-md">
+              Project Archive
+            </h3>
+            <p className="mb-2 text-sm text-gray-600">
+              {project.archived
+                ? "This project is currently archived. You can reactivate it at any time."
+                : "You can archive this project. It can be reactivated later if needed."}
+            </p>
+            <InfoButton color={"gray"} onClick={toggleArchiveStatus}>
+              {project.archived ? "Reactivate Project" : "Archive Project"}
+            </InfoButton>
+          </div>
+          <div className="p-4 mt-10 border rounded bg-violet-100 border-violet-500">
+            <h3 className="font-semibold text-md text-violet-700">
+              Need More Help?
+            </h3>
+            <p className="mb-2 text-sm text-violet-600">
+              If you wish for more configuration options or have questions that
+              you don't find answers to, please join us on our Discord server.
+            </p>
+            <InfoButton
+              color={"violet"}
+              onClick={() => {
+                window.open("https://discord.gg/C3hdezbYdD", "_blank");
+              }}
+            >
+              Join Discord
+            </InfoButton>
+          </div>
         </div>
       </div>
     </Container>
