@@ -26,13 +26,17 @@ const InfoModal: React.FC<InfoModalProps> = ({
       <span onClick={() => setIsOpen(!isOpen)}>{icon}</span>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        {title.length > 0 && <Title>{title}</Title>}
+        <div className="p-6 ">
+          {title.length > 0 && <Title>{title}</Title>}
 
-        {/* Here, we use the children prop to render the modal content */}
-        <div className="text-sm text-slate-500">{children}</div>
+          {/* Here, we use the children prop to render the modal content */}
+          <div className="text-sm text-slate-500">{children}</div>
 
-        <div>
-          <InfoButton onClick={() => setIsOpen(false)}>{buttonText}</InfoButton>
+          <div>
+            <InfoButton onClick={() => setIsOpen(false)}>
+              {buttonText}
+            </InfoButton>
+          </div>
         </div>
       </Modal>
     </>

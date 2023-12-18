@@ -1,7 +1,7 @@
 import React from "react";
 
 import Area from "./Area";
-import Bucket from "./Bucket";
+import TaskGroup from "./TaskGroup";
 import Container from "./common/Container";
 import FlexCol from "./common/FlexCol";
 import { useData } from "./context/data";
@@ -30,12 +30,12 @@ const Group: React.FC<GroupProps> = (props) => {
           <div className="grid grid-cols-2 gap-4 ">
             <FlexCol>
               {others.slice(0, 5).map((bucket) => (
-                <Bucket bucket={bucket} key={bucket.id} />
+                <TaskGroup bucket={bucket} key={bucket.id} />
               ))}
             </FlexCol>
             <FlexCol>
               {others.slice(-5).map((bucket) => (
-                <Bucket bucket={bucket} key={bucket.id} />
+                <TaskGroup bucket={bucket} key={bucket.id} />
               ))}
             </FlexCol>
           </div>
