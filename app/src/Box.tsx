@@ -53,6 +53,7 @@ const Box: React.FC<BoxProps> = (props) => {
     tasks,
     buckets,
     dependencies,
+    resetBucketLayer,
     addBucketDependency,
   } = useData();
 
