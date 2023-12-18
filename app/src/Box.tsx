@@ -161,9 +161,12 @@ const Box: React.FC<BoxProps> = (props) => {
   const handleMouseOver = () => {
     updateHoveredBuckets(uniqueDependingIds);
   };
+
   const handleMouseOut = () => {
     updateHoveredBuckets([]);
   };
+
+  const handleClick = () => {};
 
   /**
    * Styles & View Logic
@@ -206,6 +209,7 @@ const Box: React.FC<BoxProps> = (props) => {
       ref={(node) =>
         dragref(dropRef(arrangePreviewRev(sequencePreviewRev(node))))
       }
+      onClick={handleClick}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
     >
