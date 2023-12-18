@@ -18,6 +18,8 @@ import {
   NewID,
   PRIORITY_INCREMENT,
   extractIdFromUrl,
+  getLayerForBucketId,
+  getUniqueDependingIdsForbucket,
   hasCyclicDependencyWithBucket,
   saveProjectIdToLocalStorage,
 } from "./helper";
@@ -357,6 +359,29 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     })();
   };
 
+  const moveSubgraph = (bucketId: BucketID, layer: number) => {
+    const uniqueDependingIds = getUniqueDependingIdsForbucket(
+      state.buckets,
+      state.dependencies,
+      bucketId,
+    );
+    const rootLayer = getLayerForBucketId(
+      state.buckets,
+      state.dependencies,
+      bucketId,
+    );
+    const diff = layer - rootLayer;
+
+    uniqueDependingIds.forEach((subId) => {
+      const subLayer = getLayerForBucketId(
+        state.buckets,
+        state.dependencies,
+        subId,
+      );
+      updateBucket(subId, { layer: subLayer + diff });
+    });
+  };
+
   const resetLayersForAllBuckets = () => {
     dispatch({
       type: "RESET_LAYERS_FOR_ALL_BUCKETS",
@@ -486,6 +511,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         removeBucketDependency,
         removeAllBucketDependencies,
         updateBucket,
+        moveSubgraph,
       }}
     >
       {children}
@@ -506,6 +532,7 @@ type DataContextType = {
 
   getBuckets: () => Bucket[];
   updateBucket: (bucketId: BucketID, updates: BucketUpdates) => void;
+  moveSubgraph: (bucketId: BucketID, layer: number) => void;
 
   getDependencies: () => Dependency[];
   getProject: () => Project;

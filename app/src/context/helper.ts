@@ -379,6 +379,16 @@ export const getBucketsAvailableFor = (
     .map((bucket) => bucket.id); // Extract the bucket IDs
 };
 
+export const getUniqueDependingIdsForbucket = (
+  buckets: Bucket[],
+  dependencies: Dependency[],
+  bucketId: BucketID,
+): BucketID[] => {
+  return uniqueValues(
+    getDependencyChainsForBucket(buckets, dependencies, bucketId),
+  );
+};
+
 export const getDependencyChainsForBucket = (
   buckets: Bucket[],
   dependencies: Dependency[],
