@@ -346,7 +346,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               rows={1}
             ></textarea>
             <div
-              className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
+              className={`absolute text-slate-800 text-xxs bottom-2 right-1 px-0.5 rounded bg-white`}
             >
               {val.length}/{config.TASK_MAX_LENGTH}
             </div>
