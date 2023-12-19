@@ -131,6 +131,14 @@ const createApiFunctions = () => {
         method: "PATCH",
         body: updateData,
       }),
+    postBucketResetLayer: (
+      projectId: string,
+      bucketId: string,
+    ): Promise<Bucket> =>
+      apiCall({
+        url: `/projects/${projectId}/buckets/${bucketId}/resetLayers`,
+        method: "POST",
+      }),
     postDependency: (
       projectId: string,
       bucketId: string,

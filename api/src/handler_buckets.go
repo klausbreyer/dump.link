@@ -18,11 +18,6 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !app.buckets.IDExists(bucketId) {
-		app.notFoundResponse(w, r)
-		return
-	}
-
 	var input struct {
 		Name    *string `json:"name,omitempty"`
 		Done    *bool   `json:"done,omitempty"`
@@ -69,6 +64,38 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusOK, data, nil)
 
 	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionUpdateBucket))
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Request) {
+	startTime := time.Now()
+	bucketId, valid := app.getAndValidateID(w, r, "bucketId")
+	if !valid {
+		return
+	}
+
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
+		return
+	}
+
+	err := app.buckets.ResetLayer(bucketId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	data := make(envelope)
+	data["layer"] = nil
+
+	senderToken := app.extractTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetBucketLayers, data)
+	app.writeJSON(w, http.StatusOK, data, nil)
+
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionResetBucketLayers))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -115,3 +115,9 @@ func (m *BucketModel) ResetProjectLayers(projectId string) error {
 	_, err := m.DB.Exec(query, projectId)
 	return err
 }
+
+func (m *BucketModel) ResetLayer(bucketId string) error {
+	query := `UPDATE buckets SET layer = NULL WHERE id = ?`
+	_, err := m.DB.Exec(query, bucketId)
+	return err
+}
