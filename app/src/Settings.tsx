@@ -104,7 +104,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 id="appetite"
                 value={appetite}
                 onChange={handleChange(setAppetite)}
-                className={`${inputClassNames} w-36`}
+                className={`${inputClassNames} w-50`}
               >
                 {[2, 3, 4, 5, 6, 7, 8, 0].map((week) => (
                   <option key={week} value={week}>
