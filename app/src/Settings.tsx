@@ -124,36 +124,64 @@ const Settings: React.FC<SettingsProps> = (props) => {
           </form>
         </div>
         <div>
-          {/* Danger Zone for Archiving */}
-          <div className="p-4 mt-10 bg-gray-100 border border-gray-300 rounded">
-            <h3 className="font-semibold text-gray-700 text-md">
-              Project Archive
-            </h3>
-            <p className="mb-2 text-sm text-gray-600">
-              {project.archived
-                ? "This project is currently archived. You can reactivate it at any time."
-                : "You can archive this project. It can be reactivated later if needed."}
-            </p>
-            <InfoButton color={"gray"} onClick={toggleArchiveStatus}>
-              {project.archived ? "Reactivate Project" : "Archive Project"}
-            </InfoButton>
-          </div>
-          <div className="p-4 mt-10 border rounded bg-violet-100 border-violet-500">
-            <h3 className="font-semibold text-md text-violet-700">
-              Need More Help?
-            </h3>
-            <p className="mb-2 text-sm text-violet-600">
-              If you wish for more configuration options or have questions that
-              you don't find answers to, please join us on our Discord server.
-            </p>
-            <InfoButton
-              color={"violet"}
-              onClick={() => {
-                window.open("https://discord.gg/C3hdezbYdD", "_blank");
-              }}
-            >
-              Join Discord
-            </InfoButton>
+          <div className="flex flex-col gap-4 mt-10">
+            {/* Danger Zone for Archiving */}
+            <div className="p-4 bg-gray-100 border border-gray-300 rounded">
+              <h3 className="font-semibold text-gray-700 text-md">
+                {project.archived ? "Reactivate Project" : "Archive Project"}
+              </h3>
+              <p className="mb-2 text-sm text-gray-600">
+                {project.archived
+                  ? "This project is currently archived. In this state, it remains accessible in a read-only format, meaning it is essentially frozen and no operational changes can be made. However, you can still modify project settings, such as changing its archived status. Reactivating the project at any time will restore its full functionality, including the ability to make comprehensive edits and updates."
+                  : "You can opt to archive this project. When archived, the project enters a read-only state, frozen in its current form with no scope for operational modifications. However, you retain the ability to alter project settings, like toggling the archived status. Should you need to, the project can be reactivated later, enabling full access and the capability to perform necessary updates and changes."}
+              </p>
+              <InfoButton color={"gray"} onClick={toggleArchiveStatus}>
+                {project.archived ? "Reactivate Project" : "Archive Project"}
+              </InfoButton>
+            </div>
+            {/* delete */}
+            <div className="p-4 bg-red-100 border border-red-300 rounded">
+              <h3 className="font-semibold text-red-700 text-md">
+                Delete Project
+              </h3>
+              <p className="mb-2 text-sm text-red-600">
+                For security purposes and the lack of a user authentication
+                system, projects cannot be directly deleted from the web
+                interface. To request the deletion of your project, please email{" "}
+                <a
+                  className="underline hover:no-underline"
+                  href="mailto:support@dump.link"
+                >
+                  support@dump.link
+                </a>{" "}
+                using the email account associated with your dumplink, and
+                include the ID or link to your dumplink.
+              </p>
+              <InfoButton
+                color={"red"}
+                href={`mailto:support@dump.link?subject=Deletion of Project ID ${project.id}`}
+              >
+                Delete Project
+              </InfoButton>
+            </div>
+            {/* Discord */}
+            <div className="p-4 border rounded bg-violet-100 border-violet-500">
+              <h3 className="font-semibold text-md text-violet-700">
+                Need More Help?
+              </h3>
+              <p className="mb-2 text-sm text-violet-600">
+                If you wish for more configuration options or have questions
+                that you don't find answers to, please join us on our Discord
+                server.
+              </p>
+              <InfoButton
+                color={"violet"}
+                href="https://discord.gg/C3hdezbYdD"
+                target="_blank"
+              >
+                Join Discord
+              </InfoButton>
+            </div>
           </div>
         </div>
       </div>
