@@ -328,6 +328,15 @@ export const getBucketsDependingOn = (
     .map((dep) => dep.bucketId);
 };
 
+export const getBucketsDependingOnNothing = (
+  buckets: Bucket[],
+  dependencies: Dependency[],
+): Bucket[] => {
+  return buckets.filter(
+    (bucket) => getBucketsDependingOn(dependencies, bucket.id).length === 0,
+  );
+};
+
 export const getBucketDependencies = (
   dependencies: Dependency[],
   bucketId: BucketID,
@@ -370,7 +379,17 @@ export const getBucketsAvailableFor = (
     .map((bucket) => bucket.id); // Extract the bucket IDs
 };
 
-const getDependencyChainsForBucket = (
+export const getUniqueDependingIdsForbucket = (
+  buckets: Bucket[],
+  dependencies: Dependency[],
+  bucketId: BucketID,
+): BucketID[] => {
+  return uniqueValues(
+    getDependencyChainsForBucket(buckets, dependencies, bucketId),
+  );
+};
+
+export const getDependencyChainsForBucket = (
   buckets: Bucket[],
   dependencies: Dependency[],
   bucketId: BucketID,
@@ -458,18 +477,24 @@ export const getBucketForTask = (buckets: Bucket[], task: Task) => {
   // Find the bucket that has the same id as the task's bucketId
   return buckets.find((bucket) => bucket.id === task.bucketId);
 };
+export const getNamedBuckets = (buckets: Bucket[]) => {
+  return buckets.filter((bucket) => bucket.name !== "");
+};
 export const getLayers = (
   buckets: Bucket[],
   dependencies: Dependency[],
 ): BucketID[][] => {
   const chains = getAllDependencyChains(buckets, dependencies);
-  if (chains.length === 0) {
-    return [];
-  }
+
   // Create a map to store the result of findSubarrayIndex as key and the corresponding ids as values
   const layersMap: Map<number, BucketID[]> = new Map();
 
-  const ids = uniqueValues(chains);
+  const uniqueIds = uniqueValues(chains);
+  const namedBuckets = getNamedBuckets(getOtherBuckets(buckets));
+  const namedBucketIds = namedBuckets.map((bucket) => bucket.id);
+  const namedBucketsMissingInLayersMap = difference(namedBucketIds, uniqueIds);
+
+  const ids = [...uniqueIds, ...namedBucketsMissingInLayersMap];
 
   // Process each id
   ids.forEach((id) => {
@@ -482,6 +507,9 @@ export const getLayers = (
       index = bucket.layer;
     } else {
       index = findLargestSubarrayIndex(chains, id);
+      if (index === -1) {
+        index = 0;
+      }
     }
 
     // Adding or updating the layersMap
@@ -497,10 +525,10 @@ export const getLayers = (
   const keys = Array.from(layersMap.keys()).sort((a, b) => a - b); // Sorting the keys in ascending order
 
   // Populate the layersArray with BucketID arrays, ordered by layer
-  const minKey = keys[0];
   const maxKey = keys[keys.length - 1];
 
-  for (let i = minKey; i <= maxKey; i++) {
+  // Ensure layersArray starts from 0
+  for (let i = 0; i <= maxKey; i++) {
     if (layersMap.has(i)) {
       layersArray.push(layersMap.get(i)!);
     } else {
@@ -530,84 +558,6 @@ export const getLayerForBucketId = (
 
   // Return -1 if the bucketId is not found in any layer
   return -1;
-};
-export const getAllowedBucketsByLayer = (
-  buckets: Bucket[],
-  dependencies: Dependency[],
-  index: number | undefined,
-): BucketID[][] => {
-  if (index === undefined || index < 0) {
-    return [];
-  }
-
-  const MIN_LAYER = -1;
-  const MAX_LAYER = Number.MAX_SAFE_INTEGER;
-
-  const layersWithBucketIds = getLayers(buckets, dependencies);
-  const lookup: Map<BucketID, [number, number]> = new Map();
-  const layerForBucketId: Map<BucketID, number> = new Map();
-
-  layersWithBucketIds.forEach((ids, layerIndex) => {
-    ids.forEach((id) => layerForBucketId.set(id, layerIndex));
-  });
-
-  for (const idsInLayer of layersWithBucketIds) {
-    for (const idInLayer of idsInLayer) {
-      const bucket = getBucket(buckets, idInLayer);
-      if (!bucket) continue;
-
-      const dependentOn = getBucketsDependingOn(dependencies, idInLayer);
-      const dependencyFor = getBucketDependencies(dependencies, idInLayer);
-
-      const dependentOnLayers = new Set<number>(
-        dependentOn
-          .map((id) => layerForBucketId.get(id))
-          .filter((layer): layer is number => layer !== undefined),
-      );
-
-      const dependencyForLayers = new Set<number>(
-        dependencyFor
-          .map((id: BucketID) => layerForBucketId.get(id))
-          .filter((layer): layer is number => layer !== undefined),
-      );
-
-      const minLayer = dependentOnLayers.size
-        ? Math.max(...dependentOnLayers)
-        : MIN_LAYER;
-      const maxLayer = dependencyForLayers.size
-        ? Math.min(...dependencyForLayers)
-        : MAX_LAYER;
-
-      lookup.set(idInLayer, [minLayer, maxLayer]);
-    }
-  }
-
-  const getAllowedBucketsOnLayer = (
-    layerIndex: number,
-    others: Bucket[],
-  ): BucketID[] => {
-    return others
-      .map((bucket) => bucket.id)
-      .filter((id) => {
-        const [min, max] = lookup.get(id) || [MIN_LAYER, MAX_LAYER];
-        const currentLayer = layerForBucketId.get(id) || MIN_LAYER;
-        return (
-          currentLayer !== layerIndex && min < layerIndex && max > layerIndex
-        );
-      });
-  };
-
-  const allowedOnLayers: BucketID[][] = [];
-  const others = getOtherBuckets(buckets);
-  for (
-    let layerIndex = 0;
-    layerIndex < layersWithBucketIds.length;
-    layerIndex++
-  ) {
-    allowedOnLayers.push(getAllowedBucketsOnLayer(layerIndex, others));
-  }
-
-  return allowedOnLayers;
 };
 
 export const getTask = (tasks: Task[], taskId: TaskID) => {

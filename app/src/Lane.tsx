@@ -3,15 +3,22 @@ import { useDrop } from "react-dnd";
 
 import { useData } from "./context/data";
 import {
-  getAllDependencyChains,
-  getAllowedBucketsByLayer,
   getArrangeBucketType,
   getBucket,
-  getLastValues,
+  getBucketDependencies,
+  getBucketsDependingOnNothing,
+  getLayers,
   getOtherBuckets,
 } from "./context/helper";
-import { useGlobalDragging } from "./context/dragging";
-import { DraggedBucket, DraggingType, DropCollectedProps } from "./types";
+import { useGlobalInteraction } from "./context/interaction";
+import {
+  Bucket,
+  BucketID,
+  Dependency,
+  DraggedBucket,
+  DraggingType,
+  DropCollectedProps,
+} from "./types";
 
 interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
@@ -19,46 +26,105 @@ interface LaneProps extends React.HTMLProps<HTMLDivElement> {
   defaultHidden: boolean;
   index: number;
 }
+const getAccept = (
+  buckets: Bucket[],
+  dependencies: Dependency[],
+  index: number,
+) => {
+  const others = getOtherBuckets(buckets);
+  const bucketsNotDepending = getBucketsDependingOnNothing(
+    others,
+    dependencies,
+  );
+
+  const layers = getLayers(buckets, dependencies);
+
+  const accept: string[] = [];
+
+  /**
+   * Special Case:
+   * new lane: accepts all. everything can be moved down.
+   */
+  if (index === undefined || !layers[index]) {
+    return buckets.map((bucket) => getArrangeBucketType(bucket.id));
+  }
+
+  /**
+   * General Case: Everything that is not depending on something can be moved everywhere
+   */
+  bucketsNotDepending.forEach((bucket) => {
+    accept.push(getArrangeBucketType(bucket.id));
+  });
+
+  /**
+   * Case 1: Upwards-Move
+   *
+   * layer allows all buckets that are a dependent on all the buckets in all the layers above.
+   */
+
+  //map that holds the lowest dependency layer for each bucket
+  // attention: lower = larger number (because top -> down)
+  const lowestDependencyLayer = new Map<BucketID, number>();
+
+  layers.forEach((layer, layerIndex) => {
+    // Iterating through each bucket in the layer
+    for (const bucketId of layer) {
+      // Getting dependencies of the current bucket
+      const bucketDependencies = getBucketDependencies(dependencies, bucketId);
+
+      bucketDependencies.forEach((dependencyId) => {
+        // Updating the lowest layer index for the dependency
+        const currentLowestLayerIndex = lowestDependencyLayer.get(dependencyId);
+        if (!currentLowestLayerIndex || layerIndex > currentLowestLayerIndex) {
+          lowestDependencyLayer.set(dependencyId, layerIndex);
+        }
+      });
+    }
+  });
+
+  //push all the lowest dependencies into accept
+  lowestDependencyLayer.forEach((layerIndex, bucketId) => {
+    if (index > layerIndex) {
+      accept.push(getArrangeBucketType(bucketId));
+    }
+  });
+  // such a move needs the update of all dependent boxes.
+
+  /**
+   * Case 2: downward-move
+   * layer allows all that comes from above(because it will push everything down)
+   */
+  accept.push(
+    ...layers
+      .slice(0, index)
+      .flatMap((bucketId) => bucketId)
+      .map((bucketId) => getArrangeBucketType(bucketId)),
+  );
+
+  // such a move needs the update of all dependent boxes.
+
+  /**
+   * Case 3: No Move.
+   * All Boxes all that are  currently in the lane can stay there.
+   */
+  accept.push(
+    ...layers[index].map((bucketId) => getArrangeBucketType(bucketId)),
+  );
+  return accept;
+};
 
 const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const { getBuckets, getDependencies, updateBucket } = useData();
+  const { getBuckets, getDependencies, moveSubgraph } = useData();
 
   const buckets = getBuckets();
   const dependencies = getDependencies();
-  const chains = getAllDependencyChains(buckets, dependencies);
-  const others = getOtherBuckets(buckets);
-  const allowedOnLayers = getAllowedBucketsByLayer(
-    buckets,
-    dependencies,
-    index,
-  );
 
-  const { globalDragging } = useGlobalDragging();
-
-  const getAccept = () => {
-    // all that is not having any dependents can be moved to the last lane.
-
-    if (index === allowedOnLayers.length) {
-      return getLastValues(chains).map((bucketId) =>
-        getArrangeBucketType(bucketId),
-      );
-    }
-
-    // unconnected buckets lane.
-    if (index === undefined || !allowedOnLayers[index]) {
-      return [];
-    }
-
-    //default behaviour
-    return allowedOnLayers[index].map((bucketId) =>
-      getArrangeBucketType(bucketId),
-    );
-  };
+  const { globalDragging } = useGlobalInteraction();
 
   const [collectedProps, dropRef] = useDrop(
     {
-      accept: getAccept(),
+      accept: getAccept(buckets, dependencies, index),
 
       drop: (item: DraggedBucket) => {
         const bucket = getBucket(buckets, item.bucketId);
@@ -66,14 +132,14 @@ const Lane: React.FC<LaneProps> = (props) => {
         if (!bucket) return;
         if (index === null || index === undefined) return;
 
-        updateBucket(bucket.id, { layer: index });
+        moveSubgraph(bucket.id, index);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
     },
-    [others, index, buckets, updateBucket, getAccept],
+    [dependencies, index, buckets, moveSubgraph, getAccept],
   );
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;

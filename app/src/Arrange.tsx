@@ -136,19 +136,21 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
           />
         </div>
       </div>
-      <div className="flex items-center justify-end w-full">
-        <InfoButton
-          onClick={() =>
-            confirm(
-              "Are you certain you want to revert your customized layers to their default settings?",
-            )
-              ? resetLayersForAllBuckets()
-              : null
-          }
-        >
-          Revert
-        </InfoButton>
-      </div>
+      {layersWithBuckets.length > 0 && (
+        <div className="flex items-center justify-end w-full">
+          <InfoButton
+            onClick={() =>
+              confirm(
+                "Are you certain you want to revert your customized layers to their default settings?",
+              )
+                ? resetLayersForAllBuckets()
+                : null
+            }
+          >
+            Revert
+          </InfoButton>
+        </div>
+      )}
     </Container>
   );
 };
