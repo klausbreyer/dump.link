@@ -18,18 +18,18 @@ import {
   sortTasksByUpdatedAt,
 } from "./context/helper";
 import {
-  Bucket,
+  Bucket as TaskGroup,
   DraggedTask,
   DropCollectedProps,
   TabContext,
   TaskID,
 } from "./types";
 
-interface BucketProps {
-  bucket: Bucket;
+interface TaskGroupProps {
+  bucket: TaskGroup;
 }
 
-const Bucket: React.FC<BucketProps> = (props) => {
+const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const { bucket } = props;
   const { updateTask, getTasks, moveTask, getBuckets } = useData();
 
@@ -37,7 +37,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
 
   const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const allOtherBuckets = buckets.filter((b: Bucket) => b.id !== bucket.id);
+  const allOtherBuckets = buckets.filter((b: TaskGroup) => b.id !== bucket.id);
 
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
@@ -65,7 +65,7 @@ const Bucket: React.FC<BucketProps> = (props) => {
       // accepts tasks from all others and from this self bucket, if it is from done.
       accept: bucket.done
         ? []
-        : allOtherBuckets.map((b: Bucket) => getOpenBucketType(b.id)),
+        : allOtherBuckets.map((b: TaskGroup) => getOpenBucketType(b.id)),
       drop: (item: DraggedTask) => {
         const taskId = item.taskId;
         const task = getTask(tasks, taskId);
@@ -113,13 +113,6 @@ const Bucket: React.FC<BucketProps> = (props) => {
       ${showNone && " border-transparent"}
     `}
     >
-      {process.env.NODE_ENV !== "production" && (
-        <div
-          className={`absolute text-slate-800 text-xxxs bottom-2 right-1 bg-white z-10`}
-        >
-          ID: {bucket?.id}
-        </div>
-      )}
       <div className={` `}>
         {/* needs to be wrapped, for a clear cut - or the border will be around the corners.. */}
         <BoxHeader context={TabContext.Group} bucket={bucket} />
@@ -192,4 +185,4 @@ const Bucket: React.FC<BucketProps> = (props) => {
   );
 };
 
-export default Bucket;
+export default TaskGroup;

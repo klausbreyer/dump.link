@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 
 import {
+  ArrowsPointingOutIcon,
   ExclamationTriangleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -31,6 +32,8 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
+import Modal from "./common/Modal";
+import TaskGroup from "./TaskGroup";
 
 interface BoxProps {
   bucket: Bucket;
@@ -69,6 +72,8 @@ const Box: React.FC<BoxProps> = (props) => {
     deps,
     bucket.id,
   );
+
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const layerProps = useDragLayer((monitor) => ({
     item: monitor.getItem(),
@@ -161,8 +166,17 @@ const Box: React.FC<BoxProps> = (props) => {
   const handleMouseOver = () => {
     updateHoveredBuckets(uniqueDependingIds);
   };
+
   const handleMouseOut = () => {
     updateHoveredBuckets([]);
+  };
+
+  const handleClick = () => {
+    setIsOpen(true);
+  };
+
+  const onClose = () => {
+    setIsOpen(false);
   };
 
   /**
@@ -195,48 +209,62 @@ const Box: React.FC<BoxProps> = (props) => {
         : (x: any) => x;
 
   return (
-    <div
-      id={bucket.id}
-      className={` w-full rounded-md overflow-hidden opacity-95  border-2
+    <>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <div className={` p-2 ${bgTop} rounded-xl`}>
+          <TaskGroup bucket={bucket} />
+        </div>
+      </Modal>
+      <div
+        id={bucket.id}
+        className={` w-full rounded-md overflow-hidden opacity-95  border-2
         ${isHovered || context === TabContext.Sequence ? "cursor-move" : ""}
         ${hoverBorder}
         ${canDrop && !isOver && "border-dashed border-2 border-slate-400"}
         ${isOver && " border-slate-400"}
       `}
-      ref={(node) =>
-        dragref(dropRef(arrangePreviewRev(sequencePreviewRev(node))))
-      }
-      onMouseOver={handleMouseOver}
-      onMouseOut={handleMouseOut}
-    >
-      <div className={`${bgTop}`}>
-        <BoxHeader bucket={bucket} context={context} />
-        <MicroProgress bucket={bucket} />
-        <div className={`min-h-[1rem] `}>
-          <ul className="p-1 text-sm">
-            {TabContext.Sequence === context &&
-              dependingIds?.map((id) => (
-                <BucketItem
-                  key={id}
-                  context={context}
-                  callback={() => removeBucketDependency(id, bucket.id)}
-                  bucket={getBucket(others, id)}
-                />
-              ))}
-            {TabContext.Sequence === context && (
-              <li className="flex items-center justify-center h-8 gap-1 p-1 text-sm">
-                {showUnavailable && (
-                  <>
-                    <ExclamationTriangleIcon className="w-5 h-5" />
-                    Cycle Detected
-                  </>
-                )}
-              </li>
-            )}
-          </ul>
+        ref={(node) =>
+          dragref(dropRef(arrangePreviewRev(sequencePreviewRev(node))))
+        }
+        onMouseOver={handleMouseOver}
+        onMouseOut={handleMouseOut}
+      >
+        <div className={`${bgTop}`}>
+          <BoxHeader bucket={bucket} context={context} />
+          <MicroProgress bucket={bucket} />
+          <div className={`min-h-[1rem] `}>
+            <ul className="p-1 text-sm">
+              {TabContext.Sequence === context &&
+                dependingIds?.map((id) => (
+                  <BucketItem
+                    key={id}
+                    context={context}
+                    callback={() => removeBucketDependency(id, bucket.id)}
+                    bucket={getBucket(others, id)}
+                  />
+                ))}
+              {TabContext.Sequence === context && (
+                <li className="flex items-center justify-center h-8 gap-1 p-1 text-sm">
+                  {showUnavailable && (
+                    <>
+                      <ExclamationTriangleIcon className="w-5 h-5" />
+                      Cycle Detected
+                    </>
+                  )}
+                </li>
+              )}
+            </ul>
+          </div>
+          <div className="flex items-center justify-end w-full gap-1 p-1 text-sm cursor-pointer ">
+            <ArrowsPointingOutIcon
+              title="Show Task Group"
+              className="w-5 h-5 hover:bg-slate-300 "
+              onClick={handleClick}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
