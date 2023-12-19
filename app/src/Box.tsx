@@ -9,6 +9,8 @@ import {
 
 import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
+import TaskGroup from "./TaskGroup";
+import Modal from "./common/Modal";
 import {
   getBucketBackgroundColorTop,
   getHeaderTextColor,
@@ -23,6 +25,9 @@ import {
   getSequenceBucketType,
   getTasksForBucket,
   getUniqueDependingIdsForbucket,
+  getWholeSubgraph,
+  rootsOfSubgraph,
+  uniqueValues,
 } from "./context/helper";
 import { useGlobalInteraction } from "./context/interaction";
 import {
@@ -32,8 +37,6 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
-import Modal from "./common/Modal";
-import TaskGroup from "./TaskGroup";
 
 interface BoxProps {
   bucket: Bucket;
@@ -50,6 +53,7 @@ const Box: React.FC<BoxProps> = (props) => {
     getTasks,
     getDependencies,
     addBucketDependency,
+    resetBucketLayer,
     getBuckets,
   } = useData();
 
@@ -63,13 +67,13 @@ const Box: React.FC<BoxProps> = (props) => {
   const buckets = getBuckets();
   const others = getOtherBuckets(buckets);
   const tasks = getTasks();
-  const deps = getDependencies();
+  const dependencies = getDependencies();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const availbleIds = getBucketsAvailableFor(others, deps, bucket.id);
-  const dependingIds = getBucketsDependingOn(deps, bucket.id);
+  const availbleIds = getBucketsAvailableFor(others, dependencies, bucket.id);
+  const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
   const uniqueDependingIds = getUniqueDependingIdsForbucket(
     others,
-    deps,
+    dependencies,
     bucket.id,
   );
 
@@ -88,17 +92,33 @@ const Box: React.FC<BoxProps> = (props) => {
     {
       accept: availbleIds.map((id) => getSequenceBucketType(id)),
 
-      drop: (item: DraggedBucket) => {
-        const fromBucket = getBucket(others, item.bucketId);
+      drop: (from: DraggedBucket) => {
+        const fromBucket = getBucket(others, from.bucketId);
         if (!fromBucket) return;
         addBucketDependency(fromBucket, bucket.id);
+
+        //for all the connected subgraphs (up to the root and down to all the leaves)  reset layers
+        //because it can have been somewhere else moved before.
+        const affectedIds = uniqueValues([
+          getWholeSubgraph(dependencies, from.bucketId),
+          getWholeSubgraph(dependencies, bucket.id),
+        ]);
+        affectedIds.forEach((id) => resetBucketLayer(id));
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
     },
-    [availbleIds, bucket, others, addBucketDependency, getSequenceBucketType],
+    [
+      availbleIds,
+      bucket,
+      dependencies,
+      others,
+      addBucketDependency,
+      getSequenceBucketType,
+      resetBucketLayer,
+    ],
   );
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 

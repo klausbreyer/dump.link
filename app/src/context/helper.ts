@@ -341,7 +341,6 @@ export const getBucketDependencies = (
   dependencies: Dependency[],
   bucketId: BucketID,
 ): BucketID[] => {
-  // Filtert alle Dependencies, bei denen der gegebene Bucket als abhängig aufgeführt ist
   return dependencies
     .filter((dependency) => dependency.bucketId === bucketId)
     .map((dependency) => dependency.dependencyId);
@@ -766,3 +765,57 @@ export const hasCyclicDependencyWithBucket = (
 
   return dfs(bucketId, new Set(), new Set());
 };
+
+export function rootsOfSubgraph(
+  dependencies: Dependency[],
+  bucketId: BucketID,
+): BucketID[] {
+  let roots = new Set<BucketID>();
+
+  const findRoots = (currentBucketId: BucketID) => {
+    const dependentBuckets = getBucketsDependingOn(
+      dependencies,
+      currentBucketId,
+    );
+
+    if (dependentBuckets.length === 0) {
+      roots.add(currentBucketId);
+    } else {
+      dependentBuckets.forEach(findRoots);
+    }
+  };
+
+  findRoots(bucketId);
+
+  return Array.from(roots);
+}
+export function getWholeSubgraph(
+  dependencies: Dependency[],
+  bucketId: BucketID,
+): BucketID[] {
+  let visited = new Set<BucketID>();
+
+  const traverse = (currentBucketId: BucketID) => {
+    if (visited.has(currentBucketId)) {
+      return;
+    }
+
+    visited.add(currentBucketId);
+
+    const dependentBuckets = getBucketsDependingOn(
+      dependencies,
+      currentBucketId,
+    );
+    dependentBuckets.forEach(traverse);
+
+    const bucketDependencies = getBucketDependencies(
+      dependencies,
+      currentBucketId,
+    );
+    bucketDependencies.forEach(traverse);
+  };
+
+  traverse(bucketId);
+
+  return Array.from(visited);
+}

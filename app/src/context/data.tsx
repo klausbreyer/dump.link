@@ -59,6 +59,10 @@ export type ActionType =
     }
   | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" }
   | {
+      type: "RESET_BUCKET_LAYER";
+      bucketId: BucketID;
+    }
+  | {
       type: "UPDATE_TASK";
       taskId: TaskID;
       updates: TaskUpdates;
@@ -166,6 +170,21 @@ const dataReducer = (state: State, action: ActionType): State => {
     case "RESET_LAYERS_FOR_ALL_BUCKETS": {
       const updatedBuckets = state.buckets.map((bucket) => {
         return { ...bucket, layer: null };
+      });
+
+      return {
+        ...state,
+        buckets: updatedBuckets,
+      };
+    }
+
+    case "RESET_BUCKET_LAYER": {
+      const { bucketId } = action;
+      const updatedBuckets = state.buckets.map((bucket) => {
+        if (bucket.id === bucketId) {
+          return reconsileBucketUpdate(bucket, { layer: null });
+        }
+        return bucket;
       });
 
       return {
@@ -359,6 +378,22 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     })();
   };
 
+  const resetBucketLayer = (bucketId: BucketID) => {
+    dispatch({
+      type: "RESET_BUCKET_LAYER",
+      bucketId: bucketId,
+    });
+
+    (async () => {
+      try {
+        await apiFunctions.postBucketResetLayer(state.project.id, bucketId);
+      } catch (error) {
+        notifyBugsnag(error);
+        alert("Error while reseting bucket layer");
+      }
+    })();
+  };
+
   const moveSubgraph = (bucketId: BucketID, layer: number) => {
     const uniqueDependingIds = getUniqueDependingIdsForbucket(
       state.buckets,
@@ -503,6 +538,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getDependencies,
         getProject,
         updateProject,
+        resetBucketLayer,
         moveTask,
         updateTask,
         resetLayersForAllBuckets,
@@ -532,6 +568,7 @@ type DataContextType = {
 
   getBuckets: () => Bucket[];
   updateBucket: (bucketId: BucketID, updates: BucketUpdates) => void;
+  resetBucketLayer: (bucketId: BucketID) => void;
   moveSubgraph: (bucketId: BucketID, layer: number) => void;
 
   getDependencies: () => Dependency[];
