@@ -315,7 +315,7 @@ const BucketItem: React.FC<BucketItemProps> = (props) => {
   if (TabContext.Sequence === context) {
     return (
       <li
-        onClick={() => callback()}
+        onClick={() => !archived && callback()}
         className={`flex cursor-pointer items-center justify-between group gap-1 p-0.5
         ${!archived && "hover:underline"}
         ${bgHeader}`}
