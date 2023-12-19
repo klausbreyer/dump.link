@@ -47,8 +47,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const [val, setVal] = useState<string>(task?.title || "");
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
-
-  const [isEditRefFocused, setIsEditRefFocused] = useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
+  const [isfocused, setIsEditRefFocused] = useState<boolean>(false);
   const editRef = useRef<HTMLTextAreaElement>(null);
   const showRef = useRef<HTMLTextAreaElement>(null);
   const [isClicked, setIsClicked] = useState<boolean>(false);
@@ -71,7 +71,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   );
 
   useEffect(() => {
-    if (task) {
+    // only update when not dirty or we would overwrite changes done by the user.
+    if (task && !isDirty) {
       setVal(task.title);
     }
   }, [task]);
@@ -93,12 +94,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         if (!task) return;
 
         //it could also be that a task was not changed in priority, but moved to a different bucket. then we do not want to call updateTask!
-        if (temporaryPriority.priority === 0) return;
+        if (!temporaryPriority) return;
 
         updateTask(temporaryPriority.taskId, {
           priority: temporaryPriority.priority,
         });
-        setTemporaryPriority({ priority: 0, taskId: "" });
+        setTemporaryPriority(undefined);
       },
     }),
     [
@@ -174,7 +175,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newValue = e.target.value;
-
+    setIsDirty(true);
     setVal(newValue);
   };
 
@@ -186,8 +187,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     setIsEditRefFocused(false);
     setIsClicked(false);
 
+    console.log("handleBlur", val, task?.title);
+
     // For an existing task
     if (task && val !== task.title) {
+      setIsDirty(false);
       updateTask(task.id, { title: val });
     }
   }
@@ -254,7 +258,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     "overflow-hidden px-1 resize-none rounded-sm shadow-md w-full";
 
   const localPriority =
-    temporaryPriority.taskId === task?.id
+    temporaryPriority && temporaryPriority.taskId === task?.id
       ? temporaryPriority.priority
       : task?.priority;
 
@@ -342,14 +346,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               rows={1}
             ></textarea>
             <div
-              className={`absolute text-slate-800 text-xxs bottom-2 right-1`}
+              className={`absolute text-slate-800 text-xxs bottom-2 right-1 px-0.5 rounded bg-white`}
             >
               {val.length}/{config.TASK_MAX_LENGTH}
             </div>
           </div>
         </div>
       </div>
-      {!task && isEditRefFocused && (
+      {!task && isfocused && (
         <div className="w-full ml-6 mt-0.5 text-xs text-slate-600 ">
           Press Enter to create a task
         </div>
