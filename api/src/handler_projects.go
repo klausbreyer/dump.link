@@ -238,10 +238,10 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	data["message"] = "All layers in the project have been reset successfully"
 
 	senderToken := app.extractTokenFromRequest(r)
-	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetLayersForAllBuckets, data)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetProjectLayers, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetLayersForAllBuckets))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetProjectLayers))
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

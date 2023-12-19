@@ -61,7 +61,7 @@ export type ActionType =
       bucketId: BucketID;
       updates: BucketUpdates;
     }
-  | { type: "RESET_LAYERS_FOR_ALL_BUCKETS" }
+  | { type: "RESET_PROJECT_LAYERS" }
   | {
       type: "RESET_BUCKET_LAYER";
       bucketId: BucketID;
@@ -169,7 +169,7 @@ const dataReducer = (state: State, action: ActionType): State => {
       };
     }
 
-    case "RESET_LAYERS_FOR_ALL_BUCKETS": {
+    case "RESET_PROJECT_LAYERS": {
       const updatedBuckets = state.buckets.map((bucket) => {
         return { ...bucket, layer: null };
       });
@@ -421,7 +421,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const resetLayersForAllBuckets = () => {
     dispatch({
-      type: "RESET_LAYERS_FOR_ALL_BUCKETS",
+      type: "RESET_PROJECT_LAYERS",
     });
 
     (async () => {
