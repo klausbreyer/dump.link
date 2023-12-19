@@ -79,6 +79,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	var input struct {
 		Name      *string `json:"name,omitempty"`
 		StartedAt *string `json:"startedAt,omitempty"`
+		EndingAt  *string `json:"endingAt,omitempty"`
 		Appetite  *int    `json:"appetite,omitempty"`
 		Archived  *bool   `json:"archived,omitempty"`
 	}
@@ -102,6 +103,14 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 		data["started_at"] = startedAt
+	}
+	if input.EndingAt != nil {
+		endingAt, err := time.Parse("2006-01-02", *input.EndingAt)
+		if err != nil {
+			app.badRequestResponse(w, r, fmt.Errorf("invalid date format for endingAt"))
+			return
+		}
+		data["ending_at"] = endingAt
 	}
 
 	if input.Appetite != nil {
@@ -162,7 +171,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	projectId, err := app.projects.Insert(input.Name, time.Now(), input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName)
+	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

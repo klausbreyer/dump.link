@@ -38,6 +38,7 @@ const initialState: State = {
     name: "",
     appetite: 0,
     startedAt: new Date(),
+    endingAt: null,
     archived: false,
   },
 };
@@ -599,6 +600,7 @@ function reconsileProjectUpdate(
     ...project,
     ...(updates.name !== undefined && { name: updates.name }),
     ...(updates.startedAt !== undefined && { startedAt: updates.startedAt }),
+    ...(updates.endingAt !== undefined && { endingAt: updates.endingAt }),
     ...(updates.appetite !== undefined && { appetite: updates.appetite }),
     ...(updates.archived !== undefined && { archived: updates.archived }),
   };

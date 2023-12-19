@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
+import Container from "./common/Container";
 import InfoButton from "./common/InfoButton";
 import Title from "./common/Title";
 import { useData } from "./context/data";
-import Container from "./common/Container";
-import ShareLink from "./ShareLink";
 
 interface SettingsProps {}
 
@@ -14,6 +13,10 @@ const Settings: React.FC<SettingsProps> = (props) => {
   const [name, setName] = useState(project.name);
   const [startedAt, setStartedAt] = useState(
     project.startedAt.toISOString().split("T")[0],
+  );
+
+  const [endingAt, setEndingAt] = useState(
+    project.endingAt ? project.endingAt.toISOString().split("T")[0] : undefined,
   );
   const [appetite, setAppetite] = useState(project.appetite.toString());
 
@@ -33,6 +36,11 @@ const Settings: React.FC<SettingsProps> = (props) => {
   useEffect(() => {
     setName(project.name);
     setStartedAt(project.startedAt.toISOString().split("T")[0]);
+    setEndingAt(
+      project.endingAt
+        ? project.endingAt.toISOString().split("T")[0]
+        : undefined,
+    );
     setAppetite(project.appetite.toString());
     setIsDirty(false);
   }, [project]);
@@ -42,6 +50,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
     updateProject({
       name,
       startedAt: new Date(startedAt),
+      endingAt: endingAt ? new Date(endingAt) : undefined,
       appetite: parseInt(appetite, 10),
     });
     setTimeout(() => {
@@ -49,8 +58,18 @@ const Settings: React.FC<SettingsProps> = (props) => {
     }, 1000);
   };
 
+  const maxEnding = new Date(startedAt);
+  maxEnding.setFullYear(maxEnding.getFullYear() + 5);
+
   const inputClassNames =
     "  bg-white rounded-sm shadow-md relative border-b-2 select-text overflow-hidden focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600";
+
+  const isValid =
+    appetite !== "0" ||
+    (appetite === "0" &&
+      endingAt !== undefined &&
+      new Date(endingAt) >= new Date(startedAt) &&
+      new Date(endingAt) <= maxEnding);
 
   return (
     <Container>
@@ -66,10 +85,10 @@ const Settings: React.FC<SettingsProps> = (props) => {
               <input
                 type="text"
                 id="name"
-                maxLength={40}
+                maxLength={0}
                 value={name}
                 onChange={handleChange(setName)}
-                className={`${inputClassNames}`}
+                className={`${inputClassNames} w-80`}
               />
               <Explanation>
                 The project name is the unique identifier for your initiative.
@@ -87,9 +106,10 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 onChange={handleChange(setAppetite)}
                 className={`${inputClassNames} w-36`}
               >
-                {[2, 3, 4, 5, 6, 7, 8].map((week) => (
+                {[2, 3, 4, 5, 6, 7, 8, 0].map((week) => (
                   <option key={week} value={week}>
-                    {week} Weeks
+                    {week === 0 && "manual"}
+                    {week !== 0 && `${week} week${week > 1 ? "s" : ""}`}
                   </option>
                 ))}
               </select>
@@ -97,27 +117,53 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 With an appetite, the question is about how much time we want to
                 spend getting some version of something we want to do. It is a
                 strategic question about the value of what we want to do with a
-                fixed-time-variable-scope constraint.
+                fixed-time-variable-scope constraint. Chosing 'manual' for
+                appetite allows to manually set an end date.
               </Explanation>
             </div>
 
             <div className="mb-4">
-              <Label htmlFor="startedAt">Start Date</Label>
-              <input
-                type="date"
-                id="startedAt"
-                value={startedAt}
-                onChange={handleChange(setStartedAt)}
-                className={`${inputClassNames} w-36`}
-              />
+              <div className="flex items-start justify-start gap-4">
+                <div>
+                  <Label htmlFor="startedAt">Start Date</Label>
+                  <input
+                    type="date"
+                    id="startedAt"
+                    value={startedAt}
+                    onChange={handleChange(setStartedAt)}
+                    className={`${inputClassNames} w-36`}
+                  />
+                </div>
+                {appetite === "0" && (
+                  <div
+                    className={` ${!isValid && "ring-2 ring-red-500 rounded"}`}
+                  >
+                    <Label htmlFor="endingAt">End Date</Label>
+                    <input
+                      type="date"
+                      id="endingAt"
+                      min={startedAt}
+                      value={endingAt}
+                      onChange={handleChange(setEndingAt)}
+                      className={`${inputClassNames} w-36`}
+                    />
+                  </div>
+                )}
+              </div>
               <Explanation>
                 The 'Start Date' marks the commencement of your project and is
-                the point from which your project's appetite is measured.
+                the point from which your project's appetite is measured.{" "}
+                {appetite === "0" && (
+                  <>
+                    Without appetite, you can also specify an 'End Date' to
+                    define the project's duration and scope.
+                  </>
+                )}
               </Explanation>
             </div>
 
             <div className="flex items-center justify-start">
-              <InfoButton type="submit" disabled={!isDirty}>
+              <InfoButton type="submit" disabled={!isValid || !isDirty}>
                 Save Settings
               </InfoButton>
             </div>

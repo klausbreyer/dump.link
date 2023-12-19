@@ -29,7 +29,8 @@ export type Project = {
   id: string;
   name: string;
   startedAt: Date;
-  appetite: number;
+  endingAt: Date | null;
+  appetite: number; // 0 = n/a
   archived: boolean;
 };
 
@@ -57,6 +58,7 @@ export type BucketUpdates = {
 export type ProjectUpdates = {
   name?: Project["name"];
   startedAt?: Project["startedAt"];
+  endingAt?: Project["endingAt"];
   appetite?: Project["appetite"];
   archived?: Project["archived"];
 };

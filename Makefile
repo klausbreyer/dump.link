@@ -44,7 +44,6 @@ prod:
 		sed -i.bak '1s/^/SET NAMES '\''utf8mb4'\'';\n/' "$$file"; \
 	done
 
-
 kitchen:
 	rm -rf pscale-dump;
 	pscale database dump dumplink kitchen --output pscale-dump
@@ -52,4 +51,8 @@ kitchen:
 db:
 	make reset
 	-make load
+	make up
+
+fresh:
+	make reset
 	make up

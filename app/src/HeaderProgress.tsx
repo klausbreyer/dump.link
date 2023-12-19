@@ -9,9 +9,12 @@ const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
 
   const startedAt = project.startedAt;
 
-  const endingAt = new Date(
-    startedAt.getTime() + project.appetite * 7 * 24 * 60 * 60 * 1000,
-  );
+  const endingAt =
+    project.appetite === 0 && project.endingAt
+      ? project.endingAt
+      : new Date(
+          startedAt.getTime() + project.appetite * 7 * 24 * 60 * 60 * 1000,
+        );
 
   const currentDate: Date = new Date();
   const totalDuration = endingAt.getTime() - startedAt.getTime();
