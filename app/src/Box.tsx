@@ -19,16 +19,17 @@ import { useData } from "./context/data";
 import {
   getArrangeBucketType,
   getBucket,
-  getBucketsAvailableFor,
-  getBucketsDependingOn,
   getOtherBuckets,
   getSequenceBucketType,
-  getTasksForBucket,
-  getUniqueDependingIdsForbucket,
-  getWholeSubgraph,
-  rootsOfSubgraph,
-  uniqueValues,
 } from "./context/helper";
+import { uniqueValues } from "./context/helper_arrays";
+import {
+  getBucketsAvailableFor,
+  getBucketsDependingOn,
+  getUniqueDependingIdsForbucket,
+} from "./context/helper_dependencies";
+import { getWholeSubgraph } from "./context/helper_layers";
+import { getTasksForBucket } from "./context/helper_tasks";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   Bucket,
@@ -50,11 +51,12 @@ const Box: React.FC<BoxProps> = (props) => {
   const { bucket, context } = props;
   const {
     removeBucketDependency,
-    getTasks,
-    getDependencies,
-    addBucketDependency,
+    tasks,
+    buckets,
+    project,
+    dependencies,
     resetBucketLayer,
-    getBuckets,
+    addBucketDependency,
   } = useData();
 
   const {
@@ -64,10 +66,7 @@ const Box: React.FC<BoxProps> = (props) => {
     updateHoveredBuckets,
   } = useGlobalInteraction();
 
-  const buckets = getBuckets();
   const others = getOtherBuckets(buckets);
-  const tasks = getTasks();
-  const dependencies = getDependencies();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const availbleIds = getBucketsAvailableFor(others, dependencies, bucket.id);
   const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
@@ -209,13 +208,19 @@ const Box: React.FC<BoxProps> = (props) => {
     !canDrop &&
     !sequenceIsDragging;
 
-  const isHovered: boolean = hoveredBuckets.includes(bucket.id);
+  const isHovered: boolean =
+    hoveredBuckets.includes(bucket.id) && !project.archived;
   const hoverBorder: string = (() => {
     switch (context) {
       case TabContext.Arrange:
-        return isHovered ? "border-slate-600" : "border-slate-300";
+        return isHovered
+          ? `border-slate-600`
+          : `border-slate-300 hover:border-slate-600
+          ${project.archived ? "cursor-pointer" : "cusor-move"}
+          `;
       case TabContext.Sequence:
-        return "border-slate-300 hover:border-slate-600";
+        return `border-slate-300 hover:border-slate-600
+        ${project.archived ? "cursor-pointer" : "cusor-move"}`;
       default:
         return "";
     }
@@ -244,6 +249,7 @@ const Box: React.FC<BoxProps> = (props) => {
         ${isOver && " border-slate-400"}
       `}
         ref={(node) =>
+          !project.archived &&
           dragref(dropRef(arrangePreviewRev(sequencePreviewRev(node))))
         }
         onMouseOver={handleMouseOver}
@@ -258,6 +264,7 @@ const Box: React.FC<BoxProps> = (props) => {
                 dependingIds?.map((id) => (
                   <BucketItem
                     key={id}
+                    archived={project.archived}
                     context={context}
                     callback={() => removeBucketDependency(id, bucket.id)}
                     bucket={getBucket(others, id)}
@@ -295,11 +302,12 @@ export default Box;
 interface BucketItemProps {
   bucket: Bucket | undefined;
   context: TabContext;
+  archived: boolean;
   callback: () => void;
 }
 
 const BucketItem: React.FC<BucketItemProps> = (props) => {
-  const { bucket, context, callback } = props;
+  const { bucket, context, callback, archived } = props;
   if (!bucket) return null;
   const bucketName = bucket?.name || "Unnamed";
 
@@ -308,11 +316,15 @@ const BucketItem: React.FC<BucketItemProps> = (props) => {
   if (TabContext.Sequence === context) {
     return (
       <li
-        onClick={() => callback()}
-        className={`flex cursor-pointer hover:underline items-center justify-between group gap-1 p-0.5 ${bgHeader}`}
+        onClick={() => !archived && callback()}
+        className={`flex cursor-pointer items-center justify-between group gap-1 p-0.5
+        ${!archived && "hover:underline"}
+        ${bgHeader}`}
       >
         <span className="">{bucketName}</span>
-        <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
+        {!archived && (
+          <XMarkIcon className="hidden w-5 h-5 shrink-0 group-hover:block" />
+        )}
       </li>
     );
   }

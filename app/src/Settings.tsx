@@ -1,22 +1,30 @@
 import React, { useEffect, useState } from "react";
+import Container from "./common/Container";
 import InfoButton from "./common/InfoButton";
 import Title from "./common/Title";
 import { useData } from "./context/data";
-import Container from "./common/Container";
-import ShareLink from "./ShareLink";
 
 interface SettingsProps {}
 
 const Settings: React.FC<SettingsProps> = (props) => {
-  const { updateProject, getProject } = useData();
-  const project = getProject();
+  const { updateProject, project } = useData();
 
   const [isDirty, setIsDirty] = useState(false);
   const [name, setName] = useState(project.name);
   const [startedAt, setStartedAt] = useState(
     project.startedAt.toISOString().split("T")[0],
   );
+
+  const [endingAt, setEndingAt] = useState(
+    project.endingAt ? project.endingAt.toISOString().split("T")[0] : undefined,
+  );
   const [appetite, setAppetite] = useState(project.appetite.toString());
+
+  const toggleArchiveStatus = () => {
+    const updatedProject = { ...project, archived: !project.archived };
+    updateProject(updatedProject);
+    // Optional: Add logic to navigate away or show a confirmation message
+  };
 
   const handleChange =
     (setter: (value: string) => void) =>
@@ -28,6 +36,11 @@ const Settings: React.FC<SettingsProps> = (props) => {
   useEffect(() => {
     setName(project.name);
     setStartedAt(project.startedAt.toISOString().split("T")[0]);
+    setEndingAt(
+      project.endingAt
+        ? project.endingAt.toISOString().split("T")[0]
+        : undefined,
+    );
     setAppetite(project.appetite.toString());
     setIsDirty(false);
   }, [project]);
@@ -37,6 +50,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
     updateProject({
       name,
       startedAt: new Date(startedAt),
+      endingAt: endingAt ? new Date(endingAt) : undefined,
       appetite: parseInt(appetite, 10),
     });
     setTimeout(() => {
@@ -44,12 +58,22 @@ const Settings: React.FC<SettingsProps> = (props) => {
     }, 1000);
   };
 
+  const maxEnding = new Date(startedAt);
+  maxEnding.setFullYear(maxEnding.getFullYear() + 5);
+
   const inputClassNames =
     "  bg-white rounded-sm shadow-md relative border-b-2 select-text overflow-hidden focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600";
 
+  const isValid =
+    appetite !== "0" ||
+    (appetite === "0" &&
+      endingAt !== undefined &&
+      new Date(endingAt) >= new Date(startedAt) &&
+      new Date(endingAt) <= maxEnding);
+
   return (
     <Container>
-      <div className="grid max-w-xl grid-cols-1 gap-10 mt-4">
+      <div className="grid grid-cols-2 gap-10 mt-4">
         <div>
           <div className="flex items-center justify-start gap-2">
             <Title>Settings</Title>
@@ -61,10 +85,10 @@ const Settings: React.FC<SettingsProps> = (props) => {
               <input
                 type="text"
                 id="name"
-                maxLength={40}
+                maxLength={0}
                 value={name}
                 onChange={handleChange(setName)}
-                className={`${inputClassNames}`}
+                className={`${inputClassNames} w-80`}
               />
               <Explanation>
                 The project name is the unique identifier for your initiative.
@@ -82,9 +106,10 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 onChange={handleChange(setAppetite)}
                 className={`${inputClassNames} w-36`}
               >
-                {[2, 3, 4, 5, 6, 7, 8].map((week) => (
+                {[2, 3, 4, 5, 6, 7, 8, 0].map((week) => (
                   <option key={week} value={week}>
-                    {week} Weeks
+                    {week === 0 && "Select custom end date"}
+                    {week !== 0 && `${week} week${week > 1 ? "s" : ""}`}
                   </option>
                 ))}
               </select>
@@ -92,31 +117,118 @@ const Settings: React.FC<SettingsProps> = (props) => {
                 With an appetite, the question is about how much time we want to
                 spend getting some version of something we want to do. It is a
                 strategic question about the value of what we want to do with a
-                fixed-time-variable-scope constraint.
+                fixed-time-variable-scope constraint. Chosing 'manual' for
+                appetite allows to manually set an end date.
               </Explanation>
             </div>
 
             <div className="mb-4">
-              <Label htmlFor="startedAt">Start Date</Label>
-              <input
-                type="date"
-                id="startedAt"
-                value={startedAt}
-                onChange={handleChange(setStartedAt)}
-                className={`${inputClassNames} w-36`}
-              />
+              <div className="flex items-start justify-start gap-4">
+                <div>
+                  <Label htmlFor="startedAt">Start Date</Label>
+                  <input
+                    type="date"
+                    id="startedAt"
+                    value={startedAt}
+                    onChange={handleChange(setStartedAt)}
+                    className={`${inputClassNames} w-36`}
+                  />
+                </div>
+                {appetite === "0" && (
+                  <div
+                    className={` ${!isValid && "ring-2 ring-red-500 rounded"}`}
+                  >
+                    <Label htmlFor="endingAt">End Date</Label>
+                    <input
+                      type="date"
+                      id="endingAt"
+                      min={startedAt}
+                      value={endingAt}
+                      onChange={handleChange(setEndingAt)}
+                      className={`${inputClassNames} w-36`}
+                    />
+                  </div>
+                )}
+              </div>
               <Explanation>
                 The 'Start Date' marks the commencement of your project and is
-                the point from which your project's appetite is measured.
+                the point from which your project's appetite is measured.{" "}
+                {appetite === "0" && (
+                  <>
+                    Without appetite, you can also specify an 'End Date' to
+                    define the project's duration and scope.
+                  </>
+                )}
               </Explanation>
             </div>
 
             <div className="flex items-center justify-start">
-              <InfoButton type="submit" disabled={!isDirty}>
+              <InfoButton type="submit" disabled={!isValid || !isDirty}>
                 Save Settings
               </InfoButton>
             </div>
           </form>
+        </div>
+        <div>
+          <div className="flex flex-col gap-4 mt-10">
+            {/* Danger Zone for Archiving */}
+            <div className="p-4 bg-gray-100 border border-gray-300 rounded">
+              <h3 className="font-semibold text-gray-700 text-md">
+                {project.archived ? "Reactivate Project" : "Archive Project"}
+              </h3>
+              <p className="mb-2 text-sm text-gray-600">
+                {project.archived
+                  ? "This project is currently archived. In this state, it remains accessible in a read-only format, meaning it is essentially frozen and no operational changes can be made. However, you can still modify project settings, such as changing its archived status. Reactivating the project at any time will restore its full functionality, including the ability to make comprehensive edits and updates."
+                  : "You can opt to archive this project. When archived, the project enters a read-only state, frozen in its current form with no scope for operational modifications. However, you retain the ability to alter project settings, like toggling the archived status. Should you need to, the project can be reactivated later, enabling full access and the capability to perform necessary updates and changes."}
+              </p>
+              <InfoButton color={"gray"} onClick={toggleArchiveStatus}>
+                {project.archived ? "Reactivate Project" : "Archive Project"}
+              </InfoButton>
+            </div>
+            {/* delete */}
+            <div className="p-4 bg-red-100 border border-red-300 rounded">
+              <h3 className="font-semibold text-red-700 text-md">
+                Delete Project
+              </h3>
+              <p className="mb-2 text-sm text-red-600">
+                For security purposes and the lack of a user authentication
+                system, projects cannot be directly deleted from the web
+                interface. To request the deletion of your project, please email{" "}
+                <a
+                  className="underline hover:no-underline"
+                  href="mailto:support@dump.link"
+                >
+                  support@dump.link
+                </a>{" "}
+                using the email account associated with your dumplink, and
+                include the ID or link to your dumplink.
+              </p>
+              <InfoButton
+                color={"red"}
+                href={`mailto:support@dump.link?subject=Deletion of Project ID ${project.id}`}
+              >
+                Delete Project
+              </InfoButton>
+            </div>
+            {/* Discord */}
+            <div className="p-4 border rounded bg-violet-100 border-violet-500">
+              <h3 className="font-semibold text-md text-violet-700">
+                Need More Help?
+              </h3>
+              <p className="mb-2 text-sm text-violet-600">
+                If you wish for more configuration options or have questions
+                that you don't find answers to, please join us on our Discord
+                server.
+              </p>
+              <InfoButton
+                color={"violet"}
+                href="https://discord.gg/C3hdezbYdD"
+                target="_blank"
+              >
+                Join Discord
+              </InfoButton>
+            </div>
+          </div>
         </div>
       </div>
     </Container>

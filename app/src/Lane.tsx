@@ -5,11 +5,13 @@ import { useData } from "./context/data";
 import {
   getArrangeBucketType,
   getBucket,
-  getBucketDependencies,
-  getBucketsDependingOnNothing,
-  getLayers,
   getOtherBuckets,
 } from "./context/helper";
+import {
+  getBucketDependencies,
+  getBucketsDependingOnNothing,
+} from "./context/helper_dependencies";
+import { getLayers } from "./context/helper_layers";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   Bucket,
@@ -115,10 +117,7 @@ const getAccept = (
 
 const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const { getBuckets, getDependencies, moveSubgraph } = useData();
-
-  const buckets = getBuckets();
-  const dependencies = getDependencies();
+  const { buckets, dependencies, moveSubgraph } = useData();
 
   const { globalDragging } = useGlobalInteraction();
 

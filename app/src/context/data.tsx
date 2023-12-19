@@ -13,19 +13,21 @@ import {
   TaskUpdates,
 } from "../types";
 
+import { notifyBugsnag } from "..";
+import config from "../config";
 import { APIError, apiFunctions } from "./calls";
 import {
-  NewID,
-  PRIORITY_INCREMENT,
-  extractIdFromUrl,
-  getLayerForBucketId,
   getUniqueDependingIdsForbucket,
   hasCyclicDependencyWithBucket,
+} from "./helper_dependencies";
+import { getLayerForBucketId } from "./helper_layers";
+import {
+  NewID,
+  extractIdFromUrl,
   saveProjectIdToLocalStorage,
-} from "./helper";
+} from "./helper_requests";
 import { LifecycleState, useLifecycle } from "./lifecycle";
 import { setupWebSocket } from "./websocket";
-import { notifyBugsnag } from "..";
 
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
 
@@ -38,6 +40,8 @@ const initialState: State = {
     name: "",
     appetite: 0,
     startedAt: new Date(),
+    endingAt: null,
+    archived: false,
   },
 };
 
@@ -97,12 +101,10 @@ const dataReducer = (state: State, action: ActionType): State => {
     case "UPDATE_PROJECT": {
       const { updates } = action;
 
+      const updatedProject = reconsileProjectUpdate(state.project, updates);
       return {
         ...state,
-        project: {
-          ...state.project,
-          ...updates,
-        },
+        project: updatedProject,
       };
     }
 
@@ -323,7 +325,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     const updates = {
       bucketId: toBucketId,
-      priority: highestPriority + PRIORITY_INCREMENT,
+      priority: highestPriority + config.PRIORITY_INCREMENT,
     };
     updateTask(taskId, updates);
   };
@@ -510,39 +512,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     resetLayersForAllBuckets();
   };
 
-  const getTasks = () => {
-    return state.tasks;
-  };
-
-  const getDependencies = () => {
-    return state.dependencies;
-  };
-
-  const getProject = () => {
-    return state.project;
-  };
-
-  const getBuckets = () => {
-    return state.buckets;
-  };
-
   console.dir(state);
 
   return (
     <DataContext.Provider
       value={{
         state,
+        project: state.project,
+        tasks: state.tasks,
+        buckets: state.buckets,
+        dependencies: state.dependencies,
         addTask,
         deleteTask,
-        getTasks,
-        getDependencies,
-        getProject,
         updateProject,
         resetBucketLayer,
         moveTask,
         updateTask,
         resetLayersForAllBuckets,
-        getBuckets,
         addBucketDependency,
         removeBucketDependency,
         removeAllBucketDependencies,
@@ -557,22 +543,22 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 type DataContextType = {
   state: State;
+  project: Project;
+  tasks: Task[];
+  buckets: Bucket[];
+  dependencies: Dependency[];
 
   updateProject: (updates: ProjectUpdates) => void;
 
-  getTasks: () => Task[];
   addTask: (task: Task) => void;
   deleteTask: (taskId: TaskID) => void;
   updateTask: (taskId: TaskID, updates: TaskUpdates) => void;
   moveTask: (toBucketId: BucketID, taskId: TaskID) => void;
 
-  getBuckets: () => Bucket[];
   updateBucket: (bucketId: BucketID, updates: BucketUpdates) => void;
   resetBucketLayer: (bucketId: BucketID) => void;
   moveSubgraph: (bucketId: BucketID, layer: number) => void;
 
-  getDependencies: () => Dependency[];
-  getProject: () => Project;
   addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
 
@@ -605,5 +591,19 @@ function reconsileBucketUpdate(bucket: Bucket, updates: BucketUpdates): Bucket {
     ...(updates.layer !== undefined && { layer: updates.layer }),
     ...(updates.flagged !== undefined && { flagged: updates.flagged }),
     ...(updates.done !== undefined && { done: updates.done }),
+  };
+}
+
+function reconsileProjectUpdate(
+  project: Project,
+  updates: ProjectUpdates,
+): Project {
+  return {
+    ...project,
+    ...(updates.name !== undefined && { name: updates.name }),
+    ...(updates.startedAt !== undefined && { startedAt: updates.startedAt }),
+    ...(updates.endingAt !== undefined && { endingAt: updates.endingAt }),
+    ...(updates.appetite !== undefined && { appetite: updates.appetite }),
+    ...(updates.archived !== undefined && { archived: updates.archived }),
   };
 }

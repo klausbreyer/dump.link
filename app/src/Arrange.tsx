@@ -9,22 +9,18 @@ import {
   shortenLineEnd,
 } from "./common/coordinates";
 import { useData } from "./context/data";
-import {
-  getAllDependencyChains,
-  getAllPairs,
-  getBucket,
-  getLayers,
-  uniqueValues,
-} from "./context/helper";
+import { getBucket } from "./context/helper";
+import { uniqueValues } from "./context/helper_arrays";
+import { getAllDependencyChains } from "./context/helper_dependencies";
+import { getAllPairs, getLayers } from "./context/helper_layers";
 import { Bucket, BucketID, TabContext } from "./types";
 
 interface ArrangeProps {}
 
 const Arrange: React.FC<ArrangeProps> = (props) => {
-  const { getBuckets, resetLayersForAllBuckets, getDependencies } = useData();
+  const { resetLayersForAllBuckets, buckets, dependencies, project } =
+    useData();
 
-  const buckets = getBuckets();
-  const dependencies = getDependencies();
   const chains = getAllDependencyChains(buckets, dependencies);
   const layers = getLayers(buckets, dependencies);
 
@@ -139,6 +135,7 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
       {layersWithBuckets.length > 0 && (
         <div className="flex items-center justify-end w-full">
           <InfoButton
+            disabled={project.archived}
             onClick={() =>
               confirm(
                 "Are you certain you want to revert your customized layers to their default settings?",

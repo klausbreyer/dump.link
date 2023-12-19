@@ -18,7 +18,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 
 	project, err := app.projects.Get(projectId)
 	if err != nil {
-		app.notFoundResponse(w, r)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -76,15 +76,12 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if !app.projects.IDExists(projectId) {
-		app.notFoundResponse(w, r)
-		return
-	}
-
 	var input struct {
 		Name      *string `json:"name,omitempty"`
 		StartedAt *string `json:"startedAt,omitempty"`
+		EndingAt  *string `json:"endingAt,omitempty"`
 		Appetite  *int    `json:"appetite,omitempty"`
+		Archived  *bool   `json:"archived,omitempty"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -94,9 +91,11 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	}
 
 	data := make(map[string]interface{})
+
 	if input.Name != nil {
 		data["name"] = *input.Name
 	}
+
 	if input.StartedAt != nil {
 		startedAt, err := time.Parse("2006-01-02", *input.StartedAt)
 		if err != nil {
@@ -105,8 +104,21 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		}
 		data["started_at"] = startedAt
 	}
+	if input.EndingAt != nil {
+		endingAt, err := time.Parse("2006-01-02", *input.EndingAt)
+		if err != nil {
+			app.badRequestResponse(w, r, fmt.Errorf("invalid date format for endingAt"))
+			return
+		}
+		data["ending_at"] = endingAt
+	}
+
 	if input.Appetite != nil {
 		data["appetite"] = *input.Appetite
+	}
+
+	if input.Archived != nil {
+		data["archived"] = *input.Archived
 	}
 
 	if len(data) == 0 {
@@ -159,7 +171,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	projectId, err := app.projects.Insert(input.Name, time.Now(), input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName)
+	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -205,12 +217,18 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if !app.projects.IDExists(projectId) {
-		app.notFoundResponse(w, r)
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	err := app.buckets.ResetProjectLayers(projectId)
+	if project.Archived {
+		app.goneResponse(w, r)
+		return
+	}
+
+	err = app.buckets.ResetProjectLayers(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -12,10 +12,6 @@ import {
   getBucketForTask,
   getClosedBucketType,
   getOpenBucketType,
-  getTask,
-  getTasksByClosed,
-  getTasksForBucket,
-  sortTasksByUpdatedAt,
 } from "./context/helper";
 import {
   Bucket as TaskGroup,
@@ -24,6 +20,12 @@ import {
   TabContext,
   TaskID,
 } from "./types";
+import {
+  getTask,
+  getTasksByClosed,
+  getTasksForBucket,
+  sortTasksByUpdatedAt,
+} from "./context/helper_tasks";
 
 interface TaskGroupProps {
   bucket: TaskGroup;
@@ -31,11 +33,8 @@ interface TaskGroupProps {
 
 const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const { bucket } = props;
-  const { updateTask, getTasks, moveTask, getBuckets } = useData();
+  const { updateTask, moveTask, buckets, tasks, project } = useData();
 
-  const buckets = getBuckets();
-
-  const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const allOtherBuckets = buckets.filter((b: TaskGroup) => b.id !== bucket.id);
 
@@ -106,7 +105,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
 
   return (
     <div
-      ref={dropRef}
+      ref={(node) => !project.archived && dropRef(node)}
       className={`w-full relative rounded-md overflow-hidden ${bgTop} border-2
       ${showDashed && "border-dashed border-2 border-slate-400"}
       ${showSolid && " border-slate-400"}
@@ -132,7 +131,9 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
             ))}
           </CardList>
           <CardList>
-            {!bucket.done && <TaskItem bucket={bucket} task={null} />}
+            {!bucket.done && !project.archived && (
+              <TaskItem bucket={bucket} task={null} />
+            )}
             {closed.length > 0 && (
               <>
                 {open.length > 0 && (

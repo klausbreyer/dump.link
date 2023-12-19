@@ -1,18 +1,20 @@
 import React from "react";
 import { useData } from "./context/data";
-import { calculateRemainingTime, formatDate } from "./context/helper";
+import { calculateRemainingTime, formatDate } from "./context/helper_dates";
 
 export interface HeaderProgressProps {}
 
 const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
-  const { getProject } = useData();
+  const { project } = useData();
 
-  const project = getProject();
   const startedAt = project.startedAt;
 
-  const endingAt = new Date(
-    startedAt.getTime() + project.appetite * 7 * 24 * 60 * 60 * 1000,
-  );
+  const endingAt =
+    project.appetite === 0 && project.endingAt
+      ? project.endingAt
+      : new Date(
+          startedAt.getTime() + project.appetite * 7 * 24 * 60 * 60 * 1000,
+        );
 
   const currentDate: Date = new Date();
   const totalDuration = endingAt.getTime() - startedAt.getTime();

@@ -31,11 +31,9 @@ const positions: { top: number; left: number }[] = [
 ];
 
 const Sequence: React.FC<SequenceProps> = (props) => {
-  const { getBuckets, getDependencies, removeAllBucketDependencies } =
+  const { buckets, dependencies, removeAllBucketDependencies, project } =
     useData();
 
-  const buckets = getBuckets();
-  const dependencies = getDependencies();
   const others = getOtherBuckets(buckets);
   const [, setRepaintcounter] = useState(0);
   const [activeRef, setActiveRef] = useState<React.RefObject<HTMLDivElement>>(
@@ -207,6 +205,7 @@ const Sequence: React.FC<SequenceProps> = (props) => {
       <div className="flex items-center justify-end w-full">
         <InfoButton
           color="slate"
+          disabled={project.archived}
           onClick={() =>
             confirm(
               "Are you certain you want to remove all interrelated connections from your task groups?",

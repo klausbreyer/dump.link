@@ -1,12 +1,12 @@
 import React from "react";
 import { Bucket } from "./types";
+import { getBucketPercentage } from "./context/helper";
+import { useData } from "./context/data";
 import {
-  getBucketPercentage,
   getTasksByClosed,
   getTasksForBucket,
   sortTasksByUpdatedAt,
-} from "./context/helper";
-import { useData } from "./context/data";
+} from "./context/helper_tasks";
 
 export interface MicroProgressProps {
   bucket: Bucket;
@@ -14,9 +14,8 @@ export interface MicroProgressProps {
 
 const MicroProgress: React.FC<MicroProgressProps> = (props) => {
   const { bucket } = props;
+  const { tasks } = useData();
 
-  const { getTasks } = useData();
-  const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
 
   const open = getTasksByClosed(tasksForbucket, false);

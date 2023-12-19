@@ -4,12 +4,8 @@ import { useDrop } from "react-dnd";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import { useData } from "./context/data";
-import {
-  getBucketForTask,
-  getOpenBucketType,
-  getTask,
-  getTasksForBucket,
-} from "./context/helper";
+import { getBucketForTask, getOpenBucketType } from "./context/helper";
+import { getTask, getTasksForBucket } from "./context/helper_tasks";
 import { Bucket, DraggedTask, DropCollectedProps } from "./types";
 
 export interface AreaProps {
@@ -18,10 +14,8 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const { bucket } = props;
-  const { getBuckets, moveTask, getTasks } = useData();
+  const { moveTask, project, tasks, buckets } = useData();
 
-  const buckets = getBuckets();
-  const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const allOtherBuckets = buckets.filter((b) => b.id !== bucket.id);
 
@@ -69,7 +63,7 @@ const Area: React.FC<AreaProps> = (props) => {
         ))}
       </CardList>
       <CardList>
-        <TaskItem bucket={bucket} task={null} />
+        {!project.archived && <TaskItem bucket={bucket} task={null} />}
       </CardList>
     </div>
   );

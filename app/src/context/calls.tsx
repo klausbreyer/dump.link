@@ -10,7 +10,7 @@ import {
   TaskUpdates,
 } from "../types";
 import { CLIENT_TOKEN } from "./data";
-import { ISOToDate, dateToISO } from "./helper";
+import { ISOToDate, dateToISO } from "./helper_dates";
 
 export class APIError extends Error {
   statusCode: number;
@@ -72,6 +72,9 @@ const createApiFunctions = () => {
         ...response,
         project: {
           ...response.project,
+          endingAt: response.project.endingAt
+            ? ISOToDate(response.project.endingAt)
+            : undefined,
           startedAt: ISOToDate(response.project.startedAt),
         },
       };
@@ -84,6 +87,9 @@ const createApiFunctions = () => {
         ...updateData,
         startedAt: updateData.startedAt
           ? dateToISO(updateData.startedAt)
+          : undefined,
+        endingAt: updateData.endingAt
+          ? dateToISO(updateData.endingAt)
           : undefined,
       };
 

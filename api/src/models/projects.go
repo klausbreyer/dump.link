@@ -8,12 +8,14 @@ import (
 )
 
 type Project struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	StartedAt time.Time `json:"startedAt"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Appetite  int       `json:"appetite"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	StartedAt time.Time  `json:"startedAt"`
+	EndingAt  *time.Time `json:"endingAt"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	Appetite  int        `json:"appetite"`
+	Archived  bool       `json:"archived"`
 	// OwnerEmail    string    `json:"ownerEmail"`    // never read. Only ingested.
 	// OwnerFirstName string   `json:"ownerFirstName"` // never read. Only ingested.
 	// OwnerLastName string    `json:"ownerLastName"`  // never read. Only ingested.
@@ -23,7 +25,7 @@ type ProjectModel struct {
 	DB *sql.DB
 }
 
-func (m *ProjectModel) Insert(name string, startedAt time.Time, appetite int, ownerEmail, ownerFirstName, ownerLastName string) (string, error) {
+func (m *ProjectModel) Insert(name string, appetite int, ownerEmail, ownerFirstName, ownerLastName string) (string, error) {
 	var id string
 	for {
 		id = NewID()
@@ -31,6 +33,8 @@ func (m *ProjectModel) Insert(name string, startedAt time.Time, appetite int, ow
 			break
 		}
 	}
+
+	startedAt := time.Now()
 	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName)
 	if err != nil {
@@ -51,15 +55,16 @@ func (m *ProjectModel) IDExists(id string) bool {
 }
 
 func (m *ProjectModel) Get(id string) (*Project, error) {
-	stmt := `SELECT id, name, started_at, created_at, updated_at, appetite FROM projects WHERE id = ?`
+	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived FROM projects WHERE id = ?`
 	row := m.DB.QueryRow(stmt, id)
 
 	var (
-		started_atStr, created_atStr, updated_atStr string
-		p                                           Project
+		startedAtStr, createdAtStr, updatedAtStr string
+		endingAt                                 sql.NullString // Use sql.NullString for nullable endingAt field
+		p                                        Project
 	)
 
-	err := row.Scan(&p.ID, &p.Name, &started_atStr, &created_atStr, &updated_atStr, &p.Appetite)
+	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Project with ID %s not found", id)
@@ -67,19 +72,32 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		return nil, err
 	}
 
-	// Parse the datetime strings
-	p.StartedAt, err = time.Parse(DateLayout, started_atStr)
+	// Parse the non-nullable datetime strings
+	p.StartedAt, err = time.Parse(DateLayout, startedAtStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse started_at: %v", err)
+		return nil, fmt.Errorf("failed to parse startedAt: %v", err)
 	}
-	p.CreatedAt, err = time.Parse(DateTimeLayout, created_atStr)
+
+	p.CreatedAt, err = time.Parse(DateTimeLayout, createdAtStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse createdAt: %v", err)
 	}
 
-	p.UpdatedAt, err = time.Parse(DateTimeLayout, updated_atStr)
+	p.UpdatedAt, err = time.Parse(DateTimeLayout, updatedAtStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse updatedAt: %v", err)
+	}
+
+	// Handle nullable endingAt
+	if endingAt.Valid {
+		var endingAtTime time.Time
+		endingAtTime, err = time.Parse(DateLayout, endingAt.String)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse endingAt: %v", err)
+		}
+		p.EndingAt = &endingAtTime
+	} else {
+		p.EndingAt = nil
 	}
 
 	return &p, nil

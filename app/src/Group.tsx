@@ -10,8 +10,7 @@ import { getDumpBucket, getOtherBuckets } from "./context/helper";
 interface GroupProps {}
 
 const Group: React.FC<GroupProps> = (props) => {
-  const { getBuckets } = useData();
-  const buckets = getBuckets();
+  const { buckets } = useData();
   const others = getOtherBuckets(buckets);
   const dump = getDumpBucket(buckets);
 

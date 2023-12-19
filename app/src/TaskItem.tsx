@@ -14,18 +14,17 @@ import config from "./config";
 import { useData } from "./context/data";
 import { useGlobalInteraction } from "./context/interaction";
 import {
-  NewID,
-  PRIORITY_INCREMENT,
   calculateHighestPriority,
   getTask,
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
   sortTasksByPriority,
-} from "./context/helper";
+} from "./context/helper_tasks";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { XCircleIcon } from "@heroicons/react/24/solid";
+import { NewID } from "./context/helper_requests";
 
 interface TaskItemProps {
   task: Task | null;
@@ -35,14 +34,11 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
-  const { addTask, updateTask, deleteTask, getProject, getBuckets, getTasks } =
+  const { addTask, updateTask, deleteTask, project, tasks, buckets } =
     useData();
 
   const { updateGlobalDragging, temporaryPriority, setTemporaryPriority } =
     useGlobalInteraction();
-  const buckets = getBuckets();
-  const project = getProject();
-  const tasks = getTasks();
 
   const [val, setVal] = useState<string>(task?.title || "");
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
@@ -62,7 +58,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       addTask({
         id: NewID(project.id),
         priority:
-          calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
+          calculateHighestPriority(sortedTasksForBucket) +
+          config.PRIORITY_INCREMENT,
         title: title,
         closed: false,
         bucketId: bucket.id,
@@ -217,7 +214,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         addTask({
           id: NewID(project.id),
           priority:
-            calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
+            calculateHighestPriority(sortedTasksForBucket) +
+            config.PRIORITY_INCREMENT,
           title: val,
           closed: false,
           bucketId: bucket.id,
@@ -246,7 +244,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   }
 
   const activeTask = task && !task.closed;
-  const allowedToDrag = activeTask === true;
+  const allowedToDrag = activeTask === true && !project.archived;
 
   const bucketTask = task && !bucket.dump;
   const borderColor = bucketTask
@@ -264,7 +262,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 
   const style = task && !task.closed ? { order: localPriority } : {};
   return (
-    <div ref={(node) => dropRef(node)} style={style}>
+    <div ref={(node) => !project.archived && dropRef(node)} style={style}>
       <div
         // for some weird reason with react-dnd another wrapper needs to be here. there is an issue with making the referenced layer visible / invisible
         className={`flex gap-1 items-center
@@ -276,7 +274,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             type="checkbox"
             className={`w-5 h-5 accent-yellow-300
             ${isSafari() && "safari-only-checkbox-small"} `}
-            disabled={bucket.done}
+            disabled={bucket.done || project.archived}
             checked={task.closed}
             onChange={handleCheckboxChange}
           />
@@ -291,7 +289,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           {task && (
             <>
               <div
-                onClick={() => handleClick()}
+                onClick={() => !project.archived && handleClick()}
                 ref={allowedToDrag ? dragRef : null}
                 className={`absolute top-0 left-0 z-20 w-full h-full opacity-0
                     ${activeTask && "cursor-move"}
@@ -307,8 +305,11 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                   data-enable-grammarly="false"
                   spellCheck="false"
                   readOnly
-                  className={`border-b-2 group-hover:bg-slate-50 absolute z-10 bg-slate-100
-                  group-hover:outline outline-2 outline-slate-500 select-none
+                  className={`border-b-2  absolute z-10 bg-slate-100
+                  ${
+                    !project.archived &&
+                    "group-hover:outline group-hover:bg-slate-50"
+                  } outline-2 outline-slate-500 select-none
                     ${textAreaClasses}
                     ${borderColor}
                     ${isClicked && "hidden"}
@@ -322,7 +323,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                 onClick={() => handleDelete()}
                 className={` z-30 hidden absolute w-5 h-5 cursor-pointer bg-slate-100
                  text-slate-500 top-0 right-0  hover:text-slate-700 p-0 rounded-full
-                   ${!isDragging && !isClicked && "group-hover:block"}
+                   ${
+                     !isDragging &&
+                     !isClicked &&
+                     !project.archived &&
+                     "group-hover:block"
+                   }
                     `}
               />
             </>
@@ -338,6 +344,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               placeholder="Add a task"
               value={val}
               onBlur={handleBlur}
+              disabled={project.archived}
               onFocus={handleFocus}
               maxLength={config.TASK_MAX_LENGTH}
               onKeyDown={handleKeyDown}
@@ -376,9 +383,9 @@ function calculateNewPriority(
   let newPriority = overTask.priority; // Standardwert als aktuelle Priorität des übergeordneten Tasks
 
   if (overIndex === 0) {
-    newPriority = overTask.priority - PRIORITY_INCREMENT;
+    newPriority = overTask.priority - config.PRIORITY_INCREMENT;
   } else if (overIndex === sortedTasksForBucket.length - 1) {
-    newPriority = overTask.priority + PRIORITY_INCREMENT;
+    newPriority = overTask.priority + config.PRIORITY_INCREMENT;
   } else {
     if (draggedTask.priority < overTask.priority && beforeIndex >= 0) {
       newPriority = Math.round(
