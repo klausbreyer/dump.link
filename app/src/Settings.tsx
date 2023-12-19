@@ -108,7 +108,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
               >
                 {[2, 3, 4, 5, 6, 7, 8, 0].map((week) => (
                   <option key={week} value={week}>
-                    {week === 0 && "manual"}
+                    {week === 0 && "Select custom end date"}
                     {week !== 0 && `${week} week${week > 1 ? "s" : ""}`}
                   </option>
                 ))}
