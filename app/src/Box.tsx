@@ -264,23 +264,25 @@ const Box: React.FC<BoxProps> = (props) => {
                   />
                 ))}
               {TabContext.Sequence === context && (
-                <li className="flex items-center justify-center h-8 gap-1 p-1 text-sm">
-                  {showUnavailable && (
-                    <>
-                      <ExclamationTriangleIcon className="w-5 h-5" />
-                      Cycle Detected
-                    </>
-                  )}
+                <li className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-1 p-1">
+                    {showUnavailable && (
+                      <>
+                        <ExclamationTriangleIcon className="w-5 h-5" />
+                        Cycle Detected
+                      </>
+                    )}
+                  </span>
+                  <span>
+                    <ArrowsPointingOutIcon
+                      title="Show Task Group"
+                      className="w-5 h-5 hover:bg-slate-300 "
+                      onClick={handleClick}
+                    />
+                  </span>
                 </li>
               )}
             </ul>
-          </div>
-          <div className="flex items-center justify-end w-full gap-1 p-1 text-sm cursor-pointer ">
-            <ArrowsPointingOutIcon
-              title="Show Task Group"
-              className="w-5 h-5 hover:bg-slate-300 "
-              onClick={handleClick}
-            />
           </div>
         </div>
       </div>
