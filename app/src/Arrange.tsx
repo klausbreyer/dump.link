@@ -21,10 +21,8 @@ import { Bucket, BucketID, TabContext } from "./types";
 interface ArrangeProps {}
 
 const Arrange: React.FC<ArrangeProps> = (props) => {
-  const { getBuckets, resetLayersForAllBuckets, getDependencies } = useData();
+  const { resetLayersForAllBuckets, buckets, dependencies } = useData();
 
-  const buckets = getBuckets();
-  const dependencies = getDependencies();
   const chains = getAllDependencyChains(buckets, dependencies);
   const layers = getLayers(buckets, dependencies);
 

@@ -35,14 +35,11 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
-  const { addTask, updateTask, deleteTask, getProject, getBuckets, getTasks } =
+  const { addTask, updateTask, deleteTask, project, tasks, buckets } =
     useData();
 
   const { updateGlobalDragging, temporaryPriority, setTemporaryPriority } =
     useGlobalInteraction();
-  const buckets = getBuckets();
-  const project = getProject();
-  const tasks = getTasks();
 
   const [val, setVal] = useState<string>(task?.title || "");
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);

@@ -7,8 +7,7 @@ import { RecentIcon } from "./common/icons";
 import { useData } from "./context/data";
 
 function RecentLinks() {
-  const { getProject } = useData();
-  const project = getProject();
+  const { project } = useData();
 
   const [recentProjects, setRecentProjects] = useState<lastAccessedProject[]>(
     [],

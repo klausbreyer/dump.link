@@ -20,9 +20,8 @@ export interface HeaderProps {
 
 const BoxHeader: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { updateBucket, getTasks } = useData();
+  const { updateBucket, tasks } = useData();
 
-  const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const open = getTasksByClosed(tasksForbucket, false);
 

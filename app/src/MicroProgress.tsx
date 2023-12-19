@@ -14,9 +14,8 @@ export interface MicroProgressProps {
 
 const MicroProgress: React.FC<MicroProgressProps> = (props) => {
   const { bucket } = props;
+  const { tasks } = useData();
 
-  const { getTasks } = useData();
-  const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
 
   const open = getTasksByClosed(tasksForbucket, false);

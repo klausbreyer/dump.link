@@ -31,11 +31,8 @@ const positions: { top: number; left: number }[] = [
 ];
 
 const Sequence: React.FC<SequenceProps> = (props) => {
-  const { getBuckets, getDependencies, removeAllBucketDependencies } =
-    useData();
+  const { buckets, dependencies, removeAllBucketDependencies } = useData();
 
-  const buckets = getBuckets();
-  const dependencies = getDependencies();
   const others = getOtherBuckets(buckets);
   const [, setRepaintcounter] = useState(0);
   const [activeRef, setActiveRef] = useState<React.RefObject<HTMLDivElement>>(

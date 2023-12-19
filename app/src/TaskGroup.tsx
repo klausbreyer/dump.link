@@ -31,11 +31,8 @@ interface TaskGroupProps {
 
 const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const { bucket } = props;
-  const { updateTask, getTasks, moveTask, getBuckets } = useData();
+  const { updateTask, moveTask, buckets, tasks } = useData();
 
-  const buckets = getBuckets();
-
-  const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const allOtherBuckets = buckets.filter((b: TaskGroup) => b.id !== bucket.id);
 

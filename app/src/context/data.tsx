@@ -509,39 +509,23 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     resetLayersForAllBuckets();
   };
 
-  const getTasks = () => {
-    return state.tasks;
-  };
-
-  const getDependencies = () => {
-    return state.dependencies;
-  };
-
-  const getProject = () => {
-    return state.project;
-  };
-
-  const getBuckets = () => {
-    return state.buckets;
-  };
-
   console.dir(state);
 
   return (
     <DataContext.Provider
       value={{
         state,
+        project: state.project,
+        tasks: state.tasks,
+        buckets: state.buckets,
+        dependencies: state.dependencies,
         addTask,
         deleteTask,
-        getTasks,
-        getDependencies,
-        getProject,
         updateProject,
         resetBucketLayer,
         moveTask,
         updateTask,
         resetLayersForAllBuckets,
-        getBuckets,
         addBucketDependency,
         removeBucketDependency,
         removeAllBucketDependencies,
@@ -556,22 +540,22 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 type DataContextType = {
   state: State;
+  project: Project;
+  tasks: Task[];
+  buckets: Bucket[];
+  dependencies: Dependency[];
 
   updateProject: (updates: ProjectUpdates) => void;
 
-  getTasks: () => Task[];
   addTask: (task: Task) => void;
   deleteTask: (taskId: TaskID) => void;
   updateTask: (taskId: TaskID, updates: TaskUpdates) => void;
   moveTask: (toBucketId: BucketID, taskId: TaskID) => void;
 
-  getBuckets: () => Bucket[];
   updateBucket: (bucketId: BucketID, updates: BucketUpdates) => void;
   resetBucketLayer: (bucketId: BucketID) => void;
   moveSubgraph: (bucketId: BucketID, layer: number) => void;
 
-  getDependencies: () => Dependency[];
-  getProject: () => Project;
   addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
 

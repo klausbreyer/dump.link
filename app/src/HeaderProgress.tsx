@@ -5,9 +5,8 @@ import { calculateRemainingTime, formatDate } from "./context/helper";
 export interface HeaderProgressProps {}
 
 const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
-  const { getProject } = useData();
+  const { project } = useData();
 
-  const project = getProject();
   const startedAt = project.startedAt;
 
   const endingAt = new Date(

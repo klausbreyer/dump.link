@@ -36,11 +36,7 @@ export function currentUrl() {
 }
 
 const HeaderProject: React.FC<HeaderProjectProps> = (props) => {
-  const { getProject, getBuckets, getTasks } = useData();
-
-  const project = getProject();
-  const buckets = getBuckets();
-  const tasks = getTasks();
+  const { project, tasks, buckets } = useData();
 
   const done = buckets.filter((b: Bucket) => b.done);
   const figuringOut = filterBucketsFiguringOut(buckets, tasks);

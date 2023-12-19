@@ -18,10 +18,8 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const { bucket } = props;
-  const { getBuckets, moveTask, getTasks } = useData();
+  const { moveTask, project, tasks, buckets } = useData();
 
-  const buckets = getBuckets();
-  const tasks = getTasks();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const allOtherBuckets = buckets.filter((b) => b.id !== bucket.id);
 
@@ -69,7 +67,7 @@ const Area: React.FC<AreaProps> = (props) => {
         ))}
       </CardList>
       <CardList>
-        <TaskItem bucket={bucket} task={null} />
+        {!project.archived && <TaskItem bucket={bucket} task={null} />}
       </CardList>
     </div>
   );

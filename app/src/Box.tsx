@@ -50,11 +50,10 @@ const Box: React.FC<BoxProps> = (props) => {
   const { bucket, context } = props;
   const {
     removeBucketDependency,
-    getTasks,
-    getDependencies,
+    tasks,
+    buckets,
+    dependencies,
     addBucketDependency,
-    resetBucketLayer,
-    getBuckets,
   } = useData();
 
   const {
@@ -64,10 +63,7 @@ const Box: React.FC<BoxProps> = (props) => {
     updateHoveredBuckets,
   } = useGlobalInteraction();
 
-  const buckets = getBuckets();
   const others = getOtherBuckets(buckets);
-  const tasks = getTasks();
-  const dependencies = getDependencies();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const availbleIds = getBucketsAvailableFor(others, dependencies, bucket.id);
   const dependingIds = getBucketsDependingOn(dependencies, bucket.id);

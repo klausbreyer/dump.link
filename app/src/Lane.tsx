@@ -115,10 +115,7 @@ const getAccept = (
 
 const Lane: React.FC<LaneProps> = (props) => {
   const { children, index, hoverable, defaultHidden } = props;
-  const { getBuckets, getDependencies, moveSubgraph } = useData();
-
-  const buckets = getBuckets();
-  const dependencies = getDependencies();
+  const { buckets, dependencies, moveSubgraph } = useData();
 
   const { globalDragging } = useGlobalInteraction();
 
