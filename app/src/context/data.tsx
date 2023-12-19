@@ -16,7 +16,6 @@ import {
 import { APIError, apiFunctions } from "./calls";
 import {
   NewID,
-  PRIORITY_INCREMENT,
   extractIdFromUrl,
   getLayerForBucketId,
   getUniqueDependingIdsForbucket,
@@ -26,6 +25,7 @@ import {
 import { LifecycleState, useLifecycle } from "./lifecycle";
 import { setupWebSocket } from "./websocket";
 import { notifyBugsnag } from "..";
+import config from "../config";
 
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
 
@@ -323,7 +323,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     const updates = {
       bucketId: toBucketId,
-      priority: highestPriority + PRIORITY_INCREMENT,
+      priority: highestPriority + config.PRIORITY_INCREMENT,
     };
     updateTask(taskId, updates);
   };

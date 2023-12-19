@@ -15,7 +15,6 @@ import { useData } from "./context/data";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   NewID,
-  PRIORITY_INCREMENT,
   calculateHighestPriority,
   getTask,
   getTaskIndex,
@@ -59,7 +58,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       addTask({
         id: NewID(project.id),
         priority:
-          calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
+          calculateHighestPriority(sortedTasksForBucket) +
+          config.PRIORITY_INCREMENT,
         title: title,
         closed: false,
         bucketId: bucket.id,
@@ -214,7 +214,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         addTask({
           id: NewID(project.id),
           priority:
-            calculateHighestPriority(sortedTasksForBucket) + PRIORITY_INCREMENT,
+            calculateHighestPriority(sortedTasksForBucket) +
+            config.PRIORITY_INCREMENT,
           title: val,
           closed: false,
           bucketId: bucket.id,
@@ -382,9 +383,9 @@ function calculateNewPriority(
   let newPriority = overTask.priority; // Standardwert als aktuelle Priorität des übergeordneten Tasks
 
   if (overIndex === 0) {
-    newPriority = overTask.priority - PRIORITY_INCREMENT;
+    newPriority = overTask.priority - config.PRIORITY_INCREMENT;
   } else if (overIndex === sortedTasksForBucket.length - 1) {
-    newPriority = overTask.priority + PRIORITY_INCREMENT;
+    newPriority = overTask.priority + config.PRIORITY_INCREMENT;
   } else {
     if (draggedTask.priority < overTask.priority && beforeIndex >= 0) {
       newPriority = Math.round(

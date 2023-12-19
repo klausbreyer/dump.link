@@ -1,4 +1,5 @@
 export default {
   TASK_MAX_LENGTH: 140,
   BUCKET_MAX_LENGTH: 40,
+  PRIORITY_INCREMENT: 100000,
 };
