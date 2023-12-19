@@ -14,17 +14,17 @@ import config from "./config";
 import { useData } from "./context/data";
 import { useGlobalInteraction } from "./context/interaction";
 import {
-  NewID,
   calculateHighestPriority,
   getTask,
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
   sortTasksByPriority,
-} from "./context/helper";
+} from "./context/helper_tasks";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { XCircleIcon } from "@heroicons/react/24/solid";
+import { NewID } from "./context/helper_requests";
 
 interface TaskItemProps {
   task: Task | null;

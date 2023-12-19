@@ -19,16 +19,17 @@ import { useData } from "./context/data";
 import {
   getArrangeBucketType,
   getBucket,
-  getBucketsAvailableFor,
-  getBucketsDependingOn,
   getOtherBuckets,
   getSequenceBucketType,
-  getTasksForBucket,
-  getUniqueDependingIdsForbucket,
-  getWholeSubgraph,
-  rootsOfSubgraph,
-  uniqueValues,
 } from "./context/helper";
+import { uniqueValues } from "./context/helper_arrays";
+import {
+  getBucketsAvailableFor,
+  getBucketsDependingOn,
+  getUniqueDependingIdsForbucket,
+} from "./context/helper_dependencies";
+import { getWholeSubgraph } from "./context/helper_layers";
+import { getTasksForBucket } from "./context/helper_tasks";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   Bucket,

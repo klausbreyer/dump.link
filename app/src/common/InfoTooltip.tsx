@@ -1,5 +1,5 @@
-import React, { ReactNode, useState } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import React, { ReactNode, useState } from "react";
 
 interface TooltipProps {
   info: string;

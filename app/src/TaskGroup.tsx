@@ -12,10 +12,6 @@ import {
   getBucketForTask,
   getClosedBucketType,
   getOpenBucketType,
-  getTask,
-  getTasksByClosed,
-  getTasksForBucket,
-  sortTasksByUpdatedAt,
 } from "./context/helper";
 import {
   Bucket as TaskGroup,
@@ -24,6 +20,12 @@ import {
   TabContext,
   TaskID,
 } from "./types";
+import {
+  getTask,
+  getTasksByClosed,
+  getTasksForBucket,
+  sortTasksByUpdatedAt,
+} from "./context/helper_tasks";
 
 interface TaskGroupProps {
   bucket: TaskGroup;

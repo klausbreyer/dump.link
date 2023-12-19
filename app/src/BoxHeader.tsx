@@ -6,12 +6,12 @@ import {
   getBucketFlaggedStyle,
   getInputBorderColor,
 } from "./common/colors";
-import config from "./config";
-import { useData } from "./context/data";
-import { getTasksByClosed, getTasksForBucket } from "./context/helper";
-import { Bucket, TabContext } from "./types";
 import { isSafari } from "./common/helper";
 import { EmptyChekboxIcon } from "./common/icons";
+import config from "./config";
+import { useData } from "./context/data";
+import { getTasksByClosed, getTasksForBucket } from "./context/helper_tasks";
+import { Bucket, TabContext } from "./types";
 
 export interface HeaderProps {
   bucket: Bucket;

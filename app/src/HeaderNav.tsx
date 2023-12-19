@@ -1,13 +1,11 @@
 import React, { ReactNode } from "react";
 
+import { InformationCircleIcon } from "@heroicons/react/24/solid";
+import InfoModal from "./common/InfoModal";
+import Title from "./common/Title";
 import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
-import { CheckIcon } from "@heroicons/react/24/outline";
-import InfoModal from "./common/InfoModal";
-import { InformationCircleIcon } from "@heroicons/react/24/solid";
-import { Dialog } from "@headlessui/react";
-import Title from "./common/Title";
 
 interface Step {
   id: TabContext;

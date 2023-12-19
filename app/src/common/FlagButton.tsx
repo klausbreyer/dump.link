@@ -1,5 +1,4 @@
 import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
-
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 import React from "react";
 import { Bucket, Task } from "../types";

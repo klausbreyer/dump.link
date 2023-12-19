@@ -10,7 +10,7 @@ import {
   TaskUpdates,
 } from "../types";
 import { CLIENT_TOKEN } from "./data";
-import { ISOToDate, dateToISO } from "./helper";
+import { ISOToDate, dateToISO } from "./helper_dates";
 
 export class APIError extends Error {
   statusCode: number;

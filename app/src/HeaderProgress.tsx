@@ -1,6 +1,6 @@
 import React from "react";
 import { useData } from "./context/data";
-import { calculateRemainingTime, formatDate } from "./context/helper";
+import { calculateRemainingTime, formatDate } from "./context/helper_dates";
 
 export interface HeaderProgressProps {}
 

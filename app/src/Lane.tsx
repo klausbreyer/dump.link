@@ -5,11 +5,13 @@ import { useData } from "./context/data";
 import {
   getArrangeBucketType,
   getBucket,
-  getBucketDependencies,
-  getBucketsDependingOnNothing,
-  getLayers,
   getOtherBuckets,
 } from "./context/helper";
+import {
+  getBucketDependencies,
+  getBucketsDependingOnNothing,
+} from "./context/helper_dependencies";
+import { getLayers } from "./context/helper_layers";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   Bucket,

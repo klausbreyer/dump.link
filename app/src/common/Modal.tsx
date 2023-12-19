@@ -1,5 +1,5 @@
-import React from "react";
 import { Dialog as HeadlessUIDialog, Transition } from "@headlessui/react";
+import React from "react";
 
 type ModalProps = {
   isOpen: boolean;

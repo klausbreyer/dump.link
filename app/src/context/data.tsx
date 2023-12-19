@@ -13,19 +13,21 @@ import {
   TaskUpdates,
 } from "../types";
 
+import { notifyBugsnag } from "..";
+import config from "../config";
 import { APIError, apiFunctions } from "./calls";
+import {
+  getUniqueDependingIdsForbucket,
+  hasCyclicDependencyWithBucket,
+} from "./helper_dependencies";
+import { getLayerForBucketId } from "./helper_layers";
 import {
   NewID,
   extractIdFromUrl,
-  getLayerForBucketId,
-  getUniqueDependingIdsForbucket,
-  hasCyclicDependencyWithBucket,
   saveProjectIdToLocalStorage,
-} from "./helper";
+} from "./helper_requests";
 import { LifecycleState, useLifecycle } from "./lifecycle";
 import { setupWebSocket } from "./websocket";
-import { notifyBugsnag } from "..";
-import config from "../config";
 
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
 

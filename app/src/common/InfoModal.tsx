@@ -1,8 +1,7 @@
-import React, { ReactNode, useState, Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import React, { ReactNode, useState } from "react";
 import InfoButton from "./InfoButton";
-import Title from "./Title";
 import Modal from "./Modal";
+import Title from "./Title";
 
 interface InfoModalProps {
   icon: ReactNode;
