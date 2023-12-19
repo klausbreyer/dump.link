@@ -13,12 +13,22 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if project.Archived {
+		app.goneResponse(w, r)
+		return
+	}
 	var input struct {
 		BucketID     *string `json:"bucketId"`
 		DependencyId *string `json:"dependencyId"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err = app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -80,6 +90,17 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 
 	dependencyId, valid := app.getAndValidateID(w, r, "dependencyId")
 	if !valid {
+		return
+	}
+
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if project.Archived {
+		app.goneResponse(w, r)
 		return
 	}
 

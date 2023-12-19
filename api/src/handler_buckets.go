@@ -18,6 +18,17 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if project.Archived {
+		app.goneResponse(w, r)
+		return
+	}
+
 	var input struct {
 		Name    *string `json:"name,omitempty"`
 		Done    *bool   `json:"done,omitempty"`
@@ -25,7 +36,7 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		Flagged *bool   `json:"flagged,omitempty"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err = app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -82,7 +93,18 @@ func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err := app.buckets.ResetLayer(bucketId)
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if project.Archived {
+		app.goneResponse(w, r)
+		return
+	}
+
+	err = app.buckets.ResetLayer(bucketId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

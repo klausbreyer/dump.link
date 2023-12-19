@@ -18,7 +18,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 
 	project, err := app.projects.Get(projectId)
 	if err != nil {
-		app.notFoundResponse(w, r)
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -73,11 +73,6 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	startTime := time.Now()
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
-		return
-	}
-
-	if !app.projects.IDExists(projectId) {
-		app.notFoundResponse(w, r)
 		return
 	}
 
@@ -213,12 +208,18 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if !app.projects.IDExists(projectId) {
-		app.notFoundResponse(w, r)
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	err := app.buckets.ResetProjectLayers(projectId)
+	if project.Archived {
+		app.goneResponse(w, r)
+		return
+	}
+
+	err = app.buckets.ResetProjectLayers(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

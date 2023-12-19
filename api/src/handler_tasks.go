@@ -13,7 +13,17 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		return
 	}
-	fmt.Printf("Validierung der Projekt-ID abgeschlossen in %v\n", time.Since(startTime))
+
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if project.Archived {
+		app.goneResponse(w, r)
+		return
+	}
 
 	var input struct {
 		Id       string `json:"id"`
@@ -22,7 +32,7 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		Priority int    `json:"priority"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err = app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -75,12 +85,18 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !app.tasks.IDExists(taskId) {
-		app.notFoundResponse(w, r)
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	err := app.tasks.Delete(taskId)
+	if project.Archived {
+		app.goneResponse(w, r)
+		return
+	}
+
+	err = app.tasks.Delete(taskId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -112,8 +128,14 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !app.tasks.IDExists(taskId) {
-		app.notFoundResponse(w, r)
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if project.Archived {
+		app.goneResponse(w, r)
 		return
 	}
 
@@ -124,7 +146,7 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 		Priority *int    `json:"priority,omitempty"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err = app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
