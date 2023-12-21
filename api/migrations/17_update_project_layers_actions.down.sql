@@ -1,0 +1,6 @@
+UPDATE
+	log_actions
+SET
+	action = 'RESET_LAYERS_FOR_ALL_BUCKETS'
+WHERE
+	action = 'RESET_PROJECT_LAYERS';
