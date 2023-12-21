@@ -1,4 +1,5 @@
 import {
+  ActivityUpdates,
   ApiMessage,
   Bucket,
   BucketUpdates,
@@ -165,6 +166,15 @@ const createApiFunctions = () => {
       apiCall({
         url: `/projects/${projectId}/dependencies/${bucketId}/${dependencyId}`,
         method: "DELETE",
+      }),
+    postActivity: (
+      projectId: string,
+      updateData: ActivityUpdates,
+    ): Promise<any> =>
+      apiCall({
+        url: `/projects/${projectId}/activities`,
+        method: "POST",
+        body: updateData,
       }),
   };
 };

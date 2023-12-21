@@ -70,7 +70,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 	data := envelope{
 		"bucketId":     *input.BucketID,
 		"dependencyId": *input.DependencyId,
-		"updatedBy":    username,
+		"createdBy":    username,
 	}
 
 	senderToken := app.getTokenFromRequest(r)

@@ -33,6 +33,7 @@ func (m *TaskModel) Insert(id string, title string, closed bool, bucketID string
 }
 
 func (m *TaskModel) IDExists(id string) bool {
+	fmt.Println("IDExists", id)
 	stmt := `SELECT COUNT(id) FROM tasks WHERE id = ?`
 	var count int
 	err := m.DB.QueryRow(stmt, id).Scan(&count)

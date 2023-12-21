@@ -4,23 +4,13 @@ export type TaskID = string;
 
 export type UserName = string;
 
-type ActivityWithBucket = {
+export type Activity = {
   projectId: ProjectID;
-  bucketId: BucketID;
-  taskId?: never;
+  bucketId?: BucketID;
+  taskId?: TaskID;
   createdBy: UserName;
   createdAt: Date;
 };
-
-type ActivityWithTask = {
-  projectId: ProjectID;
-  bucketId?: never;
-  taskId: TaskID;
-  createdBy: UserName;
-  createdAt: Date;
-};
-
-export type Activity = ActivityWithBucket | ActivityWithTask;
 
 export type Task = {
   id: TaskID;
@@ -64,7 +54,6 @@ export type State = {
   tasks: Task[];
   dependencies: Dependency[];
   activities: Activity[];
-  activity?: Activity; //self.
 };
 
 export type TaskUpdates = {
@@ -90,6 +79,12 @@ export type ProjectUpdates = {
   appetite?: Project["appetite"];
   archived?: Project["archived"];
   updatedBy?: Project["updatedBy"];
+};
+
+export type ActivityUpdates = {
+  bucketId?: Activity["bucketId"];
+  taskId?: Activity["taskId"];
+  createdBy?: Activity["createdBy"];
 };
 export interface lastAccessedProject {
   id: string;

@@ -102,6 +102,7 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
         type: "ADD_BUCKET_DEPENDENCY",
         bucketId: message.data.bucketId,
         dependencyId: message.data.dependencyId,
+        createdBy: message.data.createdBy,
       });
       break;
     case "REMOVE_BUCKET_DEPENDENCY":

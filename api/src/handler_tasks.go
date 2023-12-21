@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
+func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
 	username, err := app.getUsernameFromHeader(r)
@@ -48,6 +48,7 @@ func (app *application) ApiAddTask(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, fmt.Errorf("id must be exactly 22 characters long"))
 		return
 	}
+
 	if len(input.BucketID) != 22 {
 		app.serverErrorResponse(w, r, fmt.Errorf("bucketId must be exactly 22 characters long"))
 		return

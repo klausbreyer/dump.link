@@ -24,7 +24,7 @@ import {
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { XCircleIcon } from "@heroicons/react/24/solid";
-import { NewID } from "./context/helper_requests";
+import { NewID, getUsername } from "./context/helper_requests";
 
 interface TaskItemProps {
   task: Task | null;
@@ -34,8 +34,15 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
-  const { addTask, updateTask, deleteTask, project, tasks, buckets } =
-    useData();
+  const {
+    addTask,
+    updateTask,
+    deleteTask,
+    project,
+    tasks,
+    buckets,
+    updateActivities,
+  } = useData();
 
   const { updateGlobalDragging, temporaryPriority, setTemporaryPriority } =
     useGlobalInteraction();
@@ -63,6 +70,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         title: title,
         closed: false,
         bucketId: bucket.id,
+        updatedBy: getUsername(),
       });
     },
   );
@@ -177,14 +185,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   };
 
   function handleFocus() {
+    updateActivities(undefined, task?.id);
     setIsEditRefFocused(true);
   }
 
   function handleBlur() {
+    updateActivities(undefined, undefined);
     setIsEditRefFocused(false);
     setIsClicked(false);
-
-    console.log("handleBlur", val, task?.title);
 
     // For an existing task
     if (task && val !== task.title) {
@@ -219,6 +227,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           title: val,
           closed: false,
           bucketId: bucket.id,
+          updatedBy: getUsername(),
         });
         setVal("");
         setTimeout(() => {

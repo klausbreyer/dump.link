@@ -56,11 +56,21 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 		dependencies = []*models.Dependency{}
 	}
 
+	activities, err := app.activities.GetForProjectId(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	if activities == nil {
+		activities = []*models.Activity{}
+	}
+
 	data := envelope{
 		"project":      project,
 		"buckets":      buckets,
 		"tasks":        tasks,
 		"dependencies": dependencies,
+		"activities":   activities,
 	}
 
 	err = app.writeJSON(w, http.StatusOK, data, nil)

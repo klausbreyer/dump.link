@@ -20,7 +20,7 @@ export interface HeaderProps {
 
 const BoxHeader: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { updateBucket, tasks, project } = useData();
+  const { updateBucket, tasks, project, updateActivities } = useData();
 
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const open = getTasksByClosed(tasksForbucket, false);
@@ -51,11 +51,13 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
   };
 
   function handleInputFocus() {
+    updateActivities(bucket.id, undefined);
     setIsTextAreaFocused(true);
   }
 
   function handleInputBlur() {
     setIsTextAreaFocused(false);
+    updateActivities(undefined, undefined);
     updateBucket(bucket.id, { name: inputValue });
   }
 
