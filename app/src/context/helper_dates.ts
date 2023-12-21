@@ -1,13 +1,3 @@
-import {
-  Bucket,
-  BucketID,
-  BucketState,
-  Dependency,
-  Task,
-  TaskID,
-  lastAccessedProject,
-} from "../types";
-
 export const dateToISO = (date: Date) =>
   date instanceof Date ? date.toISOString().split("T")[0] : date;
 

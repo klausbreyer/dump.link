@@ -1,12 +1,4 @@
-import {
-  Bucket,
-  BucketID,
-  BucketState,
-  Dependency,
-  Task,
-  TaskID,
-  lastAccessedProject,
-} from "../types";
+import { lastAccessedProject } from "../types";
 
 export const extractIdFromUrl = () => {
   const url = window.location.pathname;
@@ -69,4 +61,17 @@ export function NewID(...prefixes: string[]): string {
 
 export function getUsername() {
   return localStorage.getItem("username") || "";
+}
+
+export function getInitials() {
+  const username = getUsername();
+  if (username.length === 0) return "";
+  if (username.length < 3) return username;
+
+  const parts = username.split(" ");
+  if (parts.length === 1) {
+    return parts[0].charAt(0);
+  } else {
+    return parts[0].charAt(0) + parts[1].charAt(0);
+  }
 }
