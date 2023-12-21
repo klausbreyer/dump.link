@@ -11,6 +11,13 @@ import (
 
 func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -62,7 +69,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionSetInitialState))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionSetInitialState), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -71,6 +78,13 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -84,7 +98,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		Archived  *bool   `json:"archived,omitempty"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err = app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -126,6 +140,8 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	data["updated_by"] = username
+
 	err = app.projects.Update(projectId, data)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -137,13 +153,18 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		delete(data, "started_at")
 	}
 
+	if data["updated_by"] != nil {
+		data["updatedBy"] = data["updated_by"]
+		delete(data, "updated_by")
+	}
+
 	data["id"] = projectId
-	senderToken := app.extractTokenFromRequest(r)
+	senderToken := app.getTokenFromRequest(r)
 
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateProject, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -152,6 +173,13 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 
 func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
 	var input struct {
 		Name           string `json:"name"`
 		Appetite       int    `json:"appetite"`
@@ -160,7 +188,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		OwnerLastName  string `json:"ownerLastName"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err = app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -171,7 +199,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName)
+	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -203,7 +231,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionCreateProject))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionCreateProject), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -212,6 +240,13 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 
 func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -237,11 +272,11 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	data := make(envelope)
 	data["message"] = "All layers in the project have been reset successfully"
 
-	senderToken := app.extractTokenFromRequest(r)
+	senderToken := app.getTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetProjectLayers, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetProjectLayers))
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetProjectLayers), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -8,6 +8,13 @@ import (
 
 func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
 	bucketId, valid := app.getAndValidateID(w, r, "bucketId")
 	if !valid {
 		return
@@ -61,6 +68,8 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data["updated_by"] = username
+
 	err = app.buckets.Update(bucketId, data)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -70,11 +79,11 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	//always send the id, ws needs it.
 	data["id"] = bucketId
 
-	senderToken := app.extractTokenFromRequest(r)
+	senderToken := app.getTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateBucket, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionUpdateBucket))
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionUpdateBucket), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -83,6 +92,13 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
 	bucketId, valid := app.getAndValidateID(w, r, "bucketId")
 	if !valid {
 		return
@@ -111,13 +127,14 @@ func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Requ
 	}
 
 	data := make(envelope)
+	data["id"] = bucketId
 	data["layer"] = nil
 
-	senderToken := app.extractTokenFromRequest(r)
+	senderToken := app.getTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetBucketLayers, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionResetBucketLayers))
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionResetBucketLayers), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -10,15 +10,16 @@ type Dependency struct {
 	BucketID     string    `json:"bucketId"`
 	DependencyId string    `json:"dependencyId"`
 	CreatedAt    time.Time `json:"createdAt"`
+	CreatedBy    string    `json:"createdBy"`
 }
 
 type DependencyModel struct {
 	DB *sql.DB
 }
 
-func (m *DependencyModel) Insert(bucketID string, dependencyId string) error {
-	stmt := `INSERT INTO dependencies (bucket_id, dependency_id) VALUES (?, ?)`
-	_, err := m.DB.Exec(stmt, bucketID, dependencyId)
+func (m *DependencyModel) Insert(bucketID string, dependencyId string, createdBy string) error {
+	stmt := `INSERT INTO dependencies (bucket_id, dependency_id, created_by) VALUES (?, ?, ?)`
+	_, err := m.DB.Exec(stmt, bucketID, dependencyId, createdBy)
 	return err
 }
 
@@ -30,7 +31,7 @@ func (m *DependencyModel) Exists(bucketID, dependencyID string) (bool, error) {
 }
 
 func (m *DependencyModel) GetForProjectId(projectId string) ([]*Dependency, error) {
-	stmt := `SELECT bd.bucket_id, bd.dependency_id, bd.created_at
+	stmt := `SELECT bd.bucket_id, bd.dependency_id, bd.created_at, bd.created_by
          FROM dependencies bd
          WHERE bd.bucket_id IN (
              SELECT b.id
@@ -49,7 +50,7 @@ func (m *DependencyModel) GetForProjectId(projectId string) ([]*Dependency, erro
 		var createdAtStr string
 		bd := &Dependency{}
 
-		err = rows.Scan(&bd.BucketID, &bd.DependencyId, &createdAtStr)
+		err = rows.Scan(&bd.BucketID, &bd.DependencyId, &createdAtStr, &bd.CreatedBy)
 		if err != nil {
 			return nil, err
 		}

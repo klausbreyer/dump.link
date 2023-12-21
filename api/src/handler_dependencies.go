@@ -8,6 +8,13 @@ import (
 
 func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -54,7 +61,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = app.dependencies.Insert(*input.BucketID, *input.DependencyId)
+	err = app.dependencies.Insert(*input.BucketID, *input.DependencyId, username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -63,13 +70,14 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 	data := envelope{
 		"bucketId":     *input.BucketID,
 		"dependencyId": *input.DependencyId,
+		"updatedBy":    username,
 	}
 
-	senderToken := app.extractTokenFromRequest(r)
+	senderToken := app.getTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddBucketDependency, data)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 
-	err = app.actions.Insert(projectId, input.BucketID, nil, startTime, string(ActionAddBucketDependency))
+	err = app.actions.Insert(projectId, input.BucketID, nil, startTime, string(ActionAddBucketDependency), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -78,6 +86,13 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 
 func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		app.unauthorizedResponse(w, r)
+		return
+	}
+
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -120,11 +135,11 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 		"dependencyId": dependencyId,
 	}
 
-	senderToken := app.extractTokenFromRequest(r)
+	senderToken := app.getTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionRemoveBucketDependency, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionRemoveBucketDependency))
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionRemoveBucketDependency), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

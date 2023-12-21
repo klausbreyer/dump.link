@@ -11,6 +11,7 @@ import {
   Task,
   TaskID,
   TaskUpdates,
+  UserName,
 } from "../types";
 
 import { notifyBugsnag } from "..";
@@ -24,6 +25,7 @@ import { getLayerForBucketId } from "./helper_layers";
 import {
   NewID,
   extractIdFromUrl,
+  getUsername,
   saveProjectIdToLocalStorage,
 } from "./helper_requests";
 import { LifecycleState, useLifecycle } from "./lifecycle";
@@ -35,6 +37,7 @@ const initialState: State = {
   buckets: [],
   tasks: [],
   dependencies: [],
+  activities: [],
   project: {
     id: "",
     name: "",
@@ -42,6 +45,7 @@ const initialState: State = {
     startedAt: new Date(),
     endingAt: null,
     archived: false,
+    updatedBy: "",
   },
 };
 
@@ -75,6 +79,7 @@ export type ActionType =
       type: "ADD_BUCKET_DEPENDENCY";
       bucketId: BucketID;
       dependencyId: BucketID;
+      createdBy: UserName;
     }
   | {
       type: "REMOVE_BUCKET_DEPENDENCY";
@@ -196,12 +201,15 @@ const dataReducer = (state: State, action: ActionType): State => {
     }
 
     case "ADD_BUCKET_DEPENDENCY": {
-      const { bucketId, dependencyId } = action;
+      const { bucketId, dependencyId, createdBy } = action;
 
       // Creating a new dependency object
-      const newDependency = { bucketId, dependencyId };
+      const newDependency = { bucketId, dependencyId, createdBy };
 
-      return { ...state, dependencies: [...state.dependencies, newDependency] };
+      return {
+        ...state,
+        dependencies: [...state.dependencies, newDependency],
+      };
     }
 
     case "REMOVE_BUCKET_DEPENDENCY": {
@@ -294,6 +302,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, [state.project.id]);
 
   const addTask = (task: Task) => {
+    task = addUpdatedByToEntity(task);
     dispatch({
       type: "ADD_TASK",
       task: task,
@@ -331,6 +340,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const updateTask = (taskId: TaskID, updates: TaskUpdates) => {
+    updates = addUpdatedByToEntity(updates);
     dispatch({
       type: "UPDATE_TASK",
       taskId: taskId,
@@ -364,6 +374,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const updateBucket = (bucketId: BucketID, updates: BucketUpdates) => {
+    updates = addUpdatedByToEntity(updates);
     dispatch({
       type: "UPDATE_BUCKET",
       bucketId: bucketId,
@@ -435,6 +446,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const updateProject = (updates: ProjectUpdates) => {
+    updates = addUpdatedByToEntity(updates);
     dispatch({
       type: "UPDATE_PROJECT",
       updates: updates,
@@ -465,6 +477,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       type: "ADD_BUCKET_DEPENDENCY",
       bucketId: bucket.id,
       dependencyId: dependencyId,
+      createdBy: getUsername(),
     });
 
     (async () => {
@@ -581,6 +594,7 @@ function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
     ...(updates.title !== undefined && { title: updates.title }),
     ...(updates.priority !== undefined && { priority: updates.priority }),
     ...(updates.bucketId !== undefined && { bucketId: updates.bucketId }),
+    ...(updates.updatedBy !== undefined && { updatedBy: updates.updatedBy }),
   };
 }
 
@@ -591,6 +605,7 @@ function reconsileBucketUpdate(bucket: Bucket, updates: BucketUpdates): Bucket {
     ...(updates.layer !== undefined && { layer: updates.layer }),
     ...(updates.flagged !== undefined && { flagged: updates.flagged }),
     ...(updates.done !== undefined && { done: updates.done }),
+    ...(updates.updatedBy !== undefined && { updatedBy: updates.updatedBy }),
   };
 }
 
@@ -605,5 +620,10 @@ function reconsileProjectUpdate(
     ...(updates.endingAt !== undefined && { endingAt: updates.endingAt }),
     ...(updates.appetite !== undefined && { appetite: updates.appetite }),
     ...(updates.archived !== undefined && { archived: updates.archived }),
+    ...(updates.updatedBy !== undefined && { updatedBy: updates.updatedBy }),
   };
+}
+
+function addUpdatedByToEntity<T extends { updatedBy?: string }>(entity: T): T {
+  return { ...entity, updatedBy: getUsername() };
 }

@@ -1,3 +1,4 @@
+
 kill:
 	lsof -t -i tcp:8080 | xargs kill -9
 
@@ -28,13 +29,12 @@ down:
 reset:
 	mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" -e "DROP DATABASE IF EXISTS $$DB_NAME; CREATE DATABASE $$DB_NAME;"
 
+
+TABLES = projects buckets tasks dependencies activities
+
 load:
 	make reset
-	mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" -e "SET NAMES 'utf8mb4';"
-	for file in ./pscale-dump/*.sql; do \
-		mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" < "$$file"; \
-	done
-
+	sh loading.sh
 
 prod:
 	rm -rf pscale-dump;
@@ -56,3 +56,4 @@ db:
 fresh:
 	make reset
 	make up
+	sh new.sh

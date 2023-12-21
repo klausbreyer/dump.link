@@ -11,6 +11,7 @@ import {
 } from "../types";
 import { CLIENT_TOKEN } from "./data";
 import { ISOToDate, dateToISO } from "./helper_dates";
+import { getUsername } from "./helper_requests";
 
 export class APIError extends Error {
   statusCode: number;
@@ -44,6 +45,7 @@ const createApiFunctions = () => {
       method,
       headers: {
         "Content-Type": "application/json",
+        Username: getUsername(),
       },
       body: body ? JSON.stringify(body) : null,
     };

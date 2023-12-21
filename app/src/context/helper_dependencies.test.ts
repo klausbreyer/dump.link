@@ -6,50 +6,62 @@ const dependencies: Dependency[] = [
   {
     bucketId: "a",
     dependencyId: "b",
+    createdBy: "user",
   },
   {
     bucketId: "b",
     dependencyId: "c",
+    createdBy: "user",
   },
   {
     bucketId: "b",
     dependencyId: "d",
+    createdBy: "user",
   },
   {
     bucketId: "d",
     dependencyId: "e",
+    createdBy: "user",
   },
   {
     bucketId: "d",
     dependencyId: "f",
+    createdBy: "user",
   },
   {
     bucketId: "f",
     dependencyId: "g",
+    createdBy: "user",
   },
   {
     bucketId: "g",
     dependencyId: "h",
+    createdBy: "user",
   },
   {
     bucketId: "b",
     dependencyId: "f",
+    createdBy: "user",
   },
   {
     bucketId: "b",
     dependencyId: "e",
+    createdBy: "user",
   },
   {
     bucketId: "c",
     dependencyId: "d",
+    createdBy: "user",
   },
   {
     bucketId: "c",
     dependencyId: "i",
+    createdBy: "user",
   },
   {
     bucketId: "b",
     dependencyId: "c",
+    createdBy: "user",
   },
 ];
 

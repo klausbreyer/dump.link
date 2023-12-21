@@ -66,3 +66,7 @@ export function NewID(...prefixes: string[]): string {
 
   return prefix + id.join("");
 }
+
+export function getUsername() {
+  return localStorage.getItem("username") || "";
+}

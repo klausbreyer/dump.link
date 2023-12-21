@@ -16,14 +16,17 @@ import (
 )
 
 type wsClient struct {
-	conn        *websocket.Conn
-	projectId   string
-	clientToken string
+	conn           *websocket.Conn
+	projectId      string
+	clientToken    string
+	clientUsername string
 }
 type application struct {
 	templatesFS embed.FS
 
-	logger           *slog.Logger
+	logger *slog.Logger
+
+	activities       *models.ActivityModel
 	buckets          *models.BucketModel
 	tasks            *models.TaskModel
 	projects         *models.ProjectModel
@@ -53,6 +56,7 @@ func Run(templatesFS embed.FS) error {
 		templatesFS: templatesFS,
 		logger:      logger,
 
+		activities:       &models.ActivityModel{DB: db},
 		buckets:          &models.BucketModel{DB: db},
 		tasks:            &models.TaskModel{DB: db},
 		projects:         &models.ProjectModel{DB: db},

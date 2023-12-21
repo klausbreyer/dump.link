@@ -16,6 +16,7 @@ type Project struct {
 	UpdatedAt time.Time  `json:"updatedAt"`
 	Appetite  int        `json:"appetite"`
 	Archived  bool       `json:"archived"`
+	UpdatedBy string     `json:"updatedBy"`
 	// OwnerEmail    string    `json:"ownerEmail"`    // never read. Only ingested.
 	// OwnerFirstName string   `json:"ownerFirstName"` // never read. Only ingested.
 	// OwnerLastName string    `json:"ownerLastName"`  // never read. Only ingested.
@@ -25,7 +26,7 @@ type ProjectModel struct {
 	DB *sql.DB
 }
 
-func (m *ProjectModel) Insert(name string, appetite int, ownerEmail, ownerFirstName, ownerLastName string) (string, error) {
+func (m *ProjectModel) Insert(name string, appetite int, ownerEmail, ownerFirstName, ownerLastName, updatedBy string) (string, error) {
 	var id string
 	for {
 		id = NewID()
@@ -35,14 +36,15 @@ func (m *ProjectModel) Insert(name string, appetite int, ownerEmail, ownerFirstN
 	}
 
 	startedAt := time.Now()
-	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName)
+	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName, updatedBy)
 	if err != nil {
 		return "", err
 	}
 
 	return id, nil
 }
+
 func (m *ProjectModel) IDExists(id string) bool {
 	stmt := `SELECT COUNT(id) FROM projects WHERE id = ?`
 	var count int
@@ -55,7 +57,7 @@ func (m *ProjectModel) IDExists(id string) bool {
 }
 
 func (m *ProjectModel) Get(id string) (*Project, error) {
-	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived FROM projects WHERE id = ?`
+	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived, updated_by FROM projects WHERE id = ?`
 	row := m.DB.QueryRow(stmt, id)
 
 	var (
@@ -64,7 +66,7 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		p                                        Project
 	)
 
-	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived)
+	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Project with ID %s not found", id)

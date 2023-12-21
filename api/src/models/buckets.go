@@ -18,6 +18,7 @@ type Bucket struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	Priority  int       `json:"priority"`
+	UpdatedBy string    `json:"updatedBy"`
 }
 
 type BucketModel struct {
@@ -53,7 +54,7 @@ func (m *BucketModel) IDExists(id string) bool {
 }
 
 func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
-	stmt := `SELECT id, name, done, dump, layer, flagged, project_id, created_at, updated_at, priority FROM buckets WHERE project_id = ? ORDER BY priority`
+	stmt := `SELECT id, name, done, dump, layer, flagged, project_id, created_at, updated_at, priority, updated_by FROM buckets WHERE project_id = ? ORDER BY priority`
 	rows, err := m.DB.Query(stmt, projectId)
 	if err != nil {
 		return nil, err
@@ -65,7 +66,7 @@ func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
 		var createdAtStr, updatedAtStr string
 		b := &Bucket{}
 
-		err = rows.Scan(&b.ID, &b.Name, &b.Done, &b.Dump, &b.Layer, &b.Flagged, &b.ProjectID, &createdAtStr, &updatedAtStr, &b.Priority)
+		err = rows.Scan(&b.ID, &b.Name, &b.Done, &b.Dump, &b.Layer, &b.Flagged, &b.ProjectID, &createdAtStr, &updatedAtStr, &b.Priority, &b.UpdatedBy)
 		if err != nil {
 			return nil, err
 		}
@@ -89,7 +90,6 @@ func (m *BucketModel) GetForProjectId(projectId string) ([]*Bucket, error) {
 
 	return buckets, nil
 }
-
 func (m *BucketModel) Update(bucketId string, updates map[string]interface{}) error {
 	queryParts := []string{}
 	args := []interface{}{}

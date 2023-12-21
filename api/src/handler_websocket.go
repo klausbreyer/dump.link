@@ -48,18 +48,14 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (app *application) extractTokenFromRequest(r *http.Request) string {
-	token := r.URL.Query().Get("token")
-	return token
-}
-
 func (app *application) apiHandleWebSocket(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
 	}
 
-	token := app.extractTokenFromRequest(r)
+	token := app.getTokenFromRequest(r)
+	username := app.getUsernameFromRequest(r)
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -68,14 +64,15 @@ func (app *application) apiHandleWebSocket(w http.ResponseWriter, r *http.Reques
 	}
 
 	app.logger.Info(fmt.Sprintf("WebSocket connection established for project: %s", projectId))
-	app.WebSocketHandler(conn, token, projectId)
+	app.WebSocketHandler(conn, token, projectId, username)
 }
 
-func (app *application) WebSocketHandler(conn *websocket.Conn, token string, projectId string) {
+func (app *application) WebSocketHandler(conn *websocket.Conn, token string, projectId string, username string) {
 	client := &wsClient{
-		conn:        conn,
-		projectId:   projectId,
-		clientToken: token,
+		conn:           conn,
+		projectId:      projectId,
+		clientToken:    token,
+		clientUsername: username,
 	}
 	app.mutex.Lock()
 	if app.clients[projectId] == nil {
@@ -85,7 +82,7 @@ func (app *application) WebSocketHandler(conn *websocket.Conn, token string, pro
 	app.mutex.Unlock()
 
 	app.logger.Info(fmt.Sprintf("New WebSocket client registered for project: %s", projectId))
-	app.logClientCount(projectId)
+	app.logClientCount(projectId, username)
 
 	defer func() {
 		app.mutex.Lock()
@@ -97,7 +94,7 @@ func (app *application) WebSocketHandler(conn *websocket.Conn, token string, pro
 		conn.Close()
 		app.logger.Info(fmt.Sprintf("WebSocket client disconnected from project: %s", projectId))
 
-		app.logClientCount(projectId)
+		app.logClientCount(projectId, username)
 	}()
 
 	for {
@@ -158,14 +155,14 @@ func (app *application) sendActionDataToProjectClients(projectId string, senderT
 	}
 }
 
-func (app *application) logClientCount(projectId string) {
+func (app *application) logClientCount(projectId string, username string) {
 	app.mutex.Lock()
 	defer app.mutex.Unlock()
 
 	count := len(app.clients[projectId])
 
 	app.logger.Info(fmt.Sprintf("Number of WebSocket clients for project '%s': %d", projectId, count))
-	err := app.logSubscriptions.Insert(projectId, count)
+	err := app.logSubscriptions.Insert(projectId, count, username)
 	if err != nil {
 		app.logger.Info(fmt.Sprintf("Error logging WebSocket client count: %v", err))
 	}

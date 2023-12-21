@@ -15,15 +15,16 @@ type Task struct {
 	Priority  int       `json:"priority"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	UpdatedBy string    `json:"updatedBy"`
 }
 
 type TaskModel struct {
 	DB *sql.DB
 }
 
-func (m *TaskModel) Insert(id string, title string, closed bool, bucketID string, priority int, projectId string) (string, error) {
-	stmt := `INSERT INTO tasks (id, title, closed, bucket_id, priority) VALUES (?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, title, closed, bucketID, priority)
+func (m *TaskModel) Insert(id string, title string, closed bool, bucketID string, priority int, projectId string, updatedBy string) (string, error) {
+	stmt := `INSERT INTO tasks (id, title, closed, bucket_id, priority, updated_by) VALUES (?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, title, closed, bucketID, priority, updatedBy)
 	if err != nil {
 		return "", err
 	}
@@ -43,13 +44,13 @@ func (m *TaskModel) IDExists(id string) bool {
 }
 
 func (m *TaskModel) Get(id string) (*Task, error) {
-	stmt := `SELECT id, title, closed, bucket_id, priority, created_at, updated_at FROM tasks WHERE id = ?`
+	stmt := `SELECT id, title, closed, bucket_id, priority, created_at, updated_at, updated_by FROM tasks WHERE id = ?`
 	row := m.DB.QueryRow(stmt, id)
 
 	t := &Task{}
 	var createdAtStr, updatedAtStr string
 
-	err := row.Scan(&t.ID, &t.Title, &t.Closed, &t.BucketID, &t.Priority, &createdAtStr, &updatedAtStr)
+	err := row.Scan(&t.ID, &t.Title, &t.Closed, &t.BucketID, &t.Priority, &createdAtStr, &updatedAtStr, &t.UpdatedBy)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Task with ID %s not found", id)
@@ -71,7 +72,7 @@ func (m *TaskModel) Get(id string) (*Task, error) {
 }
 
 func (m *TaskModel) GetForProjectId(projectId string) ([]*Task, error) {
-	stmt := `SELECT t.id, t.title, t.closed, t.bucket_id, t.priority, t.created_at, t.updated_at
+	stmt := `SELECT t.id, t.title, t.closed, t.bucket_id, t.priority, t.created_at, t.updated_at, t.updated_by
 		FROM tasks AS t
 		WHERE t.bucket_id IN (
 			SELECT b.id
@@ -89,7 +90,7 @@ func (m *TaskModel) GetForProjectId(projectId string) ([]*Task, error) {
 		var createdAtStr, updatedAtStr string
 		t := &Task{}
 
-		err := rows.Scan(&t.ID, &t.Title, &t.Closed, &t.BucketID, &t.Priority, &createdAtStr, &updatedAtStr)
+		err := rows.Scan(&t.ID, &t.Title, &t.Closed, &t.BucketID, &t.Priority, &createdAtStr, &updatedAtStr, &t.UpdatedBy)
 		if err != nil {
 			return nil, err
 		}
