@@ -12,15 +12,15 @@ import (
 type ActionType string
 
 const (
-	ActionAddTask                  ActionType = "ADD_TASK"
-	ActionUpdateBucket             ActionType = "UPDATE_BUCKET"
-	ActionUpdateProject            ActionType = "UPDATE_PROJECT"
-	ActionResetBucketLayers        ActionType = "RESET_BUCKET_LAYER"
-	ActionResetLayersForAllBuckets ActionType = "RESET_LAYERS_FOR_ALL_BUCKETS"
-	ActionUpdateTask               ActionType = "UPDATE_TASK"
-	ActionAddBucketDependency      ActionType = "ADD_BUCKET_DEPENDENCY"
-	ActionRemoveBucketDependency   ActionType = "REMOVE_BUCKET_DEPENDENCY"
-	ActionDeleteTask               ActionType = "DELETE_TASK"
+	ActionAddTask                ActionType = "ADD_TASK"
+	ActionUpdateBucket           ActionType = "UPDATE_BUCKET"
+	ActionUpdateProject          ActionType = "UPDATE_PROJECT"
+	ActionResetBucketLayers      ActionType = "RESET_BUCKET_LAYER"
+	ActionResetProjectLayers     ActionType = "RESET_PROJECT_LAYERS"
+	ActionUpdateTask             ActionType = "UPDATE_TASK"
+	ActionAddBucketDependency    ActionType = "ADD_BUCKET_DEPENDENCY"
+	ActionRemoveBucketDependency ActionType = "REMOVE_BUCKET_DEPENDENCY"
+	ActionDeleteTask             ActionType = "DELETE_TASK"
 
 	//not for websocket
 	ActionSetInitialState ActionType = "SET_INITIAL_STATE"

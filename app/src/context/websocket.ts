@@ -111,9 +111,9 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
         dependencyId: message.data.dependencyId,
       });
       break;
-    case "RESET_LAYERS_FOR_ALL_BUCKETS":
+    case "RESET_PROJECT_LAYERS":
       dispatch({
-        type: "RESET_LAYERS_FOR_ALL_BUCKETS",
+        type: "RESET_PROJECT_LAYERS",
       });
       break;
   }
