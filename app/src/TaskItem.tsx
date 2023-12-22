@@ -25,6 +25,7 @@ import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { NewID, getUsername } from "./context/helper_requests";
+import { checkTaskActivity } from "./context/helper_activities";
 
 interface TaskItemProps {
   task: Task | null;
@@ -40,6 +41,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     deleteTask,
     project,
     tasks,
+    activities,
     buckets,
     updateActivities,
   } = useData();
@@ -269,6 +271,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       ? temporaryPriority.priority
       : task?.priority;
 
+  const activeUser = task && checkTaskActivity(activities, task.id);
+  const activeOther = activeUser && activeUser !== getUsername();
+
   const style = task && !task.closed ? { order: localPriority } : {};
   return (
     <div ref={(node) => !project.archived && dropRef(node)} style={style}>
@@ -319,6 +324,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                     !project.archived &&
                     "group-hover:outline group-hover:bg-slate-50"
                   } outline-2 outline-slate-500 select-none
+                  ${activeOther && " outline-purple-500 outline-dashed"}
                     ${textAreaClasses}
                     ${borderColor}
                     ${isClicked && "hidden"}
