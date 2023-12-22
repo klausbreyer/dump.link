@@ -313,6 +313,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       dispatch,
       loadInitialState,
     );
+    // can only make calls when state is there, because it needs a project.id
+
+    if (state.project.id.length === 11) {
+      updateActivities(undefined, undefined);
+    }
 
     return () => {
       if (wsCleanup) wsCleanup();
