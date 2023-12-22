@@ -63,12 +63,27 @@ func (m *ActivityModel) ReplaceTaskId(projectID string, taskID string, createdBy
 }
 
 func (m *ActivityModel) Reset(projectID string, createdBy string) error {
-	delStmt := `DELETE FROM activities WHERE project_id = ? AND created_by = ?`
-	if _, err := m.DB.Exec(delStmt, projectID, createdBy); err != nil {
+	tx, err := m.DB.Begin()
+	if err != nil {
 		return err
 	}
-	return nil
+
+	delStmt := `DELETE FROM activities WHERE project_id = ? AND created_by = ?`
+	if _, err := tx.Exec(delStmt, projectID, createdBy); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	createdAt := time.Now()
+	insertStmt := `INSERT INTO activities (project_id, created_by, created_at) VALUES (?, ?, ?)`
+	if _, err := tx.Exec(insertStmt, projectID, createdBy, createdAt); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }
+
 func (m *ActivityModel) GetForProjectId(projectID string) ([]*Activity, error) {
 	stmt := `SELECT project_id, bucket_id, task_id, created_by, created_at FROM activities WHERE project_id = ?`
 	rows, err := m.DB.Query(stmt, projectID)

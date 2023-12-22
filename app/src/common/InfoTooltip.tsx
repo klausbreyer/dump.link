@@ -9,6 +9,9 @@ interface TooltipProps {
 export const Tooltip: React.FC<TooltipProps> = ({ info, children }) => {
   const [show, setShow] = useState(false);
 
+  //calculate width based of info length
+  const width = info.length * 0.4 + 1.5 + "rem";
+
   return (
     <div className="relative">
       <div
@@ -20,7 +23,10 @@ export const Tooltip: React.FC<TooltipProps> = ({ info, children }) => {
         {children}
       </div>
       {show && (
-        <div className="absolute z-10 px-2 py-1 mb-2 text-xs text-white rounded-md bg-slate-500 top-full">
+        <div
+          className={`absolute text-center z-10 px-2 py-1 mb-2 text-xs text-white break-words whitespace-normal rounded-md bg-slate-500 top-full`}
+          style={{ minWidth: width }}
+        >
           {info}
         </div>
       )}
