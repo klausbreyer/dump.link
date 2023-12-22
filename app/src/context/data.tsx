@@ -98,7 +98,7 @@ export type ActionType =
     }
   | {
       type: "UPDATE_ACTIVITIES";
-      updates: ActivityUpdate;
+      activities: Activity[];
     };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -181,24 +181,11 @@ const dataReducer = (state: State, action: ActionType): State => {
     }
 
     case "UPDATE_ACTIVITIES": {
-      const { updates } = action;
-      console.log("updated", {
-        ...updates,
-        createdAt: new Date(),
-        projectId: state.project.id,
-        createdBy: getUsername(),
-      });
-
-      const updatedActivities = reconsileActivityUpdates(state.activities, {
-        ...updates,
-        createdAt: new Date(),
-        projectId: state.project.id,
-        createdBy: getUsername(),
-      });
+      const { activities } = action;
 
       return {
         ...state,
-        activities: updatedActivities,
+        activities: activities,
       };
     }
 
@@ -564,20 +551,27 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     bucketId: BucketID | undefined,
     taskId: TaskID | undefined,
   ) => {
-    const updates: ActivityUpdate = {
+    const update = {
       bucketId: bucketId,
       taskId: taskId,
+      createdAt: new Date(),
+      projectId: state.project.id,
       createdBy: getUsername(),
     };
 
+    const updatedActivities = reconsileActivityUpdates(
+      state.activities,
+      update,
+    );
+
     dispatch({
       type: "UPDATE_ACTIVITIES",
-      updates: updates,
+      activities: updatedActivities,
     });
 
     (async () => {
       try {
-        await apiFunctions.postActivity(state.project.id, updates);
+        await apiFunctions.postActivity(state.project.id, update);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while updating activity");

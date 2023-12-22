@@ -117,5 +117,11 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
         type: "RESET_PROJECT_LAYERS",
       });
       break;
+    case "UPDATE_ACTIVITIES":
+      dispatch({
+        type: "UPDATE_ACTIVITIES",
+        activities: message.data,
+      });
+      break;
   }
 };

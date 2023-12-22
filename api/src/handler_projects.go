@@ -169,8 +169,8 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	}
 
 	data["id"] = projectId
-	senderToken := app.getTokenFromRequest(r)
 
+	senderToken := app.getTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateProject, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 

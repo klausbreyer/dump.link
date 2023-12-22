@@ -20,7 +20,7 @@ const (
 	ActionUpdateTask             ActionType = "UPDATE_TASK"
 	ActionAddBucketDependency    ActionType = "ADD_BUCKET_DEPENDENCY"
 	ActionRemoveBucketDependency ActionType = "REMOVE_BUCKET_DEPENDENCY"
-	ActionupdateActivities       ActionType = "UPDATE_ACTIVITIES"
+	ActionUpdateActivities       ActionType = "UPDATE_ACTIVITIES"
 	ActionDeleteTask             ActionType = "DELETE_TASK"
 
 	//not for websocket

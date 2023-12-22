@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http"
 	"time"
+
+	"dump.link/src/models"
 )
 
 func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) {
@@ -45,17 +47,14 @@ func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) 
 		app.notFoundResponse(w, r)
 		return
 	}
-	data := envelope{}
 
 	if input.TaskID != nil {
 		err = app.activities.ReplaceTaskId(projectId, *input.TaskID, username)
-		data["taskId"] = *input.TaskID
 	} else {
 		if input.BucketID != nil {
 			err = app.activities.ReplaceBucketId(projectId, *input.BucketID, username)
-			data["bucketId"] = *input.BucketID
 		} else {
-			// err = app.activities.Reset(projectId, username)
+			err = app.activities.Reset(projectId, username)
 		}
 	}
 
@@ -64,13 +63,25 @@ func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	data, err := app.activities.GetForProjectId(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if data == nil {
+		data = []*models.Activity{}
+	}
+
+	senderToken := app.getTokenFromRequest(r)
+	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateActivities, data)
 	err = app.writeJSON(w, http.StatusOK, data, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionupdateActivities), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateActivities), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
