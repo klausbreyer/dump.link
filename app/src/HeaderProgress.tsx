@@ -23,7 +23,7 @@ const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
 
   return (
     <>
-      <div className="flex flex-col h-full gap-2 mt-4 grow ">
+      <div className="flex flex-col h-full gap-2 ">
         <div
           className={`relative w-full h-2 rounded-xl overflow-hidden bg-slate-300`}
         >

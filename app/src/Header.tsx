@@ -31,9 +31,15 @@ const Header: React.FC<HeaderProps> = (props) => {
         )}
         <div className="flex items-center justify-between gap-4 mb-4 ">
           <HeaderProject />
-          <HeaderActivity />
-          <HeaderProgress />
-          <HeaderSettings />
+
+          <div className="flex flex-col items-stretch gap-1 grow">
+            <div className="flex justify-between ">
+              <HeaderActivity />
+
+              <HeaderSettings />
+            </div>
+            <HeaderProgress />
+          </div>
         </div>
         <HeaderNav />
       </div>

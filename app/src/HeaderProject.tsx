@@ -48,7 +48,7 @@ const HeaderProject: React.FC<HeaderProjectProps> = (props) => {
         <a href="/" title="dump.link" target="_blank">
           <DumplinkIcon className={`w-10 h-10 ${determineIconColor()}`} />
         </a>
-        <div className="grid w-full gap-x-4">
+        <div className="flex flex-col w-full gap-2">
           <div className="flex items-center gap-4">
             <a
               className="text-lg font-bold underline text-slate-700"
