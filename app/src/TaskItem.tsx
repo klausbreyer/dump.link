@@ -323,11 +323,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                   data-enable-grammarly="false"
                   spellCheck="false"
                   readOnly
-                  className={`border-b-2  absolute z-10 bg-slate-100
+                  className={`border-b-2 absolute z-10 bg-slate-100
                   ${
                     !project.archived &&
                     "group-hover:outline group-hover:bg-slate-50"
-                  } outline-2 outline-slate-500 select-none
+                  } outline-2 select-none
+                  ${!activityOther && "outline-slate-500"}
                   ${activityOther && " outline-purple-500 outline-dashed"}
                     ${textAreaClasses}
                     ${borderColor}

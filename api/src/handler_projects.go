@@ -184,12 +184,6 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
-	if err != nil {
-		app.unauthorizedResponse(w, r)
-		return
-	}
-
 	var input struct {
 		Name           string `json:"name"`
 		Appetite       int    `json:"appetite"`
@@ -198,7 +192,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		OwnerLastName  string `json:"ownerLastName"`
 	}
 
-	err = app.readJSON(w, r, &input)
+	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -209,7 +203,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, username)
+	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, "")
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -241,7 +235,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionCreateProject), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionCreateProject), "")
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
