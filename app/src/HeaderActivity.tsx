@@ -46,7 +46,7 @@ interface ActivityAvatarProps {
   activity: Activity;
 }
 
-const ActivityAvatar: React.FC<ActivityAvatarProps> = ({ activity }) => {
+export const ActivityAvatar: React.FC<ActivityAvatarProps> = ({ activity }) => {
   const username = activity.createdBy;
 
   const inactive = isActivityOutdated(activity.createdAt);
@@ -66,7 +66,7 @@ interface AvatarProps {
   type: "self" | "other" | "inactive";
 }
 
-const Avatar: React.FC<AvatarProps> = ({
+export const Avatar: React.FC<AvatarProps> = ({
   username,
   onClick,
   lastSeen,
@@ -82,7 +82,7 @@ const Avatar: React.FC<AvatarProps> = ({
       }
     >
       <div
-        className={`flex items-center justify-center w-6 h-6 text-sm font-bold uppercase rounded-full  ring-2
+        className={`flex items-center justify-center w-6 h-6 text-sm font-bold uppercase rounded-full bg-slate-50 ring-2
 		${onclick ? "cursor-pointer" : "cursor-help"}
 	${
     type === "self" &&

@@ -1,23 +1,24 @@
 import config from "../config";
 import { Activity, TaskID, UserName } from "../types";
+import { getUsername } from "./helper_requests";
 
 export function checkTaskActivity(
   activities: Activity[],
   taskId: TaskID,
-): UserName | null {
+): Activity | null {
   const activity = activities.find((activity) => activity.taskId === taskId);
   if (!activity) return null;
 
   if (isActivityOutdated(activity.createdAt)) {
     return null;
   }
-  return activity.createdBy;
+  return activity;
 }
 
 export function checkBucketActivity(
   activities: Activity[],
   bucketId: string,
-): UserName | null {
+): Activity | null {
   const activity = activities.find(
     (activity) => activity.bucketId === bucketId,
   );
@@ -26,7 +27,7 @@ export function checkBucketActivity(
   if (isActivityOutdated(activity.createdAt)) {
     return null;
   }
-  return activity.createdBy;
+  return activity;
 }
 
 export function isActivityOutdated(activityCreatedAt: Date): boolean {
@@ -39,4 +40,16 @@ export function sortActivitiesByDate(activities: Activity[]): Activity[] {
     (a: Activity, b: Activity) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+}
+
+export function validateActivityOther(
+  activity: Activity | null,
+): Activity | null {
+  return activity && activity.createdBy !== getUsername() ? activity : null;
+}
+
+export function validateActivitySelf(
+  activity: Activity | null,
+): Activity | null {
+  return activity && activity.createdBy !== getUsername() ? activity : null;
 }

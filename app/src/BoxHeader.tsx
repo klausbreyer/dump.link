@@ -12,6 +12,12 @@ import config from "./config";
 import { useData } from "./context/data";
 import { getTasksByClosed, getTasksForBucket } from "./context/helper_tasks";
 import { Bucket, TabContext } from "./types";
+import {
+  checkBucketActivity,
+  validateActivityOther,
+} from "./context/helper_activities";
+import { getUsername } from "./context/helper_requests";
+import { ActivityAvatar } from "./HeaderActivity";
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -20,7 +26,8 @@ export interface HeaderProps {
 
 const BoxHeader: React.FC<HeaderProps> = (props) => {
   const { bucket, context } = props;
-  const { updateBucket, tasks, project, updateActivities } = useData();
+  const { updateBucket, tasks, project, activities, updateActivities } =
+    useData();
 
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const open = getTasksByClosed(tasksForbucket, false);
@@ -69,6 +76,9 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
   const hasTasks = tasksForbucket.length > 0;
   const showDone = hasTasks && open.length === 0;
 
+  const activity = checkBucketActivity(activities, bucket.id);
+  const activityOther = validateActivityOther(activity);
+
   return (
     <div className={`w-full ${bgTop}`}>
       <div className={` p-1 flex gap-1 flex-row items-center `}>
@@ -84,6 +94,11 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
             onFocus={handleInputFocus}
           />
 
+          {activityOther && (
+            <div className="absolute right-0 z-30 top-0.5 ">
+              <ActivityAvatar activity={activityOther} />
+            </div>
+          )}
           <div
             className={`absolute text-slate-800 text-xxs bottom-1.5 right-2 ${
               isTextAreaFocused ? "block" : "hidden"
