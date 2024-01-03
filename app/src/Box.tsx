@@ -230,8 +230,8 @@ const Box: React.FC<BoxProps> = (props) => {
   })();
 
   const activeUser = checkBucketActivity(activities, bucket.id);
-  const activeSelf = activeUser && activeUser === getUsername();
-  const activeOther = activeUser && activeUser !== getUsername();
+  const activeSelf = activeUser && activeUser.createdBy === getUsername();
+  const activeOther = activeUser && activeUser.createdBy !== getUsername();
 
   const dragref =
     context === TabContext.Sequence
@@ -279,7 +279,7 @@ const Box: React.FC<BoxProps> = (props) => {
                     bucket={getBucket(others, id)}
                   />
                 ))}
-              {TabContext.Sequence === context && (
+              {
                 <li className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-1 p-1">
                     {showUnavailable && (
@@ -297,7 +297,7 @@ const Box: React.FC<BoxProps> = (props) => {
                     />
                   </span>
                 </li>
-              )}
+              }
             </ul>
           </div>
         </div>

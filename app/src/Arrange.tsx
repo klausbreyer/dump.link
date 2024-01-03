@@ -64,7 +64,7 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
 
   useEffect(() => {
     repaint();
-  }, [buckets, allBoxesRendered]);
+  }, [buckets, allBoxesRendered, dependencies]);
 
   return (
     <Container>
