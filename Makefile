@@ -29,11 +29,7 @@ reset:
 	mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" -e "DROP DATABASE IF EXISTS $$DB_NAME; CREATE DATABASE $$DB_NAME;"
 
 load:
-	make reset
-	mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" -e "SET NAMES 'utf8mb4';"
-	for file in ./pscale-dump/*.sql; do \
-		mysql -u "$$DB_USER" -p"$$DB_PASS" -h "$$DB_HOST" "$$DB_NAME" < "$$file"; \
-	done
+	sh loading.sh
 
 
 prod:
