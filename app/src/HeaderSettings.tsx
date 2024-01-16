@@ -5,9 +5,9 @@ import { handleTabClick } from "./HeaderNav";
 import RecentLinks from "./RecentLinks";
 import ShareLink from "./ShareLink";
 import InfoModal from "./common/InfoModal";
+import { Tooltip } from "./common/InfoTooltip";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
-import { Tooltip } from "./common/InfoTooltip";
 
 // HeaderSettings component for the application header
 const HeaderSettings: React.FC = () => {

@@ -2,12 +2,23 @@ export type ProjectID = string;
 export type BucketID = string;
 export type TaskID = string;
 
+export type UserName = string;
+
+export type Activity = {
+  projectId: ProjectID;
+  bucketId?: BucketID;
+  taskId?: TaskID;
+  createdBy: UserName;
+  createdAt: Date;
+};
+
 export type Task = {
   id: TaskID;
   bucketId: BucketID;
   title: string;
   closed: boolean;
   priority: number;
+  updatedBy: UserName;
 };
 
 export type Bucket = {
@@ -18,11 +29,13 @@ export type Bucket = {
   dump: boolean;
   layer: number | null;
   flagged: boolean;
+  updatedBy: UserName;
 };
 
 export type Dependency = {
   bucketId: BucketID;
   dependencyId: BucketID;
+  createdBy: UserName;
 };
 
 export type Project = {
@@ -32,6 +45,7 @@ export type Project = {
   endingAt: Date | null;
   appetite: number; // 0 = n/a
   archived: boolean;
+  updatedBy: UserName;
 };
 
 export type State = {
@@ -39,6 +53,7 @@ export type State = {
   buckets: Bucket[];
   tasks: Task[];
   dependencies: Dependency[];
+  activities: Activity[];
 };
 
 export type TaskUpdates = {
@@ -46,6 +61,7 @@ export type TaskUpdates = {
   title?: Task["title"];
   priority?: Task["priority"];
   bucketId?: Task["bucketId"];
+  updatedBy?: Project["updatedBy"];
 };
 
 export type BucketUpdates = {
@@ -53,6 +69,7 @@ export type BucketUpdates = {
   layer?: Bucket["layer"];
   flagged?: Bucket["flagged"];
   done?: Bucket["done"];
+  updatedBy?: Project["updatedBy"];
 };
 
 export type ProjectUpdates = {
@@ -61,6 +78,13 @@ export type ProjectUpdates = {
   endingAt?: Project["endingAt"];
   appetite?: Project["appetite"];
   archived?: Project["archived"];
+  updatedBy?: Project["updatedBy"];
+};
+
+export type ActivityUpdates = {
+  bucketId?: Activity["bucketId"];
+  taskId?: Activity["taskId"];
+  createdBy?: Activity["createdBy"];
 };
 export interface lastAccessedProject {
   id: string;

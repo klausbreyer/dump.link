@@ -26,6 +26,13 @@ import {
   getTasksForBucket,
   sortTasksByUpdatedAt,
 } from "./context/helper_tasks";
+import {
+  checkBucketActivity,
+  validateActivityOther,
+  validateActivitySelf,
+} from "./context/helper_activities";
+import { getUsername } from "./context/helper_requests";
+import { act } from "react-dom/test-utils";
 
 interface TaskGroupProps {
   bucket: TaskGroup;
@@ -33,7 +40,8 @@ interface TaskGroupProps {
 
 const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const { bucket } = props;
-  const { updateTask, moveTask, buckets, tasks, project } = useData();
+  const { updateTask, moveTask, buckets, activities, tasks, project } =
+    useData();
 
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const allOtherBuckets = buckets.filter((b: TaskGroup) => b.id !== bucket.id);
@@ -101,13 +109,20 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
 
   const showDashed = canDrop && !isOver && !bucket.done;
   const showSolid = isOver && !bucket.done;
-  const showNone = !canDrop;
+
+  const activity = checkBucketActivity(activities, bucket.id);
+  const activitySelf = validateActivitySelf(activity);
+  const activityOther = validateActivityOther(activity);
+
+  const showNone = !canDrop && !activitySelf && !activityOther;
 
   return (
     <div
       ref={(node) => !project.archived && dropRef(node)}
       className={`w-full relative rounded-md overflow-hidden ${bgTop} border-2
       ${showDashed && "border-dashed border-2 border-slate-400"}
+      ${activitySelf && " border-2 border-indigo-500"}
+      ${activityOther && "border-dashed border-2 border-purple-500"}
       ${showSolid && " border-slate-400"}
       ${showNone && " border-transparent"}
     `}

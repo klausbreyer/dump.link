@@ -1,7 +1,9 @@
 package models
 
 import (
+	"crypto/md5"
 	"crypto/rand"
+	"encoding/hex"
 	"math/big"
 	"strings"
 )
@@ -21,4 +23,9 @@ func NewID(prefixes ...string) string {
 	}
 
 	return prefix + string(id)
+}
+
+func ToMD5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
 }

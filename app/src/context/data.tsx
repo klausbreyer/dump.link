@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 
 import {
+  Activity,
+  ActivityUpdates as ActivityUpdate,
   Bucket,
   BucketID,
   BucketUpdates,
@@ -11,6 +13,7 @@ import {
   Task,
   TaskID,
   TaskUpdates,
+  UserName,
 } from "../types";
 
 import { notifyBugsnag } from "..";
@@ -24,6 +27,7 @@ import { getLayerForBucketId } from "./helper_layers";
 import {
   NewID,
   extractIdFromUrl,
+  getUsername,
   saveProjectIdToLocalStorage,
 } from "./helper_requests";
 import { LifecycleState, useLifecycle } from "./lifecycle";
@@ -35,6 +39,7 @@ const initialState: State = {
   buckets: [],
   tasks: [],
   dependencies: [],
+  activities: [],
   project: {
     id: "",
     name: "",
@@ -42,6 +47,7 @@ const initialState: State = {
     startedAt: new Date(),
     endingAt: null,
     archived: false,
+    updatedBy: "",
   },
 };
 
@@ -75,6 +81,7 @@ export type ActionType =
       type: "ADD_BUCKET_DEPENDENCY";
       bucketId: BucketID;
       dependencyId: BucketID;
+      createdBy: UserName;
     }
   | {
       type: "REMOVE_BUCKET_DEPENDENCY";
@@ -88,6 +95,10 @@ export type ActionType =
   | {
       type: "UPDATE_PROJECT";
       updates: ProjectUpdates;
+    }
+  | {
+      type: "UPDATE_ACTIVITIES";
+      activities: Activity[];
     };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -169,6 +180,15 @@ const dataReducer = (state: State, action: ActionType): State => {
       };
     }
 
+    case "UPDATE_ACTIVITIES": {
+      const { activities } = action;
+
+      return {
+        ...state,
+        activities: activities,
+      };
+    }
+
     case "RESET_PROJECT_LAYERS": {
       const updatedBuckets = state.buckets.map((bucket) => {
         return { ...bucket, layer: null };
@@ -196,12 +216,15 @@ const dataReducer = (state: State, action: ActionType): State => {
     }
 
     case "ADD_BUCKET_DEPENDENCY": {
-      const { bucketId, dependencyId } = action;
+      const { bucketId, dependencyId, createdBy } = action;
 
       // Creating a new dependency object
-      const newDependency = { bucketId, dependencyId };
+      const newDependency = { bucketId, dependencyId, createdBy };
 
-      return { ...state, dependencies: [...state.dependencies, newDependency] };
+      return {
+        ...state,
+        dependencies: [...state.dependencies, newDependency],
+      };
     }
 
     case "REMOVE_BUCKET_DEPENDENCY": {
@@ -273,6 +296,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    if (!getUsername()) {
+      const username = prompt(
+        "Please enter your name as you would like your team to see it",
+      );
+      if (username) {
+        localStorage.setItem("username", username);
+      }
+    }
     loadInitialState();
   }, []);
 
@@ -282,6 +313,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       dispatch,
       loadInitialState,
     );
+    // can only make calls when state is there, because it needs a project.id
+
+    if (state.project.id.length === 11) {
+      updateActivities(undefined, undefined);
+    }
 
     return () => {
       if (wsCleanup) wsCleanup();
@@ -331,6 +367,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const updateTask = (taskId: TaskID, updates: TaskUpdates) => {
+    updates = addUpdatedByToEntity(updates);
     dispatch({
       type: "UPDATE_TASK",
       taskId: taskId,
@@ -364,6 +401,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const updateBucket = (bucketId: BucketID, updates: BucketUpdates) => {
+    updates = addUpdatedByToEntity(updates);
     dispatch({
       type: "UPDATE_BUCKET",
       bucketId: bucketId,
@@ -435,6 +473,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   const updateProject = (updates: ProjectUpdates) => {
+    updates = addUpdatedByToEntity(updates);
     dispatch({
       type: "UPDATE_PROJECT",
       updates: updates,
@@ -465,6 +504,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       type: "ADD_BUCKET_DEPENDENCY",
       bucketId: bucket.id,
       dependencyId: dependencyId,
+      createdBy: getUsername(),
     });
 
     (async () => {
@@ -512,6 +552,38 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     resetLayersForAllBuckets();
   };
 
+  const updateActivities = (
+    bucketId: BucketID | undefined,
+    taskId: TaskID | undefined,
+  ) => {
+    const update = {
+      bucketId: bucketId,
+      taskId: taskId,
+      createdAt: new Date(),
+      projectId: state.project.id,
+      createdBy: getUsername(),
+    };
+
+    const updatedActivities = reconsileActivityUpdates(
+      state.activities,
+      update,
+    );
+
+    dispatch({
+      type: "UPDATE_ACTIVITIES",
+      activities: updatedActivities,
+    });
+
+    (async () => {
+      try {
+        await apiFunctions.postActivity(state.project.id, update);
+      } catch (error) {
+        notifyBugsnag(error);
+        alert("Error while updating activity");
+      }
+    })();
+  };
+
   console.dir(state);
 
   return (
@@ -522,6 +594,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         tasks: state.tasks,
         buckets: state.buckets,
         dependencies: state.dependencies,
+        activities: state.activities,
+        updateActivities,
         addTask,
         deleteTask,
         updateProject,
@@ -544,21 +618,26 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 type DataContextType = {
   state: State;
   project: Project;
-  tasks: Task[];
-  buckets: Bucket[];
-  dependencies: Dependency[];
-
   updateProject: (updates: ProjectUpdates) => void;
 
+  activities: Activity[];
+  updateActivities: (
+    bucketId: BucketID | undefined,
+    taskId: TaskID | undefined,
+  ) => void;
+
+  tasks: Task[];
   addTask: (task: Task) => void;
   deleteTask: (taskId: TaskID) => void;
   updateTask: (taskId: TaskID, updates: TaskUpdates) => void;
   moveTask: (toBucketId: BucketID, taskId: TaskID) => void;
 
+  buckets: Bucket[];
   updateBucket: (bucketId: BucketID, updates: BucketUpdates) => void;
   resetBucketLayer: (bucketId: BucketID) => void;
   moveSubgraph: (bucketId: BucketID, layer: number) => void;
 
+  dependencies: Dependency[];
   addBucketDependency: (bucket: Bucket, dependencyId: BucketID) => void;
   removeBucketDependency: (bucketId: BucketID, dependencyId: string) => void;
 
@@ -581,6 +660,7 @@ function reconsileTaskUpdate(task: Task, updates: TaskUpdates): Task {
     ...(updates.title !== undefined && { title: updates.title }),
     ...(updates.priority !== undefined && { priority: updates.priority }),
     ...(updates.bucketId !== undefined && { bucketId: updates.bucketId }),
+    ...(updates.updatedBy !== undefined && { updatedBy: updates.updatedBy }),
   };
 }
 
@@ -591,6 +671,7 @@ function reconsileBucketUpdate(bucket: Bucket, updates: BucketUpdates): Bucket {
     ...(updates.layer !== undefined && { layer: updates.layer }),
     ...(updates.flagged !== undefined && { flagged: updates.flagged }),
     ...(updates.done !== undefined && { done: updates.done }),
+    ...(updates.updatedBy !== undefined && { updatedBy: updates.updatedBy }),
   };
 }
 
@@ -605,5 +686,38 @@ function reconsileProjectUpdate(
     ...(updates.endingAt !== undefined && { endingAt: updates.endingAt }),
     ...(updates.appetite !== undefined && { appetite: updates.appetite }),
     ...(updates.archived !== undefined && { archived: updates.archived }),
+    ...(updates.updatedBy !== undefined && { updatedBy: updates.updatedBy }),
   };
+}
+
+function reconsileActivityUpdates(
+  activities: Activity[],
+  update: Activity,
+): Activity[] {
+  // Check if the update is already in the activities array
+  const updateExists = activities.some(
+    (activity) => activity.createdBy === update.createdBy,
+  );
+
+  // If the update does not exist, add it to the activities array
+  if (!updateExists) {
+    activities.push(update);
+  }
+
+  // Go through all activities and update the ones that match the update based on username
+  return activities
+    .map((activity) => {
+      if (activity.createdBy === update.createdBy) {
+        if (update.bucketId === undefined && update.taskId === undefined) {
+          return undefined;
+        }
+        return update;
+      }
+      return activity;
+    })
+    .filter((activity) => activity !== undefined) as Activity[];
+}
+
+function addUpdatedByToEntity<T extends { updatedBy?: string }>(entity: T): T {
+  return { ...entity, updatedBy: getUsername() };
 }

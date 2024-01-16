@@ -38,6 +38,8 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
+import { checkBucketActivity } from "./context/helper_activities";
+import { getUsername } from "./context/helper_requests";
 
 interface BoxProps {
   bucket: Bucket;
@@ -55,6 +57,7 @@ const Box: React.FC<BoxProps> = (props) => {
     buckets,
     project,
     dependencies,
+    activities,
     resetBucketLayer,
     addBucketDependency,
   } = useData();
@@ -210,21 +213,38 @@ const Box: React.FC<BoxProps> = (props) => {
 
   const isHovered: boolean =
     hoveredBuckets.includes(bucket.id) && !project.archived;
-  const hoverBorder: string = (() => {
+
+  const getBorderClass = (): string => {
+    const bucketActive = checkBucketActivity(activities, bucket.id);
+    const selfActive = bucketActive && bucketActive.createdBy === getUsername();
+    const othersActive =
+      bucketActive && bucketActive.createdBy !== getUsername();
+
+    if (selfActive) {
+      return "border-2 border-indigo-500";
+    } else if (othersActive) {
+      return "border-dashed border-2 border-purple-500";
+    } else if (canDrop && !isOver) {
+      return "border-dashed border-2 border-slate-400";
+    } else if (isOver) {
+      return "border-slate-400";
+    }
+
     switch (context) {
       case TabContext.Arrange:
         return isHovered
-          ? `border-slate-600`
-          : `border-slate-300 hover:border-slate-600
-          ${project.archived ? "cursor-pointer" : "cusor-move"}
-          `;
+          ? "border-slate-500"
+          : `border-slate-300 hover:border-slate-500 ${
+              project.archived ? "cursor-pointer" : "cursor-move"
+            }`;
       case TabContext.Sequence:
-        return `border-slate-300 hover:border-slate-600
-        ${project.archived ? "cursor-pointer" : "cusor-move"}`;
+        return `border-slate-300 hover:border-slate-500 ${
+          project.archived ? "cursor-pointer" : "cursor-move"
+        }`;
       default:
         return "";
     }
-  })();
+  };
 
   const dragref =
     context === TabContext.Sequence
@@ -244,9 +264,7 @@ const Box: React.FC<BoxProps> = (props) => {
         id={bucket.id}
         className={` w-full rounded-md overflow-hidden opacity-95  border-2
         ${isHovered || context === TabContext.Sequence ? "cursor-move" : ""}
-        ${hoverBorder}
-        ${canDrop && !isOver && "border-dashed border-2 border-slate-400"}
-        ${isOver && " border-slate-400"}
+        ${getBorderClass()}
       `}
         ref={(node) =>
           !project.archived &&
@@ -270,7 +288,7 @@ const Box: React.FC<BoxProps> = (props) => {
                     bucket={getBucket(others, id)}
                   />
                 ))}
-              {TabContext.Sequence === context && (
+              {
                 <li className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-1 p-1">
                     {showUnavailable && (
@@ -288,7 +306,7 @@ const Box: React.FC<BoxProps> = (props) => {
                     />
                   </span>
                 </li>
-              )}
+              }
             </ul>
           </div>
         </div>

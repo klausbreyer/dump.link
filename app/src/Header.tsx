@@ -7,6 +7,7 @@ import HeaderSettings from "./HeaderSettings";
 import Container from "./common/Container";
 import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import { useData } from "./context/data";
+import HeaderActivity from "./HeaderActivity";
 
 interface HeaderProps {}
 
@@ -30,8 +31,15 @@ const Header: React.FC<HeaderProps> = (props) => {
         )}
         <div className="flex items-center justify-between gap-4 mb-4 ">
           <HeaderProject />
-          <HeaderProgress />
-          <HeaderSettings />
+
+          <div className="flex flex-col items-stretch gap-1 grow">
+            <div className="flex justify-between ">
+              <HeaderActivity />
+
+              <HeaderSettings />
+            </div>
+            <HeaderProgress />
+          </div>
         </div>
         <HeaderNav />
       </div>

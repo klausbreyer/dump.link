@@ -24,7 +24,12 @@ import {
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { XCircleIcon } from "@heroicons/react/24/solid";
-import { NewID } from "./context/helper_requests";
+import { NewID, getUsername } from "./context/helper_requests";
+import {
+  checkTaskActivity,
+  validateActivityOther,
+} from "./context/helper_activities";
+import { ActivityAvatar } from "./HeaderActivity";
 
 interface TaskItemProps {
   task: Task | null;
@@ -34,8 +39,16 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
-  const { addTask, updateTask, deleteTask, project, tasks, buckets } =
-    useData();
+  const {
+    addTask,
+    updateTask,
+    deleteTask,
+    project,
+    tasks,
+    activities,
+    buckets,
+    updateActivities,
+  } = useData();
 
   const { updateGlobalDragging, temporaryPriority, setTemporaryPriority } =
     useGlobalInteraction();
@@ -63,6 +76,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         title: title,
         closed: false,
         bucketId: bucket.id,
+        updatedBy: getUsername(),
       });
     },
   );
@@ -177,14 +191,14 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   };
 
   function handleFocus() {
+    updateActivities(undefined, task?.id);
     setIsEditRefFocused(true);
   }
 
   function handleBlur() {
+    updateActivities(undefined, undefined);
     setIsEditRefFocused(false);
     setIsClicked(false);
-
-    console.log("handleBlur", val, task?.title);
 
     // For an existing task
     if (task && val !== task.title) {
@@ -219,6 +233,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           title: val,
           closed: false,
           bucketId: bucket.id,
+          updatedBy: getUsername(),
         });
         setVal("");
         setTimeout(() => {
@@ -259,6 +274,9 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     temporaryPriority && temporaryPriority.taskId === task?.id
       ? temporaryPriority.priority
       : task?.priority;
+
+  const activity = task && checkTaskActivity(activities, task.id);
+  const activityOther = validateActivityOther(activity);
 
   const style = task && !task.closed ? { order: localPriority } : {};
   return (
@@ -305,11 +323,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                   data-enable-grammarly="false"
                   spellCheck="false"
                   readOnly
-                  className={`border-b-2  absolute z-10 bg-slate-100
+                  className={`border-b-2 absolute z-10 bg-slate-100
                   ${
                     !project.archived &&
                     "group-hover:outline group-hover:bg-slate-50"
-                  } outline-2 outline-slate-500 select-none
+                  } outline-2 select-none
+                  ${!activityOther && "outline-slate-500"}
+                  ${activityOther && " outline-purple-500 outline-dashed"}
                     ${textAreaClasses}
                     ${borderColor}
                     ${isClicked && "hidden"}
@@ -318,6 +338,12 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                   rows={1}
                 ></textarea>
               </div>
+
+              {activityOther && (
+                <div className="absolute top-0 right-0 z-30 ">
+                  <ActivityAvatar activity={activityOther} />
+                </div>
+              )}
 
               <XCircleIcon
                 onClick={() => handleDelete()}

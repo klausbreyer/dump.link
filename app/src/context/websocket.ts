@@ -102,6 +102,7 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
         type: "ADD_BUCKET_DEPENDENCY",
         bucketId: message.data.bucketId,
         dependencyId: message.data.dependencyId,
+        createdBy: message.data.createdBy,
       });
       break;
     case "REMOVE_BUCKET_DEPENDENCY":
@@ -114,6 +115,12 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
     case "RESET_PROJECT_LAYERS":
       dispatch({
         type: "RESET_PROJECT_LAYERS",
+      });
+      break;
+    case "UPDATE_ACTIVITIES":
+      dispatch({
+        type: "UPDATE_ACTIVITIES",
+        activities: message.data,
       });
       break;
   }

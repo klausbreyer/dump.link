@@ -12,16 +12,18 @@ type LogAction struct {
 	Action    string    `json:"action"`
 	Duration  int       `json:"duration"`
 	CreatedAt time.Time `json:"created_at"`
+	CreatedBy string    `json:"created_by"`
 }
 
 type LogActionModel struct {
 	DB *sql.DB
 }
 
-func (m *LogActionModel) Insert(projectID string, bucketID, taskID *string, startTime time.Time, action string) error {
+func (m *LogActionModel) Insert(projectID string, bucketID, taskID *string, startTime time.Time, action string, createdBy string) error {
+	createdBy = ToMD5Hash(createdBy)
 	duration := int(time.Since(startTime).Milliseconds())
-	stmt := `INSERT INTO log_actions (project_id, bucket_id, task_id, action, duration, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`
-	_, err := m.DB.Exec(stmt, projectID, bucketID, taskID, action, duration)
+	stmt := `INSERT INTO log_actions (project_id, bucket_id, task_id, action, duration, created_at, created_by) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)`
+	_, err := m.DB.Exec(stmt, projectID, bucketID, taskID, action, duration, createdBy)
 	if err != nil {
 		return err
 	}
