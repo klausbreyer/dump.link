@@ -1,12 +1,11 @@
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { createRoot } from "react-dom/client";
-
 import BugsnagPerformance from "@bugsnag/browser-performance";
 import Bugsnag from "@bugsnag/js";
 import BugsnagPluginReact, {
   BugsnagPluginReactResult,
 } from "@bugsnag/plugin-react";
+import { HTML5toTouch } from "rdndmb-html5-to-touch";
+import { DndProvider } from "react-dnd-multi-backend";
+import { createRoot } from "react-dom/client";
 
 import Arrange from "./Arrange";
 import Group from "./Group";
@@ -15,16 +14,16 @@ import Sequence from "./Sequence";
 import Settings from "./Settings";
 import { DataProvider } from "./context/data";
 import { GlobalInteractionProvider } from "./context/interaction";
-import { useQueryParamChange } from "./hooks/useQueryParamChange";
-import { TabContext } from "./types";
 import {
   LifecycleProvider,
   LifecycleState,
   useLifecycle,
 } from "./context/lifecycle";
+import { useQueryParamChange } from "./hooks/useQueryParamChange";
+import { TabContext } from "./types";
 
+import React, { useEffect } from "react";
 import "../public/styles.css";
-import React from "react";
 
 function isLocalhost(): boolean {
   return (
@@ -32,6 +31,10 @@ function isLocalhost(): boolean {
     window.location.hostname === "127.0.0.1"
   );
 }
+
+const isTouchDevice = () => {
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+};
 
 const releaseStage = isLocalhost() ? "development" : window.location.host;
 Bugsnag.start({
@@ -76,7 +79,7 @@ const App = function App() {
       <LifecycleProvider>
         <GlobalInteractionProvider>
           <DataProvider>
-            <DndProvider backend={HTML5Backend}>
+            <DndProvider options={HTML5toTouch}>
               <Main />
             </DndProvider>
           </DataProvider>
@@ -89,6 +92,12 @@ const App = function App() {
 const Main = function Main() {
   const { lifecycle } = useLifecycle();
   const currentQueryParam = useQueryParamChange("p");
+
+  useEffect(() => {
+    if (isTouchDevice()) {
+      alert("Mobile & touch access in beta - expect some quirks!");
+    }
+  }, []);
 
   console.log(lifecycle);
 
