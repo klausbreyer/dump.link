@@ -18,13 +18,13 @@ const usePasteListener = (
       if (!active) return;
       if (!e.clipboardData) return; // Return early if clipboardData is null
 
-      // Prevent default to stop the original pasting
-      e.preventDefault();
-
       const pastedData = e.clipboardData.getData("Text");
 
       // Check if it's a multiline input
       if (pastedData.includes("\n")) {
+        // Prevent default to stop the original pasting
+        e.preventDefault();
+
         // Ask the user for confirmation
         const isConfirmed = confirm(
           "Are you sure you want to paste multiple lines, which will create multiple tasks?",
