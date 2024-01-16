@@ -1,5 +1,10 @@
 # dump.link
 
+## requirements
+
+brew install golang-migrate
+go install github.com/cosmtrek/air@latest
+
 To install dependencies:
 
 ```bash

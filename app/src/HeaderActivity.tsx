@@ -26,14 +26,14 @@ const HeaderActivity: React.FC = () => {
     setUsername(getUsername());
   }
 
-  const others = sortedActivities.filter(
-    (activity) => activity.createdBy !== username,
-  );
+  const live = sortedActivities
+    .filter((activity) => activity.createdBy !== username)
+    .filter((activity) => !isActivityOutdated(activity.createdAt));
 
   return (
     <div className="flex items-start gap-2">
       <Avatar username={username} onClick={handleChangeUsername} type="self" />
-      {others.map((activity) => (
+      {live.map((activity) => (
         <ActivityAvatar key={activity.createdBy} activity={activity} />
       ))}
     </div>
@@ -49,13 +49,8 @@ interface ActivityAvatarProps {
 export const ActivityAvatar: React.FC<ActivityAvatarProps> = ({ activity }) => {
   const username = activity.createdBy;
 
-  const inactive = isActivityOutdated(activity.createdAt);
   return (
-    <Avatar
-      username={username}
-      type={inactive ? "inactive" : "other"}
-      lastSeen={activity.createdAt}
-    />
+    <Avatar username={username} type={"other"} lastSeen={activity.createdAt} />
   );
 };
 
