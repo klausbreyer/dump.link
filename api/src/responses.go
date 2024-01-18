@@ -3,6 +3,7 @@ package src
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/bugsnag/bugsnag-go/v2"
 )
@@ -27,11 +28,16 @@ func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, st
 }
 
 func (app *application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-	app.logError(r, err)
-	ctx := r.Context()
-	bugsnag.Notify(err, ctx)
+
+	env := os.Getenv("ENV")
+	if env != "" {
+		ctx := r.Context()
+		bugsnag.Notify(err, ctx)
+	}
 
 	message := "the server encountered a problem and could not process your request"
+
+	app.logError(r, err)
 	app.errorResponse(w, r, http.StatusInternalServerError, message)
 }
 

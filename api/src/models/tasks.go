@@ -23,7 +23,7 @@ type TaskModel struct {
 }
 
 func (m *TaskModel) Insert(id string, title string, closed bool, bucketID string, priority int, projectId string, updatedBy string) (string, error) {
-	stmt := `INSERT INTO tasks (id, title, closed, bucket_id, priority, updated_by) VALUES (?, ?, ?, ?, ?, ?)`
+	stmt := `INSERT INTO tass (id, title, closed, bucket_id, priority, updated_by) VALUES (?, ?, ?, ?, ?, ?)`
 	_, err := m.DB.Exec(stmt, id, title, closed, bucketID, priority, updatedBy)
 	if err != nil {
 		return "", err
