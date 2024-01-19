@@ -13,18 +13,17 @@ import (
 var templatesFS embed.FS
 
 func main() {
-	env := os.Getenv("ENV")
-	if env == "" {
-		env = "development"
+	if env := os.Getenv("ENV"); env != "" {
+		fmt.Println("releaseStage:", env)
+		bugsnag.Configure(bugsnag.Configuration{
+			APIKey:          "3d11e08cb78e5bfb37ab3df68a96bffe",
+			ReleaseStage:    env,
+			ProjectPackages: []string{"main", "github.com/org/myapp"},
+			// more configuration options
+		})
+	} else {
+		fmt.Println("Bugsnag not configured as ENV is not set.")
 	}
-	fmt.Println("releaseStage:", env)
-	bugsnag.Configure(bugsnag.Configuration{
-		APIKey:              "3d11e08cb78e5bfb37ab3df68a96bffe",
-		ReleaseStage:        env,
-		NotifyReleaseStages: []string{"dump.link", "kitchen.dump.link"},
-		ProjectPackages:     []string{"main"},
-		// more configuration options
-	})
 
 	fmt.Println("Hello, world!")
 	if err := src.Run(templatesFS); err != nil {

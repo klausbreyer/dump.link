@@ -32,15 +32,16 @@ function isLocalhost(): boolean {
     window.location.hostname === "127.0.0.1"
   );
 }
-
-const releaseStage = isLocalhost() ? "development" : window.location.host;
-Bugsnag.start({
-  apiKey: "dfa678c21426fc846674ce32690760ff",
-  plugins: [new BugsnagPluginReact()],
-  releaseStage,
-  enabledReleaseStages: ["dump.link", "kitchen.dump.link"],
-});
-BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
+// Initialize Bugsnag only if not on localhost
+if (!isLocalhost()) {
+  Bugsnag.start({
+    apiKey: "dfa678c21426fc846674ce32690760ff",
+    plugins: [new BugsnagPluginReact()],
+    releaseStage: window.location.host,
+    enabledReleaseStages: [window.location.host],
+  });
+  BugsnagPerformance.start({ apiKey: "dfa678c21426fc846674ce32690760ff" });
+}
 
 interface DefaultErrorBoundaryProps {
   children?: React.ReactNode;
@@ -61,8 +62,6 @@ const ErrorBoundary =
   reactPlugin?.createErrorBoundary(React) || DefaultErrorBoundary; // Fallback to a default error boundary
 
 export function notifyBugsnag(error: unknown): void {
-  if (isLocalhost()) return;
-
   if (error instanceof Error) {
     Bugsnag.notify(error);
   } else {
