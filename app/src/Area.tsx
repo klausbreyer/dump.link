@@ -4,7 +4,7 @@ import { useDrop } from "react-dnd";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import { useData } from "./context/data";
-import { getBucketForTask, getOpenBucketType } from "./context/helper";
+import { getBucketForTask, getOpenBucketType } from "./context/helper_buckets";
 import { getTask, getTasksForBucket } from "./context/helper_tasks";
 import { Bucket, DraggedTask, DropCollectedProps } from "./types";
 

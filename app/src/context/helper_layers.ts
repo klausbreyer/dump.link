@@ -1,5 +1,5 @@
 import { Bucket, BucketID, Dependency } from "../types";
-import { getBucket, getNamedBuckets, getOtherBuckets } from "./helper";
+import { getBucket, getNamedBuckets, getOtherBuckets } from "./helper_buckets";
 import { difference, uniqueValues } from "./helper_arrays";
 import {
   getAllDependencyChains,

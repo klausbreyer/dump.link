@@ -1,5 +1,5 @@
 import { Bucket, BucketID, Dependency } from "../types";
-import { getOtherBuckets } from "./helper";
+import { getOtherBuckets } from "./helper_buckets";
 import { uniqueValues } from "./helper_arrays";
 
 export const getUniqueDependingIdsForbucket = (
@@ -174,4 +174,8 @@ export const getBucketsAvailableFor = (
         !hasCyclicDependencyWithBucket(bucket.id, givenBucketId, dependencies), // Exclude buckets that would result in a cyclic dependency
     )
     .map((bucket) => bucket.id); // Extract the bucket IDs
+};
+
+export const dependenciesChanged = (dependencies: Dependency[], date: Date) => {
+  return dependencies.filter((bucket) => bucket.createdAt > date);
 };

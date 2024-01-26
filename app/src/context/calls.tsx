@@ -71,15 +71,39 @@ const createApiFunctions = () => {
   return {
     getProject: async (projectId: string): Promise<State> => {
       const response = await apiCall({ url: `/projects/${projectId}` });
+      const project = {
+        ...response.project,
+        endingAt: response.project.endingAt
+          ? ISOToDate(response.project.endingAt)
+          : null,
+        startedAt: ISOToDate(response.project.startedAt),
+        createdAt: ISOToDate(response.project.createdAt),
+        updatedAt: ISOToDate(response.project.updatedAt),
+      };
+
+      const tasks = response.tasks.map((task: any) => ({
+        ...task,
+        createdAt: ISOToDate(task.createdAt),
+        updatedAt: ISOToDate(task.updatedAt),
+      }));
+
+      const buckets = response.buckets.map((bucket: any) => ({
+        ...bucket,
+        createdAt: ISOToDate(bucket.createdAt),
+        updatedAt: ISOToDate(bucket.updatedAt),
+      }));
+
+      const dependencies = response.dependencies.map((dependency: any) => ({
+        ...dependency,
+        createdAt: ISOToDate(dependency.createdAt),
+      }));
+
       return {
-        ...response,
-        project: {
-          ...response.project,
-          endingAt: response.project.endingAt
-            ? ISOToDate(response.project.endingAt)
-            : undefined,
-          startedAt: ISOToDate(response.project.startedAt),
-        },
+        project,
+        tasks,
+        buckets,
+        dependencies,
+        activities: response.activities,
       };
     },
     patchProject: async (

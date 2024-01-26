@@ -1,7 +1,7 @@
 import React from "react";
 import { useData } from "./context/data";
 import { calculateRemainingTime, formatDate } from "./context/helper_dates";
-import { getNamedBuckets, getOtherBuckets } from "./context/helper";
+import { getNamedBuckets, getOtherBuckets } from "./context/helper_buckets";
 
 export interface HeaderProgressProps {}
 

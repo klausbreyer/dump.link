@@ -24,6 +24,7 @@ import { TabContext } from "./types";
 
 import React, { useEffect } from "react";
 import "../public/styles.css";
+import NotificationBar from "./NotificationBar";
 
 function isLocalhost(): boolean {
   return (
@@ -133,6 +134,7 @@ const Main = function Main() {
     <>
       <Header />
       {renderComponentBasedOnQueryParam()}
+      <NotificationBar />
     </>
   );
 };

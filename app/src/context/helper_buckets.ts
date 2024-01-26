@@ -1,4 +1,5 @@
-import { Bucket, BucketID, BucketState, Task } from "../types";
+import { Bucket, BucketID, BucketState, ProjectID, Task } from "../types";
+import { getLastActivity } from "./helper_requests";
 import { getTasksForBucket } from "./helper_tasks";
 
 // Figuring out means: not all tasks of the bucket are closed
@@ -111,3 +112,22 @@ export const getNamedBuckets = (buckets: Bucket[]) => {
 export const getBucket = (buckets: Bucket[], bucketId: BucketID) => {
   return buckets.find((bucket) => bucket.id === bucketId);
 };
+
+export const bucketsChangedWhileAway = (
+  buckets: Bucket[],
+  projectId: ProjectID,
+) => {
+  const lastVisit = getLastActivity(projectId);
+  if (!lastVisit) {
+    return [];
+  }
+  return bucketsChangedSince(buckets, lastVisit);
+};
+
+export const bucketsChangedSince = (buckets: Bucket[], date: Date) => {
+  return buckets.filter((bucket) => bucket.updatedAt > date);
+};
+
+export function checkIfIdExists(buckets: Bucket[], id: BucketID): boolean {
+  return buckets.some((bucket) => bucket.id === id);
+}

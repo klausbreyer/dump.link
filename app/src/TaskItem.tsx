@@ -77,6 +77,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         closed: false,
         bucketId: bucket.id,
         updatedBy: getUsername(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     },
   );
@@ -234,6 +236,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           closed: false,
           bucketId: bucket.id,
           updatedBy: getUsername(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         });
         setVal("");
         setTimeout(() => {

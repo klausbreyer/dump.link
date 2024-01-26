@@ -1,6 +1,6 @@
 import React from "react";
 import { Bucket } from "./types";
-import { getBucketPercentage } from "./context/helper";
+import { getBucketPercentage } from "./context/helper_buckets";
 import { useData } from "./context/data";
 import {
   getTasksByClosed,

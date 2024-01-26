@@ -16,19 +16,23 @@ import {
   getHeaderTextColor,
 } from "./common/colors";
 import { useData } from "./context/data";
+import { checkBucketActivity } from "./context/helper_activities";
+import { uniqueValues } from "./context/helper_arrays";
 import {
+  bucketsChangedWhileAway,
+  checkIfIdExists,
   getArrangeBucketType,
   getBucket,
   getOtherBuckets,
   getSequenceBucketType,
-} from "./context/helper";
-import { uniqueValues } from "./context/helper_arrays";
+} from "./context/helper_buckets";
 import {
   getBucketsAvailableFor,
   getBucketsDependingOn,
   getUniqueDependingIdsForbucket,
 } from "./context/helper_dependencies";
 import { getWholeSubgraph } from "./context/helper_layers";
+import { getUsername } from "./context/helper_requests";
 import { getTasksForBucket } from "./context/helper_tasks";
 import { useGlobalInteraction } from "./context/interaction";
 import {
@@ -38,8 +42,6 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
-import { checkBucketActivity } from "./context/helper_activities";
-import { getUsername } from "./context/helper_requests";
 
 interface BoxProps {
   bucket: Bucket;
@@ -70,6 +72,7 @@ const Box: React.FC<BoxProps> = (props) => {
   } = useGlobalInteraction();
 
   const others = getOtherBuckets(buckets);
+  const bucketsChanged = bucketsChangedWhileAway(others, project.id);
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const availbleIds = getBucketsAvailableFor(others, dependencies, bucket.id);
   const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
@@ -220,6 +223,8 @@ const Box: React.FC<BoxProps> = (props) => {
     const othersActive =
       bucketActive && bucketActive.createdBy !== getUsername();
 
+    const isPastActivity = checkIfIdExists(bucketsChanged, bucket.id);
+
     if (selfActive) {
       return "border-2 border-indigo-500";
     } else if (othersActive) {
@@ -228,6 +233,8 @@ const Box: React.FC<BoxProps> = (props) => {
       return "border-dashed border-2 border-slate-400";
     } else if (isOver) {
       return "border-slate-400";
+    } else if (isPastActivity) {
+      return "border-dashed border-2 border-violet-400";
     }
 
     switch (context) {

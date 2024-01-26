@@ -1,9 +1,32 @@
-import { UserName, lastAccessedProject } from "../types";
+import { ProjectID, UserName, lastAccessedProject } from "../types";
 
 export const extractIdFromUrl = () => {
   const url = window.location.pathname;
   const parts = url.split("/");
   return parts[parts.length - 1];
+};
+
+export const lastActivityKey = (projectId: ProjectID): string => {
+  return `lastActivity_${projectId}`;
+};
+
+export const getLastActivity = (projectId: ProjectID): Date | null => {
+  const key = lastActivityKey(projectId);
+  const dateString = localStorage.getItem(key);
+
+  if (!dateString) return null;
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return null;
+  }
+  return date;
+};
+
+export const saveLastActivity = (projectId: ProjectID) => {
+  const key = lastActivityKey(projectId);
+  const now = new Date();
+  localStorage.setItem(key, now.toISOString());
 };
 
 export const saveProjectIdToLocalStorage = (

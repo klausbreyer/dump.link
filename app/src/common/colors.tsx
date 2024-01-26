@@ -1,4 +1,4 @@
-import { getBucketState } from "../context/helper";
+import { getBucketState } from "../context/helper_buckets";
 import { getTasksByClosed } from "../context/helper_tasks";
 import { Bucket, BucketState, Task } from "../types";
 

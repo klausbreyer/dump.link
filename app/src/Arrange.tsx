@@ -9,7 +9,7 @@ import {
   shortenLineEnd,
 } from "./common/coordinates";
 import { useData } from "./context/data";
-import { getBucket } from "./context/helper";
+import { getBucket } from "./context/helper_buckets";
 import { uniqueValues } from "./context/helper_arrays";
 import { getAllDependencyChains } from "./context/helper_dependencies";
 import { getAllPairs, getLayers } from "./context/helper_layers";

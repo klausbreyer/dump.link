@@ -11,7 +11,7 @@ import {
   shortenLineEnd,
 } from "./common/coordinates";
 import { useData } from "./context/data";
-import { getOtherBuckets } from "./context/helper";
+import { getOtherBuckets } from "./context/helper_buckets";
 import { BucketID, TabContext } from "./types";
 
 interface SequenceProps {}

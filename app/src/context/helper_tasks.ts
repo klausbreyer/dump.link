@@ -3,7 +3,7 @@ import {
   getBucketForTask,
   getClosedBucketType,
   getOpenBucketType,
-} from "./helper";
+} from "./helper_buckets";
 
 export const getTask = (tasks: Task[], taskId: TaskID) => {
   // Find and return the task with the matching ID in the tasks array
@@ -91,3 +91,9 @@ export function sortTasksNotClosedFirst(tasks: Task[]): Task[] {
     return 0;
   });
 }
+
+export const numTaskChanged = (tasks: Task[], date: Date) => {
+  return tasks.filter(
+    (bucket) => bucket.updatedAt > date || bucket.createdAt > date,
+  );
+};

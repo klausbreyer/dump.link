@@ -4,7 +4,7 @@ import { useData } from "./context/data";
 import {
   filterBucketsFiguredOut,
   filterBucketsFiguringOut,
-} from "./context/helper";
+} from "./context/helper_buckets";
 import { Bucket } from "./types";
 
 export interface HeaderProjectProps {}

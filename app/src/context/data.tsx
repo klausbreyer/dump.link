@@ -28,6 +28,7 @@ import {
   NewID,
   extractIdFromUrl,
   getUsername,
+  saveLastActivity,
   saveProjectIdToLocalStorage,
 } from "./helper_requests";
 import { LifecycleState, useLifecycle } from "./lifecycle";
@@ -45,6 +46,8 @@ const initialState: State = {
     name: "",
     appetite: 0,
     startedAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     endingAt: null,
     archived: false,
     updatedBy: "",
@@ -218,8 +221,9 @@ const dataReducer = (state: State, action: ActionType): State => {
     case "ADD_BUCKET_DEPENDENCY": {
       const { bucketId, dependencyId, createdBy } = action;
 
+      const createdAt = new Date();
       // Creating a new dependency object
-      const newDependency = { bucketId, dependencyId, createdBy };
+      const newDependency = { bucketId, dependencyId, createdBy, createdAt };
 
       return {
         ...state,
@@ -294,6 +298,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (state.project.id.length !== 11) return;
+    const intervalId = setInterval(
+      () => saveLastActivity(state.project.id),
+      config.ACTIVITY_INTERVAL,
+    );
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [state.project.id]);
 
   useEffect(() => {
     if (!getUsername()) {

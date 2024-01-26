@@ -6,7 +6,7 @@ import {
   getArrangeBucketType,
   getBucket,
   getOtherBuckets,
-} from "./context/helper";
+} from "./context/helper_buckets";
 import {
   getBucketDependencies,
   getBucketsDependingOnNothing,
