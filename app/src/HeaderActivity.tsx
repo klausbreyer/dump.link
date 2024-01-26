@@ -7,9 +7,9 @@ import {
   isActivityOutdated,
   sortActivitiesByDate,
 } from "./context/helper_activities";
+import { dateToHumanReadable } from "./context/helper_dates";
 import { getInitials, getUsername } from "./context/helper_requests";
 import { Activity, UserName } from "./types";
-import { dateToHumanReadable, dateToISO } from "./context/helper_dates";
 
 const HeaderActivity: React.FC = () => {
   const { activities } = useData();
@@ -21,13 +21,16 @@ const HeaderActivity: React.FC = () => {
       "Please enter your name as you would like your team to see it",
       getUsername(),
     );
-    localStorage.setItem("username", newUsername || "");
+    if (!newUsername) return;
+
+    localStorage.setItem("username", newUsername);
 
     setUsername(getUsername());
   }
 
   const live = sortedActivities
     .filter((activity) => activity.createdBy !== username)
+    .filter((activity) => activity.createdBy.length > 0)
     .filter((activity) => !isActivityOutdated(activity.createdAt));
 
   return (
@@ -68,11 +71,12 @@ export const Avatar: React.FC<AvatarProps> = ({
   type,
 }) => {
   const initials = getInitials(username);
+  const tooltipname = initials !== "" ? username : "Anonymous";
   return (
     <Tooltip
       info={
         lastSeen
-          ? `${username}, last seen: ${dateToHumanReadable(lastSeen)}`
+          ? `${tooltipname}, last seen: ${dateToHumanReadable(lastSeen)}`
           : "You"
       }
     >

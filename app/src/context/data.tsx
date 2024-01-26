@@ -297,12 +297,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (!getUsername()) {
-      const username = prompt(
+      let username = prompt(
         "Please enter your name as you would like your team to see it",
       );
-      if (username) {
-        localStorage.setItem("username", username);
+      if (!username) {
+        username = "";
       }
+      localStorage.setItem("username", username);
     }
     loadInitialState();
   }, []);
