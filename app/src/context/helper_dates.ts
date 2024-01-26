@@ -66,36 +66,62 @@ export const dateToHumanReadable = (date: Date | string): string => {
 
   return date.toLocaleString("en-US");
 };
+
+export const dateToYYYYMMDD = (date: Date): string => {
+  // do not convert to utc date, because the database is without timezone, just saved this date.
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const formattedMonth = month < 10 ? `0${month}` : `${month}`;
+  const formattedDay = day < 10 ? `0${day}` : `${day}`;
+
+  return `${year}-${formattedMonth}-${formattedDay}`;
+};
+
 export function calculateRemainingTime(
   startedAt: Date,
   endingAt: Date,
 ): string {
   const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+
   const oneDay = 24 * 60 * 60 * 1000; // Milliseconds in a day
 
-  // Function to determine singular or plural form
-  const formatTime = (count: number, singular: string, plural: string) =>
-    `${count} ${count === 1 ? singular : plural} left`;
+  // Function to determine singular or plural form and handle negative days
+  const formatTime = (count: number, singular: string, plural: string) => {
+    const absCount = Math.abs(count);
+    const postfix = count < 0 ? "overdue" : "left";
+    return `${absCount} ${absCount === 1 ? singular : plural} ${postfix}`;
+  };
+
+  // Normalize startedAt and endingAt to ignore time part
+  startedAt.setHours(0, 0, 0, 0);
+  endingAt.setHours(0, 0, 0, 0);
 
   // Ensure the current date is within the range
   if (today < startedAt) {
     return ""; // Return empty string if the date is before the start
   }
 
-  if (today > endingAt) {
-    // Handling the case where today's date is past the ending date
-    return "Time budget ended";
+  if (today >= endingAt) {
+    // Calculate the difference in days (negative value, use Math.ceil for overdue)
+    const overdueDays = Math.ceil(
+      (today.getTime() - endingAt.getTime()) / oneDay,
+    );
+    return formatTime(-overdueDays, "day", "days"); // Negative because it's overdue
   }
 
-  // Calculate the difference in days
-  const diffDays = Math.round(
-    Math.abs((endingAt.getTime() - today.getTime()) / oneDay),
+  // Calculate the difference in days (positive value for remaining time, use Math.floor)
+  const remainingDays = Math.floor(
+    (endingAt.getTime() - today.getTime()) / oneDay,
   );
 
   // Check if the time budget has ended
-  if (diffDays === 0) {
+  if (remainingDays <= 0) {
     return "Time budget ended";
   }
 
-  return formatTime(diffDays, "day", "days");
+  return formatTime(remainingDays, "day", "days");
 }

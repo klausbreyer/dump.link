@@ -1,26 +1,32 @@
 import React from "react";
 import { useData } from "./context/data";
 import { calculateRemainingTime, formatDate } from "./context/helper_dates";
+import { getNamedBuckets, getOtherBuckets } from "./context/helper";
 
 export interface HeaderProgressProps {}
 
 const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
-  const { project } = useData();
+  const { project, buckets } = useData();
+
+  const namedBuckets = getNamedBuckets(buckets);
+  const allBucketsDone =
+    namedBuckets.length > 0 && namedBuckets.every((bucket) => bucket.done);
 
   const startedAt = project.startedAt;
-
   const endingAt =
     project.appetite === 0 && project.endingAt
       ? project.endingAt
       : new Date(
           startedAt.getTime() + project.appetite * 7 * 24 * 60 * 60 * 1000,
         );
-
   const currentDate: Date = new Date();
   const totalDuration = endingAt.getTime() - startedAt.getTime();
   const timeElapsed = currentDate.getTime() - startedAt.getTime();
   const percentDate = (timeElapsed / totalDuration) * 100;
 
+  const remaining = allBucketsDone
+    ? "done"
+    : calculateRemainingTime(startedAt, endingAt);
   return (
     <>
       <div className="flex flex-col h-full gap-2 ">
@@ -39,9 +45,7 @@ const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
         <div className="flex justify-between">
           <span className="text-sm">{formatDate(startedAt)}</span>
 
-          <span className="text-sm">
-            {calculateRemainingTime(startedAt, endingAt)}
-          </span>
+          <span className="text-sm">{remaining}</span>
           <span className="text-sm">{formatDate(endingAt)}</span>
         </div>
       </div>

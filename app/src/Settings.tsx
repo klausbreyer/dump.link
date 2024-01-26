@@ -3,6 +3,7 @@ import Container from "./common/Container";
 import InfoButton from "./common/InfoButton";
 import Title from "./common/Title";
 import { useData } from "./context/data";
+import { dateToYYYYMMDD } from "./context/helper_dates";
 
 interface SettingsProps {}
 
@@ -11,9 +12,8 @@ const Settings: React.FC<SettingsProps> = (props) => {
 
   const [isDirty, setIsDirty] = useState(false);
   const [name, setName] = useState(project.name);
-  const [startedAt, setStartedAt] = useState(
-    project.startedAt.toISOString().split("T")[0],
-  );
+
+  const [startedAt, setStartedAt] = useState(dateToYYYYMMDD(project.startedAt));
 
   const [endingAt, setEndingAt] = useState(
     project.endingAt ? project.endingAt.toISOString().split("T")[0] : undefined,
@@ -35,11 +35,9 @@ const Settings: React.FC<SettingsProps> = (props) => {
 
   useEffect(() => {
     setName(project.name);
-    setStartedAt(project.startedAt.toISOString().split("T")[0]);
+    setStartedAt(dateToYYYYMMDD(project.startedAt));
     setEndingAt(
-      project.endingAt
-        ? project.endingAt.toISOString().split("T")[0]
-        : undefined,
+      project.endingAt ? dateToYYYYMMDD(project.endingAt) : undefined,
     );
     setAppetite(project.appetite.toString());
     setIsDirty(false);
