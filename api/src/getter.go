@@ -1,7 +1,6 @@
 package src
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -35,13 +34,7 @@ func (app *application) idExists(idType string, id string) bool {
 }
 
 func (app *application) getUsernameFromHeader(r *http.Request) (string, error) {
-	// Auslesen des Benutzernamens aus dem Header
 	username := r.Header.Get("Username")
-
-	// Überprüfen, ob ein Benutzername vorhanden ist
-	if username == "" {
-		return "", fmt.Errorf("unauthorized: no username provided")
-	}
 
 	return username, nil
 }

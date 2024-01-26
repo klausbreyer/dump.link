@@ -21,7 +21,9 @@ const HeaderActivity: React.FC = () => {
       "Please enter your name as you would like your team to see it",
       getUsername(),
     );
-    localStorage.setItem("username", newUsername || "");
+    if (!newUsername) return;
+
+    localStorage.setItem("username", newUsername);
 
     setUsername(getUsername());
   }
@@ -68,11 +70,12 @@ export const Avatar: React.FC<AvatarProps> = ({
   type,
 }) => {
   const initials = getInitials(username);
+  const tooltipname = initials !== "" ? username : "Anonymous";
   return (
     <Tooltip
       info={
         lastSeen
-          ? `${username}, last seen: ${dateToHumanReadable(lastSeen)}`
+          ? `${tooltipname}, last seen: ${dateToHumanReadable(lastSeen)}`
           : "You"
       }
     >
