@@ -115,10 +115,8 @@ const dataReducer = (state: State, action: ActionType): State => {
     case "UPDATE_PROJECT": {
       const { updates } = action;
 
-      const updatedProject = {
-        ...reconsileProjectUpdate(state.project, updates),
-        updatedAt: new Date(),
-      };
+      const updatedProject = reconsileProjectUpdate(state.project, updates);
+
       return {
         ...state,
         project: updatedProject,
@@ -160,10 +158,7 @@ const dataReducer = (state: State, action: ActionType): State => {
       // Map through the tasks array to find and update the specific task
       const updatedTasks = state.tasks.map((task) => {
         if (task.id === taskId) {
-          return {
-            ...reconsileTaskUpdate(task, updates),
-            updatedAt: new Date(),
-          };
+          return reconsileTaskUpdate(task, updates);
         }
         return task;
       });
@@ -181,10 +176,7 @@ const dataReducer = (state: State, action: ActionType): State => {
 
       const updatedBuckets = state.buckets.map((bucket) => {
         if (bucket.id === bucketId) {
-          return {
-            ...reconsileBucketUpdate(bucket, updates),
-            updatedAt: new Date(),
-          };
+          return reconsileBucketUpdate(bucket, updates);
         }
         return bucket;
       });

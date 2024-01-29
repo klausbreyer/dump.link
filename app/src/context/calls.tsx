@@ -133,12 +133,19 @@ const createApiFunctions = () => {
     },
     postProjectResetLayers: (projectId: string): Promise<ApiMessage> =>
       apiCall({ url: `/projects/${projectId}/resetLayers`, method: "POST" }),
-    postTask: (projectId: string, task: Task): Promise<Task> =>
-      apiCall({
+    postTask: async (projectId: string, task: Task): Promise<Task> => {
+      const response = await apiCall({
         url: `/projects/${projectId}/tasks`,
         method: "POST",
         body: task,
-      }),
+      });
+
+      return {
+        ...response,
+        createdAt: ISOToDate(response.createdAt),
+        updatedAt: ISOToDate(response.updatedAt),
+      };
+    },
     deleteTask: (projectId: string, taskId: string): Promise<boolean> =>
       apiCall({
         url: `/projects/${projectId}/tasks/${taskId}`,
@@ -172,16 +179,23 @@ const createApiFunctions = () => {
         url: `/projects/${projectId}/buckets/${bucketId}/resetLayers`,
         method: "POST",
       }),
-    postDependency: (
+    postDependency: async (
       projectId: string,
       bucketId: string,
       dependencyId: string,
-    ): Promise<Dependency> =>
-      apiCall({
+    ): Promise<Dependency> => {
+      const response = await apiCall({
         url: `/projects/${projectId}/dependencies`,
         method: "POST",
         body: { bucketId, dependencyId },
-      }),
+      });
+
+      return {
+        ...response,
+        createdAt: response.createdAt ? ISOToDate(response.createdAt) : null,
+        updatedAt: response.updatedAt ? ISOToDate(response.updatedAt) : null,
+      };
+    },
     deleteDependency: (
       projectId: string,
       bucketId: string,
