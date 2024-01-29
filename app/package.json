@@ -3,7 +3,7 @@
   "type": "module",
   "devDependencies": {
     "@parcel/reporter-bundle-analyzer": "2.10.3",
-    "@types/jest": "^29.5.11",
+    "@types/jest": "29.5.11",
     "@types/node": "20.9.1",
     "@types/react": "18.2.37",
     "@types/react-dnd": "3.0.2",
@@ -29,9 +29,11 @@
     "@bugsnag/plugin-react": "7.19.0",
     "@headlessui/react": "1.7.17",
     "@heroicons/react": "2.0.18",
+    "rdndmb-html5-to-touch": "8.0.3",
     "react": "18.2.0",
     "react-dnd": "16.0.1",
     "react-dnd-html5-backend": "16.0.1",
+    "react-dnd-multi-backend": "8.0.3",
     "react-dom": "18.2.0"
   }
 }

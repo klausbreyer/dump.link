@@ -52,10 +52,7 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 			<meta name="twitter:image" content="https://dump.link/static/icons/favicon@2x.png">
 		</head>
 		<body>
-			<div class="flex items-center justify-center w-screen h-screen text-center lg:hidden">
-				This site is not optimized for mobile. Please use a desktop browser.
-			</div>
-			<div id="app" class="invisible lg:visible"></div>
+			<div id="app"></div>
 			<script src="/{JS_FILE}" type="module"></script>
 		</body>
 		</html>

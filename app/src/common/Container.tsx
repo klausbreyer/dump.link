@@ -9,7 +9,7 @@ interface ContainerProps {
 const Container = forwardRef<HTMLDivElement, ContainerProps>((props, ref) => {
   return (
     <div
-      className="mx-auto max-w-7xl sm:px-6 lg:px-8"
+      className="mx-auto max-w-7xl sm:px-6 lg:px-8 min-w-[1024px]"
       ref={ref}
       onMouseDown={props.onMouseDown}
       onMouseUp={props.onMouseUp}
