@@ -9,9 +9,15 @@ export const extractIdFromUrl = () => {
 export const lastActivityKey = (projectId: ProjectID): string => {
   return `lastActivity_${projectId}`;
 };
+function getTwoHoursAgoDate(): Date {
+  const twoHoursAgo = new Date();
+  twoHoursAgo.setHours(twoHoursAgo.getHours() - 2);
+  return twoHoursAgo;
+}
 
 export const getLastActivity = (projectId: ProjectID): Date | null => {
   const key = lastActivityKey(projectId);
+
   const dateString = localStorage.getItem(key);
 
   if (!dateString) return null;
@@ -20,6 +26,7 @@ export const getLastActivity = (projectId: ProjectID): Date | null => {
   if (isNaN(date.getTime())) {
     return null;
   }
+  return getTwoHoursAgoDate();
   return date;
 };
 

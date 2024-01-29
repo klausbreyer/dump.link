@@ -28,7 +28,12 @@ const NotificationBar: React.FC = () => {
 
   const lastVisitStr = dateToHumanReadable(lastVisit);
 
-  console.log("NotificationBar", { numChanges, lastVisitStr, lastVisit });
+  console.log(
+    "NotificationBar",
+    bucketsChangedSince(buckets, lastVisit).length,
+    numTaskChanged(tasks, lastVisit).length,
+    dependenciesChanged(dependencies, lastVisit).length,
+  );
 
   return (
     <div className="fixed bottom-0 p-4 text-sm text-center text-white transform -translate-x-1/2 rounded-t-lg shadow-md bg-violet-500 left-1/2">
