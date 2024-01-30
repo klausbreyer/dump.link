@@ -19,7 +19,7 @@ import { useData } from "./context/data";
 import { checkBucketActivity } from "./context/helper_activities";
 import { uniqueValues } from "./context/helper_arrays";
 import {
-  bucketsChangedWhileAway,
+  bucketsDuringAbsence,
   checkIfBucketIDExists,
   getArrangeBucketType,
   getBucket,
@@ -43,6 +43,7 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
+import { useAbsence } from "./context/absence";
 
 interface BoxProps {
   bucket: Bucket;
@@ -54,6 +55,7 @@ interface BoxProps {
 
 const Box: React.FC<BoxProps> = (props) => {
   const { bucket, context } = props;
+  const { acknowledged } = useAbsence();
   const {
     removeBucketDependency,
     tasks,
@@ -73,7 +75,6 @@ const Box: React.FC<BoxProps> = (props) => {
   } = useGlobalInteraction();
 
   const others = getOtherBuckets(buckets);
-  const bucketsChanged = bucketsChangedWhileAway(others, project.id);
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const availbleIds = getBucketsAvailableFor(others, dependencies, bucket.id);
   const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
@@ -224,7 +225,8 @@ const Box: React.FC<BoxProps> = (props) => {
     const othersActive =
       bucketActive && bucketActive.createdBy !== getUsername();
 
-    const isPastActivity =
+    const bucketsChanged = bucketsDuringAbsence(others, project.id);
+    const isAbsence =
       checkIfBucketIDExists(bucketsChanged, bucket.id) ||
       checkIfDependencyExists(dependencies, bucket.id);
 
@@ -236,7 +238,7 @@ const Box: React.FC<BoxProps> = (props) => {
       return "border-dashed border-2 border-slate-400";
     } else if (isOver) {
       return "border-slate-400";
-    } else if (isPastActivity) {
+    } else if (isAbsence && !acknowledged) {
       return "border-dashed border-2 border-cyan-400";
     }
 

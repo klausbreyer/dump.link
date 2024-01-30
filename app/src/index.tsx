@@ -25,6 +25,7 @@ import { TabContext } from "./types";
 import React, { useEffect } from "react";
 import "../public/styles.css";
 import NotificationBar from "./NotificationBar";
+import { AbsenceProvider } from "./context/absence";
 
 function isLocalhost(): boolean {
   return (
@@ -80,9 +81,11 @@ const App = function App() {
       <LifecycleProvider>
         <GlobalInteractionProvider>
           <DataProvider>
-            <DndProvider options={HTML5toTouch}>
-              <Main />
-            </DndProvider>
+            <AbsenceProvider>
+              <DndProvider options={HTML5toTouch}>
+                <Main />
+              </DndProvider>
+            </AbsenceProvider>
           </DataProvider>
         </GlobalInteractionProvider>
       </LifecycleProvider>

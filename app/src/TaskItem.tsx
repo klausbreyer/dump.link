@@ -21,7 +21,7 @@ import {
   getTaskType,
   getTasksForBucket,
   sortTasksByPriority,
-  tasksChangedWhileAway,
+  tasksDuringAbsence,
 } from "./context/helper_tasks";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
@@ -32,6 +32,7 @@ import {
   validateActivityOther,
 } from "./context/helper_activities";
 import { ActivityAvatar } from "./HeaderActivity";
+import { useAbsence } from "./context/absence";
 
 interface TaskItemProps {
   task: Task | null;
@@ -41,6 +42,9 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
+
+  const { acknowledged } = useAbsence();
+
   const {
     addTask,
     updateTask,
@@ -290,13 +294,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   };
 
   function getOutlineColor(): string {
-    const tasksChanged = tasksChangedWhileAway(tasks, project.id);
-    const isPastActivity = task && checkIfTaskIDExists(tasksChanged, task.id);
+    const tasksChanged = tasksDuringAbsence(tasks, project.id);
+    const isAbsence = task && checkIfTaskIDExists(tasksChanged, task.id);
     const hover =
       !project.archived && "group-hover:outline group-hover:outline-slate-500";
     if (activityOther) {
       return `outline-2 ${hover} outline-purple-500 outline-dashed`;
-    } else if (isPastActivity) {
+    } else if (isAbsence && !acknowledged) {
       return `outline-2 ${hover} outline-cyan-400 outline-dashed`;
     }
     return `outline-2 ${hover} outline-slate-500`;

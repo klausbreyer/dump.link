@@ -1,7 +1,7 @@
 import { Bucket, BucketID, Dependency, ProjectID } from "../types";
 import { getOtherBuckets } from "./helper_buckets";
 import { uniqueValues } from "./helper_arrays";
-import { getLastActivity } from "./helper_requests";
+import { getAbsence } from "./absence";
 
 export const getUniqueDependingIdsForbucket = (
   buckets: Bucket[],
@@ -181,11 +181,11 @@ export const dependenciesChanged = (dependencies: Dependency[], date: Date) => {
   return dependencies.filter((bucket) => bucket.createdAt > date);
 };
 
-export const dependenciesChangedWhileAway = (
+export const dependenciesDuringAbsence = (
   dependencies: Dependency[],
   projectId: ProjectID,
 ) => {
-  const lastVisit = getLastActivity(projectId);
+  const lastVisit = getAbsence(projectId);
   if (!lastVisit) {
     return [];
   }

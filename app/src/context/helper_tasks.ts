@@ -1,10 +1,10 @@
 import { Bucket, BucketID, ProjectID, Task, TaskID } from "../types";
+import { getAbsence } from "./absence";
 import {
   getBucketForTask,
   getClosedBucketType,
   getOpenBucketType,
 } from "./helper_buckets";
-import { getLastActivity } from "./helper_requests";
 
 export const getTask = (tasks: Task[], taskId: TaskID) => {
   // Find and return the task with the matching ID in the tasks array
@@ -92,8 +92,8 @@ export function sortTasksNotClosedFirst(tasks: Task[]): Task[] {
     return 0;
   });
 }
-export const tasksChangedWhileAway = (tasks: Task[], projectId: ProjectID) => {
-  const lastVisit = getLastActivity(projectId);
+export const tasksDuringAbsence = (tasks: Task[], projectId: ProjectID) => {
+  const lastVisit = getAbsence(projectId);
   if (!lastVisit) {
     return [];
   }

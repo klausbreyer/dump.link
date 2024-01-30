@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useReducer } from "react";
 
 import {
   Activity,
-  ActivityUpdates as ActivityUpdate,
   Bucket,
   BucketID,
   BucketUpdates,
@@ -28,7 +27,6 @@ import {
   NewID,
   extractIdFromUrl,
   getUsername,
-  saveLastActivity,
   saveProjectIdToLocalStorage,
 } from "./helper_requests";
 import { LifecycleState, useLifecycle } from "./lifecycle";
@@ -302,18 +300,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     }
   };
-
-  useEffect(() => {
-    if (state.project.id.length !== 11) return;
-    const intervalId = setInterval(
-      () => saveLastActivity(state.project.id),
-      config.ACTIVITY_INTERVAL,
-    );
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [state.project.id]);
 
   useEffect(() => {
     if (!getUsername()) {

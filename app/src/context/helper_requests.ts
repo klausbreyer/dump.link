@@ -6,36 +6,6 @@ export const extractIdFromUrl = () => {
   return parts[parts.length - 1];
 };
 
-export const lastActivityKey = (projectId: ProjectID): string => {
-  return `lastActivity_${projectId}`;
-};
-function MockedDate(): Date {
-  const mocked = new Date();
-  mocked.setMinutes(mocked.getMinutes() - 10);
-  return mocked;
-}
-
-export const getLastActivity = (projectId: ProjectID): Date | null => {
-  const key = lastActivityKey(projectId);
-
-  const dateString = localStorage.getItem(key);
-
-  if (!dateString) return null;
-
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
-    return null;
-  }
-  return MockedDate();
-  return date;
-};
-
-export const saveLastActivity = (projectId: ProjectID) => {
-  const key = lastActivityKey(projectId);
-  const now = new Date();
-  localStorage.setItem(key, now.toISOString());
-};
-
 export const saveProjectIdToLocalStorage = (
   projectId: string,
   projectName: string,

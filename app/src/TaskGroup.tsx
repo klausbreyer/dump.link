@@ -14,7 +14,7 @@ import {
   validateActivitySelf,
 } from "./context/helper_activities";
 import {
-  bucketsChangedWhileAway,
+  bucketsDuringAbsence,
   checkIfBucketIDExists,
   getBucketForTask,
   getClosedBucketType,
@@ -34,6 +34,7 @@ import {
   TaskID,
 } from "./types";
 import { checkIfDependencyExists } from "./context/helper_dependencies";
+import { useAbsence } from "./context/absence";
 
 interface TaskGroupProps {
   bucket: TaskGroup;
@@ -41,6 +42,8 @@ interface TaskGroupProps {
 
 const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const { bucket } = props;
+
+  const { acknowledged } = useAbsence();
   const {
     updateTask,
     moveTask,
@@ -122,8 +125,8 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
     const showNone = !canDrop && !activitySelf && !activityOther;
     const showDashed = canDrop && !isOver && !bucket.done;
     const showSolid = isOver && !bucket.done;
-    const bucketsChanged = bucketsChangedWhileAway(buckets, project.id);
-    const isPastActivity =
+    const bucketsChanged = bucketsDuringAbsence(buckets, project.id);
+    const isAbsence =
       checkIfBucketIDExists(bucketsChanged, bucket.id) ||
       checkIfDependencyExists(dependencies, bucket.id);
 
@@ -135,7 +138,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
       return "border-dashed border-2 border-slate-400";
     } else if (showSolid) {
       return "border-slate-400";
-    } else if (isPastActivity) {
+    } else if (isAbsence && !acknowledged) {
       return "border-dashed border-2 border-cyan-400";
     } else if (showNone) {
       return "border-transparent";
