@@ -21,10 +21,12 @@ import {
   getOpenBucketType,
 } from "./context/helper_buckets";
 import {
+  checkIfTaskIDExists,
   getTask,
   getTasksByClosed,
   getTasksForBucket,
   sortTasksByUpdatedAt,
+  tasksDuringAbsence,
 } from "./context/helper_tasks";
 import {
   DraggedTask,
@@ -113,8 +115,17 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
-  const aboveFoldClosed = closed.filter((t) => recentlyDone.includes(t.id));
-  const belowFoldClosed = closed.filter((t) => !recentlyDone.includes(t.id));
+  const tasksChanged = tasksDuringAbsence(tasks, project.id);
+  const aboveFoldClosed = closed.filter(
+    (t) =>
+      recentlyDone.includes(t.id) ||
+      (!acknowledged && checkIfTaskIDExists(tasksChanged, t.id)),
+  );
+  const belowFoldClosed = closed.filter(
+    (t) =>
+      !recentlyDone.includes(t.id) &&
+      !(!acknowledged && checkIfTaskIDExists(tasksChanged, t.id)),
+  );
 
   const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
 
