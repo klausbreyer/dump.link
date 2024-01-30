@@ -15,11 +15,13 @@ import { useData } from "./context/data";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   calculateHighestPriority,
+  checkIfTaskIDExists,
   getTask,
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
   sortTasksByPriority,
+  tasksChangedWhileAway,
 } from "./context/helper_tasks";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
@@ -265,12 +267,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true && !project.archived;
 
-  const bucketTask = task && !bucket.dump;
-  const borderColor = bucketTask
-    ? task?.closed
-      ? "border-yellow-300"
-      : "border-orange-300"
-    : getInputBorderColor(bucket);
   const textAreaClasses =
     "overflow-hidden px-1 resize-none rounded-sm shadow-md w-full";
 
@@ -283,6 +279,29 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const activityOther = validateActivityOther(activity);
 
   const style = task && !task.closed ? { order: localPriority } : {};
+
+  const bucketTask = task && !bucket.dump;
+  const getBorderColor = (): string => {
+    if (bucketTask) {
+      return task?.closed ? "border-yellow-300" : "border-orange-300";
+    } else {
+      return getInputBorderColor(bucket);
+    }
+  };
+
+  function getOutlineColor(): string {
+    const tasksChanged = tasksChangedWhileAway(tasks, project.id);
+    const isPastActivity = task && checkIfTaskIDExists(tasksChanged, task.id);
+    const hover =
+      !project.archived && "group-hover:outline group-hover:outline-slate-500";
+    if (activityOther) {
+      return `outline-2 ${hover} outline-purple-500 outline-dashed`;
+    } else if (isPastActivity) {
+      return `outline-2 ${hover} outline-cyan-400 outline-dashed`;
+    }
+    return `outline-2 ${hover} outline-slate-500`;
+  }
+
   return (
     <div ref={(node) => !project.archived && dropRef(node)} style={style}>
       <div
@@ -328,14 +347,10 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                   spellCheck="false"
                   readOnly
                   className={`border-b-2 absolute z-10 bg-slate-100
-                  ${
-                    !project.archived &&
-                    "group-hover:outline group-hover:bg-slate-50"
-                  } outline-2 select-none
-                  ${!activityOther && "outline-slate-500"}
-                  ${activityOther && " outline-purple-500 outline-dashed"}
+                  ${!project.archived && "group-hover:bg-slate-50"} select-none
                     ${textAreaClasses}
-                    ${borderColor}
+                    ${getOutlineColor()}
+                    ${getBorderColor()}
                     ${isClicked && "hidden"}
                   `}
                   value={val}
@@ -369,7 +384,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                 val.length >= config.TASK_MAX_LENGTH
                   ? "focus:outline outline-2 outline-rose-500"
                   : "focus:outline outline-2 outline-indigo-500"
-              } ${borderColor}`}
+              } ${getBorderColor()}`}
               data-enable-grammarly="false"
               placeholder="Add a task"
               value={val}

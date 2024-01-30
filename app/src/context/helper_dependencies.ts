@@ -1,6 +1,7 @@
-import { Bucket, BucketID, Dependency } from "../types";
+import { Bucket, BucketID, Dependency, ProjectID } from "../types";
 import { getOtherBuckets } from "./helper_buckets";
 import { uniqueValues } from "./helper_arrays";
+import { getLastActivity } from "./helper_requests";
 
 export const getUniqueDependingIdsForbucket = (
   buckets: Bucket[],
@@ -179,3 +180,28 @@ export const getBucketsAvailableFor = (
 export const dependenciesChanged = (dependencies: Dependency[], date: Date) => {
   return dependencies.filter((bucket) => bucket.createdAt > date);
 };
+
+export const dependenciesChangedWhileAway = (
+  dependencies: Dependency[],
+  projectId: ProjectID,
+) => {
+  const lastVisit = getLastActivity(projectId);
+  if (!lastVisit) {
+    return [];
+  }
+  return dependenciesChangedSince(dependencies, lastVisit);
+};
+
+export const dependenciesChangedSince = (
+  dependencies: Dependency[],
+  date: Date,
+) => {
+  return dependencies.filter((bucket) => bucket.createdAt > date);
+};
+
+export function checkIfDependencyExists(
+  dependencies: Dependency[],
+  id: BucketID,
+): boolean {
+  return dependencies.some((dependency) => dependency.bucketId === id);
+}

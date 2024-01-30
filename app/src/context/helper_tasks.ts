@@ -1,9 +1,10 @@
-import { Bucket, BucketID, Task, TaskID } from "../types";
+import { Bucket, BucketID, ProjectID, Task, TaskID } from "../types";
 import {
   getBucketForTask,
   getClosedBucketType,
   getOpenBucketType,
 } from "./helper_buckets";
+import { getLastActivity } from "./helper_requests";
 
 export const getTask = (tasks: Task[], taskId: TaskID) => {
   // Find and return the task with the matching ID in the tasks array
@@ -91,9 +92,20 @@ export function sortTasksNotClosedFirst(tasks: Task[]): Task[] {
     return 0;
   });
 }
-
-export const numTaskChanged = (tasks: Task[], date: Date) => {
-  return tasks.filter(
-    (bucket) => bucket.updatedAt > date || bucket.createdAt > date,
-  );
+export const tasksChangedWhileAway = (tasks: Task[], projectId: ProjectID) => {
+  const lastVisit = getLastActivity(projectId);
+  if (!lastVisit) {
+    return [];
+  }
+  return tasksChangedSince(tasks, lastVisit);
 };
+
+export const tasksChangedSince = (tasks: Task[], date: Date) => {
+  console.log(tasks);
+
+  return tasks.filter((task) => task.updatedAt > date);
+};
+
+export function checkIfTaskIDExists(tasks: Task[], id: TaskID): boolean {
+  return tasks.some((task) => task.id === id);
+}

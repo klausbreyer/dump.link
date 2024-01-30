@@ -20,13 +20,14 @@ import { checkBucketActivity } from "./context/helper_activities";
 import { uniqueValues } from "./context/helper_arrays";
 import {
   bucketsChangedWhileAway,
-  checkIfIdExists,
+  checkIfBucketIDExists,
   getArrangeBucketType,
   getBucket,
   getOtherBuckets,
   getSequenceBucketType,
 } from "./context/helper_buckets";
 import {
+  checkIfDependencyExists,
   getBucketsAvailableFor,
   getBucketsDependingOn,
   getUniqueDependingIdsForbucket,
@@ -223,7 +224,9 @@ const Box: React.FC<BoxProps> = (props) => {
     const othersActive =
       bucketActive && bucketActive.createdBy !== getUsername();
 
-    const isPastActivity = checkIfIdExists(bucketsChanged, bucket.id);
+    const isPastActivity =
+      checkIfBucketIDExists(bucketsChanged, bucket.id) ||
+      checkIfDependencyExists(dependencies, bucket.id);
 
     if (selfActive) {
       return "border-2 border-indigo-500";
@@ -234,7 +237,7 @@ const Box: React.FC<BoxProps> = (props) => {
     } else if (isOver) {
       return "border-slate-400";
     } else if (isPastActivity) {
-      return "border-dashed border-2 border-violet-400";
+      return "border-dashed border-2 border-cyan-400";
     }
 
     switch (context) {

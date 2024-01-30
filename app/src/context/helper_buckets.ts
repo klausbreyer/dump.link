@@ -125,9 +125,16 @@ export const bucketsChangedWhileAway = (
 };
 
 export const bucketsChangedSince = (buckets: Bucket[], date: Date) => {
-  return buckets.filter((bucket) => bucket.updatedAt > date);
+  return buckets.filter(
+    (bucket) =>
+      bucket.updatedAt > date &&
+      bucket.updatedAt.getTime() !== bucket.createdAt.getTime(),
+  );
 };
 
-export function checkIfIdExists(buckets: Bucket[], id: BucketID): boolean {
+export function checkIfBucketIDExists(
+  buckets: Bucket[],
+  id: BucketID,
+): boolean {
   return buckets.some((bucket) => bucket.id === id);
 }

@@ -5,7 +5,8 @@ import { bucketsChangedSince } from "./context/helper_buckets";
 import { dateToHumanReadable } from "./context/helper_dates";
 import { dependenciesChanged } from "./context/helper_dependencies";
 import { getLastActivity } from "./context/helper_requests";
-import { numTaskChanged } from "./context/helper_tasks";
+import { tasksChangedSince } from "./context/helper_tasks";
+import { XCircleIcon } from "@heroicons/react/24/outline";
 
 const NotificationBar: React.FC = () => {
   const { buckets, tasks, dependencies, project } = useData();
@@ -22,7 +23,7 @@ const NotificationBar: React.FC = () => {
 
   const numChanges =
     bucketsChangedSince(buckets, lastVisit).length +
-    numTaskChanged(tasks, lastVisit).length +
+    tasksChangedSince(tasks, lastVisit).length +
     dependenciesChanged(dependencies, lastVisit).length;
   if (numChanges === 0) return null;
 
@@ -30,20 +31,24 @@ const NotificationBar: React.FC = () => {
 
   console.log(
     "NotificationBar",
+
     bucketsChangedSince(buckets, lastVisit).length,
-    numTaskChanged(tasks, lastVisit).length,
+    tasksChangedSince(tasks, lastVisit).length,
     dependenciesChanged(dependencies, lastVisit).length,
   );
 
   return (
-    <div className="fixed bottom-0 p-4 text-sm text-center text-white transform -translate-x-1/2 rounded-t-lg shadow-md bg-violet-500 left-1/2">
+    <div className="fixed bottom-0 flex gap-2 p-2 text-sm text-center text-white transform -translate-x-1/2 rounded-t-lg shadow-md bg-cyan-500 left-1/2 ">
       <p>
-        {numChanges} change(s) since your last visit {lastVisitStr}
-        .&nbsp;
-        <span onClick={handleClose} className="underline hover:no-underline">
-          Close
-        </span>
+        {numChanges} change{numChanges > 1 && "s"} since your last visit{" "}
+        {lastVisitStr}.
       </p>
+      <span
+        onClick={handleClose}
+        className="underline hover:no-underline hover:cursor-pointer"
+      >
+        <XCircleIcon className="inline-block w-5 h-5" />
+      </span>
     </div>
   );
 };
