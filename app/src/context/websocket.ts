@@ -1,6 +1,7 @@
 import { Dispatch } from "react";
 import { ActionType, CLIENT_TOKEN } from "./data";
 import { ISOToDate } from "./helper_dates";
+import { Activity } from "../types";
 
 type DispatchType = Dispatch<ActionType>;
 export const setupWebSocket = (
@@ -72,9 +73,14 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
       });
       break;
     case "ADD_TASK":
+      const task = {
+        ...message.data,
+        createdAt: ISOToDate(message.data.createdAt),
+        updatedAt: ISOToDate(message.data.updatedAt),
+      };
       dispatch({
         type: "ADD_TASK",
-        task: message.data,
+        task,
       });
       break;
     case "DELETE_TASK":
@@ -103,6 +109,7 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
         bucketId: message.data.bucketId,
         dependencyId: message.data.dependencyId,
         createdBy: message.data.createdBy,
+        createdAt: ISOToDate(message.data.createdAt),
       });
       break;
     case "REMOVE_BUCKET_DEPENDENCY":
@@ -118,9 +125,13 @@ const handleWebSocketMessage = (message: any, dispatch: DispatchType) => {
       });
       break;
     case "UPDATE_ACTIVITIES":
+      const activities = message.data.map((activity: any) => ({
+        ...activity,
+        createdAt: ISOToDate(activity.createdAt),
+      }));
       dispatch({
         type: "UPDATE_ACTIVITIES",
-        activities: message.data,
+        activities,
       });
       break;
   }

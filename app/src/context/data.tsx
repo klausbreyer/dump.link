@@ -83,6 +83,7 @@ export type ActionType =
       bucketId: BucketID;
       dependencyId: BucketID;
       createdBy: UserName;
+      createdAt: Date;
     }
   | {
       type: "REMOVE_BUCKET_DEPENDENCY";
@@ -124,8 +125,8 @@ const dataReducer = (state: State, action: ActionType): State => {
     case "ADD_TASK": {
       const { task } = action;
 
-      task.createdAt = new Date();
-      task.updatedAt = new Date();
+      if (!task.createdAt) task.createdAt = new Date();
+      if (!task.updatedAt) task.updatedAt = new Date();
 
       // Update the tasks array directly in the state
       let updatedTasks = [...state.tasks];
@@ -221,9 +222,8 @@ const dataReducer = (state: State, action: ActionType): State => {
     }
 
     case "ADD_BUCKET_DEPENDENCY": {
-      const { bucketId, dependencyId, createdBy } = action;
+      const { bucketId, dependencyId, createdBy, createdAt } = action;
 
-      const createdAt = new Date();
       // Creating a new dependency object
       const newDependency = { bucketId, dependencyId, createdBy, createdAt };
 
@@ -512,6 +512,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       bucketId: bucket.id,
       dependencyId: dependencyId,
       createdBy: getUsername(),
+      createdAt: new Date(),
     });
 
     (async () => {
