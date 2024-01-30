@@ -1,6 +1,5 @@
-import { Bucket, BucketID, BucketState, ProjectID, Task } from "../types";
-import { getAbsence } from "./absence";
-import { getTasksForBucket } from "./helper_tasks";
+import { Bucket, BucketID, BucketState, Task } from "../../types";
+import { getTasksForBucket } from "./tasks";
 
 // Figuring out means: not all tasks of the bucket are closed
 export function filterBucketsFiguringOut(

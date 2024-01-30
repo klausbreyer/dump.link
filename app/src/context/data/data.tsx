@@ -13,23 +13,23 @@ import {
   TaskID,
   TaskUpdates,
   UserName,
-} from "../types";
+} from "../../types";
 
-import { notifyBugsnag } from "..";
-import config from "../config";
+import { notifyBugsnag } from "../..";
+import config from "../../config";
 import { APIError, apiFunctions } from "./calls";
 import {
   getUniqueDependingIdsForbucket,
   hasCyclicDependencyWithBucket,
-} from "./helper_dependencies";
-import { getLayerForBucketId } from "./helper_layers";
+} from "./dependencies";
+import { getLayerForBucketId } from "./layers";
 import {
   NewID,
   extractIdFromUrl,
   getUsername,
   saveProjectIdToLocalStorage,
-} from "./helper_requests";
-import { LifecycleState, useLifecycle } from "./lifecycle";
+} from "./requests";
+import { LifecycleState, useLifecycle } from "../lifecycle";
 import { setupWebSocket } from "./websocket";
 
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());

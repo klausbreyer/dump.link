@@ -14,7 +14,7 @@ import {
   Task,
   TaskID,
 } from "../types";
-import { useData } from "./data";
+import { useData } from "./data/data";
 
 const AbsenceContext = createContext<AbsenceContextType | undefined>(undefined);
 

@@ -12,7 +12,7 @@ import Group from "./Group";
 import Header from "./Header";
 import Sequence from "./Sequence";
 import Settings from "./Settings";
-import { DataProvider } from "./context/data";
+import { DataProvider } from "./context/data/data";
 import { GlobalInteractionProvider } from "./context/interaction";
 import {
   LifecycleProvider,

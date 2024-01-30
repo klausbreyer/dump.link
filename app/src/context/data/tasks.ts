@@ -1,10 +1,9 @@
-import { Bucket, BucketID, ProjectID, Task, TaskID } from "../types";
-import { getAbsence } from "./absence";
+import { Bucket, BucketID, Task, TaskID } from "../../types";
 import {
   getBucketForTask,
   getClosedBucketType,
   getOpenBucketType,
-} from "./helper_buckets";
+} from "./buckets";
 
 export const getTask = (tasks: Task[], taskId: TaskID) => {
   // Find and return the task with the matching ID in the tasks array

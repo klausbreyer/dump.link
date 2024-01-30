@@ -7,23 +7,23 @@ import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import { getBucketBackgroundColorTop } from "./common/colors";
-import { useData } from "./context/data";
+import { useData } from "./context/data/data";
 import {
   checkBucketActivity,
   validateActivityOther,
   validateActivitySelf,
-} from "./context/helper_activities";
+} from "./context/data/activities";
 import {
   getBucketForTask,
   getClosedBucketType,
   getOpenBucketType,
-} from "./context/helper_buckets";
+} from "./context/data/buckets";
 import {
   getTask,
   getTasksByClosed,
   getTasksForBucket,
   sortTasksByUpdatedAt,
-} from "./context/helper_tasks";
+} from "./context/data/tasks";
 import {
   DraggedTask,
   DropCollectedProps,

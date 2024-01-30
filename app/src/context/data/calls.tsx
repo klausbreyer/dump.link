@@ -9,10 +9,10 @@ import {
   State,
   Task,
   TaskUpdates,
-} from "../types";
+} from "../../types";
 import { CLIENT_TOKEN } from "./data";
-import { ISOToDate, dateToISO } from "./helper_dates";
-import { getUsername } from "./helper_requests";
+import { ISOToDate, dateToISO } from "./dates";
+import { getUsername } from "./requests";
 
 export class APIError extends Error {
   statusCode: number;
@@ -42,7 +42,7 @@ const createApiFunctions = () => {
     const fullUrl = new URL(`/api/v1${url}`, baseUrl);
     fullUrl.searchParams.append("token", CLIENT_TOKEN);
 
-    const fetchOptions: RequestInit = {
+    const fetchOptions = {
       method,
       headers: {
         "Content-Type": "application/json",

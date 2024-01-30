@@ -1,5 +1,5 @@
-import { Dependency } from "../types";
-import { hasCyclicDependencyWithBucket } from "./helper_dependencies";
+import { Dependency } from "../../types";
+import { hasCyclicDependencyWithBucket } from "./dependencies";
 
 // Sample data for testing
 const dependencies: Dependency[] = [

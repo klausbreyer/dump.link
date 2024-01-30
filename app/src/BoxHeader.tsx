@@ -9,14 +9,14 @@ import {
 import { isSafari } from "./common/helper";
 import { EmptyChekboxIcon } from "./common/icons";
 import config from "./config";
-import { useData } from "./context/data";
-import { getTasksByClosed, getTasksForBucket } from "./context/helper_tasks";
+import { useData } from "./context/data/data";
+import { getTasksByClosed, getTasksForBucket } from "./context/data/tasks";
 import { Bucket, TabContext } from "./types";
 import {
   checkBucketActivity,
   validateActivityOther,
-} from "./context/helper_activities";
-import { getUsername } from "./context/helper_requests";
+} from "./context/data/activities";
+import { getUsername } from "./context/data/requests";
 import { ActivityAvatar } from "./HeaderActivity";
 
 export interface HeaderProps {

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { lastAccessedProject } from "./types";
 import { Tooltip } from "./common/InfoTooltip";
 import { RecentIcon } from "./common/icons";
-import { useData } from "./context/data";
-import { extractIdFromUrl } from "./context/helper_requests";
+import { useData } from "./context/data/data";
+import { extractIdFromUrl } from "./context/data/requests";
 
 function RecentLinks() {
   const { project } = useData();

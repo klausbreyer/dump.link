@@ -1,17 +1,17 @@
 import React from "react";
 import { useDrop } from "react-dnd";
 
-import { useData } from "./context/data";
+import { useData } from "./context/data/data";
 import {
   getArrangeBucketType,
   getBucket,
   getOtherBuckets,
-} from "./context/helper_buckets";
+} from "./context/data/buckets";
 import {
   getBucketDependencies,
   getBucketsDependingOnNothing,
-} from "./context/helper_dependencies";
-import { getLayers } from "./context/helper_layers";
+} from "./context/data/dependencies";
+import { getLayers } from "./context/data/layers";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   Bucket,

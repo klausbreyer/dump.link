@@ -1,10 +1,10 @@
 import React from "react";
 import { DumplinkIcon } from "./common/icons";
-import { useData } from "./context/data";
+import { useData } from "./context/data/data";
 import {
   filterBucketsFiguredOut,
   filterBucketsFiguringOut,
-} from "./context/helper_buckets";
+} from "./context/data/buckets";
 import { Bucket } from "./types";
 
 export interface HeaderProjectProps {}

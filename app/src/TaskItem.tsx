@@ -11,7 +11,7 @@ import { useDrag, useDrop } from "react-dnd";
 import { getInputBorderColor } from "./common/colors";
 import { isSafari } from "./common/helper";
 import config from "./config";
-import { useData } from "./context/data";
+import { useData } from "./context/data/data";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   calculateHighestPriority,
@@ -20,15 +20,15 @@ import {
   getTaskType,
   getTasksForBucket,
   sortTasksByPriority,
-} from "./context/helper_tasks";
+} from "./context/data/tasks";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
 import { XCircleIcon } from "@heroicons/react/24/solid";
-import { NewID, getUsername } from "./context/helper_requests";
+import { NewID, getUsername } from "./context/data/requests";
 import {
   checkTaskActivity,
   validateActivityOther,
-} from "./context/helper_activities";
+} from "./context/data/activities";
 import { ActivityAvatar } from "./HeaderActivity";
 import { checkIfTaskIDExists, useAbsence } from "./context/absence";
 

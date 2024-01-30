@@ -15,23 +15,23 @@ import {
   getBucketBackgroundColorTop,
   getHeaderTextColor,
 } from "./common/colors";
-import { useData } from "./context/data";
-import { checkBucketActivity } from "./context/helper_activities";
-import { uniqueValues } from "./context/helper_arrays";
+import { useData } from "./context/data/data";
+import { checkBucketActivity } from "./context/data/activities";
+import { uniqueValues } from "./context/data/arrays";
 import {
   getArrangeBucketType,
   getBucket,
   getOtherBuckets,
   getSequenceBucketType,
-} from "./context/helper_buckets";
+} from "./context/data/buckets";
 import {
   getBucketsAvailableFor,
   getBucketsDependingOn,
   getUniqueDependingIdsForbucket,
-} from "./context/helper_dependencies";
-import { getWholeSubgraph } from "./context/helper_layers";
-import { getUsername } from "./context/helper_requests";
-import { getTasksForBucket } from "./context/helper_tasks";
+} from "./context/data/dependencies";
+import { getWholeSubgraph } from "./context/data/layers";
+import { getUsername } from "./context/data/requests";
+import { getTasksForBucket } from "./context/data/tasks";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   Bucket,

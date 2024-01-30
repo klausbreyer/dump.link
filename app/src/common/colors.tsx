@@ -1,5 +1,5 @@
-import { getBucketState } from "../context/helper_buckets";
-import { getTasksByClosed } from "../context/helper_tasks";
+import { getBucketState } from "../context/data/buckets";
+import { getTasksByClosed } from "../context/data/tasks";
 import { Bucket, BucketState, Task } from "../types";
 
 // Separate function for flagged condition
