@@ -30,11 +30,7 @@ import {
   validateActivityOther,
 } from "./context/helper_activities";
 import { ActivityAvatar } from "./HeaderActivity";
-import {
-  checkIfTaskIDExists,
-  tasksDuringAbsence,
-  useAbsence,
-} from "./context/absence";
+import { checkIfTaskIDExists, useAbsence } from "./context/absence";
 
 interface TaskItemProps {
   task: Task | null;
@@ -45,7 +41,7 @@ interface TaskItemProps {
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
 
-  const { acknowledged } = useAbsence();
+  const { acknowledged, tasksDuringAbsence } = useAbsence();
 
   const {
     addTask,
@@ -296,7 +292,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   };
 
   function getOutlineColor(): string {
-    const tasksChanged = tasksDuringAbsence(tasks, project.id);
+    const tasksChanged = tasksDuringAbsence(tasks);
     const isAbsence = task && checkIfTaskIDExists(tasksChanged, task.id);
     const hover =
       !project.archived && "group-hover:outline group-hover:outline-slate-500";

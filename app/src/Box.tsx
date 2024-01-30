@@ -41,7 +41,6 @@ import {
   TabContext,
 } from "./types";
 import {
-  bucketsDuringAbsence,
   checkIfBucketIDExists,
   checkIfDependencyExists,
   useAbsence,
@@ -57,7 +56,7 @@ interface BoxProps {
 
 const Box: React.FC<BoxProps> = (props) => {
   const { bucket, context } = props;
-  const { acknowledged } = useAbsence();
+  const { acknowledged, bucketsDuringAbsence } = useAbsence();
   const {
     removeBucketDependency,
     tasks,
@@ -227,7 +226,7 @@ const Box: React.FC<BoxProps> = (props) => {
     const othersActive =
       bucketActive && bucketActive.createdBy !== getUsername();
 
-    const bucketsChanged = bucketsDuringAbsence(others, project.id);
+    const bucketsChanged = bucketsDuringAbsence(others);
     const isAbsence =
       checkIfBucketIDExists(bucketsChanged, bucket.id) ||
       checkIfDependencyExists(dependencies, bucket.id);

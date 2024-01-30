@@ -32,11 +32,9 @@ import {
   TaskID,
 } from "./types";
 import {
-  bucketsDuringAbsence,
   checkIfBucketIDExists,
   checkIfDependencyExists,
   checkIfTaskIDExists,
-  tasksDuringAbsence,
   useAbsence,
 } from "./context/absence";
 
@@ -47,7 +45,8 @@ interface TaskGroupProps {
 const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const { bucket } = props;
 
-  const { acknowledged } = useAbsence();
+  const { acknowledged, tasksDuringAbsence, bucketsDuringAbsence } =
+    useAbsence();
   const {
     updateTask,
     moveTask,
@@ -117,7 +116,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
 
   const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
-  const tasksChanged = tasksDuringAbsence(tasks, project.id);
+  const tasksChanged = tasksDuringAbsence(tasks);
   const aboveFoldClosed = closed.filter(
     (t) =>
       recentlyDone.includes(t.id) ||
@@ -138,7 +137,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
     const showNone = !canDrop && !activitySelf && !activityOther;
     const showDashed = canDrop && !isOver && !bucket.done;
     const showSolid = isOver && !bucket.done;
-    const bucketsChanged = bucketsDuringAbsence(buckets, project.id);
+    const bucketsChanged = bucketsDuringAbsence(buckets);
     const isAbsence =
       checkIfBucketIDExists(bucketsChanged, bucket.id) ||
       checkIfDependencyExists(dependencies, bucket.id);

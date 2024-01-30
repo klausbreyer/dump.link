@@ -1,12 +1,10 @@
 import React, {
+  ReactNode,
   createContext,
   useContext,
-  useState,
   useEffect,
-  ReactNode,
+  useState,
 } from "react";
-import { useData } from "./data";
-import { dependenciesChanged } from "./helper_dependencies";
 import config from "../config";
 import {
   Bucket,
@@ -16,6 +14,7 @@ import {
   Task,
   TaskID,
 } from "../types";
+import { useData } from "./data";
 
 const AbsenceContext = createContext<AbsenceContextType | undefined>(undefined);
 
@@ -57,18 +56,49 @@ export const AbsenceProvider: React.FC<AbsenceProviderProps> = ({
   }, [project.id]);
 
   const numChanges =
-    bucketsChangedSince(buckets, lastVisit).length +
-    tasksChangedSince(tasks, lastVisit).length +
-    dependenciesChanged(dependencies, lastVisit).length;
+    bucketsChangedSince(buckets, lastVisit, currentVisit).length +
+    tasksChangedSince(tasks, lastVisit, currentVisit).length +
+    dependenciesChangedSince(dependencies, lastVisit, currentVisit).length;
 
   useEffect(() => {
     if (numChanges === 0) return;
     setAcknowledged(false);
   }, [numChanges]);
 
+  const bucketsDuringAbsence = (buckets: Bucket[]) => {
+    const lastVisit = getAbsence(project.id);
+    if (!lastVisit) {
+      return [];
+    }
+    return bucketsChangedSince(buckets, lastVisit, currentVisit);
+  };
+
+  const tasksDuringAbsence = (tasks: Task[]) => {
+    const lastVisit = getAbsence(project.id);
+    if (!lastVisit) {
+      return [];
+    }
+    return tasksChangedSince(tasks, lastVisit, currentVisit);
+  };
+
+  const dependenciesDuringAbsence = (dependencies: Dependency[]) => {
+    const lastVisit = getAbsence(project.id);
+    if (!lastVisit) {
+      return [];
+    }
+    return dependenciesChangedSince(dependencies, lastVisit, currentVisit);
+  };
   return (
     <AbsenceContext.Provider
-      value={{ lastVisit, numChanges, acknowledged, setAcknowledged }}
+      value={{
+        lastVisit,
+        numChanges,
+        acknowledged,
+        setAcknowledged,
+        bucketsDuringAbsence,
+        tasksDuringAbsence,
+        dependenciesDuringAbsence,
+      }}
     >
       {children}
     </AbsenceContext.Provider>
@@ -80,11 +110,15 @@ interface AbsenceContextType {
   numChanges: number;
   acknowledged: boolean;
   setAcknowledged: (input: boolean) => void;
+  bucketsDuringAbsence: (buckets: Bucket[]) => Bucket[];
+  tasksDuringAbsence: (tasks: Task[]) => Task[];
+  dependenciesDuringAbsence: (dependencies: Dependency[]) => Dependency[];
 }
 
 export const absenceKey = (projectId: ProjectID): string => {
   return `absence_${projectId}`;
 };
+
 function MockedDate(): Date {
   const mocked = new Date();
   mocked.setMinutes(mocked.getMinutes() - 10);
@@ -102,7 +136,7 @@ export const getAbsence = (projectId: ProjectID): Date | null => {
   if (isNaN(date.getTime())) {
     return null;
   }
-  // return MockedDate();
+  return MockedDate();
   return date;
 };
 
@@ -112,21 +146,16 @@ export const saveAbsence = (projectId: ProjectID) => {
   localStorage.setItem(key, now.toISOString());
 };
 
-export const bucketsDuringAbsence = (
+export const bucketsChangedSince = (
   buckets: Bucket[],
-  projectId: ProjectID,
+  from: Date,
+  to: Date,
 ) => {
-  const lastVisit = getAbsence(projectId);
-  if (!lastVisit) {
-    return [];
-  }
-  return bucketsChangedSince(buckets, lastVisit);
-};
-
-export const bucketsChangedSince = (buckets: Bucket[], date: Date) => {
   return buckets.filter(
     (bucket) =>
-      bucket.updatedAt > date &&
+      bucket.updatedAt > from &&
+      bucket.updatedAt < to &&
+      // ignore buckets that were never changed. By default they have after creation same createdAt and updatedAt
       bucket.updatedAt.getTime() !== bucket.createdAt.getTime(),
   );
 };
@@ -138,40 +167,22 @@ export function checkIfBucketIDExists(
   return buckets.some((bucket) => bucket.id === id);
 }
 
-export const tasksDuringAbsence = (tasks: Task[], projectId: ProjectID) => {
-  const lastVisit = getAbsence(projectId);
-  if (!lastVisit) {
-    return [];
-  }
-  return tasksChangedSince(tasks, lastVisit);
-};
-
-export const tasksChangedSince = (tasks: Task[], date: Date) => {
-  console.log(tasks);
-
-  return tasks.filter((task) => task.updatedAt > date);
+export const tasksChangedSince = (tasks: Task[], from: Date, to: Date) => {
+  return tasks.filter((task) => task.updatedAt > from && task.updatedAt < to);
 };
 
 export function checkIfTaskIDExists(tasks: Task[], id: TaskID): boolean {
   return tasks.some((task) => task.id === id);
 }
 
-export const dependenciesDuringAbsence = (
-  dependencies: Dependency[],
-  projectId: ProjectID,
-) => {
-  const lastVisit = getAbsence(projectId);
-  if (!lastVisit) {
-    return [];
-  }
-  return dependenciesChangedSince(dependencies, lastVisit);
-};
-
 export const dependenciesChangedSince = (
   dependencies: Dependency[],
-  date: Date,
+  from: Date,
+  to: Date,
 ) => {
-  return dependencies.filter((bucket) => bucket.createdAt > date);
+  return dependencies.filter(
+    (bucket) => bucket.createdAt > from && bucket.createdAt < to,
+  );
 };
 
 export function checkIfDependencyExists(

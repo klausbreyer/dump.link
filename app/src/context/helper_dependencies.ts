@@ -176,7 +176,3 @@ export const getBucketsAvailableFor = (
     )
     .map((bucket) => bucket.id); // Extract the bucket IDs
 };
-
-export const dependenciesChanged = (dependencies: Dependency[], date: Date) => {
-  return dependencies.filter((bucket) => bucket.createdAt > date);
-};
