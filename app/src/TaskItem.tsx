@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
-import { getInputBorderColor } from "./common/colors";
+import { getInputBorderColor } from "./common/bucketColors";
 import { isSafari } from "./common/helper";
 import config from "./config";
 import { useData } from "./context/data/data";

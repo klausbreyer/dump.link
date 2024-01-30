@@ -6,7 +6,7 @@ import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
-import { getBucketBackgroundColorTop } from "./common/colors";
+import { getBucketBackgroundColor } from "./common/bucketColors";
 import { useData } from "./context/data/data";
 import {
   checkBucketActivity,
@@ -128,7 +128,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
       !(!acknowledged && checkIfTaskIDExists(tasksChanged, t.id)),
   );
 
-  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
+  const bgTop = getBucketBackgroundColor(bucket, tasksForbucket);
 
   const getBorderClass = (): string => {
     const activity = checkBucketActivity(activities, bucket.id);

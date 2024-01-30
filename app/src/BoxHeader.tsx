@@ -1,23 +1,21 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 
+import { ActivityAvatar } from "./HeaderActivity";
 import FlagButton from "./common/FlagButton";
 import {
-  getBucketBackgroundColorTop,
-  getBucketFlaggedStyle,
+  getBucketBackgroundColor,
   getInputBorderColor,
-} from "./common/colors";
+} from "./common/bucketColors";
 import { isSafari } from "./common/helper";
 import { EmptyChekboxIcon } from "./common/icons";
 import config from "./config";
-import { useData } from "./context/data/data";
-import { getTasksByClosed, getTasksForBucket } from "./context/data/tasks";
-import { Bucket, TabContext } from "./types";
 import {
   checkBucketActivity,
   validateActivityOther,
 } from "./context/data/activities";
-import { getUsername } from "./context/data/requests";
-import { ActivityAvatar } from "./HeaderActivity";
+import { useData } from "./context/data/data";
+import { getTasksByClosed, getTasksForBucket } from "./context/data/tasks";
+import { Bucket, TabContext, Task } from "./types";
 
 export interface HeaderProps {
   bucket: Bucket;
@@ -68,9 +66,16 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
     updateBucket(bucket.id, { name: inputValue });
   }
 
-  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
+  const bgTop = getBucketBackgroundColor(bucket, tasksForbucket);
   const inputBorder = getInputBorderColor(bucket);
 
+  function getBucketFlaggedStyle(bucket: Bucket, tasks: Task[]): string {
+    const open = getTasksByClosed(tasks, false);
+    if (bucket.flagged && (open.length > 0 || tasks.length === 0)) {
+      return " bg-rose-500 ";
+    }
+    return "";
+  }
   const flaggedStyles = getBucketFlaggedStyle(bucket, tasksForbucket);
 
   const hasTasks = tasksForbucket.length > 0;
@@ -104,7 +109,7 @@ const BoxHeader: React.FC<HeaderProps> = (props) => {
               isTextAreaFocused ? "block" : "hidden"
             }`}
           >
-            {bucket?.name.length}/{config.BUCKET_MAX_LENGTH}
+            {bucket?.name?.length}/{config.BUCKET_MAX_LENGTH}
           </div>
         </div>
         {!showDone && context === TabContext.Group && (

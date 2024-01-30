@@ -12,9 +12,9 @@ import MicroProgress from "./MicroProgress";
 import TaskGroup from "./TaskGroup";
 import Modal from "./common/Modal";
 import {
-  getBucketBackgroundColorTop,
+  getBucketBackgroundColor,
   getHeaderTextColor,
-} from "./common/colors";
+} from "./common/bucketColors";
 import { useData } from "./context/data/data";
 import { checkBucketActivity } from "./context/data/activities";
 import { uniqueValues } from "./context/data/arrays";
@@ -210,7 +210,7 @@ const Box: React.FC<BoxProps> = (props) => {
   /**
    * Styles & View Logic
    */
-  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
+  const bgTop = getBucketBackgroundColor(bucket, tasksForbucket);
 
   const showUnavailable =
     globalDragging.type === DraggingType.SEQUENCE &&
