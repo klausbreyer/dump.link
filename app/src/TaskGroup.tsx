@@ -45,8 +45,12 @@ interface TaskGroupProps {
 const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const { bucket } = props;
 
-  const { acknowledged, tasksDuringAbsence, bucketsDuringAbsence } =
-    useAbsence();
+  const {
+    acknowledged,
+    tasksDuringAbsence,
+    bucketsDuringAbsence,
+    dependenciesDuringAbsence,
+  } = useAbsence();
   const {
     updateTask,
     moveTask,
@@ -138,9 +142,11 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
     const showDashed = canDrop && !isOver && !bucket.done;
     const showSolid = isOver && !bucket.done;
     const bucketsChanged = bucketsDuringAbsence(buckets);
+    const dependenciesChanged = dependenciesDuringAbsence(dependencies);
+
     const isAbsence =
       checkIfBucketIDExists(bucketsChanged, bucket.id) ||
-      checkIfDependencyExists(dependencies, bucket.id);
+      checkIfDependencyExists(dependenciesChanged, bucket.id);
 
     if (activitySelf) {
       return "border-2 border-indigo-500";

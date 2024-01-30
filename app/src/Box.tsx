@@ -56,7 +56,8 @@ interface BoxProps {
 
 const Box: React.FC<BoxProps> = (props) => {
   const { bucket, context } = props;
-  const { acknowledged, bucketsDuringAbsence } = useAbsence();
+  const { acknowledged, bucketsDuringAbsence, dependenciesDuringAbsence } =
+    useAbsence();
   const {
     removeBucketDependency,
     tasks,
@@ -227,9 +228,10 @@ const Box: React.FC<BoxProps> = (props) => {
       bucketActive && bucketActive.createdBy !== getUsername();
 
     const bucketsChanged = bucketsDuringAbsence(others);
+    const dependenciesChanged = dependenciesDuringAbsence(dependencies);
     const isAbsence =
       checkIfBucketIDExists(bucketsChanged, bucket.id) ||
-      checkIfDependencyExists(dependencies, bucket.id);
+      checkIfDependencyExists(dependenciesChanged, bucket.id);
 
     if (selfActive) {
       return "border-2 border-indigo-500";
