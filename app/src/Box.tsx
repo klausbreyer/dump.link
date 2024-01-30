@@ -19,15 +19,12 @@ import { useData } from "./context/data";
 import { checkBucketActivity } from "./context/helper_activities";
 import { uniqueValues } from "./context/helper_arrays";
 import {
-  bucketsDuringAbsence,
-  checkIfBucketIDExists,
   getArrangeBucketType,
   getBucket,
   getOtherBuckets,
   getSequenceBucketType,
 } from "./context/helper_buckets";
 import {
-  checkIfDependencyExists,
   getBucketsAvailableFor,
   getBucketsDependingOn,
   getUniqueDependingIdsForbucket,
@@ -43,7 +40,12 @@ import {
   DropCollectedProps,
   TabContext,
 } from "./types";
-import { useAbsence } from "./context/absence";
+import {
+  bucketsDuringAbsence,
+  checkIfBucketIDExists,
+  checkIfDependencyExists,
+  useAbsence,
+} from "./context/absence";
 
 interface BoxProps {
   bucket: Bucket;

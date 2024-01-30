@@ -15,13 +15,11 @@ import { useData } from "./context/data";
 import { useGlobalInteraction } from "./context/interaction";
 import {
   calculateHighestPriority,
-  checkIfTaskIDExists,
   getTask,
   getTaskIndex,
   getTaskType,
   getTasksForBucket,
   sortTasksByPriority,
-  tasksDuringAbsence,
 } from "./context/helper_tasks";
 import usePasteListener from "./hooks/usePasteListener";
 import { Bucket, DraggedTask, DraggingType, Task } from "./types";
@@ -32,7 +30,11 @@ import {
   validateActivityOther,
 } from "./context/helper_activities";
 import { ActivityAvatar } from "./HeaderActivity";
-import { useAbsence } from "./context/absence";
+import {
+  checkIfTaskIDExists,
+  tasksDuringAbsence,
+  useAbsence,
+} from "./context/absence";
 
 interface TaskItemProps {
   task: Task | null;

@@ -112,29 +112,3 @@ export const getNamedBuckets = (buckets: Bucket[]) => {
 export const getBucket = (buckets: Bucket[], bucketId: BucketID) => {
   return buckets.find((bucket) => bucket.id === bucketId);
 };
-
-export const bucketsDuringAbsence = (
-  buckets: Bucket[],
-  projectId: ProjectID,
-) => {
-  const lastVisit = getAbsence(projectId);
-  if (!lastVisit) {
-    return [];
-  }
-  return bucketsChangedSince(buckets, lastVisit);
-};
-
-export const bucketsChangedSince = (buckets: Bucket[], date: Date) => {
-  return buckets.filter(
-    (bucket) =>
-      bucket.updatedAt > date &&
-      bucket.updatedAt.getTime() !== bucket.createdAt.getTime(),
-  );
-};
-
-export function checkIfBucketIDExists(
-  buckets: Bucket[],
-  id: BucketID,
-): boolean {
-  return buckets.some((bucket) => bucket.id === id);
-}

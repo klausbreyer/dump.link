@@ -92,20 +92,3 @@ export function sortTasksNotClosedFirst(tasks: Task[]): Task[] {
     return 0;
   });
 }
-export const tasksDuringAbsence = (tasks: Task[], projectId: ProjectID) => {
-  const lastVisit = getAbsence(projectId);
-  if (!lastVisit) {
-    return [];
-  }
-  return tasksChangedSince(tasks, lastVisit);
-};
-
-export const tasksChangedSince = (tasks: Task[], date: Date) => {
-  console.log(tasks);
-
-  return tasks.filter((task) => task.updatedAt > date);
-};
-
-export function checkIfTaskIDExists(tasks: Task[], id: TaskID): boolean {
-  return tasks.some((task) => task.id === id);
-}

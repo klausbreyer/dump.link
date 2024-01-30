@@ -180,28 +180,3 @@ export const getBucketsAvailableFor = (
 export const dependenciesChanged = (dependencies: Dependency[], date: Date) => {
   return dependencies.filter((bucket) => bucket.createdAt > date);
 };
-
-export const dependenciesDuringAbsence = (
-  dependencies: Dependency[],
-  projectId: ProjectID,
-) => {
-  const lastVisit = getAbsence(projectId);
-  if (!lastVisit) {
-    return [];
-  }
-  return dependenciesChangedSince(dependencies, lastVisit);
-};
-
-export const dependenciesChangedSince = (
-  dependencies: Dependency[],
-  date: Date,
-) => {
-  return dependencies.filter((bucket) => bucket.createdAt > date);
-};
-
-export function checkIfDependencyExists(
-  dependencies: Dependency[],
-  id: BucketID,
-): boolean {
-  return dependencies.some((dependency) => dependency.bucketId === id);
-}
