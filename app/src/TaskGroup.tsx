@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useDrop } from "react-dnd";
 
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import BoxHeader from "./BoxHeader";
@@ -7,36 +6,25 @@ import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import { getBucketBackgroundColor } from "./common/bucketColors";
-import { useData } from "./context/data/data";
-import {
-  checkBucketActivity,
-  validateActivityOther,
-  validateActivitySelf,
-} from "./context/data/activities";
-import {
-  getBucketForTask,
-  getClosedBucketType,
-  getOpenBucketType,
-} from "./context/data/buckets";
-import {
-  getTask,
-  getTasksByClosed,
-  getTasksForBucket,
-  sortTasksByUpdatedAt,
-} from "./context/data/tasks";
-import {
-  DraggedTask,
-  DropCollectedProps,
-  TabContext,
-  Bucket as TaskGroup,
-  TaskID,
-} from "./types";
 import {
   checkIfBucketIDExists,
   checkIfDependencyExists,
   checkIfTaskIDExists,
   useAbsence,
 } from "./context/absence";
+import {
+  checkBucketActivity,
+  validateActivityOther,
+  validateActivitySelf,
+} from "./context/data/activities";
+import { useData } from "./context/data/data";
+import {
+  getTasksByClosed,
+  getTasksForBucket,
+  sortTasksByUpdatedAt,
+} from "./context/data/tasks";
+import { useTaskGroupDragDrop } from "./hooks/useTaskGroupDragDrop";
+import { TabContext, Bucket as TaskGroup, TaskID } from "./types";
 
 interface TaskGroupProps {
   bucket: TaskGroup;
@@ -51,26 +39,16 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
     bucketsDuringAbsence,
     dependenciesDuringAbsence,
   } = useAbsence();
-  const {
-    updateTask,
-    moveTask,
-    buckets,
-    dependencies,
-    activities,
-    tasks,
-    project,
-  } = useData();
-
+  const { buckets, dependencies, activities, tasks, project } = useData();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const allOtherBuckets = buckets.filter((b: TaskGroup) => b.id !== bucket.id);
+  const open = getTasksByClosed(tasksForbucket, false);
+  const closed = sortTasksByUpdatedAt(getTasksByClosed(tasksForbucket, true));
+
+  const { isOver, canDrop, dropRef } = useTaskGroupDragDrop(bucket);
 
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
-
   const [recentlyDone, setRecentlyDone] = useState<TaskID[]>([]);
-
-  const open = getTasksByClosed(tasksForbucket, false);
-  const closed = sortTasksByUpdatedAt(getTasksByClosed(tasksForbucket, true));
 
   const handleTaskClosed = (taskId: string) => {
     // Add the closed task to the recentlyDone list if it's not already there
@@ -84,41 +62,6 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
       setClosedExpanded(false);
     }
   }, [bucket.done]);
-
-  const [collectedProps, dropRef] = useDrop(
-    {
-      // accepts tasks from all others and from this self bucket, if it is from done.
-      accept: bucket.done
-        ? []
-        : allOtherBuckets.map((b: TaskGroup) => getOpenBucketType(b.id)),
-      drop: (item: DraggedTask) => {
-        const taskId = item.taskId;
-        const task = getTask(tasks, taskId);
-
-        if (!task) return;
-        const fromBucketId = getBucketForTask(buckets, task)?.id || "";
-        if (fromBucketId === bucket.id) return;
-
-        moveTask(bucket.id, task.id);
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-      }),
-    },
-    [
-      getOpenBucketType,
-      getClosedBucketType,
-      buckets,
-      updateTask,
-      moveTask,
-      updateTask,
-      bucket,
-      allOtherBuckets,
-    ],
-  );
-
-  const { isOver, canDrop } = collectedProps as DropCollectedProps;
 
   const tasksChanged = tasksDuringAbsence(tasks);
   const aboveFoldClosed = closed.filter(

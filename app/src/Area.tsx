@@ -7,6 +7,7 @@ import { useData } from "./context/data/data";
 import { getBucketForTask, getOpenBucketType } from "./context/data/buckets";
 import { getTask, getTasksForBucket } from "./context/data/tasks";
 import { Bucket, DraggedTask, DropCollectedProps } from "./types";
+import { useTaskGroupDragDrop } from "./hooks/useTaskGroupDragDrop";
 
 export interface AreaProps {
   bucket: Bucket;
@@ -14,40 +15,12 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const { bucket } = props;
-  const { moveTask, project, tasks, buckets } = useData();
+  const { moveTask, project, tasks } = useData();
 
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const allOtherBuckets = buckets.filter((b) => b.id !== bucket.id);
 
-  const [collectedProps, dropRef] = useDrop(
-    {
-      accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
+  const { isOver, canDrop, dropRef } = useTaskGroupDragDrop(bucket);
 
-      drop: (item: DraggedTask) => {
-        const task = getTask(tasks, item.taskId);
-        if (!task) return;
-        const fromBucketId = getBucketForTask(buckets, task)?.id || "";
-        if (fromBucketId !== bucket.id) {
-          moveTask(bucket.id, task.id);
-        }
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-      }),
-    },
-    [
-      bucket,
-      buckets,
-      tasksForbucket,
-      allOtherBuckets,
-      getOpenBucketType,
-      getBucketForTask,
-      moveTask,
-    ],
-  );
-
-  const { isOver, canDrop } = collectedProps as DropCollectedProps;
   return (
     <div
       ref={dropRef}
