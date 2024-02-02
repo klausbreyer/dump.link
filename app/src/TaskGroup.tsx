@@ -23,7 +23,7 @@ import {
   getTasksForBucket,
   sortTasksByUpdatedAt,
 } from "./context/data/tasks";
-import { useTaskGroupDragDrop } from "./hooks/useTaskGroupDragDrop";
+import { useTaskGroupDrop } from "./hooks/useTaskGroupDrop";
 import { TabContext, Bucket as TaskGroup, TaskID } from "./types";
 
 interface TaskGroupProps {
@@ -44,7 +44,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const open = getTasksByClosed(tasksForbucket, false);
   const closed = sortTasksByUpdatedAt(getTasksByClosed(tasksForbucket, true));
 
-  const { isOver, canDrop, dropRef } = useTaskGroupDragDrop(bucket);
+  const { isOver, canDrop, dropRef } = useTaskGroupDrop(bucket);
 
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);

@@ -3,7 +3,7 @@ import { Bucket, DraggedTask } from "../types";
 import { useData } from "../context/data/data";
 import { getOpenBucketType } from "../context/data/buckets";
 
-export function useTaskGroupDragDrop(bucket: Bucket) {
+export function useTaskGroupDrop(bucket: Bucket) {
   const { buckets, moveTask, tasks } = useData();
   const isBucketDone = bucket.done;
   const bucketId = bucket.id;

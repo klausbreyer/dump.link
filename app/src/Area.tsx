@@ -1,13 +1,11 @@
 import React from "react";
-import { useDrop } from "react-dnd";
 
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
 import { useData } from "./context/data/data";
-import { getBucketForTask, getOpenBucketType } from "./context/data/buckets";
-import { getTask, getTasksForBucket } from "./context/data/tasks";
-import { Bucket, DraggedTask, DropCollectedProps } from "./types";
-import { useTaskGroupDragDrop } from "./hooks/useTaskGroupDragDrop";
+import { getTasksForBucket } from "./context/data/tasks";
+import { useTaskGroupDrop } from "./hooks/useTaskGroupDrop";
+import { Bucket } from "./types";
 
 export interface AreaProps {
   bucket: Bucket;
@@ -15,11 +13,11 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const { bucket } = props;
-  const { moveTask, project, tasks } = useData();
+  const { project, tasks } = useData();
 
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
 
-  const { isOver, canDrop, dropRef } = useTaskGroupDragDrop(bucket);
+  const { isOver, canDrop, dropRef } = useTaskGroupDrop(bucket);
 
   return (
     <div

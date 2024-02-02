@@ -1,28 +1,21 @@
+import { useEffect } from "react";
+import { useDrag, useDragLayer, useDrop } from "react-dnd";
+import { uniqueValues } from "../context/data/arrays";
 import {
-  useDrag,
-  useDrop,
-  DragSourceMonitor,
-  DropTargetMonitor,
-  useDragLayer,
-} from "react-dnd";
+  getArrangeBucketType,
+  getBucket,
+  getOtherBuckets,
+  getSequenceBucketType,
+} from "../context/data/buckets";
+import { useData } from "../context/data/data";
+import { getWholeSubgraph } from "../context/data/layers";
+import { useGlobalInteraction } from "../context/interaction";
 import {
   Bucket,
   DraggedBucket,
-  DropCollectedProps,
   DraggingType,
+  DropCollectedProps,
 } from "../types";
-import {
-  getSequenceBucketType,
-  getArrangeBucketType,
-  getOtherBuckets,
-  getBucket,
-} from "../context/data/buckets";
-import { useAbsence } from "../context/absence";
-import { useData } from "../context/data/data";
-import { useGlobalInteraction } from "../context/interaction";
-import { useEffect } from "react";
-import { uniqueValues } from "../context/data/arrays";
-import { getWholeSubgraph } from "../context/data/layers";
 
 export const useBoxDragDrop = (
   bucket: Bucket,

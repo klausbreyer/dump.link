@@ -79,10 +79,6 @@ const Box: React.FC<BoxProps> = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   /**
-   * Dropping
-   */
-
-  /**
    * Handler
    */
   const handleMouseOver = () => {
