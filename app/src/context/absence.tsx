@@ -136,6 +136,7 @@ export const getAbsence = (projectId: ProjectID): Date | null => {
   if (isNaN(date.getTime())) {
     return null;
   }
+  return MockedDate();
   return date;
 };
 

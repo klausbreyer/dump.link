@@ -75,7 +75,11 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
       !(!acknowledged && checkIfTaskIDExists(tasksChanged, t.id)),
   );
 
-  const bgTop = getBucketBackgroundColor(bucket, tasksForbucket);
+  const bucketsChanged = bucketsDuringAbsence(buckets);
+  const dependenciesChanged = dependenciesDuringAbsence(dependencies);
+  const isAbsence =
+    checkIfBucketIDExists(bucketsChanged, bucket.id) ||
+    checkIfDependencyExists(dependenciesChanged, bucket.id);
 
   const getBorderClass = (): string => {
     const activity = checkBucketActivity(activities, bucket.id);
@@ -84,12 +88,6 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
     const showNone = !canDrop && !activitySelf && !activityOther;
     const showDashed = canDrop && !isOver && !bucket.done;
     const showSolid = isOver && !bucket.done;
-    const bucketsChanged = bucketsDuringAbsence(buckets);
-    const dependenciesChanged = dependenciesDuringAbsence(dependencies);
-
-    const isAbsence =
-      checkIfBucketIDExists(bucketsChanged, bucket.id) ||
-      checkIfDependencyExists(dependenciesChanged, bucket.id);
 
     if (activitySelf) {
       return "border-2 border-indigo-500";
@@ -108,6 +106,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
     return "";
   };
 
+  const bgTop = getBucketBackgroundColor(bucket, tasksForbucket);
   return (
     <div
       ref={(node) => !project.archived && dropRef(node)}
@@ -139,7 +138,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
             )}
             {closed.length > 0 && (
               <>
-                {open.length > 0 && (
+                {(open.length > 0 || isAbsence) && (
                   <hr className="border-b border-dashed border-slate-400" />
                 )}
                 {aboveFoldClosed.map((task) => (
