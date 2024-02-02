@@ -34,7 +34,7 @@ export const AbsenceProvider: React.FC<AbsenceProviderProps> = ({
 }) => {
   const { buckets, tasks, dependencies, project } = useData();
   const [lastVisit, setLastVisit] = useState<Date>(new Date());
-  const [currentVisit, setCurrentVisit] = useState<Date>(new Date());
+  const [currentVisit, _] = useState<Date>(new Date());
   const [acknowledged, setAcknowledged] = useState<boolean>(true);
 
   useEffect(() => {
@@ -66,26 +66,14 @@ export const AbsenceProvider: React.FC<AbsenceProviderProps> = ({
   }, [numChanges]);
 
   const bucketsDuringAbsence = (buckets: Bucket[]) => {
-    const lastVisit = getAbsence(project.id);
-    if (!lastVisit) {
-      return [];
-    }
     return bucketsChangedSince(buckets, lastVisit, currentVisit);
   };
 
   const tasksDuringAbsence = (tasks: Task[]) => {
-    const lastVisit = getAbsence(project.id);
-    if (!lastVisit) {
-      return [];
-    }
     return tasksChangedSince(tasks, lastVisit, currentVisit);
   };
 
   const dependenciesDuringAbsence = (dependencies: Dependency[]) => {
-    const lastVisit = getAbsence(project.id);
-    if (!lastVisit) {
-      return [];
-    }
     return dependenciesChangedSince(dependencies, lastVisit, currentVisit);
   };
   return (
