@@ -107,6 +107,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   };
 
   const bgTop = getBucketBackgroundColor(bucket, tasksForbucket);
+
   return (
     <div
       ref={(node) => !project.archived && dropRef(node)}

@@ -39,10 +39,6 @@ export const getOtherBuckets = (buckets: Bucket[]): Bucket[] => {
   return buckets.filter((bucket) => bucket.dump !== true);
 };
 
-export const countTasks = (tasks: Task[]): number => {
-  return tasks.length;
-};
-
 export const getClosedBucketType = (bucketId: BucketID) => {
   return `CLOSED_BUCKET_${bucketId}`;
 };
