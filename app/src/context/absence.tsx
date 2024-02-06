@@ -37,17 +37,7 @@ export const AbsenceProvider: React.FC<AbsenceProviderProps> = ({
   const [currentVisit, _] = useState<Date>(new Date());
   const [acknowledged, setAcknowledged] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (project.id.length !== 11) return;
-    const intervalId = setInterval(
-      () => saveAbsence(project.id),
-      config.ACTIVITY_INTERVAL,
-    );
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [project.id]);
+  useSaveActivity(project);
 
   useEffect(() => {
     const retrievedLastVisit = getAbsence(project.id);
@@ -102,6 +92,27 @@ interface AbsenceContextType {
   tasksDuringAbsence: (tasks: Task[]) => Task[];
   dependenciesDuringAbsence: (dependencies: Dependency[]) => Dependency[];
 }
+
+const useSaveActivity = (project: { id: ProjectID }) => {
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (project.id.length === 11) {
+        saveAbsence(project.id);
+      }
+    }, config.ACTIVITY_INTERVAL);
+
+    const handleUnload = () => {
+      saveAbsence(project.id);
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener("beforeunload", handleUnload);
+    };
+  }, [project.id]);
+};
 
 export const absenceKey = (projectId: ProjectID): string => {
   return `absence_${projectId}`;
