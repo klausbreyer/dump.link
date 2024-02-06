@@ -1,13 +1,9 @@
 import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 import React from "react";
-import { Bucket, Task } from "../types";
-import {
-  getFlagButtonBackground,
-  getFlaggedHeaderTextColor,
-  getHeaderTextColor,
-  getInputBorderColor,
-} from "./colors";
+import { getBucketState } from "../context/data/buckets";
+import { Bucket, BucketState, Task } from "../types";
+import { getHeaderTextColor, getInputBorderColor } from "./bucketColors";
 
 export interface FlagButtonProps {
   bucket: Bucket;
@@ -22,11 +18,23 @@ const FlagButton = React.forwardRef<
   const { bucket, tasks, onClick, children, disabled, className, ...rest } =
     props;
 
-  const border = getInputBorderColor(bucket);
+  function getFlagButtonBackground(bucket: Bucket, tasks: Task[]): string {
+    const slate = "bg-slate-200 hover:bg-slate-300 focus:bg-slate-300";
+    const statusToColor = {
+      [BucketState.UNSOLVED]: slate,
+      [BucketState.SOLVED]: slate,
+      [BucketState.DONE]: "bg-green-300 hover:bg-green-400 focus:bg-green-400",
+      [BucketState.EMPTY]: slate,
+      [BucketState.INACTIVE]: slate,
+    };
+
+    return statusToColor[getBucketState(bucket, tasks)];
+  }
+
   const hover = getFlagButtonBackground(bucket, tasks);
   const text = getHeaderTextColor(bucket);
-
-  const flagColor = getFlaggedHeaderTextColor();
+  const border = getInputBorderColor(bucket);
+  const flagColor = "text-rose-500";
 
   const colors = bucket.flagged
     ? `${flagColor} ${border} ${hover} `

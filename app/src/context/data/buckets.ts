@@ -1,5 +1,5 @@
-import { Bucket, BucketID, BucketState, Task } from "../types";
-import { getTasksForBucket } from "./helper_tasks";
+import { Bucket, BucketID, BucketState, Task } from "../../types";
+import { getTasksForBucket } from "./tasks";
 
 // Figuring out means: not all tasks of the bucket are closed
 export function filterBucketsFiguringOut(
@@ -37,10 +37,6 @@ export const getDumpBucket = (buckets: Bucket[]): Bucket | undefined => {
 // Function to get all the other buckets (excluding the one with dump: true)
 export const getOtherBuckets = (buckets: Bucket[]): Bucket[] => {
   return buckets.filter((bucket) => bucket.dump !== true);
-};
-
-export const countTasks = (tasks: Task[]): number => {
-  return tasks.length;
 };
 
 export const getClosedBucketType = (bucketId: BucketID) => {

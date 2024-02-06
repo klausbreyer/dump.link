@@ -1,11 +1,11 @@
-import { Bucket, BucketID, Dependency } from "../types";
-import { getBucket, getNamedBuckets, getOtherBuckets } from "./helper";
-import { difference, uniqueValues } from "./helper_arrays";
+import { Bucket, BucketID, Dependency } from "../../types";
+import { getBucket, getNamedBuckets, getOtherBuckets } from "./buckets";
+import { difference, uniqueValues } from "./arrays";
 import {
   getAllDependencyChains,
   getBucketDependencies,
   getBucketsDependingOn,
-} from "./helper_dependencies";
+} from "./dependencies";
 
 /**
  * Given a list of chains, this function returns each unique pair from all the chains.

@@ -4,8 +4,8 @@ import Area from "./Area";
 import TaskGroup from "./TaskGroup";
 import Container from "./common/Container";
 import FlexCol from "./common/FlexCol";
-import { useData } from "./context/data";
-import { getDumpBucket, getOtherBuckets } from "./context/helper";
+import { useData } from "./context/data/data";
+import { getDumpBucket, getOtherBuckets } from "./context/data/buckets";
 
 interface GroupProps {}
 

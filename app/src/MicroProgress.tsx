@@ -1,12 +1,12 @@
 import React from "react";
 import { Bucket } from "./types";
-import { getBucketPercentage } from "./context/helper";
-import { useData } from "./context/data";
+import { getBucketPercentage } from "./context/data/buckets";
+import { useData } from "./context/data/data";
 import {
   getTasksByClosed,
   getTasksForBucket,
   sortTasksByUpdatedAt,
-} from "./context/helper_tasks";
+} from "./context/data/tasks";
 
 export interface MicroProgressProps {
   bucket: Bucket;

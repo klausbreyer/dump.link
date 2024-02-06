@@ -10,8 +10,8 @@ import {
   getBorderCenterCoordinates,
   shortenLineEnd,
 } from "./common/coordinates";
-import { useData } from "./context/data";
-import { getOtherBuckets } from "./context/helper";
+import { useData } from "./context/data/data";
+import { getOtherBuckets } from "./context/data/buckets";
 import { BucketID, TabContext } from "./types";
 
 interface SequenceProps {}

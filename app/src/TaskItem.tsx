@@ -6,30 +6,28 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useDrag, useDrop } from "react-dnd";
 
-import { getInputBorderColor } from "./common/colors";
+import { XCircleIcon } from "@heroicons/react/24/solid";
+import { ActivityAvatar } from "./HeaderActivity";
+import { getInputBorderColor } from "./common/bucketColors";
 import { isSafari } from "./common/helper";
 import config from "./config";
-import { useData } from "./context/data";
-import { useGlobalInteraction } from "./context/interaction";
-import {
-  calculateHighestPriority,
-  getTask,
-  getTaskIndex,
-  getTaskType,
-  getTasksForBucket,
-  sortTasksByPriority,
-} from "./context/helper_tasks";
-import usePasteListener from "./hooks/usePasteListener";
-import { Bucket, DraggedTask, DraggingType, Task } from "./types";
-import { XCircleIcon } from "@heroicons/react/24/solid";
-import { NewID, getUsername } from "./context/helper_requests";
+import { checkIfTaskIDExists, useAbsence } from "./context/absence";
 import {
   checkTaskActivity,
   validateActivityOther,
-} from "./context/helper_activities";
-import { ActivityAvatar } from "./HeaderActivity";
+} from "./context/data/activities";
+import { useData } from "./context/data/data";
+import { NewID, getUsername } from "./context/data/requests";
+import {
+  calculateHighestPriority,
+  getTasksForBucket,
+  sortTasksByPriority,
+} from "./context/data/tasks";
+import { useGlobalInteraction } from "./context/interaction";
+import usePasteListener from "./hooks/usePasteListener";
+import { Bucket, Task } from "./types";
+import { useTaskDragDrop } from "./hooks/useTaskDragDrop";
 
 interface TaskItemProps {
   task: Task | null;
@@ -39,6 +37,9 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const { task, bucket, onTaskClosed } = props;
+
+  const { acknowledged, tasksDuringAbsence } = useAbsence();
+
   const {
     addTask,
     updateTask,
@@ -46,21 +47,23 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     project,
     tasks,
     activities,
-    buckets,
     updateActivities,
   } = useData();
-
-  const { updateGlobalDragging, temporaryPriority, setTemporaryPriority } =
-    useGlobalInteraction();
-
-  const [val, setVal] = useState<string>(task?.title || "");
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
   const sortedTasksForBucket = sortTasksByPriority(tasksForbucket);
+
+  const [val, setVal] = useState<string>(task?.title || "");
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [isfocused, setIsEditRefFocused] = useState<boolean>(false);
   const editRef = useRef<HTMLTextAreaElement>(null);
   const showRef = useRef<HTMLTextAreaElement>(null);
   const [isClicked, setIsClicked] = useState<boolean>(false);
+  const { temporaryPriority } = useGlobalInteraction();
+  const { dragRef, dropRef, isDragging, previewRef } = useTaskDragDrop(
+    task,
+    bucket,
+    sortedTasksForBucket,
+  );
 
   usePasteListener(
     editRef,
@@ -77,6 +80,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
         closed: false,
         bucketId: bucket.id,
         updatedBy: getUsername(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     },
   );
@@ -93,77 +98,6 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
       editRef.current.focus();
     }
   }, [task]);
-
-  const [{ isDragging }, dragRef, previewRev] = useDrag(
-    () => ({
-      type: getTaskType(buckets, task),
-      item: { taskId: task?.id },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-      end: (item, monitor) => {
-        if (!task) return;
-
-        //it could also be that a task was not changed in priority, but moved to a different bucket. then we do not want to call updateTask!
-        if (!temporaryPriority) return;
-
-        updateTask(temporaryPriority.taskId, {
-          priority: temporaryPriority.priority,
-        });
-        setTemporaryPriority(undefined);
-      },
-    }),
-    [
-      task,
-      buckets,
-      sortedTasksForBucket,
-      getTaskType,
-      updateTask,
-      setTemporaryPriority,
-    ],
-  );
-
-  useEffect(() => {
-    updateGlobalDragging(
-      isDragging ? DraggingType.TASK : DraggingType.NONE,
-      isDragging ? bucket.id : "",
-    );
-  }, [bucket.id, isDragging, updateGlobalDragging]);
-
-  const [, dropRef] = useDrop(
-    () => ({
-      accept: getTaskType(buckets, task),
-      hover: (item: DraggedTask) => {
-        const draggedId = item.taskId;
-        if (draggedId === task?.id) return;
-        if (!task) return;
-
-        const draggedTask = getTask(sortedTasksForBucket, draggedId);
-        if (!draggedTask) return;
-
-        const overIndex = getTaskIndex(sortedTasksForBucket, task.id);
-        if (overIndex === -1) return;
-
-        const newPriority = calculateNewPriority(
-          draggedTask,
-          task,
-          sortedTasksForBucket,
-          overIndex,
-        );
-
-        setTemporaryPriority({ priority: newPriority, taskId: draggedId });
-      },
-    }),
-    [
-      task,
-      buckets,
-      sortedTasksForBucket,
-      calculateNewPriority,
-      getTaskIndex,
-      getTask,
-      setTemporaryPriority,
-    ],
-  );
 
   useEffect(() => {
     if (editRef.current) {
@@ -234,6 +168,8 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           closed: false,
           bucketId: bucket.id,
           updatedBy: getUsername(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         });
         setVal("");
         setTimeout(() => {
@@ -261,24 +197,39 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
   const activeTask = task && !task.closed;
   const allowedToDrag = activeTask === true && !project.archived;
 
-  const bucketTask = task && !bucket.dump;
-  const borderColor = bucketTask
-    ? task?.closed
-      ? "border-yellow-300"
-      : "border-orange-300"
-    : getInputBorderColor(bucket);
   const textAreaClasses =
     "overflow-hidden px-1 resize-none rounded-sm shadow-md w-full";
+  const activity = task && checkTaskActivity(activities, task.id);
+  const activityOther = validateActivityOther(activity);
+  const bucketTask = task && !bucket.dump;
 
   const localPriority =
     temporaryPriority && temporaryPriority.taskId === task?.id
       ? temporaryPriority.priority
       : task?.priority;
-
-  const activity = task && checkTaskActivity(activities, task.id);
-  const activityOther = validateActivityOther(activity);
-
   const style = task && !task.closed ? { order: localPriority } : {};
+
+  const getBorderColor = (): string => {
+    if (bucketTask) {
+      return task?.closed ? "border-yellow-300" : "border-orange-300";
+    } else {
+      return getInputBorderColor(bucket);
+    }
+  };
+
+  function getOutlineColor(): string {
+    const tasksChanged = tasksDuringAbsence(tasks);
+    const isAbsence = task && checkIfTaskIDExists(tasksChanged, task.id);
+    const hover =
+      !project.archived && "group-hover:outline group-hover:outline-slate-500";
+    if (activityOther) {
+      return `outline-2 ${hover} outline-purple-500 outline-dashed`;
+    } else if (isAbsence && !acknowledged) {
+      return `outline-2 ${hover} outline-cyan-400 outline-dashed`;
+    }
+    return `outline-2 ${hover} outline-slate-500`;
+  }
+
   return (
     <div ref={(node) => !project.archived && dropRef(node)} style={style}>
       <div
@@ -317,21 +268,17 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               ></div>
 
               {/* needs to be separate. or it is not possible to click inside the textarea to position cursor */}
-              <div ref={previewRev}>
+              <div ref={previewRef}>
                 <textarea
                   ref={showRef}
                   data-enable-grammarly="false"
                   spellCheck="false"
                   readOnly
                   className={`border-b-2 absolute z-10 bg-slate-100
-                  ${
-                    !project.archived &&
-                    "group-hover:outline group-hover:bg-slate-50"
-                  } outline-2 select-none
-                  ${!activityOther && "outline-slate-500"}
-                  ${activityOther && " outline-purple-500 outline-dashed"}
+                  ${!project.archived && "group-hover:bg-slate-50"} select-none
                     ${textAreaClasses}
-                    ${borderColor}
+                    ${getOutlineColor()}
+                    ${getBorderColor()}
                     ${isClicked && "hidden"}
                   `}
                   value={val}
@@ -365,7 +312,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
                 val.length >= config.TASK_MAX_LENGTH
                   ? "focus:outline outline-2 outline-rose-500"
                   : "focus:outline outline-2 outline-indigo-500"
-              } ${borderColor}`}
+              } ${getBorderColor()}`}
               data-enable-grammarly="false"
               placeholder="Add a task"
               value={val}
@@ -396,36 +343,3 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
 };
 
 export default TaskItem;
-
-function calculateNewPriority(
-  draggedTask: Task,
-  overTask: Task,
-  sortedTasksForBucket: Task[],
-  overIndex: number,
-): number {
-  const beforeIndex = overIndex - 1;
-  const afterIndex = overIndex + 1;
-
-  let newPriority = overTask.priority; // Standardwert als aktuelle Priorität des übergeordneten Tasks
-
-  if (overIndex === 0) {
-    newPriority = overTask.priority - config.PRIORITY_INCREMENT;
-  } else if (overIndex === sortedTasksForBucket.length - 1) {
-    newPriority = overTask.priority + config.PRIORITY_INCREMENT;
-  } else {
-    if (draggedTask.priority < overTask.priority && beforeIndex >= 0) {
-      newPriority = Math.round(
-        (overTask.priority + sortedTasksForBucket[afterIndex].priority) / 2,
-      );
-    } else if (
-      draggedTask.priority > overTask.priority &&
-      afterIndex < sortedTasksForBucket.length
-    ) {
-      newPriority = Math.round(
-        (overTask.priority + sortedTasksForBucket[beforeIndex].priority) / 2,
-      );
-    }
-  }
-
-  return newPriority;
-}

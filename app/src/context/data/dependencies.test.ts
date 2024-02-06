@@ -1,5 +1,5 @@
-import { Dependency } from "../types";
-import { hasCyclicDependencyWithBucket } from "./helper_dependencies";
+import { Dependency } from "../../types";
+import { hasCyclicDependencyWithBucket } from "./dependencies";
 
 // Sample data for testing
 const dependencies: Dependency[] = [
@@ -7,61 +7,73 @@ const dependencies: Dependency[] = [
     bucketId: "a",
     dependencyId: "b",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "b",
     dependencyId: "c",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "b",
     dependencyId: "d",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "d",
     dependencyId: "e",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "d",
     dependencyId: "f",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "f",
     dependencyId: "g",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "g",
     dependencyId: "h",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "b",
     dependencyId: "f",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "b",
     dependencyId: "e",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "c",
     dependencyId: "d",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "c",
     dependencyId: "i",
     createdBy: "user",
+    createdAt: new Date(),
   },
   {
     bucketId: "b",
     dependencyId: "c",
     createdBy: "user",
+    createdAt: new Date(),
   },
 ];
 

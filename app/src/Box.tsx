@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import { useDrag, useDragLayer, useDrop } from "react-dnd";
+import React from "react";
 
 import {
   ArrowsPointingOutIcon,
@@ -12,34 +11,26 @@ import MicroProgress from "./MicroProgress";
 import TaskGroup from "./TaskGroup";
 import Modal from "./common/Modal";
 import {
-  getBucketBackgroundColorTop,
+  getBucketBackgroundColor,
   getHeaderTextColor,
-} from "./common/colors";
-import { useData } from "./context/data";
+} from "./common/bucketColors";
 import {
-  getArrangeBucketType,
-  getBucket,
-  getOtherBuckets,
-  getSequenceBucketType,
-} from "./context/helper";
-import { uniqueValues } from "./context/helper_arrays";
+  checkIfBucketIDExists,
+  checkIfDependencyExists,
+  useAbsence,
+} from "./context/absence";
+import { checkBucketActivity } from "./context/data/activities";
+import { getBucket, getOtherBuckets } from "./context/data/buckets";
+import { useData } from "./context/data/data";
 import {
-  getBucketsAvailableFor,
   getBucketsDependingOn,
   getUniqueDependingIdsForbucket,
-} from "./context/helper_dependencies";
-import { getWholeSubgraph } from "./context/helper_layers";
-import { getTasksForBucket } from "./context/helper_tasks";
+} from "./context/data/dependencies";
+import { getUsername } from "./context/data/requests";
+import { getTasksForBucket } from "./context/data/tasks";
 import { useGlobalInteraction } from "./context/interaction";
-import {
-  Bucket,
-  DraggedBucket,
-  DraggingType,
-  DropCollectedProps,
-  TabContext,
-} from "./types";
-import { checkBucketActivity } from "./context/helper_activities";
-import { getUsername } from "./context/helper_requests";
+import { useBoxDragDrop } from "./hooks/useBoxDragDrop";
+import { Bucket, DraggingType, TabContext } from "./types";
 
 interface BoxProps {
   bucket: Bucket;
@@ -50,7 +41,9 @@ interface BoxProps {
 }
 
 const Box: React.FC<BoxProps> = (props) => {
-  const { bucket, context } = props;
+  const { bucket, context, onDragEnd, onDragStart } = props;
+  const { acknowledged, bucketsDuringAbsence, dependenciesDuringAbsence } =
+    useAbsence();
   const {
     removeBucketDependency,
     tasks,
@@ -58,20 +51,24 @@ const Box: React.FC<BoxProps> = (props) => {
     project,
     dependencies,
     activities,
-    resetBucketLayer,
-    addBucketDependency,
   } = useData();
 
+  const { globalDragging, hoveredBuckets, updateHoveredBuckets } =
+    useGlobalInteraction();
+
   const {
-    globalDragging,
-    updateGlobalDragging,
-    hoveredBuckets,
-    updateHoveredBuckets,
-  } = useGlobalInteraction();
+    isOver,
+    canDrop,
+    sequenceIsDragging,
+    arrangeDragRef,
+    sequenceDragRef,
+    sequencePreviewRev,
+    dropRef,
+    arrangePreviewRev,
+  } = useBoxDragDrop(bucket, onDragStart, onDragEnd);
 
   const others = getOtherBuckets(buckets);
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const availbleIds = getBucketsAvailableFor(others, dependencies, bucket.id);
   const dependingIds = getBucketsDependingOn(dependencies, bucket.id);
   const uniqueDependingIds = getUniqueDependingIdsForbucket(
     others,
@@ -80,107 +77,6 @@ const Box: React.FC<BoxProps> = (props) => {
   );
 
   const [isOpen, setIsOpen] = React.useState(false);
-
-  const layerProps = useDragLayer((monitor) => ({
-    item: monitor.getItem(),
-    differenceFromInitialOffset: monitor.getDifferenceFromInitialOffset(),
-    isDragging: monitor.isDragging(),
-  }));
-
-  /**
-   * Dropping
-   */
-  const [collectedProps, dropRef] = useDrop(
-    {
-      accept: availbleIds.map((id) => getSequenceBucketType(id)),
-
-      drop: (from: DraggedBucket) => {
-        const fromBucket = getBucket(others, from.bucketId);
-        if (!fromBucket) return;
-        addBucketDependency(fromBucket, bucket.id);
-
-        //for all the connected subgraphs (up to the root and down to all the leaves)  reset layers
-        //because it can have been somewhere else moved before.
-        const affectedIds = uniqueValues([
-          getWholeSubgraph(dependencies, from.bucketId),
-          getWholeSubgraph(dependencies, bucket.id),
-        ]);
-        affectedIds.forEach((id) => resetBucketLayer(id));
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-      }),
-    },
-    [
-      availbleIds,
-      bucket,
-      dependencies,
-      others,
-      addBucketDependency,
-      getSequenceBucketType,
-      resetBucketLayer,
-    ],
-  );
-  const { isOver, canDrop } = collectedProps as DropCollectedProps;
-
-  const [
-    { isDragging: sequenceIsDragging },
-    sequenceDragRef,
-    sequencePreviewRev,
-  ] = useDrag(
-    {
-      type: getSequenceBucketType(bucket.id),
-      item: { bucketId: bucket.id },
-
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-      end: (item, monitor) => {
-        props.onDragEnd && props.onDragEnd();
-      },
-    },
-    [bucket, getSequenceBucketType],
-  );
-
-  useEffect(() => {
-    updateGlobalDragging(
-      sequenceIsDragging ? DraggingType.SEQUENCE : DraggingType.NONE,
-      bucket.id,
-    );
-
-    if (sequenceIsDragging && props.onDragStart) {
-      props.onDragStart(layerProps.differenceFromInitialOffset!);
-    }
-    if (!sequenceIsDragging && props.onDragEnd) {
-      props.onDragEnd();
-    }
-  }, [sequenceIsDragging, updateGlobalDragging]);
-
-  /**
-   * Dragging
-   */
-  const [
-    { isDragging: foliationIsDragging },
-    arrangeDragRef,
-    arrangePreviewRev,
-  ] = useDrag(
-    () => ({
-      type: getArrangeBucketType(bucket.id),
-      item: { bucketId: bucket.id },
-      collect: (monitor) => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-      end: (item, monitor) => {},
-    }),
-    [bucket, getArrangeBucketType],
-  );
-  useEffect(() => {
-    updateGlobalDragging(
-      foliationIsDragging ? DraggingType.ARRANGE : DraggingType.NONE,
-      bucket.id,
-    );
-  }, [foliationIsDragging, updateGlobalDragging]);
 
   /**
    * Handler
@@ -204,7 +100,7 @@ const Box: React.FC<BoxProps> = (props) => {
   /**
    * Styles & View Logic
    */
-  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
+  const bgTop = getBucketBackgroundColor(bucket, tasksForbucket);
 
   const showUnavailable =
     globalDragging.type === DraggingType.SEQUENCE &&
@@ -220,6 +116,12 @@ const Box: React.FC<BoxProps> = (props) => {
     const othersActive =
       bucketActive && bucketActive.createdBy !== getUsername();
 
+    const bucketsChanged = bucketsDuringAbsence(others);
+    const dependenciesChanged = dependenciesDuringAbsence(dependencies);
+    const isAbsence =
+      checkIfBucketIDExists(bucketsChanged, bucket.id) ||
+      checkIfDependencyExists(dependenciesChanged, bucket.id);
+
     if (selfActive) {
       return "border-2 border-indigo-500";
     } else if (othersActive) {
@@ -228,6 +130,8 @@ const Box: React.FC<BoxProps> = (props) => {
       return "border-dashed border-2 border-slate-400";
     } else if (isOver) {
       return "border-slate-400";
+    } else if (isAbsence && !acknowledged) {
+      return "border-dashed border-2 border-cyan-400";
     }
 
     switch (context) {

@@ -1,38 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { useDrop } from "react-dnd";
 
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
-import { getBucketBackgroundColorTop } from "./common/colors";
-import { useData } from "./context/data";
+import { getBucketBackgroundColor } from "./common/bucketColors";
 import {
-  getBucketForTask,
-  getClosedBucketType,
-  getOpenBucketType,
-} from "./context/helper";
-import {
-  Bucket as TaskGroup,
-  DraggedTask,
-  DropCollectedProps,
-  TabContext,
-  TaskID,
-} from "./types";
-import {
-  getTask,
-  getTasksByClosed,
-  getTasksForBucket,
-  sortTasksByUpdatedAt,
-} from "./context/helper_tasks";
+  checkIfBucketIDExists,
+  checkIfDependencyExists,
+  checkIfTaskIDExists,
+  useAbsence,
+} from "./context/absence";
 import {
   checkBucketActivity,
   validateActivityOther,
   validateActivitySelf,
-} from "./context/helper_activities";
-import { getUsername } from "./context/helper_requests";
-import { act } from "react-dom/test-utils";
+} from "./context/data/activities";
+import { useData } from "./context/data/data";
+import {
+  getTasksByClosed,
+  getTasksForBucket,
+  sortTasksByUpdatedAt,
+} from "./context/data/tasks";
+import { useTaskGroupDrop } from "./hooks/useTaskGroupDrop";
+import { TabContext, Bucket as TaskGroup, TaskID } from "./types";
 
 interface TaskGroupProps {
   bucket: TaskGroup;
@@ -40,19 +32,23 @@ interface TaskGroupProps {
 
 const TaskGroup: React.FC<TaskGroupProps> = (props) => {
   const { bucket } = props;
-  const { updateTask, moveTask, buckets, activities, tasks, project } =
-    useData();
 
+  const {
+    acknowledged,
+    tasksDuringAbsence,
+    bucketsDuringAbsence,
+    dependenciesDuringAbsence,
+  } = useAbsence();
+  const { buckets, dependencies, activities, tasks, project } = useData();
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const allOtherBuckets = buckets.filter((b: TaskGroup) => b.id !== bucket.id);
+  const open = getTasksByClosed(tasksForbucket, false);
+  const closed = sortTasksByUpdatedAt(getTasksByClosed(tasksForbucket, true));
+
+  const { isOver, canDrop, dropRef } = useTaskGroupDrop(bucket);
 
   // flag closed expansion
   const [closedExpanded, setClosedExpanded] = useState<boolean>(false);
-
   const [recentlyDone, setRecentlyDone] = useState<TaskID[]>([]);
-
-  const open = getTasksByClosed(tasksForbucket, false);
-  const closed = sortTasksByUpdatedAt(getTasksByClosed(tasksForbucket, true));
 
   const handleTaskClosed = (taskId: string) => {
     // Add the closed task to the recentlyDone list if it's not already there
@@ -67,64 +63,56 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
     }
   }, [bucket.done]);
 
-  const [collectedProps, dropRef] = useDrop(
-    {
-      // accepts tasks from all others and from this self bucket, if it is from done.
-      accept: bucket.done
-        ? []
-        : allOtherBuckets.map((b: TaskGroup) => getOpenBucketType(b.id)),
-      drop: (item: DraggedTask) => {
-        const taskId = item.taskId;
-        const task = getTask(tasks, taskId);
-
-        if (!task) return;
-        const fromBucketId = getBucketForTask(buckets, task)?.id || "";
-        if (fromBucketId === bucket.id) return;
-
-        moveTask(bucket.id, task.id);
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-      }),
-    },
-    [
-      getOpenBucketType,
-      getClosedBucketType,
-      buckets,
-      updateTask,
-      moveTask,
-      updateTask,
-      bucket,
-      allOtherBuckets,
-    ],
+  const tasksChanged = tasksDuringAbsence(tasks);
+  const aboveFoldClosed = closed.filter(
+    (t) =>
+      recentlyDone.includes(t.id) ||
+      (!acknowledged && checkIfTaskIDExists(tasksChanged, t.id)),
+  );
+  const belowFoldClosed = closed.filter(
+    (t) =>
+      !recentlyDone.includes(t.id) &&
+      !(!acknowledged && checkIfTaskIDExists(tasksChanged, t.id)),
   );
 
-  const { isOver, canDrop } = collectedProps as DropCollectedProps;
+  const bucketsChanged = bucketsDuringAbsence(buckets);
+  const dependenciesChanged = dependenciesDuringAbsence(dependencies);
+  const isAbsence =
+    checkIfBucketIDExists(bucketsChanged, bucket.id) ||
+    checkIfDependencyExists(dependenciesChanged, bucket.id);
 
-  const aboveFoldClosed = closed.filter((t) => recentlyDone.includes(t.id));
-  const belowFoldClosed = closed.filter((t) => !recentlyDone.includes(t.id));
+  const getBorderClass = (): string => {
+    const activity = checkBucketActivity(activities, bucket.id);
+    const activitySelf = validateActivitySelf(activity);
+    const activityOther = validateActivityOther(activity);
+    const showNone = !canDrop && !activitySelf && !activityOther;
+    const showDashed = canDrop && !isOver && !bucket.done;
+    const showSolid = isOver && !bucket.done;
 
-  const bgTop = getBucketBackgroundColorTop(bucket, tasksForbucket);
+    if (activitySelf) {
+      return "border-2 border-indigo-500";
+    } else if (activityOther) {
+      return "border-dashed border-2 border-purple-500";
+    } else if (showDashed) {
+      return "border-dashed border-2 border-slate-400";
+    } else if (showSolid) {
+      return "border-slate-400";
+    } else if (isAbsence && !acknowledged) {
+      return "border-dashed border-2 border-cyan-400";
+    } else if (showNone) {
+      return "border-transparent";
+    }
 
-  const showDashed = canDrop && !isOver && !bucket.done;
-  const showSolid = isOver && !bucket.done;
+    return "";
+  };
 
-  const activity = checkBucketActivity(activities, bucket.id);
-  const activitySelf = validateActivitySelf(activity);
-  const activityOther = validateActivityOther(activity);
-
-  const showNone = !canDrop && !activitySelf && !activityOther;
+  const bgTop = getBucketBackgroundColor(bucket, tasksForbucket);
 
   return (
     <div
       ref={(node) => !project.archived && dropRef(node)}
       className={`w-full relative rounded-md overflow-hidden ${bgTop} border-2
-      ${showDashed && "border-dashed border-2 border-slate-400"}
-      ${activitySelf && " border-2 border-indigo-500"}
-      ${activityOther && "border-dashed border-2 border-purple-500"}
-      ${showSolid && " border-slate-400"}
-      ${showNone && " border-transparent"}
+      ${getBorderClass()}
     `}
     >
       <div className={` `}>
@@ -151,7 +139,7 @@ const TaskGroup: React.FC<TaskGroupProps> = (props) => {
             )}
             {closed.length > 0 && (
               <>
-                {open.length > 0 && (
+                {(open.length > 0 || isAbsence) && (
                   <hr className="border-b border-dashed border-slate-400" />
                 )}
                 {aboveFoldClosed.map((task) => (

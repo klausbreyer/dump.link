@@ -1,6 +1,6 @@
-import { Bucket, BucketID, Dependency } from "../types";
-import { getOtherBuckets } from "./helper";
-import { uniqueValues } from "./helper_arrays";
+import { Bucket, BucketID, Dependency } from "../../types";
+import { uniqueValues } from "./arrays";
+import { getOtherBuckets } from "./buckets";
 
 export const getUniqueDependingIdsForbucket = (
   buckets: Bucket[],

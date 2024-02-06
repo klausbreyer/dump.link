@@ -9,10 +9,10 @@ import {
   State,
   Task,
   TaskUpdates,
-} from "../types";
+} from "../../types";
 import { CLIENT_TOKEN } from "./data";
-import { ISOToDate, dateToISO } from "./helper_dates";
-import { getUsername } from "./helper_requests";
+import { ISOToDate, dateToISO } from "./dates";
+import { getUsername } from "./requests";
 
 export class APIError extends Error {
   statusCode: number;
@@ -42,7 +42,7 @@ const createApiFunctions = () => {
     const fullUrl = new URL(`/api/v1${url}`, baseUrl);
     fullUrl.searchParams.append("token", CLIENT_TOKEN);
 
-    const fetchOptions: RequestInit = {
+    const fetchOptions = {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -71,15 +71,39 @@ const createApiFunctions = () => {
   return {
     getProject: async (projectId: string): Promise<State> => {
       const response = await apiCall({ url: `/projects/${projectId}` });
+      const project = {
+        ...response.project,
+        endingAt: response.project.endingAt
+          ? ISOToDate(response.project.endingAt)
+          : null,
+        startedAt: ISOToDate(response.project.startedAt),
+        createdAt: ISOToDate(response.project.createdAt),
+        updatedAt: ISOToDate(response.project.updatedAt),
+      };
+
+      const tasks = response.tasks.map((task: any) => ({
+        ...task,
+        createdAt: ISOToDate(task.createdAt),
+        updatedAt: ISOToDate(task.updatedAt),
+      }));
+
+      const buckets = response.buckets.map((bucket: any) => ({
+        ...bucket,
+        createdAt: ISOToDate(bucket.createdAt),
+        updatedAt: ISOToDate(bucket.updatedAt),
+      }));
+
+      const dependencies = response.dependencies.map((dependency: any) => ({
+        ...dependency,
+        createdAt: ISOToDate(dependency.createdAt),
+      }));
+
       return {
-        ...response,
-        project: {
-          ...response.project,
-          endingAt: response.project.endingAt
-            ? ISOToDate(response.project.endingAt)
-            : undefined,
-          startedAt: ISOToDate(response.project.startedAt),
-        },
+        project,
+        tasks,
+        buckets,
+        dependencies,
+        activities: response.activities,
       };
     },
     patchProject: async (
@@ -109,12 +133,19 @@ const createApiFunctions = () => {
     },
     postProjectResetLayers: (projectId: string): Promise<ApiMessage> =>
       apiCall({ url: `/projects/${projectId}/resetLayers`, method: "POST" }),
-    postTask: (projectId: string, task: Task): Promise<Task> =>
-      apiCall({
+    postTask: async (projectId: string, task: Task): Promise<Task> => {
+      const response = await apiCall({
         url: `/projects/${projectId}/tasks`,
         method: "POST",
         body: task,
-      }),
+      });
+
+      return {
+        ...response,
+        createdAt: ISOToDate(response.createdAt),
+        updatedAt: ISOToDate(response.updatedAt),
+      };
+    },
     deleteTask: (projectId: string, taskId: string): Promise<boolean> =>
       apiCall({
         url: `/projects/${projectId}/tasks/${taskId}`,
@@ -148,16 +179,23 @@ const createApiFunctions = () => {
         url: `/projects/${projectId}/buckets/${bucketId}/resetLayers`,
         method: "POST",
       }),
-    postDependency: (
+    postDependency: async (
       projectId: string,
       bucketId: string,
       dependencyId: string,
-    ): Promise<Dependency> =>
-      apiCall({
+    ): Promise<Dependency> => {
+      const response = await apiCall({
         url: `/projects/${projectId}/dependencies`,
         method: "POST",
         body: { bucketId, dependencyId },
-      }),
+      });
+
+      return {
+        ...response,
+        createdAt: response.createdAt ? ISOToDate(response.createdAt) : null,
+        updatedAt: response.updatedAt ? ISOToDate(response.updatedAt) : null,
+      };
+    },
     deleteDependency: (
       projectId: string,
       bucketId: string,

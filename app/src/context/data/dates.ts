@@ -66,36 +66,47 @@ export const dateToHumanReadable = (date: Date | string): string => {
 
   return date.toLocaleString("en-US");
 };
-export function calculateRemainingTime(
+
+export const dateToYYYYMMDD = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const formattedMonth = month < 10 ? `0${month}` : `${month}`;
+  const formattedDay = day < 10 ? `0${day}` : `${day}`;
+
+  return `${year}-${formattedMonth}-${formattedDay}`;
+};
+export function calculateTimeDifference(
   startedAt: Date,
   endingAt: Date,
-): string {
+): number {
   const today = new Date();
-  const oneDay = 24 * 60 * 60 * 1000; // Milliseconds in a day
+  today.setHours(0, 0, 0, 0);
+  startedAt.setHours(0, 0, 0, 0);
+  endingAt.setHours(0, 0, 0, 0);
 
-  // Function to determine singular or plural form
-  const formatTime = (count: number, singular: string, plural: string) =>
-    `${count} ${count === 1 ? singular : plural} left`;
+  const oneDay = 24 * 60 * 60 * 1000;
 
-  // Ensure the current date is within the range
   if (today < startedAt) {
-    return ""; // Return empty string if the date is before the start
+    return Infinity; // Indicates the start date is not reached yet
   }
 
-  if (today > endingAt) {
-    // Handling the case where today's date is past the ending date
-    return "Time budget ended";
+  if (today >= endingAt) {
+    return Math.ceil((today.getTime() - endingAt.getTime()) / oneDay) * -1;
   }
 
-  // Calculate the difference in days
-  const diffDays = Math.round(
-    Math.abs((endingAt.getTime() - today.getTime()) / oneDay),
-  );
+  return Math.floor((endingAt.getTime() - today.getTime()) / oneDay);
+}
 
-  // Check if the time budget has ended
-  if (diffDays === 0) {
-    return "Time budget ended";
+export function formatTimeDifference(timeDifference: number): string {
+  if (timeDifference === Infinity) {
+    return "";
   }
 
-  return formatTime(diffDays, "day", "days");
+  const absTimeDifference = Math.abs(timeDifference);
+  const postfix = timeDifference < 0 ? "over" : "left";
+  const timeUnit = absTimeDifference === 1 ? "day" : "days";
+
+  return `${absTimeDifference} ${timeUnit} ${postfix}`;
 }

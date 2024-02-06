@@ -1,12 +1,11 @@
 import React from "react";
-import { useDrop } from "react-dnd";
 
 import TaskItem from "./TaskItem";
 import CardList from "./common/CardList";
-import { useData } from "./context/data";
-import { getBucketForTask, getOpenBucketType } from "./context/helper";
-import { getTask, getTasksForBucket } from "./context/helper_tasks";
-import { Bucket, DraggedTask, DropCollectedProps } from "./types";
+import { useData } from "./context/data/data";
+import { getTasksForBucket } from "./context/data/tasks";
+import { useTaskGroupDrop } from "./hooks/useTaskGroupDrop";
+import { Bucket } from "./types";
 
 export interface AreaProps {
   bucket: Bucket;
@@ -14,40 +13,12 @@ export interface AreaProps {
 
 const Area: React.FC<AreaProps> = (props) => {
   const { bucket } = props;
-  const { moveTask, project, tasks, buckets } = useData();
+  const { project, tasks } = useData();
 
   const tasksForbucket = getTasksForBucket(tasks, bucket.id);
-  const allOtherBuckets = buckets.filter((b) => b.id !== bucket.id);
 
-  const [collectedProps, dropRef] = useDrop(
-    {
-      accept: [...allOtherBuckets.map((b) => getOpenBucketType(b.id))],
+  const { isOver, canDrop, dropRef } = useTaskGroupDrop(bucket);
 
-      drop: (item: DraggedTask) => {
-        const task = getTask(tasks, item.taskId);
-        if (!task) return;
-        const fromBucketId = getBucketForTask(buckets, task)?.id || "";
-        if (fromBucketId !== bucket.id) {
-          moveTask(bucket.id, task.id);
-        }
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-      }),
-    },
-    [
-      bucket,
-      buckets,
-      tasksForbucket,
-      allOtherBuckets,
-      getOpenBucketType,
-      getBucketForTask,
-      moveTask,
-    ],
-  );
-
-  const { isOver, canDrop } = collectedProps as DropCollectedProps;
   return (
     <div
       ref={dropRef}

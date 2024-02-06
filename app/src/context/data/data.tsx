@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useReducer } from "react";
 
 import {
   Activity,
-  ActivityUpdates as ActivityUpdate,
   Bucket,
   BucketID,
   BucketUpdates,
@@ -14,23 +13,23 @@ import {
   TaskID,
   TaskUpdates,
   UserName,
-} from "../types";
+} from "../../types";
 
-import { notifyBugsnag } from "..";
-import config from "../config";
+import { notifyBugsnag } from "../..";
+import config from "../../config";
 import { APIError, apiFunctions } from "./calls";
 import {
   getUniqueDependingIdsForbucket,
   hasCyclicDependencyWithBucket,
-} from "./helper_dependencies";
-import { getLayerForBucketId } from "./helper_layers";
+} from "./dependencies";
+import { getLayerForBucketId } from "./layers";
 import {
   NewID,
   extractIdFromUrl,
   getUsername,
   saveProjectIdToLocalStorage,
-} from "./helper_requests";
-import { LifecycleState, useLifecycle } from "./lifecycle";
+} from "./requests";
+import { LifecycleState, useLifecycle } from "../lifecycle";
 import { setupWebSocket } from "./websocket";
 
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
@@ -45,6 +44,8 @@ const initialState: State = {
     name: "",
     appetite: 0,
     startedAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     endingAt: null,
     archived: false,
     updatedBy: "",
@@ -82,6 +83,7 @@ export type ActionType =
       bucketId: BucketID;
       dependencyId: BucketID;
       createdBy: UserName;
+      createdAt: Date;
     }
   | {
       type: "REMOVE_BUCKET_DEPENDENCY";
@@ -113,6 +115,7 @@ const dataReducer = (state: State, action: ActionType): State => {
       const { updates } = action;
 
       const updatedProject = reconsileProjectUpdate(state.project, updates);
+
       return {
         ...state,
         project: updatedProject,
@@ -121,6 +124,9 @@ const dataReducer = (state: State, action: ActionType): State => {
 
     case "ADD_TASK": {
       const { task } = action;
+
+      if (!task.createdAt) task.createdAt = new Date();
+      if (!task.updatedAt) task.updatedAt = new Date();
 
       // Update the tasks array directly in the state
       let updatedTasks = [...state.tasks];
@@ -216,10 +222,10 @@ const dataReducer = (state: State, action: ActionType): State => {
     }
 
     case "ADD_BUCKET_DEPENDENCY": {
-      const { bucketId, dependencyId, createdBy } = action;
+      const { bucketId, dependencyId, createdBy, createdAt } = action;
 
       // Creating a new dependency object
-      const newDependency = { bucketId, dependencyId, createdBy };
+      const newDependency = { bucketId, dependencyId, createdBy, createdAt };
 
       return {
         ...state,
@@ -506,6 +512,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       bucketId: bucket.id,
       dependencyId: dependencyId,
       createdBy: getUsername(),
+      createdAt: new Date(),
     });
 
     (async () => {

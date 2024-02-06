@@ -19,6 +19,8 @@ export type Task = {
   closed: boolean;
   priority: number;
   updatedBy: UserName;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type Bucket = {
@@ -30,12 +32,15 @@ export type Bucket = {
   layer: number | null;
   flagged: boolean;
   updatedBy: UserName;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type Dependency = {
   bucketId: BucketID;
   dependencyId: BucketID;
   createdBy: UserName;
+  createdAt: Date;
 };
 
 export type Project = {
@@ -46,6 +51,8 @@ export type Project = {
   appetite: number; // 0 = n/a
   archived: boolean;
   updatedBy: UserName;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type State = {
@@ -79,6 +86,11 @@ export type ProjectUpdates = {
   appetite?: Project["appetite"];
   archived?: Project["archived"];
   updatedBy?: Project["updatedBy"];
+};
+
+export type DependencyUpdates = {
+  bucketId?: Dependency["bucketId"];
+  dependencyId?: Dependency["dependencyId"];
 };
 
 export type ActivityUpdates = {
