@@ -83,7 +83,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
               <input
                 type="text"
                 id="name"
-                maxLength={0}
+                maxLength={40}
                 value={name}
                 onChange={handleChange(setName)}
                 className={`${inputClassNames} w-80`}
