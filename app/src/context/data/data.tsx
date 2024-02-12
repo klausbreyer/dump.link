@@ -7,6 +7,7 @@ import {
   BucketUpdates,
   Dependency,
   Project,
+  ProjectID,
   ProjectUpdates,
   State,
   Task,
@@ -15,21 +16,17 @@ import {
   UserName,
 } from "../../types";
 
+import { useParams } from "react-router-dom";
 import { notifyBugsnag } from "../..";
 import config from "../../config";
+import { LifecycleState, useLifecycle } from "../lifecycle";
 import { APIError, apiFunctions } from "./calls";
 import {
   getUniqueDependingIdsForbucket,
   hasCyclicDependencyWithBucket,
 } from "./dependencies";
 import { getLayerForBucketId } from "./layers";
-import {
-  NewID,
-  extractIdFromUrl,
-  getUsername,
-  saveProjectIdToLocalStorage,
-} from "./requests";
-import { LifecycleState, useLifecycle } from "../lifecycle";
+import { NewID, getUsername, saveProjectIdToLocalStorage } from "./requests";
 import { setupWebSocket } from "./websocket";
 
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
@@ -281,8 +278,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(dataReducer, initialState);
   const { setLifecycle } = useLifecycle();
 
-  const loadInitialState = async () => {
-    const projectId = extractIdFromUrl();
+  const params = useParams();
+  const { projectId } = params;
+
+  const loadInitialState = async (projectId: ProjectID) => {
     try {
       const initialState = await apiFunctions.getProject(projectId);
       saveProjectIdToLocalStorage(projectId, initialState.project.name);
@@ -302,6 +301,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    if (!projectId) return;
     if (!getUsername()) {
       let username = prompt(
         "Please enter your name as you would like your team to see it",
@@ -311,14 +311,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
       localStorage.setItem("username", username);
     }
-    loadInitialState();
-  }, []);
+    loadInitialState(projectId);
+  }, [projectId]);
 
   useEffect(() => {
-    const wsCleanup = setupWebSocket(
-      state.project.id,
-      dispatch,
-      loadInitialState,
+    if (!state.project.id) return;
+    const wsCleanup = setupWebSocket(state.project.id, dispatch, () =>
+      loadInitialState(state.project.id),
     );
     // can only make calls when state is there, because it needs a project.id
 

@@ -4,7 +4,7 @@ import { lastAccessedProject } from "./types";
 import { Tooltip } from "./common/InfoTooltip";
 import { RecentIcon } from "./common/icons";
 import { useData } from "./context/data/data";
-import { extractIdFromUrl } from "./context/data/requests";
+import { useParams } from "react-router-dom";
 
 function RecentLinks() {
   const { project } = useData();
@@ -20,7 +20,8 @@ function RecentLinks() {
     }
   }, [project.name]);
 
-  const currentProjectId = extractIdFromUrl();
+  const params = useParams();
+  const { projectId } = params;
 
   const createProjectLink = (project: lastAccessedProject) => {
     return process.env.NODE_ENV === "production"
@@ -58,7 +59,7 @@ function RecentLinks() {
                   <a
                     href={createProjectLink(project)}
                     className={`block px-4 w-full py-2 text-sm ${
-                      project.id === currentProjectId
+                      project.id === projectId
                         ? "bg-slate-300 text-slate-900"
                         : "text-slate-700 hover:bg-slate-100"
                     }`}

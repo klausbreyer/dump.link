@@ -1,35 +1,53 @@
-import React, { useEffect } from "react";
-import { useLifecycle } from "./context/lifecycle";
-import { useQueryParamChange } from "./hooks/useQueryParamChange";
-import { TabContext } from "./types";
-import Settings from "./Settings";
-import Group from "./Group";
-import Sequence from "./Sequence";
-import Arrange from "./Arrange";
+import { HTML5toTouch } from "rdndmb-html5-to-touch";
+import { useEffect } from "react";
+import { DndProvider } from "react-dnd-multi-backend";
+import { AbsenceProvider } from "./context/absence";
+import { DataProvider } from "./context/data/data";
+import { GlobalInteractionProvider } from "./context/interaction";
+import {
+  LifecycleProvider,
+  LifecycleState,
+  useLifecycle,
+} from "./context/lifecycle";
 import Header from "./Header";
 import NotificationBar from "./NotificationBar";
-import { LifecycleState } from "./context/lifecycle";
+import { Route, Routes } from "react-router-dom";
+import Settings from "./Settings";
+import Group from "./Group";
+import Arrange from "./routing/Arrange";
+import Sequence from "./Sequence";
+import { TabContext } from "./types";
 
-const isTouchDevice = () => {
-  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
-};
+export default function Main() {
+  return (
+    <LifecycleProvider>
+      <GlobalInteractionProvider>
+        <DataProvider>
+          <AbsenceProvider>
+            <DndProvider options={HTML5toTouch}>
+              <Router />
+            </DndProvider>
+          </AbsenceProvider>
+        </DataProvider>
+      </GlobalInteractionProvider>
+    </LifecycleProvider>
+  );
+}
 
-const Main = function Main() {
-  const { lifecycle } = useLifecycle();
-  const currentQueryParam = useQueryParamChange("p");
-
+const Router = function Loaded() {
+  const isTouchDevice = () => {
+    return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  };
   useEffect(() => {
     if (isTouchDevice()) {
       alert("Mobile & touch access in beta - expect some quirks!");
     }
   }, []);
 
-  console.log(lifecycle);
-
+  const { lifecycle } = useLifecycle();
   if (lifecycle === LifecycleState.Initialized) {
     return <Loading />;
   }
-
   if (
     lifecycle === LifecycleState.Error ||
     lifecycle === LifecycleState.Error404 ||
@@ -38,26 +56,17 @@ const Main = function Main() {
     return <ErrorState lifecycle={lifecycle} />;
   }
 
-  const renderComponentBasedOnQueryParam = () => {
-    switch (currentQueryParam) {
-      case TabContext.Settings:
-        return <Settings />;
-      case TabContext.Group:
-        return <Group />;
-      case TabContext.Sequence:
-        return <Sequence />;
-      case TabContext.Arrange:
-        return <Arrange />;
-
-      default:
-        return <Group />;
-    }
-  };
-
   return (
     <>
       <Header />
-      {renderComponentBasedOnQueryParam()}
+      <Routes>
+        <Route path={TabContext.Settings} element={<Settings />} />
+        <Route path={TabContext.Group} element={<Group />} />
+        <Route path={TabContext.Arrange} element={<Arrange />} />
+        <Route path={TabContext.Sequence} element={<Sequence />} />
+        <Route path="/" element={<Group />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
       <NotificationBar />
     </>
   );
@@ -66,7 +75,7 @@ const Main = function Main() {
 const Loading = function Loading() {
   return (
     <div className="flex items-center justify-center w-screen h-screen">
-      <div className=" animate-pulse">Loading..</div>
+      <div className="animate-pulse">Loading..</div>
     </div>
   );
 };
@@ -97,4 +106,10 @@ function ErrorState(props: ErrorStateProps) {
   );
 }
 
-export default Main;
+function NotFoundPage() {
+  return (
+    <div className="flex items-center justify-center w-screen h-screen">
+      <div className="text-slate-500">Route not found</div>
+    </div>
+  );
+}

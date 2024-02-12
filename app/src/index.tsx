@@ -3,18 +3,12 @@ import Bugsnag from "@bugsnag/js";
 import BugsnagPluginReact, {
   BugsnagPluginReactResult,
 } from "@bugsnag/plugin-react";
-import { HTML5toTouch } from "rdndmb-html5-to-touch";
-import { DndProvider } from "react-dnd-multi-backend";
 import { createRoot } from "react-dom/client";
 
-import { DataProvider } from "./context/data/data";
-import { GlobalInteractionProvider } from "./context/interaction";
-import { LifecycleProvider } from "./context/lifecycle";
-
 import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "../public/styles.css";
 import Main from "./Main";
-import { AbsenceProvider } from "./context/absence";
 
 function isLocalhost(): boolean {
   return (
@@ -36,19 +30,17 @@ interface DefaultErrorBoundaryProps {
   children?: React.ReactNode;
 }
 
-// Default Error Boundary as a fallback
 const DefaultErrorBoundary: React.FC<DefaultErrorBoundaryProps> = ({
   children,
 }) => {
   return <>{children}</>;
 };
 
-// Define ErrorBoundary using Bugsnag's React plugin
 const reactPlugin = Bugsnag.getPlugin("react") as
   | BugsnagPluginReactResult
   | undefined;
 const ErrorBoundary =
-  reactPlugin?.createErrorBoundary(React) || DefaultErrorBoundary; // Fallback to a default error boundary
+  reactPlugin?.createErrorBoundary(React) || DefaultErrorBoundary;
 
 export function notifyBugsnag(error: unknown): void {
   if (isLocalhost()) return;
@@ -63,17 +55,11 @@ export function notifyBugsnag(error: unknown): void {
 const App = function App() {
   return (
     <ErrorBoundary>
-      <LifecycleProvider>
-        <GlobalInteractionProvider>
-          <DataProvider>
-            <AbsenceProvider>
-              <DndProvider options={HTML5toTouch}>
-                <Main />
-              </DndProvider>
-            </AbsenceProvider>
-          </DataProvider>
-        </GlobalInteractionProvider>
-      </LifecycleProvider>
+      <BrowserRouter basename="/a">
+        <Routes>
+          <Route path=":projectId/*" element={<Main />} />
+        </Routes>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 };

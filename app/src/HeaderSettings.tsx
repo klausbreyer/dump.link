@@ -1,19 +1,26 @@
 import React from "react";
 
 import { Cog8ToothIcon, ShareIcon } from "@heroicons/react/24/solid";
-import { handleTabClick } from "./HeaderNav";
 import RecentLinks from "./RecentLinks";
 import ShareLink from "./ShareLink";
 import InfoModal from "./common/InfoModal";
 import { Tooltip } from "./common/InfoTooltip";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { getCurrentTab } from "./routing/helper";
 
-// HeaderSettings component for the application header
 const HeaderSettings: React.FC = () => {
-  // State to manage the active tab and copied status
-  const currentQueryParam = useQueryParamChange("p");
-  const currentTab = (currentQueryParam as TabContext) || TabContext.Group;
+  const location = useLocation();
+  const currentTab = getCurrentTab(location);
+
+  const navigate = useNavigate();
+  const params = useParams();
+  const { projectId } = params;
+
+  function handleTabClick(tab: TabContext) {
+    navigate(`/${projectId}/${tab}`);
+  }
 
   return (
     <div className="flex items-start gap-2">

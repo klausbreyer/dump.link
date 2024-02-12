@@ -13,6 +13,8 @@ import {
 import { useData } from "./context/data/data";
 import { getOtherBuckets } from "./context/data/buckets";
 import { BucketID, TabContext } from "./types";
+import Header from "./Header";
+import NotificationBar from "./NotificationBar";
 
 interface SequenceProps {}
 
@@ -116,108 +118,113 @@ const Sequence: React.FC<SequenceProps> = (props) => {
   };
 
   return (
-    <Container>
-      <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
-        <svg className="absolute top-0 left-0 w-full h-full -z-10">
-          {allBoxesRendered &&
-            dependencies.map((dependency, index) => {
-              if (
-                !boxRefs?.current[dependency.bucketId]?.current ||
-                !boxRefs?.current[dependency.dependencyId]?.current
-              ) {
-                return null;
-              }
+    <>
+      <Container>
+        <div className="relative w-full min-h-[600px] parent mt-6 mb-20 ">
+          <svg className="absolute top-0 left-0 w-full h-full -z-10">
+            {allBoxesRendered &&
+              dependencies.map((dependency, index) => {
+                if (
+                  !boxRefs?.current[dependency.bucketId]?.current ||
+                  !boxRefs?.current[dependency.dependencyId]?.current
+                ) {
+                  return null;
+                }
 
-              const fromRect =
-                boxRefs.current[
-                  dependency.bucketId
-                ].current!.getBoundingClientRect();
-              const toRect =
-                boxRefs.current[
-                  dependency.dependencyId
-                ].current!.getBoundingClientRect();
-              const { from, to } = getBorderCenterCoordinates(fromRect, toRect);
-              const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
+                const fromRect =
+                  boxRefs.current[
+                    dependency.bucketId
+                  ].current!.getBoundingClientRect();
+                const toRect =
+                  boxRefs.current[
+                    dependency.dependencyId
+                  ].current!.getBoundingClientRect();
+                const { from, to } = getBorderCenterCoordinates(
+                  fromRect,
+                  toRect,
+                );
+                const shortenedTo = shortenLineEnd(from, to, 10); // Shorten the arrow by 20 pixels.
 
-              return (
-                <g key={index}>
-                  <line
-                    x1={from.x}
-                    y1={from.y}
-                    x2={shortenedTo.x}
-                    y2={shortenedTo.y}
-                    stroke="black"
-                    strokeWidth="2"
-                    markerEnd="url(#smallArrowhead)"
-                  />
-                </g>
-              );
-            })}
+                return (
+                  <g key={index}>
+                    <line
+                      x1={from.x}
+                      y1={from.y}
+                      x2={shortenedTo.x}
+                      y2={shortenedTo.y}
+                      stroke="black"
+                      strokeWidth="2"
+                      markerEnd="url(#smallArrowhead)"
+                    />
+                  </g>
+                );
+              })}
 
-          <defs>
-            <marker
-              id="smallArrowhead"
-              markerWidth="6"
-              markerHeight="4"
-              refX="0"
-              refY="2"
-              orient="auto"
-            >
-              <polygon points="0 0, 6 2, 0 4" />
-            </marker>
-          </defs>
-        </svg>
+            <defs>
+              <marker
+                id="smallArrowhead"
+                markerWidth="6"
+                markerHeight="4"
+                refX="0"
+                refY="2"
+                orient="auto"
+              >
+                <polygon points="0 0, 6 2, 0 4" />
+              </marker>
+            </defs>
+          </svg>
 
-        <FollowArrow
-          active={arrowActive}
-          startRef={activeRef}
-          currentMousePosition={currentMousePosition}
-        />
+          <FollowArrow
+            active={arrowActive}
+            startRef={activeRef}
+            currentMousePosition={currentMousePosition}
+          />
 
-        {others.map((bucket, i) => {
-          const x = positions[i].left;
-          const y = positions[i].top;
+          {others.map((bucket, i) => {
+            const x = positions[i].left;
+            const y = positions[i].top;
 
-          return (
-            <div
-              ref={boxRefs.current[bucket.id]}
-              className="absolute w-48 "
-              style={{
-                top: `${y}%`,
-                left: `${x}%`,
-                transform: "translate(-50%, -50%)", // Center the box
-              }}
-              key={bucket.id}
-            >
-              <Box
-                bucket={bucket}
-                context={TabContext.Sequence}
-                onDragStart={() => handleDragStart(bucket.id)}
-                onDragEnd={() => {
-                  setArrowActive(false);
-                  handleDragEnd();
+            return (
+              <div
+                ref={boxRefs.current[bucket.id]}
+                className="absolute w-48 "
+                style={{
+                  top: `${y}%`,
+                  left: `${x}%`,
+                  transform: "translate(-50%, -50%)", // Center the box
                 }}
-              />
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex items-center justify-end w-full">
-        <InfoButton
-          color="slate"
-          disabled={project.archived}
-          onClick={() =>
-            confirm(
-              "Are you certain you want to remove all interrelated connections from your task groups?",
-            )
-              ? removeAllBucketDependencies()
-              : null
-          }
-        >
-          Reset
-        </InfoButton>
-      </div>
-    </Container>
+                key={bucket.id}
+              >
+                <Box
+                  bucket={bucket}
+                  context={TabContext.Sequence}
+                  onDragStart={() => handleDragStart(bucket.id)}
+                  onDragEnd={() => {
+                    setArrowActive(false);
+                    handleDragEnd();
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex items-center justify-end w-full">
+          <InfoButton
+            color="slate"
+            disabled={project.archived}
+            onClick={() =>
+              confirm(
+                "Are you certain you want to remove all interrelated connections from your task groups?",
+              )
+                ? removeAllBucketDependencies()
+                : null
+            }
+          >
+            Reset
+          </InfoButton>
+        </div>
+      </Container>
+    </>
   );
 };
 
