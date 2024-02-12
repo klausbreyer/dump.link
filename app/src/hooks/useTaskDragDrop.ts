@@ -34,7 +34,7 @@ export const useTaskDragDrop = (
         setTemporaryPriority(undefined);
       },
     }),
-    [task, updateTask, buckets, setTemporaryPriority],
+    [task, updateTask, buckets, temporaryPriority, setTemporaryPriority],
   );
 
   const [, dropRef] = useDrop(
@@ -48,6 +48,7 @@ export const useTaskDragDrop = (
         if (!draggedTask) return;
 
         const overIndex = getTaskIndex(sortedTasksForBucket, task.id);
+
         if (overIndex === -1) return;
 
         const newPriority = calculateNewPriority(
@@ -56,6 +57,7 @@ export const useTaskDragDrop = (
           sortedTasksForBucket,
           overIndex,
         );
+
         setTemporaryPriority({ priority: newPriority, taskId: draggedId });
       },
     }),
