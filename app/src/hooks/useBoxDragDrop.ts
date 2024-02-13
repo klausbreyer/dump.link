@@ -16,6 +16,7 @@ import {
   DraggingType,
   DropCollectedProps,
 } from "../types";
+import { getBucketsAvailableFor } from "../context/data/dependencies";
 
 export const useBoxDragDrop = (
   bucket: Bucket,
@@ -24,11 +25,10 @@ export const useBoxDragDrop = (
 ) => {
   const { buckets, dependencies, resetBucketLayer, addBucketDependency } =
     useData();
-
   const { updateGlobalDragging } = useGlobalInteraction();
 
   const others = getOtherBuckets(buckets);
-  const availbleIds = others.map((b) => b.id); // Assuming this logic is correct
+  const availbleIds = getBucketsAvailableFor(others, dependencies, bucket.id);
 
   // Arrange Drag Logic
   const [
