@@ -1,5 +1,5 @@
 import React from "react";
-import { DumplinkIcon } from "./common/icons";
+import { DumplinkIcon } from "../common/icons";
 import { useData } from "./context/data/data";
 import {
   filterBucketsFiguredOut,

@@ -1,7 +1,7 @@
 import React from "react";
 
 import TaskItem from "./TaskItem";
-import CardList from "./common/CardList";
+import CardList from "../common/CardList";
 import { useData } from "./context/data/data";
 import { getTasksForBucket } from "./context/data/tasks";
 import { useTaskGroupDrop } from "./hooks/useTaskGroupDrop";

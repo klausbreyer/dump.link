@@ -1,5 +1,5 @@
 import { useEffect, RefObject } from "react";
-import config from "../config";
+import config from "../../config";
 
 /**
  * Custom hook that adds a paste event listener to the specified element.
@@ -46,9 +46,10 @@ const usePasteListener = (
           });
         } else {
           let title = pastedData.replace(/-/g, "").trim();
-          if (title.length >= config.TASK_MAX_LENGTH) {
+          if (title.length >= config.PROJECT_TASK_MAX_LENGTH) {
             // cut last character and add elipsis
-            title = title.substring(0, config.TASK_MAX_LENGTH - 1) + "…";
+            title =
+              title.substring(0, config.PROJECT_TASK_MAX_LENGTH - 1) + "…";
           }
           callback(title);
         }

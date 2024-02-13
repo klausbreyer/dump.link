@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import config from "../config";
+import config from "../../config";
 import {
   Bucket,
   BucketID,
@@ -99,7 +99,7 @@ const useSaveActivity = (project: { id: ProjectID }) => {
       if (project.id.length === 11) {
         saveAbsence(project.id);
       }
-    }, config.ACTIVITY_INTERVAL);
+    }, config.PROJECT_ACTIVITY_INTERVAL);
 
     const handleUnload = () => {
       saveAbsence(project.id);

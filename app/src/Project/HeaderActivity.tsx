@@ -1,7 +1,7 @@
 import React from "react";
 
 import { UserIcon } from "@heroicons/react/24/solid";
-import { Tooltip } from "./common/InfoTooltip";
+import { Tooltip } from "../common/InfoTooltip";
 import { useData } from "./context/data/data";
 import {
   isActivityOutdated,

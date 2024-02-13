@@ -1,14 +1,13 @@
 import React from "react";
 
 import { Cog8ToothIcon, ShareIcon } from "@heroicons/react/24/solid";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import RecentLinks from "./RecentLinks";
 import ShareLink from "./ShareLink";
-import InfoModal from "./common/InfoModal";
-import { Tooltip } from "./common/InfoTooltip";
-import { useQueryParamChange } from "./hooks/useQueryParamChange";
+import InfoModal from "../common/InfoModal";
+import { Tooltip } from "../common/InfoTooltip";
 import { TabContext } from "./types";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { getCurrentTab } from "./routing/helper";
+import { getCurrentTab } from "./HeaderNav";
 
 const HeaderSettings: React.FC = () => {
   const location = useLocation();

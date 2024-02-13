@@ -3,13 +3,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDragLayer } from "react-dnd";
 import Box from "./Box";
 import FollowArrow from "./FollowArrow";
-import Container from "./common/Container";
-import InfoButton from "./common/InfoButton";
+import Container from "../common/Container";
+import InfoButton from "../common/InfoButton";
 import {
   Coordinates,
   getBorderCenterCoordinates,
   shortenLineEnd,
-} from "./common/coordinates";
+} from "../common/coordinates";
 import { useData } from "./context/data/data";
 import { getOtherBuckets } from "./context/data/buckets";
 import { BucketID, TabContext } from "./types";

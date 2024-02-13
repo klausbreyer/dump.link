@@ -1,4 +1,4 @@
-import config from "../../config";
+import config from "../../../config";
 import { Activity, TaskID, UserName } from "../../types";
 import { getUsername } from "./requests";
 
@@ -32,7 +32,7 @@ export function checkBucketActivity(
 
 export function isActivityOutdated(activityCreatedAt: Date): boolean {
   const activityAge = Date.now() - new Date(activityCreatedAt).getTime();
-  return activityAge > config.ACTIVITY_OUTDATED;
+  return activityAge > config.PROJECT_ACTIVITY_OUTDATED;
 }
 
 export function sortActivitiesByDate(activities: Activity[]): Activity[] {

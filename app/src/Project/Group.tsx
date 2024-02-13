@@ -2,8 +2,8 @@ import React from "react";
 
 import Area from "./Area";
 import TaskGroup from "./TaskGroup";
-import Container from "./common/Container";
-import FlexCol from "./common/FlexCol";
+import Container from "../common/Container";
+import FlexCol from "../common/FlexCol";
 import { getDumpBucket, getOtherBuckets } from "./context/data/buckets";
 import { useData } from "./context/data/data";
 

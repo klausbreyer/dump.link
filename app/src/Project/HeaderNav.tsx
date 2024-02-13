@@ -1,18 +1,16 @@
 import React, { ReactNode } from "react";
 
 import { InformationCircleIcon } from "@heroicons/react/24/solid";
-import InfoModal from "./common/InfoModal";
-import Title from "./common/Title";
-import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
-import { useQueryParamChange } from "./hooks/useQueryParamChange";
-import { TabContext } from "./types";
 import {
   Location,
   useLocation,
   useNavigate,
   useParams,
 } from "react-router-dom";
-import { getCurrentTab } from "./routing/helper";
+import InfoModal from "../common/InfoModal";
+import Title from "../common/Title";
+import { ArrangeIcon, GroupIcon, SequenceIcon } from "../common/icons";
+import { TabContext } from "./types";
 
 interface Step {
   id: TabContext;
@@ -189,3 +187,15 @@ const HeaderNav: React.FC<HeaderNavProps> = (props) => {
 };
 
 export default HeaderNav;
+
+export function getCurrentTab(location: Location): TabContext {
+  // Assuming the URL pattern is "/{id}/{tab}".
+  const pathSegments = location.pathname.split("/").filter(Boolean);
+  if (pathSegments.length < 2) {
+    return TabContext.Group;
+  }
+  const tabSegment = pathSegments[1];
+  return Object.values(TabContext).includes(tabSegment as TabContext)
+    ? (tabSegment as TabContext)
+    : TabContext.Group;
+}

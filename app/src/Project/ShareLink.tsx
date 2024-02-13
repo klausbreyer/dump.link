@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Tooltip } from "./common/InfoTooltip";
+import { Tooltip } from "../common/InfoTooltip";
 import { currentUrl } from "./HeaderProject";
 
 type TabKey = "group" | "sequence" | "arrange";
