@@ -1,28 +1,19 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import InfoButton from "../common/InfoButton";
-import { useHref, useLocation } from "react-router-dom";
-import { AppContext } from "../../types";
 
 export default function Dashboard() {
   const { loginWithRedirect, logout, user, isAuthenticated, isLoading } =
     useAuth0();
 
-  const basename = useHref("/");
+  if (isLoading) {
+    return <div>Loading ...</div>;
+  }
 
-  const redirect_uri = `${window.location.origin}${basename}/${AppContext.Callback}`;
+  console.log(user, isAuthenticated, isLoading);
 
   return (
     <div>
-      <InfoButton
-        color="indigo"
-        onClick={() =>
-          loginWithRedirect({
-            authorizationParams: {
-              redirect_uri,
-            },
-          })
-        }
-      >
+      <InfoButton color="indigo" onClick={() => loginWithRedirect()}>
         Login
       </InfoButton>
       <InfoButton
