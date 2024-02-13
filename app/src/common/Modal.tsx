@@ -1,4 +1,4 @@
-import { Dialog as HeadlessUIDialog, Transition } from "@headlessui/react";
+import { Dialog, Transition } from "@headlessui/react";
 import React from "react";
 
 type ModalProps = {
@@ -10,7 +10,7 @@ type ModalProps = {
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   return (
     <Transition show={isOpen} as={React.Fragment}>
-      <HeadlessUIDialog
+      <Dialog
         as="div"
         className="fixed inset-0 z-50 overflow-y-auto"
         onClose={onClose}
@@ -25,7 +25,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <HeadlessUIDialog.Overlay className="fixed inset-0 bg-black bg-opacity-30" />
+            <div className="fixed inset-0 bg-black/25" />
           </Transition.Child>
 
           <Transition.Child
@@ -37,12 +37,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <HeadlessUIDialog.Panel className="w-full max-w-md bg-white shadow-md rounded-2xl">
+            <Dialog.Panel className="z-10 w-full max-w-md bg-white shadow-md rounded-2xl">
               {children}
-            </HeadlessUIDialog.Panel>
+            </Dialog.Panel>
           </Transition.Child>
         </div>
-      </HeadlessUIDialog>
+      </Dialog>
     </Transition>
   );
 };
