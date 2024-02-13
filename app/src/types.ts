@@ -134,11 +134,11 @@ export enum BucketState {
   EMPTY = "empty",
 }
 
-export enum TabContext {
-  Group = "Group",
-  Sequence = "Sequence",
-  Arrange = "Arrange",
-  Settings = "Settings",
+export enum TabContext { //used as links
+  Group = "group",
+  Sequence = "sequence",
+  Arrange = "arrange",
+  Settings = "settings",
 }
 
 export enum DraggingType {

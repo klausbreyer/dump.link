@@ -1,6 +1,5 @@
 import React, { createContext, ReactNode, useContext, useState } from "react";
 
-// Step 1: Define the Enum for App Lifecycle States
 export enum LifecycleState {
   Initialized = "initialized",
   Loaded = "loaded",
@@ -14,7 +13,6 @@ interface LifecycleContextType {
   setLifecycle: React.Dispatch<React.SetStateAction<LifecycleState>>;
 }
 
-// Step 2: Create the Context
 const LifecycleContext = createContext<LifecycleContextType | undefined>(
   undefined,
 );
@@ -23,7 +21,6 @@ interface LifecycleProviderProps {
   children: ReactNode;
 }
 
-// Step 3: Create the Provider Component
 export const LifecycleProvider: React.FC<LifecycleProviderProps> = ({
   children,
 }) => {
@@ -38,7 +35,6 @@ export const LifecycleProvider: React.FC<LifecycleProviderProps> = ({
   );
 };
 
-// Step 4: Create a Custom Hook
 export const useLifecycle = (): LifecycleContextType => {
   const context = useContext(LifecycleContext);
   if (!context) {

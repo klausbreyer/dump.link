@@ -6,6 +6,13 @@ import Title from "./common/Title";
 import { ArrangeIcon, GroupIcon, SequenceIcon } from "./common/icons";
 import { useQueryParamChange } from "./hooks/useQueryParamChange";
 import { TabContext } from "./types";
+import {
+  Location,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+import { getCurrentTab } from "./routing/helper";
 
 interface Step {
   id: TabContext;
@@ -87,18 +94,17 @@ The Task Group Arranger helps you and your colleagues easily see what has to be 
 
 interface HeaderNavProps {}
 
-export const handleTabClick = (tab: TabContext) => {
-  const params = new URLSearchParams(window.location.search);
-  params.set("p", tab);
-  window.history.pushState({}, "", "?" + params.toString());
-
-  // Dispatch a custom event after changing the URL
-  window.dispatchEvent(new Event("urlchanged"));
-};
-
 const HeaderNav: React.FC<HeaderNavProps> = (props) => {
-  const currentQueryParam = useQueryParamChange("p");
-  const currentTab = (currentQueryParam as TabContext) || TabContext.Group;
+  const location = useLocation();
+  const currentTab = getCurrentTab(location);
+
+  const navigate = useNavigate();
+  const params = useParams();
+  const { projectId } = params;
+
+  function handleTabClick(tab: TabContext) {
+    navigate(`/${projectId}/${tab}`);
+  }
 
   const openOnLoad = false;
   return (
