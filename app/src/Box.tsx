@@ -192,25 +192,26 @@ const Box: React.FC<BoxProps> = (props) => {
                     bucket={getBucket(others, id)}
                   />
                 ))}
-              {
-                <li className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1 p-1">
-                    {showUnavailable && (
-                      <>
-                        <ExclamationTriangleIcon className="w-5 h-5" />
-                        Cycle Detected
-                      </>
-                    )}
-                  </span>
-                  <span>
-                    <ArrowsPointingOutIcon
-                      title="Show Task Group"
-                      className="w-5 h-5 hover:bg-slate-300 "
-                      onClick={handleClick}
-                    />
-                  </span>
+              {showUnavailable && (
+                <li className="flex items-center gap-1 p-1 text-sm">
+                  <ExclamationTriangleIcon className="w-5 h-5" />
+                  Cycle Detected
                 </li>
-              }
+              )}
+
+              {!showUnavailable && (
+                <li
+                  className="flex items-center justify-between w-full text-sm cursor-pointer hover:bg-slate-300 group"
+                  onClick={handleClick}
+                  title="Show Task Group"
+                >
+                  <ArrowsPointingOutIcon className="w-5 h-5 opacity-0" />
+                  <span className="opacity-0 group-hover:opacity-100">
+                    Open
+                  </span>
+                  <ArrowsPointingOutIcon className="w-5 h-5 " />
+                </li>
+              )}
             </ul>
           </div>
         </div>
