@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import config from "../config";
+import config from "../../config";
 import { useData } from "../context/data/data";
 import { getTask, getTaskIndex, getTaskType } from "../context/data/tasks";
 import { useGlobalInteraction } from "../context/interaction";
@@ -86,9 +86,9 @@ function calculateNewPriority(
   let newPriority = overTask.priority; // Standardwert als aktuelle Priorität des übergeordneten Tasks
 
   if (overIndex === 0) {
-    newPriority = overTask.priority - config.PRIORITY_INCREMENT;
+    newPriority = overTask.priority - config.PROJECT_PRIORITY_INCREMENT;
   } else if (overIndex === sortedTasksForBucket.length - 1) {
-    newPriority = overTask.priority + config.PRIORITY_INCREMENT;
+    newPriority = overTask.priority + config.PROJECT_PRIORITY_INCREMENT;
   } else {
     if (draggedTask.priority < overTask.priority && beforeIndex >= 0) {
       newPriority = Math.round(

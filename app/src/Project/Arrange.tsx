@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import Box from "../Box";
-import Lane from "../Lane";
+import Box from "./Box";
+import Lane from "./Lane";
 import Container from "../common/Container";
 import InfoButton from "../common/InfoButton";
 import {
   getBorderCenterCoordinates,
   shortenLineEnd,
 } from "../common/coordinates";
-import { uniqueValues } from "../context/data/arrays";
-import { getBucket } from "../context/data/buckets";
-import { useData } from "../context/data/data";
-import { getAllDependencyChains } from "../context/data/dependencies";
-import { getAllPairs, getLayers } from "../context/data/layers";
-import { Bucket, BucketID, TabContext } from "../types";
+import { uniqueValues } from "./context/data/arrays";
+import { getBucket } from "./context/data/buckets";
+import { useData } from "./context/data/data";
+import { getAllDependencyChains } from "./context/data/dependencies";
+import { getAllPairs, getLayers } from "./context/data/layers";
+import { Bucket, BucketID, TabContext } from "./types";
 import { Link } from "react-router-dom";
 
 interface ArrangeProps {}

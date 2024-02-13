@@ -14,11 +14,11 @@ import NotificationBar from "./NotificationBar";
 import { Route, Routes } from "react-router-dom";
 import Settings from "./Settings";
 import Group from "./Group";
-import Arrange from "./routing/Arrange";
+import Arrange from "./Arrange";
 import Sequence from "./Sequence";
 import { TabContext } from "./types";
 
-export default function Main() {
+export default function Project() {
   return (
     <LifecycleProvider>
       <GlobalInteractionProvider>

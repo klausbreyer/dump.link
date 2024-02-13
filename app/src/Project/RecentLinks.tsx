@@ -1,8 +1,8 @@
 import { Popover, Transition } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { lastAccessedProject } from "./types";
-import { Tooltip } from "./common/InfoTooltip";
-import { RecentIcon } from "./common/icons";
+import { Tooltip } from "../common/InfoTooltip";
+import { RecentIcon } from "../common/icons";
 import { useData } from "./context/data/data";
 import { useParams } from "react-router-dom";
 

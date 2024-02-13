@@ -4,8 +4,8 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
-import CardList from "./common/CardList";
-import { getBucketBackgroundColor } from "./common/bucketColors";
+import CardList from "../common/CardList";
+import { getBucketBackgroundColor } from "../common/bucketColors";
 import {
   checkIfBucketIDExists,
   checkIfDependencyExists,

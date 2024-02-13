@@ -17,8 +17,8 @@ import {
 } from "../../types";
 
 import { useParams } from "react-router-dom";
-import { notifyBugsnag } from "../..";
-import config from "../../config";
+import { notifyBugsnag } from "../../..";
+import config from "../../../config";
 import { LifecycleState, useLifecycle } from "../lifecycle";
 import { APIError, apiFunctions } from "./calls";
 import {
@@ -367,7 +367,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     const updates = {
       bucketId: toBucketId,
-      priority: highestPriority + config.PRIORITY_INCREMENT,
+      priority: highestPriority + config.PROJECT_PRIORITY_INCREMENT,
     };
     updateTask(taskId, updates);
   };

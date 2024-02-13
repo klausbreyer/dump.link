@@ -9,9 +9,9 @@ import React, {
 
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { ActivityAvatar } from "./HeaderActivity";
-import { getInputBorderColor } from "./common/bucketColors";
-import { isSafari } from "./common/helper";
-import config from "./config";
+import { getInputBorderColor } from "../common/bucketColors";
+import { isSafari } from "../common/helper";
+import config from "../config";
 import { checkIfTaskIDExists, useAbsence } from "./context/absence";
 import {
   checkTaskActivity,
@@ -69,13 +69,13 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
     editRef,
     task === null && val.length === 0,
     (title: string) => {
-      title = title.substring(0, config.TASK_MAX_LENGTH);
+      title = title.substring(0, config.PROJECT_TASK_MAX_LENGTH);
 
       addTask({
         id: NewID(project.id),
         priority:
           calculateHighestPriority(sortedTasksForBucket) +
-          config.PRIORITY_INCREMENT,
+          config.PROJECT_PRIORITY_INCREMENT,
         title: title,
         closed: false,
         bucketId: bucket.id,
@@ -163,7 +163,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           id: NewID(project.id),
           priority:
             calculateHighestPriority(sortedTasksForBucket) +
-            config.PRIORITY_INCREMENT,
+            config.PROJECT_PRIORITY_INCREMENT,
           title: val,
           closed: false,
           bucketId: bucket.id,
@@ -309,7 +309,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
           <div className={`relative w-full `}>
             <textarea
               className={`${textAreaClasses} top-0 left-0 relative select-text ${
-                val.length >= config.TASK_MAX_LENGTH
+                val.length >= config.PROJECT_TASK_MAX_LENGTH
                   ? "focus:outline outline-2 outline-rose-500"
                   : "focus:outline outline-2 outline-indigo-500"
               } ${getBorderColor()}`}
@@ -319,7 +319,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
               onBlur={handleBlur}
               disabled={project.archived}
               onFocus={handleFocus}
-              maxLength={config.TASK_MAX_LENGTH}
+              maxLength={config.PROJECT_TASK_MAX_LENGTH}
               onKeyDown={handleKeyDown}
               onChange={handleChange}
               ref={editRef}
@@ -328,7 +328,7 @@ const TaskItem: React.FC<TaskItemProps> = function Card(props) {
             <div
               className={`absolute text-slate-800 text-xxs bottom-2 right-1 px-0.5 rounded bg-white`}
             >
-              {val.length}/{config.TASK_MAX_LENGTH}
+              {val.length}/{config.PROJECT_TASK_MAX_LENGTH}
             </div>
           </div>
         </div>

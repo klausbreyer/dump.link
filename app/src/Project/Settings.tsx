@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Container from "./common/Container";
-import InfoButton from "./common/InfoButton";
-import Title from "./common/Title";
+import Container from "../common/Container";
+import InfoButton from "../common/InfoButton";
+import Title from "../common/Title";
 import { useData } from "./context/data/data";
 import { dateToYYYYMMDD } from "./context/data/dates";
 import NotificationBar from "./NotificationBar";

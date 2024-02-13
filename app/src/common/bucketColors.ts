@@ -1,5 +1,5 @@
-import { getBucketState } from "../context/data/buckets";
-import { Bucket, BucketState, Task } from "../types";
+import { getBucketState } from "../Project/context/data/buckets";
+import { Bucket, BucketState, Task } from "../Project/types";
 
 export function getInputBorderColor(bucket: Bucket): string {
   return "border-slate-500 hover:border-slate-600 focus:border-slate-600";

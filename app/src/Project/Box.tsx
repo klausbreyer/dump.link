@@ -9,11 +9,11 @@ import {
 import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskGroup from "./TaskGroup";
-import Modal from "./common/Modal";
+import Modal from "../common/Modal";
 import {
   getBucketBackgroundColor,
   getHeaderTextColor,
-} from "./common/bucketColors";
+} from "../common/bucketColors";
 import {
   checkIfBucketIDExists,
   checkIfDependencyExists,
