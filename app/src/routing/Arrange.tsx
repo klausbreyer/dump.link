@@ -14,6 +14,7 @@ import { useData } from "../context/data/data";
 import { getAllDependencyChains } from "../context/data/dependencies";
 import { getAllPairs, getLayers } from "../context/data/layers";
 import { Bucket, BucketID, TabContext } from "../types";
+import { Link } from "react-router-dom";
 
 interface ArrangeProps {}
 
@@ -61,6 +62,26 @@ const Arrange: React.FC<ArrangeProps> = (props) => {
   useEffect(() => {
     repaint();
   }, [buckets, allBoxesRendered, dependencies]);
+
+  if (pairs.length === 0) {
+    return (
+      <Container>
+        <div className="flex items-center justify-center w-full h-full p-10">
+          <p className="text-slate-500">
+            No dependencies found. Try creating some in the{" "}
+            <Link
+              to={`/${project.id}/${TabContext.Sequence}`}
+              className="text-slate-800 hover:underline"
+            >
+              {" "}
+              Task Group Sequencer
+            </Link>
+            .
+          </p>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <>
