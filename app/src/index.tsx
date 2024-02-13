@@ -10,6 +10,9 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "../public/styles.css";
 import Project from "./Project/Project";
 import Dashboard from "./Dashboard/Dashboard";
+import { Auth0ProviderWithNavigate } from "./auth0-provider-with-navigate";
+import Callback from "./Dashboard/Callback";
+import { AppContext } from "../types";
 
 function isLocalhost(): boolean {
   return (
@@ -57,10 +60,13 @@ const App = function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter basename="/a">
-        <Routes>
-          <Route path=":projectId/*" element={<Project />} />
-          <Route path="dashboard" element={<Dashboard />} />
-        </Routes>
+        <Auth0ProviderWithNavigate>
+          <Routes>
+            <Route path=":projectId/*" element={<Project />} />
+            <Route path={AppContext.Dashboard} element={<Dashboard />} />
+            <Route path={AppContext.Callback} element={<Callback />} />
+          </Routes>
+        </Auth0ProviderWithNavigate>
       </BrowserRouter>
     </ErrorBoundary>
   );
