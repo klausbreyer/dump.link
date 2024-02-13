@@ -38,8 +38,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy",
-			" https://www.youtube-nocookie.com;")
+		w.Header().Set("Content-Security-Policy", "img-src 'self' https://lh3.googleusercontent.com;")
 
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")

@@ -15,58 +15,6 @@ func (app *application) ProjectRoot(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// AppGet handles the request and serves the HTML with dynamic script and stylesheet links.
-func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
-	params := httprouter.ParamsFromContext(r.Context())
-	projectId := params.ByName("projectId")
-
-	project, err := app.projects.Get(projectId)
-	if err != nil {
-		app.notFoundResponse(w, r)
-		return
-	}
-
-	jsFile, cssFile, err := findFiles("static/app/")
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	title := fmt.Sprintf("dump.link - %s", project.Name)
-	template := `
-		<!DOCTYPE html>
-		<html>
-		<head>
-			<link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
-			<meta charset="utf-8" />
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<link href="/{CSS_FILE}" rel="stylesheet">
-
-			<title>dump.link - {TITLE}</title>
-			<meta name="description" content="Streamlining communication and task management for business and technical teams.">
-			<meta property="og:title" content="{TITLE}">
-			<meta property="og:image" content="https://dump.link/static/icons/favicon@2x.png">
-			<meta property="og:description" content="Streamlining communication and task management for business and technical teams.">
-			<meta name="twitter:title" content="{TITLE}">
-			<meta name="twitter:description" content="Streamlining communication and task management for business and technical teams.">
-			<meta name="twitter:image" content="https://dump.link/static/icons/favicon@2x.png">
-		</head>
-		<body>
-			<div id="app"></div>
-			<script src="/{JS_FILE}" type="module"></script>
-		</body>
-		</html>
-	`
-	template = strings.Replace(template, "{TITLE}", title, -1)
-	template = strings.Replace(template, "{CSS_FILE}", cssFile, -1)
-	template = strings.Replace(template, "{JS_FILE}", jsFile, -1)
-	template = strings.Trim(template, " \n\t")
-
-	w.Header().Set("Content-Security-Policy", "frame-ancestors *")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(template))
-}
-
 func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
 		"status": "available",
@@ -114,4 +62,70 @@ func findFiles(dir string) (jsFile, cssFile string, err error) {
 	})
 
 	return jsFile, cssFile, err
+}
+
+// AppGet handles the request and serves the HTML with dynamic script and stylesheet links.
+func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
+	projectId := params.ByName("projectId")
+
+	if projectId == "dashboard" {
+		app.genericPageResponse(w, r, "dump.link - Dashboard")
+		return
+	}
+
+	if projectId == "callback" {
+		app.genericPageResponse(w, r, "dump.link - Logged In")
+		return
+	}
+
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	title := fmt.Sprintf("dump.link - %s", project.Name)
+	app.genericPageResponse(w, r, title)
+}
+
+func (app *application) genericPageResponse(w http.ResponseWriter, r *http.Request, title string) {
+	jsFile, cssFile, err := findFiles("static/app/")
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	template := `
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
+			<meta charset="utf-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<link href="/{CSS_FILE}" rel="stylesheet">
+
+			<title>dump.link - {TITLE}</title>
+			<meta name="description" content="Streamlining communication and task management for business and technical teams.">
+			<meta property="og:title" content="{TITLE}">
+			<meta property="og:image" content="https://dump.link/static/icons/favicon@2x.png">
+			<meta property="og:description" content="Streamlining communication and task management for business and technical teams.">
+			<meta name="twitter:title" content="{TITLE}">
+			<meta name="twitter:description" content="Streamlining communication and task management for business and technical teams.">
+			<meta name="twitter:image" content="https://dump.link/static/icons/favicon@2x.png">
+		</head>
+		<body>
+			<div id="app"></div>
+			<script src="/{JS_FILE}" type="module"></script>
+		</body>
+		</html>
+	`
+	template = strings.Replace(template, "{TITLE}", title, -1)
+	template = strings.Replace(template, "{CSS_FILE}", cssFile, -1)
+	template = strings.Replace(template, "{JS_FILE}", jsFile, -1)
+	template = strings.Trim(template, " \n\t")
+
+	w.Header().Set("Content-Security-Policy", "frame-ancestors *")
+	w.Header().Set("Content-Type", "text/html")
+	w.Write([]byte(template))
 }
