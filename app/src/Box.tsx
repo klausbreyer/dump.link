@@ -201,13 +201,12 @@ const Box: React.FC<BoxProps> = (props) => {
 
               {!showUnavailable && (
                 <li
-                  className="flex items-center justify-between w-full text-sm cursor-pointer hover:bg-slate-300 group"
+                  className="flex items-center justify-between w-full text-sm cursor-pointer hover:bg-slate-300 group p-0.5"
                   onClick={handleClick}
                   title="Show Task Group"
                 >
-                  <ArrowsPointingOutIcon className="w-5 h-5 opacity-0" />
-                  <span className="opacity-0 group-hover:opacity-100">
-                    Open
+                  <span className="font-semibold opacity-0 group-hover:opacity-100">
+                    Show Task Group
                   </span>
                   <ArrowsPointingOutIcon className="w-5 h-5 " />
                 </li>
@@ -239,9 +238,11 @@ const BucketItem: React.FC<BucketItemProps> = (props) => {
   if (TabContext.Sequence === context) {
     return (
       <li
+        title="Remove Dependency"
         onClick={() => !archived && callback()}
         className={`flex cursor-pointer items-center justify-between group gap-1 p-0.5
-        ${!archived && "hover:underline"}
+        ${!archived && "hover:underline hover:bg-slate-300"}
+
         ${bgHeader}`}
       >
         <span className="">{bucketName}</span>
