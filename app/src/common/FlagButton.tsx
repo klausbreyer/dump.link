@@ -1,8 +1,8 @@
 import { FlagIcon as FlagIconOutline } from "@heroicons/react/24/outline";
 import { FlagIcon as FlagIconSolid } from "@heroicons/react/24/solid";
 import React from "react";
-import { getBucketState } from "../context/data/buckets";
-import { Bucket, BucketState, Task } from "../types";
+import { getBucketState } from "../Project/context/data/buckets";
+import { Bucket, BucketState, Task } from "../Project/types";
 import { getHeaderTextColor, getInputBorderColor } from "./bucketColors";
 
 export interface FlagButtonProps {

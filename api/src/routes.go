@@ -22,6 +22,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/a", app.ProjectRoot)
 
 	router.HandlerFunc(http.MethodGet, "/a/:projectId", app.ProjectGet)
+	// /a/dashboard
 	router.HandlerFunc(http.MethodGet, "/a/:projectId/*any", app.ProjectGet)
 
 	router.HandlerFunc(http.MethodGet, "/api/v1/health", app.HealthGet)

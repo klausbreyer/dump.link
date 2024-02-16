@@ -26,6 +26,7 @@ jobs:
           bun test
 
       - name: Frontend - Build
+
         run: |
           cd app
           bun run build

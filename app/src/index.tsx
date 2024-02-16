@@ -8,7 +8,9 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "../public/styles.css";
-import Main from "./Main";
+import { AppContext } from "../types";
+import Dashboard from "./Dashboard/Dashboard";
+import Project from "./Project/Project";
 
 function isLocalhost(): boolean {
   return (
@@ -57,7 +59,8 @@ const App = function App() {
     <ErrorBoundary>
       <BrowserRouter basename="/a">
         <Routes>
-          <Route path=":projectId/*" element={<Main />} />
+          <Route path=":projectId/*" element={<Project />} />
+          <Route path={AppContext.Dashboard} element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>
