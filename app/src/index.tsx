@@ -19,7 +19,7 @@ function isLocalhost(): boolean {
   );
 }
 
-const releaseStage = isLocalhost() ? "development" : window.location.host;
+const releaseStage = isLocalhost() ? "0.0.0.0:8080" : window.location.host;
 Bugsnag.start({
   apiKey: "dfa678c21426fc846674ce32690760ff",
   plugins: [new BugsnagPluginReact()],

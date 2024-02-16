@@ -28,7 +28,7 @@ const createApiFunctions = () => {
     process.env.NODE_ENV === "production" &&
     window.location.hostname !== "localhost"
       ? `${window.location.origin}/api/v1`
-      : "http://localhost:8080/api/v1",
+      : "http://0.0.0.0:8080/api/v1",
   );
   const apiCall = async ({
     url = "",

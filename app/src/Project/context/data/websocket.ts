@@ -20,7 +20,7 @@ export const setupWebSocket = (
       process.env.NODE_ENV === "production" &&
       window.location.hostname !== "localhost"
         ? `wss://${window.location.host}/api/v1/ws/${projectId}`
-        : `ws://localhost:8080/api/v1/ws/${projectId}`,
+        : `ws://0.0.0.0:8080/api/v1/ws/${projectId}`,
     );
 
     wsURL.searchParams.append("token", CLIENT_TOKEN);
