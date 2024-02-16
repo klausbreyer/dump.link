@@ -1,10 +1,10 @@
 import { Popover, Transition } from "@headlessui/react";
 import { useEffect, useState } from "react";
-import { lastAccessedProject } from "./types";
+import { useParams } from "react-router-dom";
 import { Tooltip } from "../common/InfoTooltip";
 import { RecentIcon } from "../common/icons";
 import { useData } from "./context/data/data";
-import { useParams } from "react-router-dom";
+import { lastAccessedProject } from "./types";
 
 function RecentLinks() {
   const { project } = useData();

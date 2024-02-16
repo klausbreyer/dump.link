@@ -8,10 +8,10 @@ import React, {
 } from "react";
 
 import { XCircleIcon } from "@heroicons/react/24/solid";
-import { ActivityAvatar } from "./HeaderActivity";
 import { getInputBorderColor } from "../common/bucketColors";
 import { isSafari } from "../common/helper";
 import config from "../config";
+import { ActivityAvatar } from "./HeaderActivity";
 import { checkIfTaskIDExists, useAbsence } from "./context/absence";
 import {
   checkTaskActivity,
@@ -26,8 +26,8 @@ import {
 } from "./context/data/tasks";
 import { useGlobalInteraction } from "./context/interaction";
 import usePasteListener from "./hooks/usePasteListener";
-import { Bucket, Task } from "./types";
 import { useTaskDragDrop } from "./hooks/useTaskDragDrop";
+import { Bucket, Task } from "./types";
 
 interface TaskItemProps {
   task: Task | null;

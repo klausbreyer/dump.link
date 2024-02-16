@@ -74,11 +74,6 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if projectId == "callback" {
-		app.genericPageResponse(w, r, "dump.link - Logged In")
-		return
-	}
-
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.notFoundResponse(w, r)

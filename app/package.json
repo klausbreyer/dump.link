@@ -24,7 +24,6 @@
     "test": "jest --coverage"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^2.2.4",
     "@bugsnag/browser-performance": "2.1.0",
     "@bugsnag/js": "7.22.3",
     "@bugsnag/plugin-react": "7.19.0",

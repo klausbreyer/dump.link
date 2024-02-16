@@ -1,13 +1,13 @@
 import React from "react";
 
+import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
+import Container from "../common/Container";
+import HeaderActivity from "./HeaderActivity";
 import HeaderNav from "./HeaderNav";
 import HeaderProgress from "./HeaderProgress";
 import HeaderProject from "./HeaderProject";
 import HeaderSettings from "./HeaderSettings";
-import Container from "../common/Container";
-import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import { useData } from "./context/data/data";
-import HeaderActivity from "./HeaderActivity";
 
 interface HeaderProps {}
 

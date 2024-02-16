@@ -2,11 +2,11 @@ import React from "react";
 
 import { UserIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "../common/InfoTooltip";
-import { useData } from "./context/data/data";
 import {
   isActivityOutdated,
   sortActivitiesByDate,
 } from "./context/data/activities";
+import { useData } from "./context/data/data";
 import { dateToHumanReadable } from "./context/data/dates";
 import { getInitials, getUsername } from "./context/data/requests";
 import { Activity, UserName } from "./types";

@@ -1,7 +1,7 @@
 import { useDrop } from "react-dnd";
-import { Bucket, DraggedTask } from "../types";
-import { useData } from "../context/data/data";
 import { getOpenBucketType } from "../context/data/buckets";
+import { useData } from "../context/data/data";
+import { Bucket, DraggedTask } from "../types";
 
 export function useTaskGroupDrop(bucket: Bucket) {
   const { buckets, moveTask, tasks } = useData();

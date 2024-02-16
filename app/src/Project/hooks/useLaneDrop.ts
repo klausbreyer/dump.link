@@ -1,23 +1,16 @@
 import { useDrop } from "react-dnd";
 import {
-  Bucket,
-  BucketID,
-  Dependency,
-  DraggedBucket,
-  DraggedTask,
-} from "../types";
-import { useData } from "../context/data/data";
-import {
   getArrangeBucketType,
   getBucket,
-  getOpenBucketType,
   getOtherBuckets,
 } from "../context/data/buckets";
+import { useData } from "../context/data/data";
 import {
   getBucketDependencies,
   getBucketsDependingOnNothing,
 } from "../context/data/dependencies";
 import { getLayers } from "../context/data/layers";
+import { Bucket, BucketID, Dependency, DraggedBucket } from "../types";
 
 const getAccept = (
   buckets: Bucket[],

@@ -8,11 +8,9 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "../public/styles.css";
-import Project from "./Project/Project";
-import Dashboard from "./Dashboard/Dashboard";
-import { Auth0ProviderWithNavigate } from "./auth0-provider-with-navigate";
-import Callback from "./Dashboard/Callback";
 import { AppContext } from "../types";
+import Dashboard from "./Dashboard/Dashboard";
+import Project from "./Project/Project";
 
 function isLocalhost(): boolean {
   return (
@@ -60,13 +58,10 @@ const App = function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter basename="/a">
-        <Auth0ProviderWithNavigate>
-          <Routes>
-            <Route path=":projectId/*" element={<Project />} />
-            <Route path={AppContext.Dashboard} element={<Dashboard />} />
-            <Route path={AppContext.Callback} element={<Callback />} />
-          </Routes>
-        </Auth0ProviderWithNavigate>
+        <Routes>
+          <Route path=":projectId/*" element={<Project />} />
+          <Route path={AppContext.Dashboard} element={<Dashboard />} />
+        </Routes>
       </BrowserRouter>
     </ErrorBoundary>
   );

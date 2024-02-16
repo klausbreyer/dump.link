@@ -8,6 +8,7 @@ import {
   getSequenceBucketType,
 } from "../context/data/buckets";
 import { useData } from "../context/data/data";
+import { getBucketsAvailableFor } from "../context/data/dependencies";
 import { getWholeSubgraph } from "../context/data/layers";
 import { useGlobalInteraction } from "../context/interaction";
 import {
@@ -16,7 +17,6 @@ import {
   DraggingType,
   DropCollectedProps,
 } from "../types";
-import { getBucketsAvailableFor } from "../context/data/dependencies";
 
 export const useBoxDragDrop = (
   bucket: Bucket,

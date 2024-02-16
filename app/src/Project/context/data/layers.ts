@@ -1,6 +1,6 @@
 import { Bucket, BucketID, Dependency } from "../../types";
-import { getBucket, getNamedBuckets, getOtherBuckets } from "./buckets";
 import { difference, uniqueValues } from "./arrays";
+import { getBucket, getNamedBuckets, getOtherBuckets } from "./buckets";
 import {
   getAllDependencyChains,
   getBucketDependencies,

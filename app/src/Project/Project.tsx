@@ -1,6 +1,13 @@
 import { HTML5toTouch } from "rdndmb-html5-to-touch";
 import { useEffect } from "react";
 import { DndProvider } from "react-dnd-multi-backend";
+import { Route, Routes } from "react-router-dom";
+import Arrange from "./Arrange";
+import Group from "./Group";
+import Header from "./Header";
+import NotificationBar from "./NotificationBar";
+import Sequence from "./Sequence";
+import Settings from "./Settings";
 import { AbsenceProvider } from "./context/absence";
 import { DataProvider } from "./context/data/data";
 import { GlobalInteractionProvider } from "./context/interaction";
@@ -9,13 +16,6 @@ import {
   LifecycleState,
   useLifecycle,
 } from "./context/lifecycle";
-import Header from "./Header";
-import NotificationBar from "./NotificationBar";
-import { Route, Routes } from "react-router-dom";
-import Settings from "./Settings";
-import Group from "./Group";
-import Arrange from "./Arrange";
-import Sequence from "./Sequence";
 import { TabContext } from "./types";
 
 export default function Project() {

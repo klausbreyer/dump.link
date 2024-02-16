@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { useDragLayer } from "react-dnd";
-import Box from "./Box";
-import FollowArrow from "./FollowArrow";
 import Container from "../common/Container";
 import InfoButton from "../common/InfoButton";
 import {
@@ -10,11 +8,11 @@ import {
   getBorderCenterCoordinates,
   shortenLineEnd,
 } from "../common/coordinates";
-import { useData } from "./context/data/data";
+import Box from "./Box";
+import FollowArrow from "./FollowArrow";
 import { getOtherBuckets } from "./context/data/buckets";
+import { useData } from "./context/data/data";
 import { BucketID, TabContext } from "./types";
-import Header from "./Header";
-import NotificationBar from "./NotificationBar";
 
 interface SequenceProps {}
 

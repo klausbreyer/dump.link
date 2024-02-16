@@ -1,5 +1,5 @@
 import config from "../../../config";
-import { Activity, TaskID, UserName } from "../../types";
+import { Activity, TaskID } from "../../types";
 import { getUsername } from "./requests";
 
 export function checkTaskActivity(

@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 
-import { ActivityAvatar } from "./HeaderActivity";
 import FlagButton from "../common/FlagButton";
 import {
   getBucketBackgroundColor,
@@ -9,6 +8,7 @@ import {
 import { isSafari } from "../common/helper";
 import { EmptyChekboxIcon } from "../common/icons";
 import config from "../config";
+import { ActivityAvatar } from "./HeaderActivity";
 import {
   checkBucketActivity,
   validateActivityOther,

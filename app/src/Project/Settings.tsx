@@ -4,8 +4,6 @@ import InfoButton from "../common/InfoButton";
 import Title from "../common/Title";
 import { useData } from "./context/data/data";
 import { dateToYYYYMMDD } from "./context/data/dates";
-import NotificationBar from "./NotificationBar";
-import Header from "./Header";
 
 interface SettingsProps {}
 
