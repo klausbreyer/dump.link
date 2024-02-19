@@ -26,6 +26,19 @@ func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
 	}
 }
+
+func (app *application) PrivateGet(w http.ResponseWriter, r *http.Request) {
+	data := map[string]string{
+		"status": "private access",
+	}
+
+	err := app.writeJSON(w, http.StatusOK, data, nil)
+	if err != nil {
+		app.logger.Error(err.Error())
+		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+	}
+}
+
 func (app *application) RootGet(w http.ResponseWriter, r *http.Request) {
 	htmlTemplatePath := "templates/index.html"
 
@@ -71,6 +84,10 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 
 	if projectId == "dashboard" {
 		app.genericPageResponse(w, r, "dump.link - Dashboard")
+		return
+	}
+	if projectId == "callback" {
+		app.genericPageResponse(w, r, "dump.link - Callback")
 		return
 	}
 

@@ -12,7 +12,7 @@ import { AppContext } from "../types";
 import Callback from "./Dashboard/Callback";
 import Dashboard from "./Dashboard/Dashboard";
 import Project from "./Project/Project";
-import { Auth0ProviderConfigured } from "./auth0-provider-with-navigate";
+import { Auth0ProviderConfigured } from "./auth0-provider";
 
 function isLocalhost(): boolean {
   return (

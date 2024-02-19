@@ -27,6 +27,7 @@ export const Auth0ProviderConfigured: React.FC<
       clientId={clientId}
       cacheLocation="localstorage"
       authorizationParams={{
+        scope: "read:messages openid profile email",
         audience: audience,
         redirect_uri: redirectUri,
       }}
