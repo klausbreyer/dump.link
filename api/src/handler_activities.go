@@ -23,8 +23,9 @@ func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var input struct {
-		BucketID *string `json:"bucketId"`
-		TaskID   *string `json:"taskId"`
+		BucketID  *string `json:"bucketId"`
+		TaskID    *string `json:"taskId"`
+		CreatedBy *string `json:"createdBy"`
 	}
 
 	err = app.readJSON(w, r, &input)

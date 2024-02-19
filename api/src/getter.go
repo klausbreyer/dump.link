@@ -2,6 +2,7 @@ package src
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -34,9 +35,14 @@ func (app *application) idExists(idType string, id string) bool {
 }
 
 func (app *application) getUsernameFromHeader(r *http.Request) (string, error) {
-	username := r.Header.Get("Username")
+	encodedUsername := r.Header.Get("Username")
 
-	return username, nil
+	decodedUsername, err := url.QueryUnescape(encodedUsername)
+	if err != nil {
+		return "", err
+	}
+	return decodedUsername, nil
+
 }
 
 func (app *application) getTokenFromRequest(r *http.Request) string {

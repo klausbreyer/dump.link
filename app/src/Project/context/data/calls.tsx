@@ -46,7 +46,7 @@ const createApiFunctions = () => {
       method,
       headers: {
         "Content-Type": "application/json",
-        Username: getUsername(),
+        Username: encodeURIComponent(getUsername()),
       },
       body: body ? JSON.stringify(body) : null,
     };

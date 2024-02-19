@@ -41,9 +41,17 @@ type application struct {
 func Run(templatesFS embed.FS) error {
 	addr := flag.String("addr", "0.0.0.0:8080", "HTTP network address")
 	flag.Parse()
+	logLevel := slog.LevelInfo
+	env := os.Getenv("ENV")
+	if env == "" {
+		logLevel = slog.LevelDebug
+	}
+	opts := &slog.HandlerOptions{
+		Level: logLevel,
+	}
 	// Use the slog.New() function to initialize a new structured logger, which
 	// writes to the standard out stream and uses the default settings.
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, opts))
 
 	db, err := openDB()
 	if err != nil {
@@ -70,7 +78,11 @@ func Run(templatesFS embed.FS) error {
 	logger.Info(fmt.Sprintf("starting server at http://%s", *addr))
 	err = http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
-	os.Exit(1)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1) // This will exit the program if there's an error starting the server
+	}
+
 	return nil
 }
 
