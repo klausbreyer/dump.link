@@ -14,7 +14,7 @@ tailwind-build:
 	./tailwindcss -i ./css/tailwind.css -o ./static/tailwind.css --minify
 
 kill:
-	killall air
+	-killall air
 	lsof -t -i tcp:8080 | xargs kill -9
 
 test:
