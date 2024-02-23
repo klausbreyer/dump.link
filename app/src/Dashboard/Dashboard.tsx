@@ -1,24 +1,19 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
-import InfoButton from "../common/InfoButton";
+import Container from "../common/Container";
+import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
+import Alert from "../common/Alert";
+import DLMenu from "../Menu/Menu";
 
 export default function Dashboard() {
-  const {
-    user,
-    isAuthenticated,
-    isLoading,
-    loginWithRedirect,
-    getAccessTokenSilently,
-    logout,
-  } = useAuth0();
+  const { user, isAuthenticated, isLoading, getAccessTokenSilently } =
+    useAuth0();
 
   useEffect(() => {
     if (!user?.sub) return;
 
     const getUserMetadata = async () => {
-      const domain = "dumplink.eu.auth0.com";
-
       try {
         const accessToken = await getAccessTokenSilently();
 
@@ -40,26 +35,38 @@ export default function Dashboard() {
 
   return (
     <>
-      <div>
-        <InfoButton color="indigo" onClick={() => loginWithRedirect()}>
-          Login
-        </InfoButton>
-        <InfoButton
-          color="indigo"
-          onClick={() =>
-            logout({ logoutParams: { returnTo: window.location.origin } })
-          }
-        >
-          Logout
-        </InfoButton>
-        {isAuthenticated && user && (
-          <div>
-            <img src={user.picture} alt={user.name} />
-            <h2>{user.name}</h2>
-            <p>{user.email}</p>
-          </div>
+      <DLMenu />
+      <Container>
+        {!isAuthenticated && (
+          <Alert>
+            <div className="rounded-md bg-yellow-50 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <ExclamationTriangleIcon
+                    className="h-5 w-5 text-yellow-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Login Required
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p>
+                      You must log in to access the dashboard and view all your
+                      dumplinks. Please log in to continue and unlock the full
+                      features of your account.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Alert>
         )}
-      </div>
+        {isAuthenticated && user && (
+          <div className="m-10">Here goes the Dashboard..</div>
+        )}
+      </Container>
     </>
   );
 }

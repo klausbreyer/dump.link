@@ -31,7 +31,7 @@ function RecentLinks() {
 
   return (
     //   z for the whole thing because of the transition.
-    <Popover className="relative z-50">
+    <Popover className="relative z-30">
       <Popover.Button>
         <Tooltip info="Recent">
           <RecentIcon className="w-6 h-6 cursor-pointer text-slate-500 hover:text-slate-800" />

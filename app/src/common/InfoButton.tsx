@@ -31,6 +31,8 @@ const colorMap = {
   rose: "bg-rose-300 hover:bg-rose-400 border-rose-700 ring-rose-700 text-rose-900",
   gray: "bg-gray-300 hover:bg-gray-400 border-gray-700 ring-gray-700 text-gray-900",
   blue: "bg-blue-300 hover:bg-blue-400 border-blue-700 ring-blue-700 text-blue-900",
+  white:
+    "bg-white hover:bg-slate-100 border-slate-700 ring-slate-700 text-slate-900",
 };
 
 const InfoButton: React.FC<
