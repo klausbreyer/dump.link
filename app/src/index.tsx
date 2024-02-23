@@ -9,8 +9,10 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "../public/styles.css";
 import { AppContext } from "../types";
+import Callback from "./Dashboard/Callback";
 import Dashboard from "./Dashboard/Dashboard";
 import Project from "./Project/Project";
+import { Auth0ProviderConfigured } from "./auth0-provider";
 
 function isLocalhost(): boolean {
   return (
@@ -58,10 +60,13 @@ const App = function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter basename="/a">
-        <Routes>
-          <Route path=":projectId/*" element={<Project />} />
-          <Route path={AppContext.Dashboard} element={<Dashboard />} />
-        </Routes>
+        <Auth0ProviderConfigured>
+          <Routes>
+            <Route path=":projectId/*" element={<Project />} />
+            <Route path={AppContext.Dashboard} element={<Dashboard />} />
+            <Route path={AppContext.Callback} element={<Callback />} />
+          </Routes>
+        </Auth0ProviderConfigured>
       </BrowserRouter>
     </ErrorBoundary>
   );

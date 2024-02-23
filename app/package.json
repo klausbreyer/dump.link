@@ -24,11 +24,13 @@
     "test": "jest --coverage"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.2.4",
     "@bugsnag/browser-performance": "2.1.0",
     "@bugsnag/js": "7.22.3",
     "@bugsnag/plugin-react": "7.19.0",
     "@headlessui/react": "1.7.18",
     "@heroicons/react": "2.1.1",
+    "jwt-decode": "^4.0.0",
     "rdndmb-html5-to-touch": "8.0.3",
     "react": "18.2.0",
     "react-dnd": "16.0.1",
