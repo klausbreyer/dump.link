@@ -28,8 +28,8 @@ export default function DLMenu() {
   return (
     <>
       <div className="min-h-full bg-slate-600">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Link className="flex-shrink-0" to="/">
                 <DumplinkIcon className={`w-10 h-10 text-white `} />
@@ -37,7 +37,7 @@ export default function DLMenu() {
 
               <div className="block">
                 {isAuthenticated && (
-                  <div className="ml-10 flex items-baseline space-x-4">
+                  <div className="flex items-baseline ml-10 space-x-4">
                     {navigation.map((item) => (
                       <Link
                         key={item.name}
@@ -88,12 +88,12 @@ export default function DLMenu() {
                     <div>
                       <Menu.Button
                         title={user.email}
-                        className="relative flex max-w-xs items-center rounded-full bg-slate-600 text-sm focus:outline-none hover:ring-2 hover:ring-offset-2  focus:ring-2 focus:ring-offset-2 ring-slate-700"
+                        className="relative flex items-center max-w-xs text-sm rounded-full bg-slate-600 focus:outline-none hover:ring-2 hover:ring-offset-2 focus:ring-2 focus:ring-offset-2 ring-slate-700"
                       >
                         <span className="absolute -inset-1.5" />
                         <span className="sr-only">Open user menu</span>
                         <img
-                          className="h-8 w-8 rounded-full"
+                          className="w-8 h-8 rounded-full"
                           src={user.picture}
                         />
                       </Menu.Button>
@@ -107,7 +107,7 @@ export default function DLMenu() {
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <Menu.Items className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <Menu.Items className="absolute right-0 z-50 w-48 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         {userNavigation.map((item) => (
                           <Menu.Item key={item.name}>
                             {({ active }) => (

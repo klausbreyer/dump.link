@@ -68,20 +68,20 @@ export default function New() {
       isValid = false;
     }
 
-    if (!formData.firstName) {
+    if (!isAuthenticated && !formData.firstName) {
       errors.firstName = "This field is required";
       isValid = false;
     }
-    if (!formData.lastName) {
+    if (!isAuthenticated && !formData.lastName) {
       errors.lastName = "This field is required";
       isValid = false;
     }
-    if (!formData.email) {
+    if (!isAuthenticated && !formData.email) {
       errors.email = "This field is required";
       isValid = false;
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
+      if (!isAuthenticated && !emailRegex.test(formData.email)) {
         errors.email = "Invalid email format";
         isValid = false;
       }
@@ -104,9 +104,9 @@ export default function New() {
       const project = await api.postProject(
         formData.projectName,
         parseInt(formData.appetite, 10),
-        formData.email,
-        formData.firstName,
-        formData.lastName,
+        isAuthenticated ? undefined : formData.email,
+        isAuthenticated ? undefined : formData.firstName,
+        isAuthenticated ? undefined : formData.lastName,
       );
       window.location.href = `/a/${project.id}`;
     } catch (error) {
@@ -159,56 +159,60 @@ export default function New() {
               />
             </div>
 
-            <div className=" sm:col-span-6">
-              <h2 className="text-base font-semibold leading-7 text-slate-900">
-                Personal Information
-              </h2>
-            </div>
+            {!isAuthenticated && (
+              <>
+                <div className=" sm:col-span-6">
+                  <h2 className="text-base font-semibold leading-7 text-slate-900">
+                    Personal Information
+                  </h2>
+                </div>
 
-            <div className="mb-2 sm:col-span-3">
-              <Input
-                title="first name"
-                name="firstName"
-                type="text"
-                value={formData.firstName}
-                onChange={handleChange}
-                errorMessage={validationErrors?.firstName}
-                autoComplete="given-name"
-                placeholder="Enter your first name"
-                className="w-full"
-              />
-            </div>
+                <div className="mb-2 sm:col-span-3">
+                  <Input
+                    title="first name"
+                    name="firstName"
+                    type="text"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    errorMessage={validationErrors?.firstName}
+                    autoComplete="given-name"
+                    placeholder="Enter your first name"
+                    className="w-full"
+                  />
+                </div>
 
-            <div className="mb-2 sm:col-span-3">
-              <Input
-                title="Last name"
-                name="lastName"
-                type="text"
-                value={formData.lastName}
-                onChange={handleChange}
-                errorMessage={validationErrors?.lastName}
-                autoComplete="family-name"
-                placeholder="Enter your last name"
-                className="w-full"
-              />
-            </div>
+                <div className="mb-2 sm:col-span-3">
+                  <Input
+                    title="Last name"
+                    name="lastName"
+                    type="text"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    errorMessage={validationErrors?.lastName}
+                    autoComplete="family-name"
+                    placeholder="Enter your last name"
+                    className="w-full"
+                  />
+                </div>
 
-            <div className="sm:col-span-4">
-              <Input
-                title="E-Mail"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                errorMessage={validationErrors?.email}
-                autoComplete="email"
-                placeholder="Enter your email"
-                className="w-full"
-              />
-              <Explanation>
-                We will not spam you. We do not sell your information.
-              </Explanation>
-            </div>
+                <div className="sm:col-span-4">
+                  <Input
+                    title="E-Mail"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    errorMessage={validationErrors?.email}
+                    autoComplete="email"
+                    placeholder="Enter your email"
+                    className="w-full"
+                  />
+                  <Explanation>
+                    We will not spam you. We do not sell your information.
+                  </Explanation>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex items-center justify-start mt-2">

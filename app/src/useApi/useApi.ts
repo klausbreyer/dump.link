@@ -227,9 +227,9 @@ export const useApi = () => {
     postProject: async (
       name: string,
       appetite: number,
-      ownerEmail: string,
-      ownerFirstName: string,
-      ownerLastName: string,
+      ownerEmail?: string,
+      ownerFirstName?: string,
+      ownerLastName?: string,
     ): Promise<Project> => {
       const response = await apiCall({
         url: `/projects`,

@@ -42,7 +42,11 @@ func (app *application) getUsernameFromHeader(r *http.Request) (string, error) {
 		return "", err
 	}
 	return decodedUsername, nil
+}
 
+func (app *application) getTokenFromHeader(r *http.Request) string {
+	token := r.Header.Get("Authorization")
+	return token
 }
 
 func (app *application) getTokenFromRequest(r *http.Request) string {

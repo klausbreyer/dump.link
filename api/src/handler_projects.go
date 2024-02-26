@@ -1,7 +1,6 @@
 package src
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -198,10 +197,10 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if input.Name == "" || input.OwnerEmail == "" || input.OwnerFirstName == "" || input.OwnerLastName == "" {
-		app.badRequestResponse(w, r, errors.New("missing required fields"))
-		return
-	}
+	// if input.Name == "" || input.OwnerEmail == "" || input.OwnerFirstName == "" || input.OwnerLastName == "" {
+	// 	app.badRequestResponse(w, r, errors.New("missing required fields"))
+	// 	return
+	// }
 
 	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, "")
 	if err != nil {
