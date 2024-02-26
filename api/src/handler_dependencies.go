@@ -11,7 +11,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -89,7 +89,7 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 

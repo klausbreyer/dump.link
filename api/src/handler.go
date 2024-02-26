@@ -28,14 +28,20 @@ func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) PrivateGet(w http.ResponseWriter, r *http.Request) {
-	data := map[string]string{
-		"status": "private access",
+
+	sub, orgId, err := app.getAndValidateUserAndOrg(r, "private")
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
+		return
 	}
 
-	err := app.writeJSON(w, http.StatusOK, data, nil)
+	data := map[string]string{
+		"sub":   sub,
+		"orgId": orgId,
+	}
+	err = app.writeJSON(w, http.StatusOK, data, nil)
 	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 	}
 }
 

@@ -26,7 +26,7 @@ type ProjectModel struct {
 	DB *sql.DB
 }
 
-func (m *ProjectModel) Insert(name string, appetite int, ownerEmail, ownerFirstName, ownerLastName, updatedBy string) (string, error) {
+func (m *ProjectModel) GetNewID() string {
 	var id string
 	for {
 		id = NewID()
@@ -34,15 +34,29 @@ func (m *ProjectModel) Insert(name string, appetite int, ownerEmail, ownerFirstN
 			break
 		}
 	}
+	return id
+}
 
+func (m *ProjectModel) InsertAnonymous(id string, name string, appetite int, ownerEmail, ownerFirstName, ownerLastName, userId string) error {
 	startedAt := time.Now()
-	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName, updatedBy)
+	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName, userId)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return id, nil
+	return nil
+}
+
+func (m *ProjectModel) InsertRegistered(id string, name string, appetite int, userId, orgId string) error {
+	startedAt := time.Now()
+	stmt := `INSERT INTO projects (id, name, started_at, appetite, created_by, org_id) VALUES (?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, userId, orgId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *ProjectModel) IDExists(id string) bool {

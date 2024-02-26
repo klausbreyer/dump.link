@@ -2,6 +2,8 @@ package src
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -9,69 +11,66 @@ import (
 	"strings"
 	"time"
 
-	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/jwks"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
 
-// CustomClaims contains custom data we want from the token.
-type CustomClaims struct {
-	Scope string `json:"scope"`
+type CustomClaimOrg struct {
+	OrgId string `json:"org_id"`
 }
 
-// Validate does nothing for this example, but we need
-// it to satisfy validator.CustomClaims interface.
-func (c CustomClaims) Validate(ctx context.Context) error {
+func (c *CustomClaimOrg) Validate(ctx context.Context) error {
+	if c.OrgId == "" {
+		return errors.New("org_id is required")
+	}
 	return nil
-} // EnsureValidToken is a middleware that checks the validity of our JWT.
-func EnsureValidToken(next func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		issuerURL, err := url.Parse("https://" + os.Getenv("AUTH0_DOMAIN") + "/")
-		if err != nil {
-			log.Fatalf("Failed to parse the issuer URL: %v", err)
-		}
-
-		provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
-
-		jwtValidator, err := validator.New(
-			provider.KeyFunc,
-			validator.RS256,
-			issuerURL.String(),
-			[]string{os.Getenv("AUTH0_AUDIENCE")},
-			validator.WithCustomClaims(
-				func() validator.CustomClaims {
-					return &CustomClaims{}
-				},
-			),
-			validator.WithAllowedClockSkew(time.Minute),
-		)
-		if err != nil {
-			log.Fatalf("Failed to set up the JWT validator")
-		}
-
-		middleware := jwtmiddleware.New(
-			jwtValidator.ValidateToken,
-			jwtmiddleware.WithErrorHandler(func(w http.ResponseWriter, r *http.Request, err error) {
-				log.Printf("Encountered error while validating JWT: %v", err)
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte(`{"message":"Failed to validate JWT."}`))
-			}),
-		)
-
-		nextHandler := http.HandlerFunc(next)
-		middleware.CheckJWT(nextHandler).ServeHTTP(w, r)
-	}
 }
 
-// HasScope checks whether our claims have a specific scope.
-func (c CustomClaims) HasScope(expectedScope string) bool {
-	result := strings.Split(c.Scope, " ")
-	for i := range result {
-		if result[i] == expectedScope {
-			return true
-		}
+func (app *application) getClaims(r *http.Request) (*validator.ValidatedClaims, *CustomClaimOrg, error) {
+	tokenString := r.Header.Get("Authorization")
+	if tokenString == "" {
+		return nil, nil, fmt.Errorf("authorization header is missing")
 	}
 
-	return false
+	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
+
+	token, err := app.jwtValidator.ValidateToken(context.Background(), tokenString)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	claims, ok := token.(*validator.ValidatedClaims)
+
+	if !ok {
+		return nil, nil, fmt.Errorf("token does not contain validated claims")
+	}
+
+	customClaims, ok := claims.CustomClaims.(*CustomClaimOrg)
+	if !ok {
+		return nil, nil, fmt.Errorf("could not cast custom claims to specific type")
+	}
+
+	return claims, customClaims, nil
+}
+
+func setupJWTValidator() *validator.Validator {
+	issuerURL, err := url.Parse("https://" + os.Getenv("AUTH0_DOMAIN") + "/")
+	if err != nil {
+		log.Fatalf("Failed to parse the issuer URL: %v", err)
+	}
+	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
+	customClaims := func() validator.CustomClaims {
+		return &CustomClaimOrg{}
+	}
+	jwtValidator, err := validator.New(
+		provider.KeyFunc,
+		validator.RS256,
+		issuerURL.String(),
+		[]string{os.Getenv("AUTH0_AUDIENCE")},
+		validator.WithCustomClaims(customClaims),
+	)
+	if err != nil {
+		log.Fatalf("Failed to set up the validator: %v", err)
+	}
+	return jwtValidator
 }

@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"dump.link/src/models"
+	"github.com/auth0/go-jwt-middleware/v2/validator"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/websocket"
 )
@@ -36,6 +37,8 @@ type application struct {
 
 	clients map[string]map[*wsClient]bool // Map projectId to Clients
 	mutex   sync.Mutex
+
+	jwtValidator *validator.Validator
 }
 
 func Run(templatesFS embed.FS) error {
@@ -73,6 +76,8 @@ func Run(templatesFS embed.FS) error {
 		logSubscriptions: &models.LogSubscriptionModel{DB: db},
 
 		clients: make(map[string]map[*wsClient]bool),
+
+		jwtValidator: setupJWTValidator(),
 	}
 
 	logger.Info(fmt.Sprintf("starting server at http://%s", *addr))

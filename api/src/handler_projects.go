@@ -1,6 +1,7 @@
 package src
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -13,7 +14,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -90,7 +91,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -197,15 +198,30 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// if input.Name == "" || input.OwnerEmail == "" || input.OwnerFirstName == "" || input.OwnerLastName == "" {
-	// 	app.badRequestResponse(w, r, errors.New("missing required fields"))
-	// 	return
-	// }
-
-	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, "")
+	projectId := app.projects.GetNewID()
+	userId, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.unauthorizedResponse(w, r, err)
 		return
+	}
+
+	if isAnonymous(userId) {
+		if input.Name == "" || input.OwnerEmail == "" || input.OwnerFirstName == "" || input.OwnerLastName == "" {
+			app.badRequestResponse(w, r, errors.New("missing required fields"))
+			return
+		}
+
+		err = app.projects.InsertAnonymous(projectId, input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, userId)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	} else {
+		err = app.projects.InsertRegistered(projectId, input.Name, input.Appetite, userId, orgId)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	// insert 10 buckets + 1 dump
@@ -246,7 +262,7 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 

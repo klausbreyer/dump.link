@@ -17,7 +17,7 @@ ALTER TABLE
 ADD
 	`org_id` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
 ADD
-	`user_id` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL;
+	`created_by` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL;
 
 -- Add constraint to ensure either new or old fields are filled, but not both
 ALTER TABLE
@@ -31,16 +31,12 @@ ADD
 				AND `owner_lastname` IS NULL
 			)
 			AND `org_id` IS NULL
-			AND `user_id` IS NULL
 		)
 		OR (
 			`owner_email` IS NULL
 			AND `owner_firstname` IS NULL
 			AND `owner_lastname` IS NULL
-			AND NOT (
-				`org_id` IS NULL
-				AND `user_id` IS NULL
-			)
+			AND NOT (`org_id` IS NULL)
 		)
 	);
 

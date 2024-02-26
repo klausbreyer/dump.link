@@ -11,7 +11,7 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Requ
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 

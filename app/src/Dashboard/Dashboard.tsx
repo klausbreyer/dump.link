@@ -1,11 +1,27 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
+import { useEffect } from "react";
 import DLMenu from "../Menu/Menu";
 import Alert from "../common/Alert";
 import Container from "../common/Container";
 
 export default function Dashboard() {
-  const { user, isAuthenticated } = useAuth0();
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  useEffect(() => {
+    if (!user?.sub) return;
+
+    const getUserMetadata = async () => {
+      try {
+        const accessToken = await getAccessTokenSilently();
+
+        console.log(accessToken);
+      } catch (e: any) {
+        console.log(e.message);
+      }
+    };
+
+    getUserMetadata();
+  }, [getAccessTokenSilently, user?.sub]);
 
   return (
     <>

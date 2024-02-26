@@ -8,7 +8,7 @@ ALTER TABLE
 -- Remove new fields
 ALTER TABLE
 	`projects` DROP COLUMN `org_id`,
-	DROP COLUMN `user_id`;
+	DROP COLUMN `created_by`;
 
 -- Revert owner fields to not nullable
 ALTER TABLE

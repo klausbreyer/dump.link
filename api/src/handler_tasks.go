@@ -11,7 +11,7 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddTask, data)
 
 	app.writeJSON(w, http.StatusCreated, data, nil)
-	app.actions.Insert(projectId, nil, &task.ID, startTime, string(ActionAddTask), username)
+	err = app.actions.Insert(projectId, nil, &task.ID, startTime, string(ActionAddTask), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -85,7 +85,7 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -122,7 +122,7 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionDeleteTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	app.actions.Insert(projectId, nil, &taskId, startTime, string(ActionDeleteTask), username)
+	err = app.actions.Insert(projectId, nil, &taskId, startTime, string(ActionDeleteTask), username)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -134,7 +134,7 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 
 	username, err := app.getUsernameFromHeader(r)
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 	taskId, valid := app.getAndValidateID(w, r, "taskId")
