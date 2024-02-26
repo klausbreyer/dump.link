@@ -11,6 +11,7 @@ import { XCircleIcon } from "@heroicons/react/24/solid";
 import { getInputBorderColor } from "../common/bucketColors";
 import { isSafari } from "../common/helper";
 import config from "../config";
+import { NewID, getUsername } from "../useApi/requests";
 import { ActivityAvatar } from "./HeaderActivity";
 import { checkIfTaskIDExists, useAbsence } from "./context/absence";
 import {
@@ -18,7 +19,6 @@ import {
   validateActivityOther,
 } from "./context/data/activities";
 import { useData } from "./context/data/data";
-import { NewID, getUsername } from "./context/data/requests";
 import {
   calculateHighestPriority,
   getTasksForBucket,

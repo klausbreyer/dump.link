@@ -90,6 +90,10 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 		app.genericPageResponse(w, r, "dump.link - Callback")
 		return
 	}
+	if projectId == "new" {
+		app.genericPageResponse(w, r, "dump.link - New")
+		return
+	}
 
 	project, err := app.projects.Get(projectId)
 	if err != nil {

@@ -1,11 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Menu, Transition } from "@headlessui/react";
-import { PlusIcon } from "@heroicons/react/20/solid";
 import { Fragment } from "react";
-import { DumplinkIcon } from "../common/icons";
 import { Link } from "react-router-dom";
-import InfoButton from "../common/InfoButton";
 import { AppContext } from "../../types";
+import InfoButton, { getButtonClasses } from "../common/InfoButton";
+import { DumplinkIcon } from "../common/icons";
 
 const navigation = [
   { name: "Projects", href: AppContext.Dashboard, current: true },
@@ -79,10 +78,12 @@ export default function DLMenu() {
               )}
               {isAuthenticated && user && (
                 <div className="flex items-center ml-6">
-                  <InfoButton color="white">
-                    <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-                    New dumplink
-                  </InfoButton>
+                  <Link
+                    to={AppContext.New}
+                    className={getButtonClasses("white")}
+                  >
+                    🥟 Make dumplink
+                  </Link>
                   <Menu as="div" className="relative ml-3">
                     <div>
                       <Menu.Button

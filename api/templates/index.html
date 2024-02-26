@@ -23,87 +23,6 @@
 </head>
 
 <body>
-	<div class="relative z-10 hidden modal-make" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-
-		<div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 "></div>
-
-		<div class="fixed inset-0 z-10 w-screen overflow-y-auto ">
-			<div class="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0 modal-closelistener">
-
-				<div class="relative px-4 pt-5 pb-4 overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-					<div>
-						<h2 class="mb-2 text-lg font-bold tracking-tight text-gray-900 ">Make a dumplink</h2>
-						<div class="flex-col block lg:hidden">
-							Thank you for your interest in our tool! Our tool is designed to deliver its fullest potential on a desktop platform. We invite you to access our services using a desktop browser to experience the best we have to offer. Your understanding and cooperation are greatly appreciated!
-						</div>
-						<form class="flex-col hidden lg:flex">
-							<div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-6">
-								<div class="mb-2 sm:col-span-6">
-									<label for="project-name" class="block text-sm font-bold text-slate-700">Project name</label>
-									<div class="">
-										<input type="text" name="project-name" id="project-name" maxlength="40" class="relative overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600">
-									</div>
-									<p class="mt-1 text-sm italic text-slate-500">The project name is the unique identifier for your initiative. It's how you and your team refer to the project in discussions and documentation. Choose a name that is both meaningful and concise.</p>
-								</div>
-
-								<div class="mb-2 sm:col-span-6">
-									<label for="appetite" class="block text-sm font-bold text-slate-700">Appetite</label>
-									<div class="">
-										<select id="appetite" name="appetite" class="relative overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600 w-36">
-											<option value="2">2 Weeks</option>
-											<option value="3">3 Weeks</option>
-											<option value="4">4 Weeks</option>
-											<option value="5">5 Weeks</option>
-											<option value="6" selected>6 Weeks</option>
-											<option value="7">7 Weeks</option>
-											<option value="8">8 Weeks</option>
-										</select>
-									</div>
-									<p class="mt-1 text-sm italic text-slate-500">With an appetite, the question is about how much time we want to spend getting some version of something we want to do. It is a strategic question about the value of what we want to do with a fixed-time-variable-scope constraint.</p>
-								</div>
-
-								<div class=" sm:col-span-6">
-									<h2 class="text-base font-semibold leading-7 text-slate-900">Personal Information</h2>
-								</div>
-
-								<div class="mb-2 sm:col-span-3">
-									<label for="first-name" class="block text-sm font-bold text-slate-700">First name</label>
-									<div class="">
-										<input type="text" name="first-name" id="first-name" autocomplete="given-name" class="relative overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600">
-									</div>
-								</div>
-
-								<div class="sm:col-span-3">
-									<label for="last-name" class="block text-sm font-bold text-slate-700">Last name</label>
-									<div class="">
-										<input type="text" name="last-name" id="last-name" autocomplete="family-name" class="relative overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600">
-									</div>
-								</div>
-
-								<div class="mb-2 sm:col-span-5">
-									<label for="email" class="block text-sm font-bold text-slate-700">E-Mail</label>
-									<div class="">
-										<input id="email" name="email" type="email" autocomplete="email" class="relative w-full overflow-hidden bg-white border-b-2 rounded-sm shadow-md select-text focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600">
-									</div>
-									<p class="mt-1 text-sm italic text-slate-500">We will not spam you. We do not sell your information.</p>
-								</div>
-							</div>
-
-							<div class="flex items-center justify-start mt-2">
-								<button id="submitbutton" class="justify-center w-40 px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md submitModalButton bg-slate-600 hover:bg-slate-400 border-slate-700 hover:ring-2 hover:ring-slate-500 hover:ring-offset-2">Make a dumplink</button>
-								<button id="loadingbutton" disabled class="justify-center hidden w-40 px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md submitModalButton bg-slate-600 border-slate-700 animate-pulse">
-									<div id="loading" class="mx-auto text-left w-18">Loading.</div>
-								</button>
-							</div>
-
-						</form>
-
-					</div>
-
-				</div>
-			</div>
-		</div>
-	</div>
 
 	<div class="bg-white">
 		<header class="absolute inset-x-0 top-0 z-50">
@@ -131,7 +50,6 @@
 					<a href="#team" class="text-sm font-semibold leading-6 text-gray-900">Team</a>
 					<a href="#contact" class="text-sm font-semibold leading-6 text-gray-900">Contact</a>
 				</div>
-
 			</nav>
 			<!-- Mobile menu, show/hide based on menu open state. -->
 			<div class="hidden lg:hidden mobile-menu" role="dialog" aria-modal="true">
@@ -179,7 +97,7 @@
 						<h1 class="text-6xl font-bold tracking-tight text-gray-900 md:text-8xl">dumplink</h1>
 						<p class="mt-6 text-lg leading-8 text-gray-600">A communication bridge between business and technical teams to keep everyone focused on real work</p>
 						<div class="flex items-center justify-center mt-10 gap-x-6">
-							<button class="rounded-md bg-slate-600 px-3.5 py-2.5 text-2xl font-semibold text-white shadow-sm hover:bg-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600 openModalButton">Make a dumplink</button>
+							<a target="_blank" href="/a/new" class="rounded-md bg-slate-600 px-3.5 py-2.5 text-2xl font-semibold text-white shadow-sm hover:bg-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600 ">Make a dumplink</a>
 						</div>
 					</div>
 
@@ -526,7 +444,7 @@
 
 					<div class="grid max-w-xl grid-cols-1 mt-10 text-base leading-7 text-gray-700 lg:gap-8 lg:max-w-none lg:grid-cols-2">
 						<ol class="space-y-2 list-decimal list-inside lg:my-4">
-							<li><strong>Create.</strong> <button class="text-slate-500 hover:text-slate-700 openModalButton">Make a new dumplink.</button>
+							<li><strong>Create.</strong> <a target="_blank" href="/a/new" class="text-slate-500 hover:text-slate-700">Make a new dumplink.</a>
 							</li>
 							<li><strong>Configure.</strong> State how much time is worth spending on the project (appetite) using the dumplink progress bar meter tool and the team members allocated to the project.</li>
 							<li><strong>Kick-off.</strong> The programmer(s) and designer (“Small Launch Team”) kick off the project cycle and read the shaped project outline document together and chat with the shaper(s) who packaged the work to be developed.</li>

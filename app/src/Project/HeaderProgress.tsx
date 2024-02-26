@@ -1,11 +1,11 @@
 import React from "react";
-import { getNamedBuckets } from "./context/data/buckets";
-import { useData } from "./context/data/data";
 import {
   calculateTimeDifference,
   formatDate,
   formatTimeDifference,
-} from "./context/data/dates";
+} from "../useApi/dates";
+import { getNamedBuckets } from "./context/data/buckets";
+import { useData } from "./context/data/data";
 
 export interface HeaderProgressProps {}
 

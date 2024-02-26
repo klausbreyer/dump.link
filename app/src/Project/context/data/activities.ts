@@ -1,6 +1,6 @@
 import config from "../../../config";
+import { getUsername } from "../../../useApi/requests";
 import { Activity, TaskID } from "../../types";
-import { getUsername } from "./requests";
 
 export function checkTaskActivity(
   activities: Activity[],

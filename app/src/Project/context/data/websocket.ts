@@ -1,6 +1,7 @@
 import { Dispatch } from "react";
-import { ActionType, CLIENT_TOKEN } from "./data";
-import { ISOToDate } from "./dates";
+import { ISOToDate } from "../../../useApi/dates";
+import { CLIENT_TOKEN } from "../../../useApi/useApi";
+import { ActionType } from "./data";
 
 type DispatchType = Dispatch<ActionType>;
 export const setupWebSocket = (

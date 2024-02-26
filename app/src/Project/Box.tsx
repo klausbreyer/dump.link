@@ -11,6 +11,7 @@ import {
   getBucketBackgroundColor,
   getHeaderTextColor,
 } from "../common/bucketColors";
+import { getUsername } from "../useApi/requests";
 import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskGroup from "./TaskGroup";
@@ -26,7 +27,6 @@ import {
   getBucketsDependingOn,
   getUniqueDependingIdsForbucket,
 } from "./context/data/dependencies";
-import { getUsername } from "./context/data/requests";
 import { getTasksForBucket } from "./context/data/tasks";
 import { useGlobalInteraction } from "./context/interaction";
 import { useBoxDragDrop } from "./hooks/useBoxDragDrop";

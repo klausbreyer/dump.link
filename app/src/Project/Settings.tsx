@@ -1,29 +1,38 @@
 import React, { useEffect, useState } from "react";
 import Container from "../common/Container";
+import Explanation from "../common/Explanation";
 import InfoButton from "../common/InfoButton";
+import Input from "../common/Input";
+import Select from "../common/Select";
 import Title from "../common/Title";
+import { dateToYYYYMMDD } from "../useApi/dates";
 import { useData } from "./context/data/data";
-import { dateToYYYYMMDD } from "./context/data/dates";
 
 interface SettingsProps {}
 
 const Settings: React.FC<SettingsProps> = (props) => {
   const { updateProject, project } = useData();
 
-  const [isDirty, setIsDirty] = useState(false);
   const [name, setName] = useState(project.name);
-
   const [startedAt, setStartedAt] = useState(dateToYYYYMMDD(project.startedAt));
-
   const [endingAt, setEndingAt] = useState(
-    project.endingAt ? project.endingAt.toISOString().split("T")[0] : undefined,
+    project.endingAt ? dateToYYYYMMDD(project.endingAt) : "",
   );
   const [appetite, setAppetite] = useState(project.appetite.toString());
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    setName(project.name);
+    setStartedAt(dateToYYYYMMDD(project.startedAt));
+    // Ensure endingAt is always a string or component switches from uncontrolled to controlled
+    setEndingAt(project.endingAt ? dateToYYYYMMDD(project.endingAt) : "");
+    setAppetite(project.appetite.toString());
+    setIsDirty(false);
+  }, [project]);
 
   const toggleArchiveStatus = () => {
     const updatedProject = { ...project, archived: !project.archived };
     updateProject(updatedProject);
-    // Optional: Add logic to navigate away or show a confirmation message
   };
 
   const handleChange =
@@ -32,16 +41,6 @@ const Settings: React.FC<SettingsProps> = (props) => {
       setter(e.target.value);
       setIsDirty(true);
     };
-
-  useEffect(() => {
-    setName(project.name);
-    setStartedAt(dateToYYYYMMDD(project.startedAt));
-    setEndingAt(
-      project.endingAt ? dateToYYYYMMDD(project.endingAt) : undefined,
-    );
-    setAppetite(project.appetite.toString());
-    setIsDirty(false);
-  }, [project]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,9 +57,6 @@ const Settings: React.FC<SettingsProps> = (props) => {
 
   const maxEnding = new Date(startedAt);
   maxEnding.setFullYear(maxEnding.getFullYear() + 5);
-
-  const inputClassNames =
-    "  bg-white rounded-sm shadow-md relative border-b-2 select-text overflow-hidden focus:outline outline-2 outline-indigo-500 border-slate-500 hover:border-slate-600 focus:border-slate-600";
 
   const isValid =
     appetite !== "0" ||
@@ -80,14 +76,15 @@ const Settings: React.FC<SettingsProps> = (props) => {
 
             <form onSubmit={handleSubmit} className="flex flex-col">
               <div className="mb-4">
-                <Label htmlFor="name">Project Name</Label>
-                <input
+                <Input
+                  title="Project Name"
+                  name="name"
                   type="text"
-                  id="name"
-                  maxLength={40}
                   value={name}
                   onChange={handleChange(setName)}
-                  className={`${inputClassNames} w-80`}
+                  maxLength={40}
+                  placeholder="Enter project name"
+                  className=" w-96"
                 />
                 <Explanation>
                   The project name is the unique identifier for your initiative.
@@ -96,27 +93,29 @@ const Settings: React.FC<SettingsProps> = (props) => {
                   concise.
                 </Explanation>
               </div>
-
-              <div className="mb-4 ">
-                <Label htmlFor="appetite">Appetite</Label>
-                <select
-                  id="appetite"
+              <div className="mb-4">
+                <Select
+                  title="Appetite"
+                  name="appetite"
                   value={appetite}
+                  className=" w-44"
                   onChange={handleChange(setAppetite)}
-                  className={`${inputClassNames} w-50`}
-                >
-                  {[2, 3, 4, 5, 6, 7, 8, 0].map((week) => (
-                    <option key={week} value={week}>
-                      {week === 0 && "Select custom end date"}
-                      {week !== 0 && `${week} week${week > 1 ? "s" : ""}`}
-                    </option>
-                  ))}
-                </select>
+                  options={[
+                    { value: "2", label: "2 Weeks" },
+                    { value: "3", label: "3 Weeks" },
+                    { value: "4", label: "4 Weeks" },
+                    { value: "5", label: "5 Weeks" },
+                    { value: "6", label: "6 Weeks" },
+                    { value: "7", label: "7 Weeks" },
+                    { value: "8", label: "8 Weeks" },
+                    { value: "0", label: "Select custom end date" },
+                  ]}
+                />
                 <Explanation>
                   With an appetite, the question is about how much time we want
                   to spend getting some version of something we want to do. It
                   is a strategic question about the value of what we want to do
-                  with a fixed-time-variable-scope constraint. Chosing 'manual'
+                  with a fixed-time-variable-scope constraint. Choosing 'manual'
                   for appetite allows to manually set an end date.
                 </Explanation>
               </div>
@@ -124,27 +123,27 @@ const Settings: React.FC<SettingsProps> = (props) => {
               <div className="mb-4">
                 <div className="flex items-start justify-start gap-4">
                   <div>
-                    <Label htmlFor="startedAt">Start Date</Label>
-                    <input
+                    <Input
+                      title="Start Date"
+                      name="startedAt"
                       type="date"
-                      id="startedAt"
                       value={startedAt}
                       onChange={handleChange(setStartedAt)}
-                      className={`${inputClassNames} w-36`}
+                      placeholder="Select start date"
+                      className=" w-44"
                     />
                   </div>
                   {appetite === "0" && (
-                    <div
-                      className={` ${!isValid && "ring-2 ring-red-500 rounded"}`}
-                    >
-                      <Label htmlFor="endingAt">End Date</Label>
-                      <input
+                    <div>
+                      <Input
+                        title="End Date"
+                        name="endingAt"
                         type="date"
-                        id="endingAt"
-                        min={startedAt}
                         value={endingAt}
                         onChange={handleChange(setEndingAt)}
-                        className={`${inputClassNames} w-36`}
+                        min={startedAt}
+                        placeholder="Select end date"
+                        className=" w-44"
                       />
                     </div>
                   )}
@@ -237,13 +236,7 @@ const Settings: React.FC<SettingsProps> = (props) => {
 };
 
 export default Settings;
-interface ExplanationProps {
-  children: React.ReactNode;
-}
 
-const Explanation: React.FC<ExplanationProps> = ({ children }) => {
-  return <p className="mt-1 text-sm italic text-slate-500">{children}</p>;
-};
 interface LabelProps {
   children: React.ReactNode;
   htmlFor: string;

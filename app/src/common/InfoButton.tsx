@@ -1,13 +1,5 @@
 import React from "react";
 
-export interface InfoButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  color?: keyof typeof colorMap;
-  href?: string;
-  target?: string;
-}
-
 // Map color names to Tailwind classes
 const colorMap = {
   indigo:
@@ -35,6 +27,24 @@ const colorMap = {
     "bg-white hover:bg-slate-100 border-slate-700 ring-slate-700 text-slate-900",
 };
 
+export function getButtonClasses(
+  color: keyof typeof colorMap,
+  disabled?: boolean,
+  className?: string,
+) {
+  const colorClass = colorMap[color] || colorMap.slate;
+  const disabledClass = disabled ? "opacity-50 cursor-not-allowed" : "";
+  return `${className} inline-flex justify-center px-4 py-2 text-sm font-medium text-slate-900 ${colorClass} border border-transparent rounded-md hover:ring-2 hover:ring-offset-2 ${disabledClass}`;
+}
+
+export interface InfoButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  color?: keyof typeof colorMap;
+  href?: string;
+  type?: "button" | "submit" | "reset";
+  target?: string;
+}
 const InfoButton: React.FC<
   InfoButtonProps &
     React.ButtonHTMLAttributes<HTMLButtonElement> &
@@ -44,22 +54,24 @@ const InfoButton: React.FC<
   children,
   href,
   disabled = false,
-  className,
+  className = "",
+  type = "button",
   target = "_self",
   color = "slate",
   ...rest
 }) => {
-  const colorClass = colorMap[color] || colorMap.slate;
-  const disabledClass = disabled ? "opacity-50 cursor-not-allowed" : "";
+  const buttonClasses = getButtonClasses(color, disabled, className);
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (onClick) {
+      e.preventDefault();
+      onClick();
+    }
+  };
 
   if (href) {
     return (
-      <a
-        href={href}
-        target={target}
-        className={`${className} inline-flex justify-center px-4 py-2 text-sm font-medium text-slate-900 ${colorClass} border border-transparent rounded-md hover:ring-2 hover:ring-offset-2`}
-        {...rest}
-      >
+      <a href={href} target={target} className={buttonClasses} {...rest}>
         {children}
       </a>
     );
@@ -67,8 +79,9 @@ const InfoButton: React.FC<
   return (
     <button
       disabled={disabled}
-      onClick={onClick ? () => onClick() : () => {}}
-      className={`${className} ${disabledClass} inline-flex justify-center px-4 py-2 text-sm font-medium text-slate-900 ${colorClass} border border-transparent rounded-md hover:ring-2 hover:ring-offset-2`}
+      onClick={handleClick}
+      type={type}
+      className={buttonClasses}
       {...rest}
     >
       {children}

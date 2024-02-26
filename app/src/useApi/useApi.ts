@@ -1,3 +1,9 @@
+import { ISOToDate, dateToISO } from "./dates";
+import { NewID, getUsername } from "./requests";
+
+export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
+
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   ActivityUpdates,
   ApiMessage,
@@ -9,10 +15,7 @@ import {
   State,
   Task,
   TaskUpdates,
-} from "../../types";
-import { CLIENT_TOKEN } from "./data";
-import { ISOToDate, dateToISO } from "./dates";
-import { getUsername } from "./requests";
+} from "../Project/types";
 
 export class APIError extends Error {
   statusCode: number;
@@ -23,13 +26,17 @@ export class APIError extends Error {
     this.statusCode = statusCode;
   }
 }
-const createApiFunctions = () => {
+
+export const useApi = () => {
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+
   const baseUrl = new URL(
     process.env.NODE_ENV === "production" &&
     window.location.hostname !== "localhost"
       ? `${window.location.origin}/api/v1`
       : "http://localhost:8080/api/v1",
   );
+
   const apiCall = async ({
     url = "",
     method = "GET",
@@ -42,17 +49,28 @@ const createApiFunctions = () => {
     const fullUrl = new URL(`/api/v1${url}`, baseUrl);
     fullUrl.searchParams.append("token", CLIENT_TOKEN);
 
-    const fetchOptions = {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Username: encodeURIComponent(getUsername()),
-      },
-      body: body ? JSON.stringify(body) : null,
+    const headers: {
+      "Content-Type": string;
+      Authorization?: string; // Make Authorization optional
+      Username: string;
+    } = {
+      "Content-Type": "application/json",
+      Username: encodeURIComponent(getUsername()),
     };
-
     try {
-      const response = await fetch(fullUrl, fetchOptions);
+      if (isAuthenticated) {
+        const token = await getAccessTokenSilently();
+
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const fetchOptions = {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null,
+      };
+
+      const response = await fetch(fullUrl.toString(), fetchOptions);
       if (!response.ok) {
         throw new APIError(
           `${response.status} ${
@@ -67,19 +85,11 @@ const createApiFunctions = () => {
       throw error;
     }
   };
-
   return {
     getProject: async (projectId: string): Promise<State> => {
       const response = await apiCall({ url: `/projects/${projectId}` });
-      const project = {
-        ...response.project,
-        endingAt: response.project.endingAt
-          ? ISOToDate(response.project.endingAt)
-          : null,
-        startedAt: ISOToDate(response.project.startedAt),
-        createdAt: ISOToDate(response.project.createdAt),
-        updatedAt: ISOToDate(response.project.updatedAt),
-      };
+
+      const project = sanitizeProjectData(response.project);
 
       const tasks = response.tasks.map((task: any) => ({
         ...task,
@@ -214,7 +224,29 @@ const createApiFunctions = () => {
         method: "POST",
         body: updateData,
       }),
+    postProject: async (
+      name: string,
+      appetite: number,
+      ownerEmail: string,
+      ownerFirstName: string,
+      ownerLastName: string,
+    ): Promise<Project> => {
+      const response = await apiCall({
+        url: `/projects`,
+        method: "POST",
+        body: { name, appetite, ownerEmail, ownerFirstName, ownerLastName },
+      });
+      return sanitizeProjectData(response.project);
+    },
   };
 };
 
-export const apiFunctions = createApiFunctions();
+const sanitizeProjectData = (projectData: any): Project => {
+  return {
+    ...projectData,
+    endingAt: projectData.endingAt ? ISOToDate(projectData.endingAt) : null,
+    startedAt: ISOToDate(projectData.startedAt),
+    createdAt: ISOToDate(projectData.createdAt),
+    updatedAt: ISOToDate(projectData.updatedAt),
+  };
+};

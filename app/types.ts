@@ -1,4 +1,5 @@
 export enum AppContext { //used as links
-  Dashboard = "dashboard",
-  Callback = "callback",
+  Dashboard = "/dashboard",
+  Callback = "/callback",
+  New = "/new",
 }

@@ -1,37 +1,11 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { jwtDecode } from "jwt-decode";
-import { useEffect } from "react";
-import Container from "../common/Container";
 import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
-import Alert from "../common/Alert";
 import DLMenu from "../Menu/Menu";
+import Alert from "../common/Alert";
+import Container from "../common/Container";
 
 export default function Dashboard() {
-  const { user, isAuthenticated, isLoading, getAccessTokenSilently } =
-    useAuth0();
-
-  useEffect(() => {
-    if (!user?.sub) return;
-
-    const getUserMetadata = async () => {
-      try {
-        const accessToken = await getAccessTokenSilently();
-
-        console.log(accessToken);
-        const decoded = jwtDecode(accessToken);
-
-        console.log(decoded);
-      } catch (e: any) {
-        console.log(e.message);
-      }
-    };
-
-    getUserMetadata();
-  }, [getAccessTokenSilently, user?.sub]);
-
-  if (isLoading) {
-    return <div>Loading ...</div>;
-  }
+  const { user, isAuthenticated } = useAuth0();
 
   return (
     <>
@@ -39,11 +13,11 @@ export default function Dashboard() {
       <Container>
         {!isAuthenticated && (
           <Alert>
-            <div className="rounded-md bg-yellow-50 p-4">
+            <div className="p-4 rounded-md bg-yellow-50">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <ExclamationTriangleIcon
-                    className="h-5 w-5 text-yellow-400"
+                    className="w-5 h-5 text-yellow-400"
                     aria-hidden="true"
                   />
                 </div>
