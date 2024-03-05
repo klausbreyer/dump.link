@@ -26,6 +26,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/a/:projectId/*any", app.ProjectGet)
 	router.HandlerFunc(http.MethodGet, "/api/v1/private", app.PrivateGet)
 
+	router.HandlerFunc(http.MethodGet, "/api/v1/projects", app.ApiProjectsGet)
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects", app.ApiProjectsPost)
 	router.HandlerFunc(http.MethodGet, "/api/v1/projects/:projectId", app.ApiProjectGet)
 	router.HandlerFunc(http.MethodPatch, "/api/v1/projects/:projectId", app.ApiProjectPatch)

@@ -181,6 +181,38 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (app *application) ApiProjectsGet(w http.ResponseWriter, r *http.Request) {
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
+		return
+	}
+
+	if isAnonymous(userID) {
+		app.unauthorizedResponse(w, r, errors.New("anonymous user cannot access projects list"))
+	}
+
+	projects, err := app.projects.GetForOrgID(orgID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if projects == nil {
+		projects = []*models.Project{}
+	}
+
+	data := envelope{
+		"projects": projects,
+	}
+
+	err = app.writeJSON(w, http.StatusOK, data, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
 func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
@@ -199,25 +231,25 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 	}
 
 	projectId := app.projects.GetNewID()
-	userId, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, projectId)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
-	if isAnonymous(userId) {
+	if isAnonymous(userID) {
 		if input.Name == "" || input.OwnerEmail == "" || input.OwnerFirstName == "" || input.OwnerLastName == "" {
 			app.badRequestResponse(w, r, errors.New("missing required fields"))
 			return
 		}
 
-		err = app.projects.InsertAnonymous(projectId, input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, userId)
+		err = app.projects.InsertAnonymous(projectId, input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, userID)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
 		}
 	} else {
-		err = app.projects.InsertRegistered(projectId, input.Name, input.Appetite, userId, orgId)
+		err = app.projects.InsertRegistered(projectId, input.Name, input.Appetite, userID, orgID)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

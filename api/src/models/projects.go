@@ -17,6 +17,8 @@ type Project struct {
 	Appetite  int        `json:"appetite"`
 	Archived  bool       `json:"archived"`
 	UpdatedBy string     `json:"updatedBy"`
+	OrgID     string     `json:"orgID"`
+	CreatedBy string     `json:"createdBy"`
 	// OwnerEmail    string    `json:"ownerEmail"`    // never read. Only ingested.
 	// OwnerFirstName string   `json:"ownerFirstName"` // never read. Only ingested.
 	// OwnerLastName string    `json:"ownerLastName"`  // never read. Only ingested.
@@ -37,10 +39,69 @@ func (m *ProjectModel) GetNewID() string {
 	return id
 }
 
-func (m *ProjectModel) InsertAnonymous(id string, name string, appetite int, ownerEmail, ownerFirstName, ownerLastName, userId string) error {
+func (m *ProjectModel) GetForOrgID(orgID string) ([]*Project, error) {
+	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived, updated_by, created_by, org_id FROM projects WHERE org_id = ?`
+	rows, err := m.DB.Query(stmt, orgID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var projects []*Project
+	for rows.Next() {
+		var (
+			startedAtStr, createdAtStr, updatedAtStr string
+			endingAt                                 sql.NullString // Use sql.NullString for nullable endingAt field
+			p                                        Project
+		)
+
+		err := rows.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy, &p.CreatedBy, &p.OrgID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Parse the non-nullable datetime strings
+		p.StartedAt, err = time.Parse(DateLayout, startedAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse startedAt: %v", err)
+		}
+
+		p.CreatedAt, err = time.Parse(DateTimeLayout, createdAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse createdAt: %v", err)
+		}
+
+		p.UpdatedAt, err = time.Parse(DateTimeLayout, updatedAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse updatedAt: %v", err)
+		}
+
+		// Handle nullable endingAt
+		if endingAt.Valid {
+			var endingAtTime time.Time
+			endingAtTime, err = time.Parse(DateLayout, endingAt.String)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse endingAt: %v", err)
+			}
+			p.EndingAt = &endingAtTime
+		} else {
+			p.EndingAt = nil
+		}
+
+		projects = append(projects, &p)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return projects, nil
+}
+
+func (m *ProjectModel) InsertAnonymous(id string, name string, appetite int, ownerEmail, ownerFirstName, ownerLastName, userID string) error {
 	startedAt := time.Now()
 	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName, userId)
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName, userID)
 	if err != nil {
 		return err
 	}
@@ -48,10 +109,10 @@ func (m *ProjectModel) InsertAnonymous(id string, name string, appetite int, own
 	return nil
 }
 
-func (m *ProjectModel) InsertRegistered(id string, name string, appetite int, userId, orgId string) error {
+func (m *ProjectModel) InsertRegistered(id string, name string, appetite int, userID, orgID string) error {
 	startedAt := time.Now()
 	stmt := `INSERT INTO projects (id, name, started_at, appetite, created_by, org_id) VALUES (?, ?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, userId, orgId)
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, userID, orgID)
 	if err != nil {
 		return err
 	}

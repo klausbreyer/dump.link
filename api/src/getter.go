@@ -21,7 +21,7 @@ func (app *application) getAndValidateID(w http.ResponseWriter, r *http.Request,
 	return id, true
 }
 
-func (app *application) validateUserId(id string) bool {
+func (app *application) validateUserID(id string) bool {
 	parts := strings.Split(id, "|")
 	return len(parts) == 2 && len(parts[0]) > 1 && len(parts[1]) > 1
 }
@@ -44,11 +44,11 @@ func (app *application) getAndValidateUserAndOrg(r *http.Request, projectId stri
 
 		sub := claims.RegisteredClaims.Subject
 
-		if !app.validateUserId(sub) {
+		if !app.validateUserID(sub) {
 			return "", "", errors.New("invalid user id")
 		}
 
-		return sub, customClaims.OrgId, nil
+		return sub, customClaims.OrgID, nil
 	}
 
 	username, err := app.getUsernameFromHeader(r)
@@ -58,7 +58,7 @@ func (app *application) getAndValidateUserAndOrg(r *http.Request, projectId stri
 
 	sub := generateDumplinkSubject(username, projectId)
 
-	if !app.validateUserId(sub) {
+	if !app.validateUserID(sub) {
 		return "", "", errors.New("invalid username")
 	}
 
