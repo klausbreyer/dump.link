@@ -104,6 +104,13 @@ export const getNamedBuckets = (buckets: Bucket[]) => {
   return buckets.filter((bucket) => bucket.name !== "");
 };
 
+export const namedBucketsDone = (buckets: Bucket[]) => {
+  const namedBuckets = getNamedBuckets(buckets);
+  const allBucketsDone =
+    namedBuckets.length > 0 && namedBuckets.every((bucket) => bucket.done);
+  return allBucketsDone;
+};
+
 export const getBucket = (buckets: Bucket[], bucketId: BucketID) => {
   return buckets.find((bucket) => bucket.id === bucketId);
 };

@@ -53,6 +53,7 @@ export type Project = {
   updatedBy: UserName;
   createdAt: Date;
   updatedAt: Date;
+  createdBy: string; // userid
 };
 
 export type State = {

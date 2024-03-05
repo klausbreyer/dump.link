@@ -4,25 +4,19 @@ import {
   formatDate,
   formatTimeDifference,
 } from "../useApi/dates";
-import { getNamedBuckets } from "./context/data/buckets";
+import { namedBucketsDone } from "./context/data/buckets";
 import { useData } from "./context/data/data";
+import { getEndingAt } from "./context/data/projects";
 
 export interface HeaderProgressProps {}
 
 const HeaderProgress: React.FC<HeaderProgressProps> = (props) => {
   const { project, buckets } = useData();
 
-  const namedBuckets = getNamedBuckets(buckets);
-  const allBucketsDone =
-    namedBuckets.length > 0 && namedBuckets.every((bucket) => bucket.done);
-
+  const allBucketsDone = namedBucketsDone(buckets);
   const startedAt = project.startedAt;
-  const endingAt =
-    project.appetite === 0 && project.endingAt
-      ? project.endingAt
-      : new Date(
-          startedAt.getTime() + project.appetite * 7 * 24 * 60 * 60 * 1000,
-        );
+  const endingAt = getEndingAt(project);
+
   const currentDate: Date = new Date();
   const totalDuration = endingAt.getTime() - startedAt.getTime();
   const timeElapsed = currentDate.getTime() - startedAt.getTime();

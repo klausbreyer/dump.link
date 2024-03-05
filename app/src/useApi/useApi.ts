@@ -86,6 +86,10 @@ export const useApi = () => {
     }
   };
   return {
+    getProjects: async (): Promise<Project[]> => {
+      const response = await apiCall({ url: "/projects" });
+      return response.projects.map(sanitizeProjectData);
+    },
     getProject: async (projectId: string): Promise<State> => {
       const response = await apiCall({ url: `/projects/${projectId}` });
 
