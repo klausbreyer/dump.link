@@ -14,6 +14,7 @@ const statuses = {
   Complete: "text-green-700 bg-green-50 ring-green-600/20",
   wip: "text-gray-600 bg-gray-50 ring-gray-500/10",
   Archived: "text-yellow-800 bg-yellow-50 ring-yellow-600/20",
+  Owner: "text-indigo-700 bg-indigo-50 ring-indigo-600/20",
 };
 
 export default function Dashboard() {
@@ -87,6 +88,13 @@ export default function Dashboard() {
                             {project.name}
                           </Link>
                         </p>
+                        {project.createdBy === user.sub && (
+                          <p
+                            className={` ${statuses.Owner} rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset`}
+                          >
+                            Owner
+                          </p>
+                        )}
                         {project.archived && (
                           <p
                             className={` ${statuses.Archived} rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset`}

@@ -17,6 +17,8 @@ import {
   useLifecycle,
 } from "./context/lifecycle";
 import { TabContext } from "./types";
+import DLMenu from "../Menu/Menu";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Project() {
   return (
@@ -35,6 +37,7 @@ export default function Project() {
 }
 
 const Router = function Loaded() {
+  const { isAuthenticated } = useAuth0();
   const isTouchDevice = () => {
     return "ontouchstart" in window || navigator.maxTouchPoints > 0;
   };
@@ -58,6 +61,7 @@ const Router = function Loaded() {
 
   return (
     <>
+      {isAuthenticated && <DLMenu />}
       <Header />
       <Routes>
         <Route path={TabContext.Settings} element={<Settings />} />
