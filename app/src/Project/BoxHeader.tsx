@@ -1,20 +1,17 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 
 import FlagButton from "../common/FlagButton";
-import {
-  getBucketBackgroundColor,
-  getInputBorderColor,
-} from "../common/bucketColors";
 import { isSafari } from "../common/helper";
 import { EmptyChekboxIcon } from "../common/icons";
 import config from "../config";
-import { ActivityAvatar } from "./HeaderActivity";
 import {
   checkBucketActivity,
   validateActivityOther,
-} from "./context/data/activities";
-import { useData } from "./context/data/data";
-import { getTasksByClosed, getTasksForBucket } from "./context/data/tasks";
+} from "../models/activities";
+import { getTasksByClosed, getTasksForBucket } from "../models/tasks";
+import { ActivityAvatar } from "./HeaderActivity";
+import { getBucketBackgroundColor, getInputBorderColor } from "./bucketColors";
+import { useData } from "./context/data";
 import { Bucket, TabContext, Task } from "./types";
 
 export interface HeaderProps {

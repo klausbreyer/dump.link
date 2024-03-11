@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Tooltip } from "../common/InfoTooltip";
 import { RecentIcon } from "../common/icons";
-import { useData } from "./context/data/data";
+import { useData } from "./context/data";
 import { lastAccessedProject } from "./types";
 
 function RecentLinks() {

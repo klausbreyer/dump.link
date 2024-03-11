@@ -8,22 +8,19 @@ import React, {
 } from "react";
 
 import { XCircleIcon } from "@heroicons/react/24/solid";
-import { getInputBorderColor } from "../common/bucketColors";
 import { isSafari } from "../common/helper";
 import config from "../config";
-import { NewID, getUsername } from "../useApi/requests";
-import { ActivityAvatar } from "./HeaderActivity";
-import { checkIfTaskIDExists, useAbsence } from "./context/absence";
-import {
-  checkTaskActivity,
-  validateActivityOther,
-} from "./context/data/activities";
-import { useData } from "./context/data/data";
+import { checkTaskActivity, validateActivityOther } from "../models/activities";
 import {
   calculateHighestPriority,
   getTasksForBucket,
   sortTasksByPriority,
-} from "./context/data/tasks";
+} from "../models/tasks";
+import { NewID, getUsername } from "../utils/requests";
+import { ActivityAvatar } from "./HeaderActivity";
+import { getInputBorderColor } from "./bucketColors";
+import { checkIfTaskIDExists, useAbsence } from "./context/absence";
+import { useData } from "./context/data";
 import { useGlobalInteraction } from "./context/interaction";
 import usePasteListener from "./hooks/usePasteListener";
 import { useTaskDragDrop } from "./hooks/useTaskDragDrop";

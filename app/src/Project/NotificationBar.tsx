@@ -1,7 +1,7 @@
 import React from "react";
 
 import { XCircleIcon } from "@heroicons/react/24/outline";
-import { dateToHumanReadable } from "../useApi/dates";
+import { dateToHumanReadable } from "../utils/dates";
 import { useAbsence } from "./context/absence";
 
 const NotificationBar: React.FC = () => {

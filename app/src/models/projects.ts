@@ -1,4 +1,4 @@
-import { Project } from "../../types";
+import { Project } from "../Project/types";
 
 export const getEndingAt = (project: Project) => {
   const { appetite, endingAt } = project;

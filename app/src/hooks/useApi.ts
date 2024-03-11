@@ -1,5 +1,5 @@
-import { ISOToDate, dateToISO } from "./dates";
-import { NewID, getUsername } from "./requests";
+import { ISOToDate, dateToISO } from "../utils/dates";
+import { NewID, getUsername } from "../utils/requests";
 
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
 
@@ -15,6 +15,7 @@ import {
   State,
   Task,
   TaskUpdates,
+  User,
 } from "../Project/types";
 
 export class APIError extends Error {
@@ -86,6 +87,10 @@ export const useApi = () => {
     }
   };
   return {
+    getUsers: async (): Promise<User[]> => {
+      const response = await apiCall({ url: "/users" });
+      return response.users;
+    },
     getProjects: async (): Promise<Project[]> => {
       const response = await apiCall({ url: "/projects" });
       return response.projects.map(sanitizeProjectData);

@@ -1,6 +1,6 @@
-import config from "../../../config";
-import { getUsername } from "../../../useApi/requests";
-import { Activity, TaskID } from "../../types";
+import { Activity, TaskID } from "../Project/types";
+import config from "../config";
+import { getUsername } from "../utils/requests";
 
 export function checkTaskActivity(
   activities: Activity[],

@@ -1,12 +1,12 @@
 import React from "react";
+import { namedBucketsDone } from "../models/buckets";
+import { getEndingAt } from "../models/projects";
 import {
   calculateTimeDifference,
   formatDate,
   formatTimeDifference,
-} from "../useApi/dates";
-import { namedBucketsDone } from "./context/data/buckets";
-import { useData } from "./context/data/data";
-import { getEndingAt } from "./context/data/projects";
+} from "../utils/dates";
+import { useData } from "./context/data";
 
 export interface HeaderProgressProps {}
 

@@ -5,8 +5,8 @@ import InfoButton from "../common/InfoButton";
 import Input from "../common/Input";
 import Select from "../common/Select";
 import Title from "../common/Title";
-import { dateToYYYYMMDD } from "../useApi/dates";
-import { useData } from "./context/data/data";
+import { dateToYYYYMMDD } from "../utils/dates";
+import { useData } from "./context/data";
 
 interface SettingsProps {}
 

@@ -2,27 +2,27 @@ import React, { useEffect, useState } from "react";
 
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import CardList from "../common/CardList";
-import { getBucketBackgroundColor } from "../common/bucketColors";
+import {
+  checkBucketActivity,
+  validateActivityOther,
+  validateActivitySelf,
+} from "../models/activities";
+import {
+  getTasksByClosed,
+  getTasksForBucket,
+  sortTasksByUpdatedAt,
+} from "../models/tasks";
 import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskItem from "./TaskItem";
+import { getBucketBackgroundColor } from "./bucketColors";
 import {
   checkIfBucketIDExists,
   checkIfDependencyExists,
   checkIfTaskIDExists,
   useAbsence,
 } from "./context/absence";
-import {
-  checkBucketActivity,
-  validateActivityOther,
-  validateActivitySelf,
-} from "./context/data/activities";
-import { useData } from "./context/data/data";
-import {
-  getTasksByClosed,
-  getTasksForBucket,
-  sortTasksByUpdatedAt,
-} from "./context/data/tasks";
+import { useData } from "./context/data";
 import { useTaskGroupDrop } from "./hooks/useTaskGroupDrop";
 import { TabContext, Bucket as TaskGroup, TaskID } from "./types";
 

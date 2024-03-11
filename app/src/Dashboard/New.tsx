@@ -6,7 +6,7 @@ import Explanation from "../common/Explanation";
 import InfoButton from "../common/InfoButton";
 import Input from "../common/Input";
 import Select from "../common/Select";
-import { useApi } from "../useApi/useApi";
+import { useApi } from "../hooks/useApi";
 
 interface FormState {
   projectName: string;

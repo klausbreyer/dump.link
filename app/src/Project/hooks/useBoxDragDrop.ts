@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
-import { uniqueValues } from "../context/data/arrays";
 import {
   getArrangeBucketType,
   getBucket,
   getOtherBuckets,
   getSequenceBucketType,
-} from "../context/data/buckets";
-import { useData } from "../context/data/data";
-import { getBucketsAvailableFor } from "../context/data/dependencies";
-import { getWholeSubgraph } from "../context/data/layers";
+} from "../../models/buckets";
+import { getBucketsAvailableFor } from "../../models/dependencies";
+import { getWholeSubgraph } from "../../models/layers";
+import { uniqueValues } from "../../utils/arrays";
+import { useData } from "../context/data";
 import { useGlobalInteraction } from "../context/interaction";
 import {
   Bucket,

@@ -1,4 +1,4 @@
-import { Bucket, BucketID, BucketState, Task } from "../../types";
+import { Bucket, BucketID, BucketState, Task } from "../Project/types";
 import { getTasksForBucket } from "./tasks";
 
 // Figuring out means: not all tasks of the bucket are closed

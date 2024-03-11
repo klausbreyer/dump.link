@@ -14,22 +14,19 @@ import {
   TaskID,
   TaskUpdates,
   UserName,
-} from "../../types";
+} from "../types";
 
 import { useParams } from "react-router-dom";
-import { notifyBugsnag } from "../../..";
-import config from "../../../config";
-import {
-  getUsername,
-  saveProjectIdToLocalStorage,
-} from "../../../useApi/requests";
-import { APIError, useApi } from "../../../useApi/useApi";
-import { LifecycleState, useLifecycle } from "../lifecycle";
+import { notifyBugsnag } from "../..";
+import config from "../../config";
+import { APIError, useApi } from "../../hooks/useApi";
 import {
   getUniqueDependingIdsForbucket,
   hasCyclicDependencyWithBucket,
-} from "./dependencies";
-import { getLayerForBucketId } from "./layers";
+} from "../../models/dependencies";
+import { getLayerForBucketId } from "../../models/layers";
+import { getUsername, saveProjectIdToLocalStorage } from "../../utils/requests";
+import { LifecycleState, useLifecycle } from "./lifecycle";
 import { setupWebSocket } from "./websocket";
 
 const initialState: State = {
@@ -40,6 +37,7 @@ const initialState: State = {
   project: {
     id: "",
     name: "",
+    createdBy: "",
     appetite: 0,
     startedAt: new Date(),
     createdAt: new Date(),

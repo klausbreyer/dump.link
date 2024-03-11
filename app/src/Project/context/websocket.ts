@@ -1,6 +1,6 @@
 import { Dispatch } from "react";
-import { ISOToDate } from "../../../useApi/dates";
-import { CLIENT_TOKEN } from "../../../useApi/useApi";
+import { CLIENT_TOKEN } from "../../hooks/useApi";
+import { ISOToDate } from "../../utils/dates";
 import { ActionType } from "./data";
 
 type DispatchType = Dispatch<ActionType>;

@@ -3,12 +3,12 @@ import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DLMenu from "../Menu/Menu";
-import { getEndingAt } from "../Project/context/data/projects";
 import { Project } from "../Project/types";
 import Alert from "../common/Alert";
 import Container from "../common/Container";
-import { dateToISO, formatDate } from "../useApi/dates";
-import { useApi } from "../useApi/useApi";
+import { useApi } from "../hooks/useApi";
+import { getEndingAt } from "../models/projects";
+import { dateToISO, formatDate } from "../utils/dates";
 
 const statuses = {
   Complete: "text-green-700 bg-green-50 ring-green-600/20",

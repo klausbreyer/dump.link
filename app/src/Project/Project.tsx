@@ -1,7 +1,9 @@
+import { useAuth0 } from "@auth0/auth0-react";
 import { HTML5toTouch } from "rdndmb-html5-to-touch";
 import { useEffect } from "react";
 import { DndProvider } from "react-dnd-multi-backend";
 import { Route, Routes } from "react-router-dom";
+import DLMenu from "../Menu/Menu";
 import Arrange from "./Arrange";
 import Group from "./Group";
 import Header from "./Header";
@@ -9,7 +11,7 @@ import NotificationBar from "./NotificationBar";
 import Sequence from "./Sequence";
 import Settings from "./Settings";
 import { AbsenceProvider } from "./context/absence";
-import { DataProvider } from "./context/data/data";
+import { DataProvider } from "./context/data";
 import { GlobalInteractionProvider } from "./context/interaction";
 import {
   LifecycleProvider,
@@ -17,8 +19,6 @@ import {
   useLifecycle,
 } from "./context/lifecycle";
 import { TabContext } from "./types";
-import DLMenu from "../Menu/Menu";
-import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Project() {
   return (

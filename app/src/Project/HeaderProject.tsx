@@ -3,8 +3,8 @@ import { DumplinkIcon } from "../common/icons";
 import {
   filterBucketsFiguredOut,
   filterBucketsFiguringOut,
-} from "./context/data/buckets";
-import { useData } from "./context/data/data";
+} from "../models/buckets";
+import { useData } from "./context/data";
 import { Bucket } from "./types";
 
 export interface HeaderProjectProps {}

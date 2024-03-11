@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import config from "../../config";
-import { useData } from "../context/data/data";
-import { getTask, getTaskIndex, getTaskType } from "../context/data/tasks";
+import { getTask, getTaskIndex, getTaskType } from "../../models/tasks";
+import { useData } from "../context/data";
 import { useGlobalInteraction } from "../context/interaction";
 import { Bucket, DraggingType, Task } from "../types";
 

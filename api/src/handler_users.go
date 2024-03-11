@@ -26,7 +26,9 @@ func (app *application) ApiGetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := users
+	data := map[string]interface{}{
+		"users": users,
+	}
 
 	app.writeJSON(w, http.StatusCreated, data, nil)
 }
