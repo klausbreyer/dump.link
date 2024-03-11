@@ -7,7 +7,7 @@ import InfoButton, { getButtonClasses } from "../common/InfoButton";
 import { DumplinkIcon } from "../common/icons";
 
 const navigation = [
-  { name: "Projects", href: AppContext.Dashboard, current: true },
+  { name: "Dumplinks", href: AppContext.Dashboard, current: true },
 ];
 
 function classNames(...classes: string[]) {

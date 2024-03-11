@@ -1,13 +1,14 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DLMenu from "../Menu/Menu";
-import { Project } from "../Project/types";
 import Alert from "../common/Alert";
 import Container from "../common/Container";
 import { useApi } from "../hooks/useApi";
+import { useProjects } from "../hooks/useProjects";
+import { useUsers } from "../hooks/useUsers";
 import { getEndingAt } from "../models/projects";
+import { findUser } from "../models/users";
 import { dateToISO, formatDate } from "../utils/dates";
 
 const statuses = {
@@ -21,20 +22,9 @@ export default function Dashboard() {
   const { user, isAuthenticated } = useAuth0();
 
   const api = useApi();
-  const [projects, setProjects] = useState<Project[]>([]);
-  useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
-    const fetchProjects = async () => {
-      const data = await api.getProjects();
-      setProjects(data);
-    };
 
-    fetchProjects();
-  }, [isAuthenticated]);
-
-  console.log(projects);
+  const projects = useProjects();
+  const users = useUsers();
 
   return (
     <>
@@ -66,11 +56,11 @@ export default function Dashboard() {
             </div>
           </Alert>
         )}
-        {isAuthenticated && user && (
+        {isAuthenticated && user && projects && users && (
           <>
             <div className="m-10">
               <h1 className="text-lg font-bold text-slate-700">
-                Your Org dumplinks
+                All dumplinks of your organization
               </h1>
               <ul>
                 {projects.map((project) => (
@@ -117,7 +107,7 @@ export default function Dashboard() {
                           <circle cx={1} cy={1} r={1} />
                         </svg>
                         <p className="truncate">
-                          Created by {project.createdBy}
+                          Created by {findUser(users, project.createdBy)?.name}
                         </p>
                       </div>
                     </div>

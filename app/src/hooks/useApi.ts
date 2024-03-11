@@ -4,6 +4,7 @@ import { NewID, getUsername } from "../utils/requests";
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
 
 import { useAuth0 } from "@auth0/auth0-react";
+import { useEffect, useState } from "react";
 import {
   ActivityUpdates,
   ApiMessage,
@@ -28,8 +29,48 @@ export class APIError extends Error {
   }
 }
 
+/**
+ * Custom hook for making API calls.
+ *
+ * This hook manages a request queue to ensure that API calls are made in the correct order.
+ * If there is an ongoing API call or the user is still authenticating, the API call will be added to the queue.
+ * Once the ongoing API call is completed and the user is authenticated, the queued API calls will be processed.
+ *
+ * @returns An object containing various API methods.
+ */
 export const useApi = () => {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+
+  const [requestQueue, setRequestQueue] = useState<
+    Array<{
+      url: string;
+      method: string;
+      body: any;
+      resolve: Function;
+      reject: Function;
+    }>
+  >([]);
+
+  const processQueue = async () => {
+    const token = isAuthenticated ? await getAccessTokenSilently() : undefined;
+
+    while (requestQueue.length > 0) {
+      const { url, method, body, resolve, reject } = requestQueue.shift()!;
+
+      try {
+        const response = await apiCall({ url, method, body, token });
+        resolve(response);
+      } catch (error) {
+        reject(error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoading) {
+      processQueue();
+    }
+  }, [isLoading, requestQueue]);
 
   const baseUrl = new URL(
     process.env.NODE_ENV === "production" &&
@@ -42,57 +83,70 @@ export const useApi = () => {
     url = "",
     method = "GET",
     body = null,
+    token = "",
   }: {
     url: string;
     method?: string;
     body?: any;
+    token?: string;
   }): Promise<any> => {
     const fullUrl = new URL(`/api/v1${url}`, baseUrl);
     fullUrl.searchParams.append("token", CLIENT_TOKEN);
 
     const headers: {
       "Content-Type": string;
-      Authorization?: string; // Make Authorization optional
+      Authorization?: string;
       Username: string;
     } = {
       "Content-Type": "application/json",
       Username: encodeURIComponent(getUsername()),
+      ...(token && { Authorization: `Bearer ${token}` }),
     };
-    try {
-      if (isAuthenticated) {
-        const token = await getAccessTokenSilently();
 
-        headers.Authorization = `Bearer ${token}`;
-      }
+    const fetchOptions = {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : null,
+    };
 
-      const fetchOptions = {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : null,
-      };
-
-      const response = await fetch(fullUrl.toString(), fetchOptions);
-      if (!response.ok) {
-        throw new APIError(
-          `${response.status} ${
-            response.statusText
-          } ${method} ${fullUrl} -> ${await response.text()}`,
-          response.status,
-        );
-      }
-      return await response.json();
-    } catch (error) {
-      console.error(error);
-      throw error;
+    const response = await fetch(fullUrl.toString(), fetchOptions);
+    if (!response.ok) {
+      throw new APIError(
+        `${response.status} ${response.statusText} ${method} ${fullUrl} -> ${await response.text()}`,
+        response.status,
+      );
     }
+    return await response.json();
   };
+
+  const manageApiCall = (
+    url: string,
+    method: string = "GET",
+    body: any = null,
+  ): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      if (isLoading) {
+        setRequestQueue((prevQueue) => [
+          ...prevQueue,
+          { url, method, body, resolve, reject },
+        ]);
+      } else {
+        getAccessTokenSilently()
+          .then((token) => {
+            apiCall({ url, method, body, token }).then(resolve).catch(reject);
+          })
+          .catch((error) => reject(error));
+      }
+    });
+  };
+
   return {
     getUsers: async (): Promise<User[]> => {
-      const response = await apiCall({ url: "/users" });
-      return response.users;
+      const response = await manageApiCall("/users");
+      return response.users.map(sanitizeUserData);
     },
     getProjects: async (): Promise<Project[]> => {
-      const response = await apiCall({ url: "/projects" });
+      const response = await manageApiCall("/projects");
       return response.projects.map(sanitizeProjectData);
     },
     getProject: async (projectId: string): Promise<State> => {
@@ -258,4 +312,28 @@ const sanitizeProjectData = (projectData: any): Project => {
     createdAt: ISOToDate(projectData.createdAt),
     updatedAt: ISOToDate(projectData.updatedAt),
   };
+};
+
+const sanitizeUserData = (userData: any): User => {
+  return {
+    email: userData.email,
+    name: userData.name,
+    picture: userData.picture,
+    userID: userData.user_id,
+  };
+};
+
+export const useArrayResponse = <T>(apiCall: () => Promise<T>): T | null => {
+  const [data, setData] = useState<T | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await apiCall();
+      setData(result);
+    };
+
+    fetchData();
+  }, [apiCall]); // Abhängigkeiten, hier die API-Aufruf-Funktion, damit bei Änderungen neu geladen wird
+
+  return data;
 };

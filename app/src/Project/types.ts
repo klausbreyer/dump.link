@@ -3,14 +3,13 @@ export type BucketID = string;
 export type TaskID = string;
 
 export type UserName = string;
+export type UserID = string;
 
 export type User = {
-  given_name: string;
-  family_name: string;
   picture: string;
-  updated_at: Date;
+  name: string;
   email: string;
-  userID: string;
+  userID: UserID;
 };
 
 export type Activity = {
