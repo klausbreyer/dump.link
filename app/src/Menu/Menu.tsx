@@ -1,6 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AppContext } from "../../types";
 import InfoButton, { getButtonClasses } from "../common/InfoButton";
@@ -15,7 +15,28 @@ function classNames(...classes: string[]) {
 }
 
 export default function DLMenu() {
-  const { isAuthenticated, user, logout, loginWithRedirect } = useAuth0();
+  const {
+    isAuthenticated,
+    user,
+    logout,
+    loginWithRedirect,
+    getAccessTokenSilently,
+  } = useAuth0();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (isAuthenticated) {
+        console.log("user", user);
+      }
+      if (isAuthenticated) {
+        const token = await getAccessTokenSilently();
+
+        console.log(token);
+      }
+    };
+
+    fetchData();
+  }, [isAuthenticated]);
 
   const userNavigation = [
     {

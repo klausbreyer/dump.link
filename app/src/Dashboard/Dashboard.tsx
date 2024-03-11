@@ -1,14 +1,14 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import DLMenu from "../Menu/Menu";
+import { getEndingAt } from "../Project/context/data/projects";
 import { Project } from "../Project/types";
 import Alert from "../common/Alert";
 import Container from "../common/Container";
-import { useApi } from "../useApi/useApi";
-import { getEndingAt } from "../Project/context/data/projects";
 import { dateToISO, formatDate } from "../useApi/dates";
-import { Link } from "react-router-dom";
+import { useApi } from "../useApi/useApi";
 
 const statuses = {
   Complete: "text-green-700 bg-green-50 ring-green-600/20",

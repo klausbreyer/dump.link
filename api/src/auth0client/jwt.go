@@ -1,4 +1,4 @@
-package src
+package auth0client
 
 import (
 	"context"
@@ -26,7 +26,13 @@ func (c *CustomClaimOrg) Validate(ctx context.Context) error {
 	return nil
 }
 
-func (app *application) getClaims(r *http.Request) (*validator.ValidatedClaims, *CustomClaimOrg, error) {
+var jwtValidator *validator.Validator
+
+func init() {
+	jwtValidator = setupJWTValidator()
+}
+
+func GetClaims(r *http.Request) (*validator.ValidatedClaims, *CustomClaimOrg, error) {
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
 		return nil, nil, fmt.Errorf("authorization header is missing")
@@ -34,7 +40,7 @@ func (app *application) getClaims(r *http.Request) (*validator.ValidatedClaims, 
 
 	tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
-	token, err := app.jwtValidator.ValidateToken(context.Background(), tokenString)
+	token, err := jwtValidator.ValidateToken(context.Background(), tokenString)
 	if err != nil {
 		return nil, nil, err
 	}

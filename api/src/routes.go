@@ -44,6 +44,8 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects/:projectId/dependencies", app.ApiAddDependency)
 	router.HandlerFunc(http.MethodDelete, "/api/v1/projects/:projectId/dependencies/:bucketId/:dependencyId", app.ApiRemoveDependency)
 
+	router.HandlerFunc(http.MethodGet, "/api/v1/users", app.ApiGetUsers)
+
 	router.HandlerFunc(http.MethodGet, "/api/v1/ws/:projectId", app.adaptHandler(app.apiHandleWebSocket))
 
 	standard := alice.New(BugsnagMiddleware, app.recoverPanic, app.enableCORS, app.logRequest, app.measureResponseTime, secureHeaders)

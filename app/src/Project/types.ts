@@ -4,6 +4,15 @@ export type TaskID = string;
 
 export type UserName = string;
 
+export type User = {
+  given_name: string;
+  family_name: string;
+  picture: string;
+  updated_at: Date;
+  email: string;
+  userID: string;
+};
+
 export type Activity = {
   projectId: ProjectID;
   bucketId?: BucketID;

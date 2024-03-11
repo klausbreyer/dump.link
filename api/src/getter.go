@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 
+	"dump.link/src/auth0client"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -37,7 +38,7 @@ func isAnonymous(subject string) bool {
 func (app *application) getAndValidateUserAndOrg(r *http.Request, projectId string) (string, string, error) {
 	// check if Authorization Header is present then prioritize that
 	if app.hasAuthorizationHeader(r) {
-		claims, customClaims, err := app.getClaims(r)
+		claims, customClaims, err := auth0client.GetClaims(r)
 		if err != nil {
 			return "", "", err
 		}
