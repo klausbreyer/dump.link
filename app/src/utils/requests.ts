@@ -9,6 +9,7 @@ export const extractIdFromUrl = () => {
 export const saveProjectIdToLocalStorage = (
   projectId: string,
   projectName: string,
+  orgId: string,
 ) => {
   const savedProjects = localStorage.getItem("recentProjects");
   let recentProjects = savedProjects ? JSON.parse(savedProjects) : [];
@@ -19,6 +20,7 @@ export const saveProjectIdToLocalStorage = (
   const projectData = {
     id: projectId,
     name: projectName,
+    orgId: orgId,
     lastAccessed: new Date().toISOString(),
   };
 

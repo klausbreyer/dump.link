@@ -8,13 +8,16 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "../public/styles.css";
-import { AppContext } from "../types";
+import { paths } from "../routes";
 import Callback from "./Dashboard/Callback";
 import Dashboard from "./Dashboard/Dashboard";
+import Login from "./Dashboard/Login";
 import New from "./Dashboard/New";
+import Signup from "./Dashboard/Signup";
 import Project from "./Project/Project";
 import { DLAuth0 } from "./auth0-provider";
 import { OrgProvider } from "./context/org";
+import { OrgIdProvider } from "./context/orgId";
 
 function isLocalhost(): boolean {
   return (
@@ -63,14 +66,19 @@ const App = function App() {
     <ErrorBoundary>
       <BrowserRouter basename="/a">
         <DLAuth0>
-          <OrgProvider>
-            <Routes>
-              <Route path=":projectId/*" element={<Project />} />
-              <Route path={AppContext.Dashboard} element={<Dashboard />} />
-              <Route path={AppContext.Callback} element={<Callback />} />
-              <Route path={AppContext.New} element={<New />} />
-            </Routes>
-          </OrgProvider>
+          <OrgIdProvider>
+            <OrgProvider>
+              <Routes>
+                <Route path={paths.publicProject} element={<Project />} />
+                <Route path={paths.orgProject} element={<Project />} />
+                <Route path={paths.orgDashboard} element={<Dashboard />} />
+                <Route path={paths.callback} element={<Callback />} />
+                <Route path={paths.new} element={<New />} />
+                <Route path={paths.login} element={<Login />} />
+                <Route path={paths.signup} element={<Signup />} />
+              </Routes>
+            </OrgProvider>
+          </OrgIdProvider>
         </DLAuth0>
       </BrowserRouter>
     </ErrorBoundary>

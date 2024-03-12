@@ -9,7 +9,7 @@ import (
 func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -26,7 +26,7 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.assumePermission(orgID, *project)
+	err = app.assumePermission(orgId, *project)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -89,7 +89,7 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -111,7 +111,7 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.assumePermission(orgID, *project)
+	err = app.assumePermission(orgId, *project)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -145,7 +145,7 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -166,7 +166,7 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.assumePermission(orgID, *project)
+	err = app.assumePermission(orgId, *project)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return

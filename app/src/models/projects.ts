@@ -9,3 +9,7 @@ export const getEndingAt = (project: Project) => {
     return new Date(startedAt.getTime() + appetite * 7 * 24 * 60 * 60 * 1000);
   }
 };
+
+export const projectIsPublic = (project: Project) => {
+  return !(project.orgId.length > 0);
+};

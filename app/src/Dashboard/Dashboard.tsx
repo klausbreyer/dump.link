@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
+import { links } from "../../routes";
 import DLMenu from "../Menu/Menu";
 import Alert from "../common/Alert";
 import Container from "../common/Container";
@@ -67,7 +68,8 @@ export default function Dashboard() {
                       <div className="flex items-start gap-x-3">
                         <p className="text-sm font-semibold leading-6 text-gray-900">
                           <Link
-                            to={`/${project.id}`}
+                            to={links.orgProject(project.orgId, project.id)}
+                            reloadDocument={true}
                             className="hover:underline"
                           >
                             {project.name}
@@ -108,7 +110,8 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center flex-none gap-x-4">
                       <Link
-                        to={`/${project.id}`}
+                        to={links.orgProject(project.orgId, project.id)}
+                        reloadDocument={true}
                         className="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block"
                       >
                         View project

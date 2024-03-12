@@ -62,6 +62,7 @@ export type Project = {
   createdAt: Date;
   updatedAt: Date;
   createdBy: string; // userid
+  orgId: string;
 };
 
 export type State = {
@@ -110,6 +111,7 @@ export type ActivityUpdates = {
 export interface lastAccessedProject {
   id: string;
   name: string;
+  orgId: string;
   lastAccessed: string; // assuming lastAccessed is a string
 }
 

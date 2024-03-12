@@ -94,13 +94,13 @@ func (client *Auth0Client) getToken() (string, error) {
 	return fmt.Sprintf("%s %s", tokenResp.TokenType, client.accessToken), nil
 }
 
-func (client *Auth0Client) GetOrganizationMembers(orgID string) ([]models.User, error) {
+func (client *Auth0Client) GetOrganizationMembers(orgId string) ([]models.User, error) {
 	token, err := client.getToken()
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://%s/api/v2/organizations/%s/members", client.Domain, orgID), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://%s/api/v2/organizations/%s/members", client.Domain, orgId), nil)
 	if err != nil {
 		return nil, err
 	}

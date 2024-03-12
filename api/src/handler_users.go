@@ -8,7 +8,7 @@ import (
 func (app *application) ApiGetUsers(w http.ResponseWriter, r *http.Request) {
 
 	projectId := app.projects.GetNewID()
-	userID, orgID, err := app.getAndValidateUserAndOrg(r, projectId)
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -19,8 +19,8 @@ func (app *application) ApiGetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.logger.Debug("GetUsers", "orgID", orgID)
-	users, err := app.auth0m2mClient.GetOrganizationMembers(orgID)
+	app.logger.Debug("GetUsers", "orgId", orgId)
+	users, err := app.auth0m2mClient.GetOrganizationMembers(orgId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

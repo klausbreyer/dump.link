@@ -18,6 +18,7 @@ import {
   TaskUpdates,
   User,
 } from "../Project/types";
+import { useOrgId } from "../context/orgId";
 
 export class APIError extends Error {
   statusCode: number;
@@ -29,6 +30,8 @@ export class APIError extends Error {
   }
 }
 
+export type useApiProps = ReturnType<typeof useApi>;
+
 /**
  * Custom hook for making API calls.
  *
@@ -36,10 +39,14 @@ export class APIError extends Error {
  * If there is an ongoing API call or the user is still authenticating, the API call will be added to the queue.
  * Once the ongoing API call is completed and the user is authenticated, the queued API calls will be processed.
  *
+ * @param callWithAuthentication If true, the API calls will be made with the user's access token. This needs to be variable because some calls (for projects that not part of an organization) should not be made with authentication.
  * @returns An object containing various API methods.
  */
-export const useApi = () => {
+export const useApi = (callWithAuthentication = false) => {
   const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+  const { orgId, orgLoading } = useOrgId();
+
+  console.log("useApi", orgId, isAuthenticated, isLoading);
 
   const [requestQueue, setRequestQueue] = useState<
     Array<{
@@ -52,7 +59,10 @@ export const useApi = () => {
   >([]);
 
   const processQueue = async () => {
-    const token = isAuthenticated ? await getAccessTokenSilently() : undefined;
+    const token =
+      isAuthenticated && !orgLoading && orgId && callWithAuthentication
+        ? await getAccessTokenSilently()
+        : undefined;
 
     while (requestQueue.length > 0) {
       const { url, method, body, resolve, reject } = requestQueue.shift()!;
@@ -119,6 +129,8 @@ export const useApi = () => {
     method: string = "GET",
     body: any = null,
   ): Promise<any> => {
+    console.log("managedApiCall", url, orgId, isAuthenticated, isLoading);
+
     if (isLoading) {
       return new Promise((resolve, reject) => {
         setRequestQueue((prevQueue) => [
@@ -127,9 +139,10 @@ export const useApi = () => {
         ]);
       });
     } else {
-      const token = isAuthenticated
-        ? await getAccessTokenSilently()
-        : undefined;
+      const token =
+        isAuthenticated && !orgLoading && orgId && callWithAuthentication
+          ? await getAccessTokenSilently()
+          : undefined;
       return apiCall(url, method, body, token);
     }
   };
@@ -145,9 +158,7 @@ export const useApi = () => {
     },
     getProject: async (projectId: string): Promise<State> => {
       const response = await managedApiCall(`/projects/${projectId}`);
-
       const project = sanitizeProjectData(response.project);
-
       const tasks = response.tasks.map((task: any) => ({
         ...task,
         createdAt: ISOToDate(task.createdAt),
@@ -323,7 +334,7 @@ export const useArrayResponse = <T>(apiCall: () => Promise<T>): T | null => {
     };
 
     fetchData();
-  }, [apiCall]); // Abhängigkeiten, hier die API-Aufruf-Funktion, damit bei Änderungen neu geladen wird
+  }, [apiCall]);
 
   return data;
 };

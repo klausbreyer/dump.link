@@ -29,7 +29,7 @@ func (app *application) HealthGet(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) PrivateGet(w http.ResponseWriter, r *http.Request) {
 
-	sub, orgID, err := app.getAndValidateUserAndOrg(r, "private")
+	sub, orgId, err := app.getAndValidateUserAndOrg(r, "private")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -37,7 +37,7 @@ func (app *application) PrivateGet(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]string{
 		"sub":   sub,
-		"orgID": orgID,
+		"orgId": orgId,
 	}
 	err = app.writeJSON(w, http.StatusOK, data, nil)
 	if err != nil {

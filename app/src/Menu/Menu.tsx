@@ -1,42 +1,23 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { Menu, Transition } from "@headlessui/react";
-import { Fragment, useEffect } from "react";
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { AppContext } from "../../types";
-import InfoButton, { getButtonClasses } from "../common/InfoButton";
+import { links } from "../../routes";
+import { getButtonClasses } from "../common/InfoButton";
 import { DumplinkIcon } from "../common/icons";
-
-const navigation = [
-  { name: "Dumplinks", href: AppContext.Dashboard, current: true },
-];
+import { useOrgId } from "../context/orgId";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function DLMenu() {
-  const {
-    isAuthenticated,
-    user,
-    logout,
-    loginWithRedirect,
-    getAccessTokenSilently,
-  } = useAuth0();
+  const { isAuthenticated, user, logout } = useAuth0();
+  const { orgId } = useOrgId();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (isAuthenticated) {
-        console.log("user", user);
-      }
-      if (isAuthenticated) {
-        const token = await getAccessTokenSilently();
-
-        console.log(token);
-      }
-    };
-
-    fetchData();
-  }, [isAuthenticated]);
+  const navigation = [
+    { name: "Dumplinks", href: links.orgDashboard(orgId || ""), current: true },
+  ];
 
   const userNavigation = [
     {
@@ -80,29 +61,9 @@ export default function DLMenu() {
             </div>
 
             <div className="block">
-              {!isAuthenticated && (
-                <div className="flex gap-4">
-                  <InfoButton color="white" onClick={() => loginWithRedirect()}>
-                    Login
-                  </InfoButton>
-                  <InfoButton
-                    color="white"
-                    onClick={() =>
-                      loginWithRedirect({
-                        authorizationParams: { screen_hint: "signup" },
-                      })
-                    }
-                  >
-                    Signup
-                  </InfoButton>
-                </div>
-              )}
               {isAuthenticated && user && (
                 <div className="flex items-center ml-6">
-                  <Link
-                    to={AppContext.New}
-                    className={getButtonClasses("white")}
-                  >
+                  <Link to={links.new} className={getButtonClasses("white")}>
                     🥟 Make dumplink
                   </Link>
                   <Menu as="div" className="relative ml-3">

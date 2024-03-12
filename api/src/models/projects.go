@@ -17,7 +17,7 @@ type Project struct {
 	Appetite  int        `json:"appetite"`
 	Archived  bool       `json:"archived"`
 	UpdatedBy string     `json:"updatedBy"`
-	OrgID     string     `json:"orgID"`
+	OrgID     string     `json:"orgId"`
 	CreatedBy string     `json:"createdBy"`
 	// OwnerEmail    string    `json:"ownerEmail"`    // never read. Only ingested.
 	// OwnerFirstName string   `json:"ownerFirstName"` // never read. Only ingested.
@@ -39,9 +39,9 @@ func (m *ProjectModel) GetNewID() string {
 	return id
 }
 
-func (m *ProjectModel) GetForOrgID(orgID string) ([]*Project, error) {
+func (m *ProjectModel) GetForOrgID(orgId string) ([]*Project, error) {
 	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived, updated_by, created_by, org_id FROM projects WHERE org_id = ?`
-	rows, err := m.DB.Query(stmt, orgID)
+	rows, err := m.DB.Query(stmt, orgId)
 	if err != nil {
 		return nil, err
 	}
@@ -109,10 +109,10 @@ func (m *ProjectModel) InsertAnonymous(id string, name string, appetite int, own
 	return nil
 }
 
-func (m *ProjectModel) InsertRegistered(id string, name string, appetite int, userID, orgID string) error {
+func (m *ProjectModel) InsertRegistered(id string, name string, appetite int, userID, orgId string) error {
 	startedAt := time.Now()
 	stmt := `INSERT INTO projects (id, name, started_at, appetite, created_by, org_id) VALUES (?, ?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, userID, orgID)
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, userID, orgId)
 	if err != nil {
 		return err
 	}
@@ -139,10 +139,10 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		startedAtStr, createdAtStr, updatedAtStr string
 		endingAt                                 sql.NullString // Use sql.NullString for nullable endingAt field
 		p                                        Project
-		orgID                                    sql.NullString // Use sql.NullString for nullable org_id field
+		orgId                                    sql.NullString // Use sql.NullString for nullable org_id field
 	)
 
-	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy, &orgID, &p.CreatedBy)
+	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy, &orgId, &p.CreatedBy)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Project with ID %s not found", id)
@@ -178,9 +178,9 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		p.EndingAt = nil
 	}
 
-	// Handle nullable orgID
-	if orgID.Valid {
-		p.OrgID = orgID.String
+	// Handle nullable orgId
+	if orgId.Valid {
+		p.OrgID = orgId.String
 	} else {
 		p.OrgID = ""
 	}

@@ -16,11 +16,11 @@ import (
 )
 
 type CustomClaimOrg struct {
-	OrgID string `json:"org_id"`
+	OrgId string `json:"org_id"`
 }
 
 func (c *CustomClaimOrg) Validate(ctx context.Context) error {
-	if c.OrgID == "" {
+	if c.OrgId == "" {
 		return errors.New("org_id is required")
 	}
 	return nil

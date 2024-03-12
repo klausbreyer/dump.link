@@ -18,7 +18,9 @@ import {
 
 import { useParams } from "react-router-dom";
 import { notifyBugsnag } from "../..";
+import { isOrgLink } from "../../../routes";
 import config from "../../config";
+import { useOrg } from "../../context/org";
 import { APIError, useApi } from "../../hooks/useApi";
 import {
   getUniqueDependingIdsForbucket,
@@ -45,6 +47,7 @@ const initialState: State = {
     endingAt: null,
     archived: false,
     updatedBy: "",
+    orgId: "",
   },
 };
 
@@ -277,14 +280,21 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(dataReducer, initialState);
   const { setLifecycle } = useLifecycle();
 
-  const api = useApi();
+  const { orgId, orgLoading } = useOrg();
+  const api = useApi(isOrgLink());
   const params = useParams();
   const { projectId } = params;
 
   const loadInitialState = async (projectId: ProjectID) => {
+    console.log("loading initial state", orgId);
+
     try {
       const initialState = await api.getProject(projectId);
-      saveProjectIdToLocalStorage(projectId, initialState.project.name);
+      saveProjectIdToLocalStorage(
+        projectId,
+        initialState.project.name,
+        initialState.project.orgId,
+      );
       if (initialState) {
         dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
       }
@@ -302,6 +312,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (!projectId) return;
+    if (orgLoading) return;
+
+    loadInitialState(projectId);
+    // if this is for an org, return. if not for an org, prompt for username
+    if (orgId) return;
     if (!getUsername()) {
       let username = prompt(
         "Please enter your name as you would like your team to see it",
@@ -311,14 +326,16 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
       localStorage.setItem("username", username);
     }
-    loadInitialState(projectId);
-  }, [projectId]);
+  }, [projectId, orgLoading, orgId]);
 
   useEffect(() => {
+    if (orgLoading) return;
     if (!state.project.id) return;
-    const wsCleanup = setupWebSocket(state.project.id, dispatch, () =>
-      loadInitialState(state.project.id),
-    );
+    const wsCleanup = setupWebSocket(state.project.id, dispatch, () => {
+      console.log("wsCleanup");
+
+      loadInitialState(state.project.id);
+    });
     // can only make calls when state is there, because it needs a project.id
 
     if (state.project.id.length === 11) {
@@ -328,7 +345,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return () => {
       if (wsCleanup) wsCleanup();
     };
-  }, [state.project.id]);
+  }, [state.project.id, orgLoading]);
 
   useEffect(() => {
     if (state.project.id === "") return;
@@ -487,7 +504,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     });
 
     if (updates.name) {
-      saveProjectIdToLocalStorage(state.project.id, updates.name);
+      saveProjectIdToLocalStorage(
+        state.project.id,
+        updates.name,
+        state.project.orgId,
+      );
     }
 
     (async () => {

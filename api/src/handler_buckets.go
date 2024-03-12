@@ -9,7 +9,7 @@ import (
 func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -31,7 +31,7 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.assumePermission(orgID, *project)
+	err = app.assumePermission(orgId, *project)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -99,7 +99,7 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -120,7 +120,7 @@ func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = app.assumePermission(orgID, *project)
+	err = app.assumePermission(orgId, *project)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return

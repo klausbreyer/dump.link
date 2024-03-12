@@ -1,13 +1,15 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
-import { AppContext } from "../../types"; // Make sure this path matches your file structure
+import { links } from "../../routes"; // Make sure this path matches your file structure
 import DLMenu from "../Menu/Menu";
 import Alert from "../common/Alert";
+import { useOrg } from "../context/org";
 
 export default function LoginSuccess() {
   const { user, isAuthenticated, isLoading } = useAuth0();
 
+  const { orgId } = useOrg();
   if (isLoading) {
     return null;
   }
@@ -17,6 +19,9 @@ export default function LoginSuccess() {
     return <div>User is not authenticated.</div>;
   }
 
+  if (!orgId) {
+    return <div>Organization not found.</div>;
+  }
   return (
     <>
       <DLMenu />
@@ -42,7 +47,7 @@ export default function LoginSuccess() {
               <div className="mt-4">
                 <div className="-mx-2 -my-1.5 flex">
                   <Link
-                    to={`${AppContext.Dashboard}`}
+                    to={links.orgDashboard(orgId)}
                     className="rounded-md bg-green-50 px-2 py-1.5 text-sm font-medium text-green-800 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
                   >
                     Continue to Dashboard

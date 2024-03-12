@@ -36,9 +36,8 @@ func isAnonymous(subject string) bool {
 	return strings.HasPrefix(subject, "dumplink")
 }
 
-func (app *application) assumePermission(orgID string, project models.Project) error {
-	app.logger.Debug("hasPermission", "orgID", orgID, "project.OrgID", project.OrgID)
-	if project.OrgID != "" && orgID != project.OrgID {
+func (app *application) assumePermission(orgId string, project models.Project) error {
+	if project.OrgID != "" && orgId != project.OrgID {
 		return errors.New("unauthorized")
 	}
 	return nil
@@ -58,7 +57,7 @@ func (app *application) getAndValidateUserAndOrg(r *http.Request, projectId stri
 			return "", "", errors.New("invalid user id")
 		}
 
-		return sub, customClaims.OrgID, nil
+		return sub, customClaims.OrgId, nil
 	}
 
 	username, err := app.getUsernameFromHeader(r)

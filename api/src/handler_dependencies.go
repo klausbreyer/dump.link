@@ -9,7 +9,7 @@ import (
 func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -26,7 +26,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = app.assumePermission(orgID, *project)
+	err = app.assumePermission(orgId, *project)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -93,7 +93,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -120,7 +120,7 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = app.assumePermission(orgID, *project)
+	err = app.assumePermission(orgId, *project)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return

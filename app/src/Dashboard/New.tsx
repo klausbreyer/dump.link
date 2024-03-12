@@ -1,5 +1,6 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
+import { links } from "../../routes";
 import DLMenu from "../Menu/Menu";
 import Container from "../common/Container";
 import Explanation from "../common/Explanation";
@@ -25,7 +26,7 @@ const defaultFormState: FormState = {
 };
 
 export default function New() {
-  const api = useApi();
+  const api = useApi(true);
   const { user, isAuthenticated, isLoading } = useAuth0();
   const [formData, setFormData] = useState<FormState>(defaultFormState);
   const [loading, setLoading] = useState<boolean>(false);
@@ -108,7 +109,10 @@ export default function New() {
         isAuthenticated ? undefined : formData.firstName,
         isAuthenticated ? undefined : formData.lastName,
       );
-      window.location.href = `/a/${project.id}`;
+      const path = project.orgId
+        ? links.orgProject(project.orgId, project.id)
+        : links.publicProject(project.id);
+      window.location.href = `/a${path}`;
     } catch (error) {
       console.error("Error in sending request:", error);
       alert("Error in sending request" + error);
