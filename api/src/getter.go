@@ -105,9 +105,9 @@ func (app *application) hasAuthorizationHeader(r *http.Request) bool {
 	return token != ""
 }
 
-func (app *application) getTokenFromRequest(r *http.Request) string {
-	token := r.URL.Query().Get("token")
-	return token
+func (app *application) getClientTokenFromRequest(r *http.Request) string {
+	clientToken := r.URL.Query().Get("client")
+	return clientToken
 }
 
 func (app *application) getUsernameFromRequest(r *http.Request) string {

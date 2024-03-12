@@ -79,7 +79,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 		"createdBy":    userID,
 	}
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddBucketDependency, data)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 
@@ -147,7 +147,7 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 		"dependencyId": dependencyId,
 	}
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionRemoveBucketDependency, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 

@@ -16,6 +16,7 @@ import {
   UserName,
 } from "../types";
 
+import { useAuth0 } from "@auth0/auth0-react";
 import { useParams } from "react-router-dom";
 import { notifyBugsnag } from "../..";
 import config from "../../config";
@@ -277,6 +278,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(dataReducer, initialState);
   const { setLifecycle } = useLifecycle();
 
+  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
   const api = useApi();
   const params = useParams();
   const { projectId } = params;
@@ -315,20 +317,28 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, [projectId]);
 
   useEffect(() => {
+    if (isLoading) return;
     if (!state.project.id) return;
-    const wsCleanup = setupWebSocket(state.project.id, dispatch, () =>
-      loadInitialState(state.project.id),
-    );
-    // can only make calls when state is there, because it needs a project.id
 
-    if (state.project.id.length === 11) {
-      updateActivities(undefined, undefined);
-    }
+    let wsCleanup: (() => void) | undefined = undefined;
+
+    const fetchData = async () => {
+      const token = await getAccessTokenSilently();
+      wsCleanup = setupWebSocket(state.project.id, token, dispatch, () =>
+        loadInitialState(state.project.id),
+      );
+
+      if (state.project.id.length === 11) {
+        updateActivities(undefined, undefined);
+      }
+    };
+
+    fetchData();
 
     return () => {
       if (wsCleanup) wsCleanup();
     };
-  }, [state.project.id]);
+  }, [state.project.id, isAuthenticated, isLoading]);
 
   useEffect(() => {
     if (state.project.id === "") return;

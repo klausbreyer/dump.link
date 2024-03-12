@@ -85,7 +85,7 @@ func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) 
 		data = []*models.Activity{}
 	}
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateActivities, data)
 	err = app.writeJSON(w, http.StatusOK, data, nil)
 	if err != nil {

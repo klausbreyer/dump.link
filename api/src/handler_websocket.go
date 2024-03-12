@@ -55,7 +55,7 @@ func (app *application) apiHandleWebSocket(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	token := app.getTokenFromRequest(r)
+	token := app.getClientTokenFromRequest(r)
 	username := app.getUsernameFromRequest(r)
 
 	conn, err := upgrader.Upgrade(w, r, nil)

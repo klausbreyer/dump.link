@@ -188,7 +188,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 
 	data["id"] = projectId
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateProject, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
@@ -347,7 +347,7 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	data := make(envelope)
 	data["message"] = "All layers in the project have been reset successfully"
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetProjectLayers, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 

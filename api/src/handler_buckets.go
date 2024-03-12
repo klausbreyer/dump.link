@@ -85,7 +85,7 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	//always send the id, ws needs it.
 	data["id"] = bucketId
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateBucket, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
@@ -141,7 +141,7 @@ func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Requ
 	data["id"] = bucketId
 	data["layer"] = nil
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetBucketLayers, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
