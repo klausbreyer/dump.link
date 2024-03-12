@@ -12,7 +12,7 @@ import (
 func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -26,6 +26,12 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -79,7 +85,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionSetInitialState), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionSetInitialState), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -89,7 +95,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -97,6 +103,18 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
+		return
+	}
+
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -150,7 +168,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	data["updated_by"] = username
+	data["updated_by"] = userID
 
 	err = app.projects.Update(projectId, data)
 	if err != nil {
@@ -174,7 +192,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateProject, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -292,7 +310,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -306,6 +324,12 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -327,7 +351,7 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetProjectLayers, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetProjectLayers), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetProjectLayers), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -9,7 +9,7 @@ import (
 func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -23,6 +23,12 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -61,7 +67,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = app.dependencies.Insert(*input.BucketID, *input.DependencyId, username)
+	err = app.dependencies.Insert(*input.BucketID, *input.DependencyId, userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -70,14 +76,14 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 	data := envelope{
 		"bucketId":     *input.BucketID,
 		"dependencyId": *input.DependencyId,
-		"createdBy":    username,
+		"createdBy":    userID,
 	}
 
 	senderToken := app.getTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddBucketDependency, data)
 	app.writeJSON(w, http.StatusCreated, data, nil)
 
-	err = app.actions.Insert(projectId, input.BucketID, nil, startTime, string(ActionAddBucketDependency), username)
+	err = app.actions.Insert(projectId, input.BucketID, nil, startTime, string(ActionAddBucketDependency), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -87,7 +93,7 @@ func (app *application) ApiAddDependency(w http.ResponseWriter, r *http.Request)
 func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
@@ -111,6 +117,12 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -139,7 +151,7 @@ func (app *application) ApiRemoveDependency(w http.ResponseWriter, r *http.Reque
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionRemoveBucketDependency, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionRemoveBucketDependency), username)
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionRemoveBucketDependency), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

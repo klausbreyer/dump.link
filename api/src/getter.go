@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"dump.link/src/auth0client"
+	"dump.link/src/models"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -33,6 +34,14 @@ func generateDumplinkSubject(username string, projectID string) string {
 
 func isAnonymous(subject string) bool {
 	return strings.HasPrefix(subject, "dumplink")
+}
+
+func (app *application) assumePermission(orgID string, project models.Project) error {
+	app.logger.Debug("hasPermission", "orgID", orgID, "project.OrgID", project.OrgID)
+	if project.OrgID != "" && orgID != project.OrgID {
+		return errors.New("unauthorized")
+	}
+	return nil
 }
 
 func (app *application) getAndValidateUserAndOrg(r *http.Request, projectId string) (string, string, error) {

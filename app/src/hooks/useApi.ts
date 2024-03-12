@@ -58,7 +58,7 @@ export const useApi = () => {
       const { url, method, body, resolve, reject } = requestQueue.shift()!;
 
       try {
-        const response = await apiCall({ url, method, body, token });
+        const response = await apiCall(url, method, body, token);
         resolve(response);
       } catch (error) {
         reject(error);
@@ -79,17 +79,12 @@ export const useApi = () => {
       : "http://localhost:8080/api/v1",
   );
 
-  const apiCall = async ({
-    url = "",
-    method = "GET",
-    body = null,
-    token = "",
-  }: {
-    url: string;
-    method?: string;
-    body?: any;
-    token?: string;
-  }): Promise<any> => {
+  const apiCall = async (
+    url: string,
+    method?: string,
+    body?: any,
+    token?: string,
+  ): Promise<any> => {
     const fullUrl = new URL(`/api/v1${url}`, baseUrl);
     fullUrl.searchParams.append("token", CLIENT_TOKEN);
 
@@ -119,38 +114,37 @@ export const useApi = () => {
     return await response.json();
   };
 
-  const manageApiCall = (
+  const managedApiCall = async (
     url: string,
     method: string = "GET",
     body: any = null,
   ): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      if (isLoading) {
+    if (isLoading) {
+      return new Promise((resolve, reject) => {
         setRequestQueue((prevQueue) => [
           ...prevQueue,
           { url, method, body, resolve, reject },
         ]);
-      } else {
-        getAccessTokenSilently()
-          .then((token) => {
-            apiCall({ url, method, body, token }).then(resolve).catch(reject);
-          })
-          .catch((error) => reject(error));
-      }
-    });
+      });
+    } else {
+      const token = isAuthenticated
+        ? await getAccessTokenSilently()
+        : undefined;
+      return apiCall(url, method, body, token);
+    }
   };
 
   return {
     getUsers: async (): Promise<User[]> => {
-      const response = await manageApiCall("/users");
+      const response = await managedApiCall("/users");
       return response.users.map(sanitizeUserData);
     },
     getProjects: async (): Promise<Project[]> => {
-      const response = await manageApiCall("/projects");
+      const response = await managedApiCall("/projects");
       return response.projects.map(sanitizeProjectData);
     },
     getProject: async (projectId: string): Promise<State> => {
-      const response = await apiCall({ url: `/projects/${projectId}` });
+      const response = await managedApiCall(`/projects/${projectId}`);
 
       const project = sanitizeProjectData(response.project);
 
@@ -193,11 +187,11 @@ export const useApi = () => {
           : undefined,
       };
 
-      const response = await apiCall({
-        url: `/projects/${projectId}`,
-        method: "PATCH",
-        body: updatedData,
-      });
+      const response = await managedApiCall(
+        `/projects/${projectId}`,
+        "PATCH",
+        updatedData,
+      );
 
       return {
         ...response,
@@ -205,13 +199,13 @@ export const useApi = () => {
       };
     },
     postProjectResetLayers: (projectId: string): Promise<ApiMessage> =>
-      apiCall({ url: `/projects/${projectId}/resetLayers`, method: "POST" }),
+      managedApiCall(`/projects/${projectId}/resetLayers`, "POST"),
     postTask: async (projectId: string, task: Task): Promise<Task> => {
-      const response = await apiCall({
-        url: `/projects/${projectId}/tasks`,
-        method: "POST",
-        body: task,
-      });
+      const response = await managedApiCall(
+        `/projects/${projectId}/tasks`,
+        "POST",
+        task,
+      );
 
       return {
         ...response,
@@ -220,48 +214,45 @@ export const useApi = () => {
       };
     },
     deleteTask: (projectId: string, taskId: string): Promise<boolean> =>
-      apiCall({
-        url: `/projects/${projectId}/tasks/${taskId}`,
-        method: "DELETE",
-      }),
+      managedApiCall(`/projects/${projectId}/tasks/${taskId}`, "DELETE"),
     patchTask: (
       projectId: string,
       taskId: string,
       updateData: TaskUpdates,
     ): Promise<Task> =>
-      apiCall({
-        url: `/projects/${projectId}/tasks/${taskId}`,
-        method: "PATCH",
-        body: updateData,
-      }),
+      managedApiCall(
+        `/projects/${projectId}/tasks/${taskId}`,
+        "PATCH",
+        updateData,
+      ),
     patchBucket: (
       projectId: string,
       bucketId: string,
       updateData: BucketUpdates,
     ): Promise<Bucket> =>
-      apiCall({
-        url: `/projects/${projectId}/buckets/${bucketId}`,
-        method: "PATCH",
-        body: updateData,
-      }),
+      managedApiCall(
+        `/projects/${projectId}/buckets/${bucketId}`,
+        "PATCH",
+        updateData,
+      ),
     postBucketResetLayer: (
       projectId: string,
       bucketId: string,
     ): Promise<Bucket> =>
-      apiCall({
-        url: `/projects/${projectId}/buckets/${bucketId}/resetLayers`,
-        method: "POST",
-      }),
+      managedApiCall(
+        `/projects/${projectId}/buckets/${bucketId}/resetLayers`,
+        "POST",
+      ),
     postDependency: async (
       projectId: string,
       bucketId: string,
       dependencyId: string,
     ): Promise<Dependency> => {
-      const response = await apiCall({
-        url: `/projects/${projectId}/dependencies`,
-        method: "POST",
-        body: { bucketId, dependencyId },
-      });
+      const response = await managedApiCall(
+        `/projects/${projectId}/dependencies`,
+        "POST",
+        { bucketId, dependencyId },
+      );
 
       return {
         ...response,
@@ -274,19 +265,15 @@ export const useApi = () => {
       bucketId: string,
       dependencyId: string,
     ): Promise<boolean> =>
-      apiCall({
-        url: `/projects/${projectId}/dependencies/${bucketId}/${dependencyId}`,
-        method: "DELETE",
-      }),
+      managedApiCall(
+        `/projects/${projectId}/dependencies/${bucketId}/${dependencyId}`,
+        "DELETE",
+      ),
     postActivity: (
       projectId: string,
       updateData: ActivityUpdates,
     ): Promise<any> =>
-      apiCall({
-        url: `/projects/${projectId}/activities`,
-        method: "POST",
-        body: updateData,
-      }),
+      managedApiCall(`/projects/${projectId}/activities`, "POST", updateData),
     postProject: async (
       name: string,
       appetite: number,
@@ -294,11 +281,14 @@ export const useApi = () => {
       ownerFirstName?: string,
       ownerLastName?: string,
     ): Promise<Project> => {
-      const response = await apiCall({
-        url: `/projects`,
-        method: "POST",
-        body: { name, appetite, ownerEmail, ownerFirstName, ownerLastName },
+      const response = await managedApiCall(`/projects`, "POST", {
+        name,
+        appetite,
+        ownerEmail,
+        ownerFirstName,
+        ownerLastName,
       });
+
       return sanitizeProjectData(response.project);
     },
   };

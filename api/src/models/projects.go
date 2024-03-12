@@ -132,16 +132,17 @@ func (m *ProjectModel) IDExists(id string) bool {
 }
 
 func (m *ProjectModel) Get(id string) (*Project, error) {
-	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived, updated_by FROM projects WHERE id = ?`
+	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived, updated_by, org_id, created_by FROM projects WHERE id = ?`
 	row := m.DB.QueryRow(stmt, id)
 
 	var (
 		startedAtStr, createdAtStr, updatedAtStr string
 		endingAt                                 sql.NullString // Use sql.NullString for nullable endingAt field
 		p                                        Project
+		orgID                                    sql.NullString // Use sql.NullString for nullable org_id field
 	)
 
-	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy)
+	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy, &orgID, &p.CreatedBy)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Project with ID %s not found", id)
@@ -175,6 +176,13 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		p.EndingAt = &endingAtTime
 	} else {
 		p.EndingAt = nil
+	}
+
+	// Handle nullable orgID
+	if orgID.Valid {
+		p.OrgID = orgID.String
+	} else {
+		p.OrgID = ""
 	}
 
 	return &p, nil
