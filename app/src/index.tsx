@@ -14,6 +14,7 @@ import Dashboard from "./Dashboard/Dashboard";
 import New from "./Dashboard/New";
 import Project from "./Project/Project";
 import { DLAuth0 } from "./auth0-provider";
+import { OrgProvider } from "./context/org";
 
 function isLocalhost(): boolean {
   return (
@@ -62,12 +63,14 @@ const App = function App() {
     <ErrorBoundary>
       <BrowserRouter basename="/a">
         <DLAuth0>
-          <Routes>
-            <Route path=":projectId/*" element={<Project />} />
-            <Route path={AppContext.Dashboard} element={<Dashboard />} />
-            <Route path={AppContext.Callback} element={<Callback />} />
-            <Route path={AppContext.New} element={<New />} />
-          </Routes>
+          <OrgProvider>
+            <Routes>
+              <Route path=":projectId/*" element={<Project />} />
+              <Route path={AppContext.Dashboard} element={<Dashboard />} />
+              <Route path={AppContext.Callback} element={<Callback />} />
+              <Route path={AppContext.New} element={<New />} />
+            </Routes>
+          </OrgProvider>
         </DLAuth0>
       </BrowserRouter>
     </ErrorBoundary>

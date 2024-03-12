@@ -2,6 +2,7 @@ import React from "react";
 
 import { UserIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "../common/InfoTooltip";
+import { useOrg } from "../context/org";
 import { isActivityOutdated, sortActivitiesByDate } from "../models/activities";
 import { dateToHumanReadable } from "../utils/dates";
 import { getInitials, getUsername } from "../utils/requests";
@@ -32,7 +33,7 @@ const HeaderActivity: React.FC = () => {
 
   return (
     <div className="flex items-start gap-2">
-      <Avatar username={username} onClick={handleChangeUsername} type="self" />
+      <Avatar userID={username} onClick={handleChangeUsername} type="self" />
       {live.map((activity) => (
         <ActivityAvatar key={activity.createdBy} activity={activity} />
       ))}
@@ -47,28 +48,29 @@ interface ActivityAvatarProps {
 }
 
 export const ActivityAvatar: React.FC<ActivityAvatarProps> = ({ activity }) => {
-  const username = activity.createdBy;
+  const userID = activity.createdBy;
 
   return (
-    <Avatar username={username} type={"other"} lastSeen={activity.createdAt} />
+    <Avatar userID={userID} type={"other"} lastSeen={activity.createdAt} />
   );
 };
 
 interface AvatarProps {
-  username: UserName;
+  userID: UserName;
   onClick?: () => void;
   lastSeen?: Date;
   type: "self" | "other" | "inactive";
 }
 
 export const Avatar: React.FC<AvatarProps> = ({
-  username,
+  userID,
   onClick,
   lastSeen,
   type,
 }) => {
-  const initials = getInitials(username);
-  const tooltipname = initials !== "" ? username : "Anonymous";
+  const { users } = useOrg();
+  const initials = getInitials(userID);
+  const tooltipname = initials !== "" ? userID : "Anonymous";
   return (
     <Tooltip
       info={

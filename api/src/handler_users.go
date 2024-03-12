@@ -30,5 +30,5 @@ func (app *application) ApiGetUsers(w http.ResponseWriter, r *http.Request) {
 		"users": users,
 	}
 
-	app.writeJSON(w, http.StatusCreated, data, nil)
+	app.writeJSON(w, http.StatusOK, data, nil)
 }

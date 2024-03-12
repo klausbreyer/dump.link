@@ -4,9 +4,7 @@ import { Link } from "react-router-dom";
 import DLMenu from "../Menu/Menu";
 import Alert from "../common/Alert";
 import Container from "../common/Container";
-import { useApi } from "../hooks/useApi";
-import { useProjects } from "../hooks/useProjects";
-import { useUsers } from "../hooks/useUsers";
+import { useOrg } from "../context/org";
 import { getEndingAt } from "../models/projects";
 import { findUser } from "../models/users";
 import { dateToISO, formatDate } from "../utils/dates";
@@ -21,10 +19,7 @@ const statuses = {
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth0();
 
-  const api = useApi();
-
-  const projects = useProjects();
-  const users = useUsers();
+  const { projects, users } = useOrg();
 
   return (
     <>
