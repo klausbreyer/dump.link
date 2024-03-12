@@ -11,8 +11,9 @@ import "../public/styles.css";
 import { AppContext } from "../types";
 import Callback from "./Dashboard/Callback";
 import Dashboard from "./Dashboard/Dashboard";
+import New from "./Dashboard/New";
 import Project from "./Project/Project";
-import { Auth0ProviderConfigured } from "./auth0-provider";
+import { DLAuth0 } from "./auth0-provider";
 
 function isLocalhost(): boolean {
   return (
@@ -60,13 +61,14 @@ const App = function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter basename="/a">
-        <Auth0ProviderConfigured>
+        <DLAuth0>
           <Routes>
             <Route path=":projectId/*" element={<Project />} />
             <Route path={AppContext.Dashboard} element={<Dashboard />} />
             <Route path={AppContext.Callback} element={<Callback />} />
+            <Route path={AppContext.New} element={<New />} />
           </Routes>
-        </Auth0ProviderConfigured>
+        </DLAuth0>
       </BrowserRouter>
     </ErrorBoundary>
   );

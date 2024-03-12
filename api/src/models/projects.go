@@ -17,6 +17,8 @@ type Project struct {
 	Appetite  int        `json:"appetite"`
 	Archived  bool       `json:"archived"`
 	UpdatedBy string     `json:"updatedBy"`
+	OrgID     string     `json:"orgID"`
+	CreatedBy string     `json:"createdBy"`
 	// OwnerEmail    string    `json:"ownerEmail"`    // never read. Only ingested.
 	// OwnerFirstName string   `json:"ownerFirstName"` // never read. Only ingested.
 	// OwnerLastName string    `json:"ownerLastName"`  // never read. Only ingested.
@@ -26,7 +28,7 @@ type ProjectModel struct {
 	DB *sql.DB
 }
 
-func (m *ProjectModel) Insert(name string, appetite int, ownerEmail, ownerFirstName, ownerLastName, updatedBy string) (string, error) {
+func (m *ProjectModel) GetNewID() string {
 	var id string
 	for {
 		id = NewID()
@@ -34,15 +36,88 @@ func (m *ProjectModel) Insert(name string, appetite int, ownerEmail, ownerFirstN
 			break
 		}
 	}
+	return id
+}
 
-	startedAt := time.Now()
-	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName, updatedBy)
+func (m *ProjectModel) GetForOrgID(orgID string) ([]*Project, error) {
+	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived, updated_by, created_by, org_id FROM projects WHERE org_id = ?`
+	rows, err := m.DB.Query(stmt, orgID)
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+	defer rows.Close()
+
+	var projects []*Project
+	for rows.Next() {
+		var (
+			startedAtStr, createdAtStr, updatedAtStr string
+			endingAt                                 sql.NullString // Use sql.NullString for nullable endingAt field
+			p                                        Project
+		)
+
+		err := rows.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy, &p.CreatedBy, &p.OrgID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Parse the non-nullable datetime strings
+		p.StartedAt, err = time.Parse(DateLayout, startedAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse startedAt: %v", err)
+		}
+
+		p.CreatedAt, err = time.Parse(DateTimeLayout, createdAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse createdAt: %v", err)
+		}
+
+		p.UpdatedAt, err = time.Parse(DateTimeLayout, updatedAtStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse updatedAt: %v", err)
+		}
+
+		// Handle nullable endingAt
+		if endingAt.Valid {
+			var endingAtTime time.Time
+			endingAtTime, err = time.Parse(DateLayout, endingAt.String)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse endingAt: %v", err)
+			}
+			p.EndingAt = &endingAtTime
+		} else {
+			p.EndingAt = nil
+		}
+
+		projects = append(projects, &p)
 	}
 
-	return id, nil
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return projects, nil
+}
+
+func (m *ProjectModel) InsertAnonymous(id string, name string, appetite int, ownerEmail, ownerFirstName, ownerLastName, userID string) error {
+	startedAt := time.Now()
+	stmt := `INSERT INTO projects (id, name, started_at, appetite, owner_email, owner_firstname, owner_lastname, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, ownerEmail, ownerFirstName, ownerLastName, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProjectModel) InsertRegistered(id string, name string, appetite int, userID, orgID string) error {
+	startedAt := time.Now()
+	stmt := `INSERT INTO projects (id, name, started_at, appetite, created_by, org_id) VALUES (?, ?, ?, ?, ?, ?)`
+	_, err := m.DB.Exec(stmt, id, name, startedAt, appetite, userID, orgID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *ProjectModel) IDExists(id string) bool {
@@ -57,16 +132,17 @@ func (m *ProjectModel) IDExists(id string) bool {
 }
 
 func (m *ProjectModel) Get(id string) (*Project, error) {
-	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived, updated_by FROM projects WHERE id = ?`
+	stmt := `SELECT id, name, started_at, created_at, ending_at, updated_at, appetite, archived, updated_by, org_id, created_by FROM projects WHERE id = ?`
 	row := m.DB.QueryRow(stmt, id)
 
 	var (
 		startedAtStr, createdAtStr, updatedAtStr string
 		endingAt                                 sql.NullString // Use sql.NullString for nullable endingAt field
 		p                                        Project
+		orgID                                    sql.NullString // Use sql.NullString for nullable org_id field
 	)
 
-	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy)
+	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy, &orgID, &p.CreatedBy)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Project with ID %s not found", id)
@@ -100,6 +176,13 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		p.EndingAt = &endingAtTime
 	} else {
 		p.EndingAt = nil
+	}
+
+	// Handle nullable orgID
+	if orgID.Valid {
+		p.OrgID = orgID.String
+	} else {
+		p.OrgID = ""
 	}
 
 	return &p, nil

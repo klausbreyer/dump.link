@@ -9,9 +9,9 @@ import (
 func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -23,6 +23,12 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -54,7 +60,7 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newTaskID, err := app.tasks.Insert(input.Id, input.Title, false, input.BucketID, input.Priority, projectId, username)
+	newTaskID, err := app.tasks.Insert(input.Id, input.Title, false, input.BucketID, input.Priority, projectId, userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -68,12 +74,12 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 
 	data := task
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionAddTask, data)
 
 	app.writeJSON(w, http.StatusCreated, data, nil)
-	app.actions.Insert(projectId, nil, &task.ID, startTime, string(ActionAddTask), username)
+	err = app.actions.Insert(projectId, nil, &task.ID, startTime, string(ActionAddTask), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -83,9 +89,9 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -93,6 +99,7 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		return
 	}
+
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
@@ -101,6 +108,12 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -118,11 +131,11 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	data := envelope{
 		"taskId": taskId,
 	}
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionDeleteTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	app.actions.Insert(projectId, nil, &taskId, startTime, string(ActionDeleteTask), username)
+	err = app.actions.Insert(projectId, nil, &taskId, startTime, string(ActionDeleteTask), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -132,9 +145,9 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 	taskId, valid := app.getAndValidateID(w, r, "taskId")
@@ -150,6 +163,12 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -194,7 +213,7 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data["updated_by"] = username
+	data["updated_by"] = userID
 
 	err = app.tasks.Update(taskId, data)
 	if err != nil {
@@ -215,11 +234,11 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	//always send the id, ws needs it.
 	data["id"] = taskId
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateTask, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, nil, &taskId, startTime, string(ActionUpdateTask), username)
+	err = app.actions.Insert(projectId, nil, &taskId, startTime, string(ActionUpdateTask), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

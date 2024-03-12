@@ -2,13 +2,10 @@ import React from "react";
 
 import { UserIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "../common/InfoTooltip";
-import {
-  isActivityOutdated,
-  sortActivitiesByDate,
-} from "./context/data/activities";
-import { useData } from "./context/data/data";
-import { dateToHumanReadable } from "./context/data/dates";
-import { getInitials, getUsername } from "./context/data/requests";
+import { isActivityOutdated, sortActivitiesByDate } from "../models/activities";
+import { dateToHumanReadable } from "../utils/dates";
+import { getInitials, getUsername } from "../utils/requests";
+import { useData } from "./context/data";
 import { Activity, UserName } from "./types";
 
 const HeaderActivity: React.FC = () => {

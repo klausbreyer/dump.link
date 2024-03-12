@@ -1,9 +1,13 @@
 package src
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 
+	"dump.link/src/auth0client"
+	"dump.link/src/models"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,6 +21,58 @@ func (app *application) getAndValidateID(w http.ResponseWriter, r *http.Request,
 	}
 
 	return id, true
+}
+
+func (app *application) validateUserID(id string) bool {
+	parts := strings.Split(id, "|")
+	return len(parts) == 2 && len(parts[0]) > 1 && len(parts[1]) > 1
+}
+
+func generateDumplinkSubject(username string, projectID string) string {
+	return "dumplink" + "|" + projectID + "_" + url.QueryEscape(username)
+}
+
+func isAnonymous(subject string) bool {
+	return strings.HasPrefix(subject, "dumplink")
+}
+
+func (app *application) assumePermission(orgID string, project models.Project) error {
+	app.logger.Debug("hasPermission", "orgID", orgID, "project.OrgID", project.OrgID)
+	if project.OrgID != "" && orgID != project.OrgID {
+		return errors.New("unauthorized")
+	}
+	return nil
+}
+
+func (app *application) getAndValidateUserAndOrg(r *http.Request, projectId string) (string, string, error) {
+	// check if Authorization Header is present then prioritize that
+	if app.hasAuthorizationHeader(r) {
+		claims, customClaims, err := auth0client.GetClaims(r)
+		if err != nil {
+			return "", "", err
+		}
+
+		sub := claims.RegisteredClaims.Subject
+
+		if !app.validateUserID(sub) {
+			return "", "", errors.New("invalid user id")
+		}
+
+		return sub, customClaims.OrgID, nil
+	}
+
+	username, err := app.getUsernameFromHeader(r)
+	if err != nil {
+		return "", "", err
+	}
+
+	sub := generateDumplinkSubject(username, projectId)
+
+	if !app.validateUserID(sub) {
+		return "", "", errors.New("invalid username")
+	}
+
+	return sub, "", nil
 }
 
 func (app *application) idExists(idType string, id string) bool {
@@ -42,12 +98,16 @@ func (app *application) getUsernameFromHeader(r *http.Request) (string, error) {
 		return "", err
 	}
 	return decodedUsername, nil
-
 }
 
-func (app *application) getTokenFromRequest(r *http.Request) string {
-	token := r.URL.Query().Get("token")
-	return token
+func (app *application) hasAuthorizationHeader(r *http.Request) bool {
+	token := r.Header.Get("Authorization")
+	return token != ""
+}
+
+func (app *application) getClientTokenFromRequest(r *http.Request) string {
+	clientToken := r.URL.Query().Get("client")
+	return clientToken
 }
 
 func (app *application) getUsernameFromRequest(r *http.Request) string {

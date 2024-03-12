@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Tooltip } from "../common/InfoTooltip";
 import { RecentIcon } from "../common/icons";
-import { useData } from "./context/data/data";
+import { useData } from "./context/data";
 import { lastAccessedProject } from "./types";
 
 function RecentLinks() {
@@ -31,7 +31,7 @@ function RecentLinks() {
 
   return (
     //   z for the whole thing because of the transition.
-    <Popover className="relative z-50">
+    <Popover className="relative z-30">
       <Popover.Button>
         <Tooltip info="Recent">
           <RecentIcon className="w-6 h-6 cursor-pointer text-slate-500 hover:text-slate-800" />

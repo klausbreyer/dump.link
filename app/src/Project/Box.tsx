@@ -7,27 +7,24 @@ import {
 } from "@heroicons/react/24/outline";
 
 import Modal from "../common/Modal";
+import { checkBucketActivity } from "../models/activities";
+import { getBucket, getOtherBuckets } from "../models/buckets";
 import {
-  getBucketBackgroundColor,
-  getHeaderTextColor,
-} from "../common/bucketColors";
+  getBucketsDependingOn,
+  getUniqueDependingIdsForbucket,
+} from "../models/dependencies";
+import { getTasksForBucket } from "../models/tasks";
+import { getUsername } from "../utils/requests";
 import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskGroup from "./TaskGroup";
+import { getBucketBackgroundColor, getHeaderTextColor } from "./bucketColors";
 import {
   checkIfBucketIDExists,
   checkIfDependencyExists,
   useAbsence,
 } from "./context/absence";
-import { checkBucketActivity } from "./context/data/activities";
-import { getBucket, getOtherBuckets } from "./context/data/buckets";
-import { useData } from "./context/data/data";
-import {
-  getBucketsDependingOn,
-  getUniqueDependingIdsForbucket,
-} from "./context/data/dependencies";
-import { getUsername } from "./context/data/requests";
-import { getTasksForBucket } from "./context/data/tasks";
+import { useData } from "./context/data";
 import { useGlobalInteraction } from "./context/interaction";
 import { useBoxDragDrop } from "./hooks/useBoxDragDrop";
 import { Bucket, DraggingType, TabContext } from "./types";

@@ -1,10 +1,12 @@
 import { Dispatch } from "react";
-import { ActionType, CLIENT_TOKEN } from "./data";
-import { ISOToDate } from "./dates";
+import { CLIENT_TOKEN } from "../../hooks/useApi";
+import { ISOToDate } from "../../utils/dates";
+import { ActionType } from "./data";
 
 type DispatchType = Dispatch<ActionType>;
 export const setupWebSocket = (
   projectId: string,
+  token: string,
   dispatch: DispatchType,
   onReconnect: () => void,
 ) => {
@@ -23,7 +25,8 @@ export const setupWebSocket = (
         : `ws://localhost:8080/api/v1/ws/${projectId}`,
     );
 
-    wsURL.searchParams.append("token", CLIENT_TOKEN);
+    wsURL.searchParams.append("Authorization", `Bearer ${token}`);
+    wsURL.searchParams.append("client", CLIENT_TOKEN);
     ws = new WebSocket(wsURL.href);
 
     ws.onmessage = (event) => {

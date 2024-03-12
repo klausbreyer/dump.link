@@ -14,22 +14,21 @@ import {
   TaskID,
   TaskUpdates,
   UserName,
-} from "../../types";
+} from "../types";
 
+import { useAuth0 } from "@auth0/auth0-react";
 import { useParams } from "react-router-dom";
-import { notifyBugsnag } from "../../..";
-import config from "../../../config";
-import { LifecycleState, useLifecycle } from "../lifecycle";
-import { APIError, apiFunctions } from "./calls";
+import { notifyBugsnag } from "../..";
+import config from "../../config";
+import { APIError, useApi } from "../../hooks/useApi";
 import {
   getUniqueDependingIdsForbucket,
   hasCyclicDependencyWithBucket,
-} from "./dependencies";
-import { getLayerForBucketId } from "./layers";
-import { NewID, getUsername, saveProjectIdToLocalStorage } from "./requests";
+} from "../../models/dependencies";
+import { getLayerForBucketId } from "../../models/layers";
+import { getUsername, saveProjectIdToLocalStorage } from "../../utils/requests";
+import { LifecycleState, useLifecycle } from "./lifecycle";
 import { setupWebSocket } from "./websocket";
-
-export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
 
 const initialState: State = {
   buckets: [],
@@ -39,6 +38,7 @@ const initialState: State = {
   project: {
     id: "",
     name: "",
+    createdBy: "",
     appetite: 0,
     startedAt: new Date(),
     createdAt: new Date(),
@@ -278,12 +278,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(dataReducer, initialState);
   const { setLifecycle } = useLifecycle();
 
+  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+  const api = useApi();
   const params = useParams();
   const { projectId } = params;
 
   const loadInitialState = async (projectId: ProjectID) => {
     try {
-      const initialState = await apiFunctions.getProject(projectId);
+      const initialState = await api.getProject(projectId);
       saveProjectIdToLocalStorage(projectId, initialState.project.name);
       if (initialState) {
         dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
@@ -315,20 +317,28 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }, [projectId]);
 
   useEffect(() => {
+    if (isLoading) return;
     if (!state.project.id) return;
-    const wsCleanup = setupWebSocket(state.project.id, dispatch, () =>
-      loadInitialState(state.project.id),
-    );
-    // can only make calls when state is there, because it needs a project.id
 
-    if (state.project.id.length === 11) {
-      updateActivities(undefined, undefined);
-    }
+    let wsCleanup: (() => void) | undefined = undefined;
+
+    const fetchData = async () => {
+      const token = await getAccessTokenSilently();
+      wsCleanup = setupWebSocket(state.project.id, token, dispatch, () =>
+        loadInitialState(state.project.id),
+      );
+
+      if (state.project.id.length === 11) {
+        updateActivities(undefined, undefined);
+      }
+    };
+
+    fetchData();
 
     return () => {
       if (wsCleanup) wsCleanup();
     };
-  }, [state.project.id]);
+  }, [state.project.id, isAuthenticated, isLoading]);
 
   useEffect(() => {
     if (state.project.id === "") return;
@@ -343,7 +353,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.postTask(state.project.id, task);
+        await api.postTask(state.project.id, task);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while adding the task");
@@ -382,7 +392,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.patchTask(state.project.id, taskId, updates);
+        await api.patchTask(state.project.id, taskId, updates);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while updating the task");
@@ -398,7 +408,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.deleteTask(state.project.id, taskId);
+        await api.deleteTask(state.project.id, taskId);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while deleting the task");
@@ -416,7 +426,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.patchBucket(state.project.id, bucketId, updates);
+        await api.patchBucket(state.project.id, bucketId, updates);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while updating the bucket");
@@ -432,7 +442,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.postBucketResetLayer(state.project.id, bucketId);
+        await api.postBucketResetLayer(state.project.id, bucketId);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while reseting bucket layer");
@@ -470,7 +480,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.postProjectResetLayers(state.project.id);
+        await api.postProjectResetLayers(state.project.id);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while resetting layers for all buckets");
@@ -480,6 +490,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   const updateProject = (updates: ProjectUpdates) => {
     updates = addUpdatedByToEntity(updates);
+
     dispatch({
       type: "UPDATE_PROJECT",
       updates: updates,
@@ -491,7 +502,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.patchProject(state.project.id, updates);
+        await api.patchProject(state.project.id, updates);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while updating the project");
@@ -516,11 +527,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.postDependency(
-          state.project.id,
-          bucket.id,
-          dependencyId,
-        );
+        await api.postDependency(state.project.id, bucket.id, dependencyId);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while adding bucket dependency");
@@ -540,11 +547,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.deleteDependency(
-          state.project.id,
-          bucketId,
-          dependencyId,
-        );
+        await api.deleteDependency(state.project.id, bucketId, dependencyId);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while removing bucket dependency");
@@ -583,7 +586,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     (async () => {
       try {
-        await apiFunctions.postActivity(state.project.id, update);
+        await api.postActivity(state.project.id, update);
       } catch (error) {
         notifyBugsnag(error);
         alert("Error while updating activity");

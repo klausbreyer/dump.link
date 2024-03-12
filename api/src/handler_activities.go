@@ -11,14 +11,25 @@ import (
 func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
+		return
+	}
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -50,12 +61,12 @@ func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if input.TaskID != nil {
-		err = app.activities.ReplaceTaskId(projectId, *input.TaskID, username)
+		err = app.activities.ReplaceTaskId(projectId, *input.TaskID, userID)
 	} else {
 		if input.BucketID != nil {
-			err = app.activities.ReplaceBucketId(projectId, *input.BucketID, username)
+			err = app.activities.ReplaceBucketId(projectId, *input.BucketID, userID)
 		} else {
-			err = app.activities.Reset(projectId, username)
+			err = app.activities.Reset(projectId, userID)
 		}
 	}
 
@@ -74,7 +85,7 @@ func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) 
 		data = []*models.Activity{}
 	}
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateActivities, data)
 	err = app.writeJSON(w, http.StatusOK, data, nil)
 	if err != nil {
@@ -82,7 +93,7 @@ func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateActivities), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateActivities), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

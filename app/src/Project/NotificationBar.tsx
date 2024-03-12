@@ -1,8 +1,8 @@
 import React from "react";
 
 import { XCircleIcon } from "@heroicons/react/24/outline";
+import { dateToHumanReadable } from "../utils/dates";
 import { useAbsence } from "./context/absence";
-import { dateToHumanReadable } from "./context/data/dates";
 
 const NotificationBar: React.FC = () => {
   const { numChanges, lastVisit, setAcknowledged, acknowledged } = useAbsence();

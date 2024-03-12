@@ -1,4 +1,4 @@
-import { UserName, lastAccessedProject } from "../../types";
+import { UserName, lastAccessedProject } from "../Project/types";
 
 export const extractIdFromUrl = () => {
   const url = window.location.pathname;

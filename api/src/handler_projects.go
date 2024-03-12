@@ -12,9 +12,9 @@ import (
 func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -26,6 +26,12 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -79,7 +85,7 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionSetInitialState), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionSetInitialState), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -89,14 +95,26 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
+		return
+	}
+
+	project, err := app.projects.Get(projectId)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -150,7 +168,7 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	data["updated_by"] = username
+	data["updated_by"] = userID
 
 	err = app.projects.Update(projectId, data)
 	if err != nil {
@@ -170,11 +188,43 @@ func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) 
 
 	data["id"] = projectId
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateProject, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionUpdateProject), userID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *application) ApiProjectsGet(w http.ResponseWriter, r *http.Request) {
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
+		return
+	}
+
+	if isAnonymous(userID) {
+		app.unauthorizedResponse(w, r, errors.New("anonymous user cannot access projects list"))
+	}
+
+	projects, err := app.projects.GetForOrgID(orgID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if projects == nil {
+		projects = []*models.Project{}
+	}
+
+	data := envelope{
+		"projects": projects,
+	}
+
+	err = app.writeJSON(w, http.StatusOK, data, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -198,15 +248,30 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if input.Name == "" || input.OwnerEmail == "" || input.OwnerFirstName == "" || input.OwnerLastName == "" {
-		app.badRequestResponse(w, r, errors.New("missing required fields"))
+	projectId := app.projects.GetNewID()
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
-	projectId, err := app.projects.Insert(input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, "")
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
+	if isAnonymous(userID) {
+		if input.Name == "" || input.OwnerEmail == "" || input.OwnerFirstName == "" || input.OwnerLastName == "" {
+			app.badRequestResponse(w, r, errors.New("missing required fields"))
+			return
+		}
+
+		err = app.projects.InsertAnonymous(projectId, input.Name, input.Appetite, input.OwnerEmail, input.OwnerFirstName, input.OwnerLastName, userID)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	} else {
+		err = app.projects.InsertRegistered(projectId, input.Name, input.Appetite, userID, orgID)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	// insert 10 buckets + 1 dump
@@ -245,9 +310,9 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
+	userID, orgID, err := app.getAndValidateUserAndOrg(r, "")
 	if err != nil {
-		app.unauthorizedResponse(w, r)
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -259,6 +324,12 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgID, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -276,11 +347,11 @@ func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Req
 	data := make(envelope)
 	data["message"] = "All layers in the project have been reset successfully"
 
-	senderToken := app.getTokenFromRequest(r)
+	senderToken := app.getClientTokenFromRequest(r)
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetProjectLayers, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetProjectLayers), username)
+	err = app.actions.Insert(projectId, nil, nil, startTime, string(ActionResetProjectLayers), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

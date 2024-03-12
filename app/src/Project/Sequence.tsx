@@ -3,15 +3,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDragLayer } from "react-dnd";
 import Container from "../common/Container";
 import InfoButton from "../common/InfoButton";
+import { getOtherBuckets } from "../models/buckets";
+import Box from "./Box";
+import FollowArrow from "./FollowArrow";
+import { useData } from "./context/data";
 import {
   Coordinates,
   getBorderCenterCoordinates,
   shortenLineEnd,
-} from "../common/coordinates";
-import Box from "./Box";
-import FollowArrow from "./FollowArrow";
-import { getOtherBuckets } from "./context/data/buckets";
-import { useData } from "./context/data/data";
+} from "./coordinates";
 import { BucketID, TabContext } from "./types";
 
 interface SequenceProps {}

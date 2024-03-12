@@ -1,5 +1,5 @@
-import { Bucket, BucketID, Dependency } from "../../types";
-import { uniqueValues } from "./arrays";
+import { Bucket, BucketID, Dependency } from "../Project/types";
+import { uniqueValues } from "../utils/arrays";
 import { getOtherBuckets } from "./buckets";
 
 export const getUniqueDependingIdsForbucket = (

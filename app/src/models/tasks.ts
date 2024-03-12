@@ -1,4 +1,4 @@
-import { Bucket, BucketID, Task, TaskID } from "../../types";
+import { Bucket, BucketID, Task, TaskID } from "../Project/types";
 import {
   getBucketForTask,
   getClosedBucketType,

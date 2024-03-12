@@ -7,7 +7,7 @@ import HeaderNav from "./HeaderNav";
 import HeaderProgress from "./HeaderProgress";
 import HeaderProject from "./HeaderProject";
 import HeaderSettings from "./HeaderSettings";
-import { useData } from "./context/data/data";
+import { useData } from "./context/data";
 
 interface HeaderProps {}
 

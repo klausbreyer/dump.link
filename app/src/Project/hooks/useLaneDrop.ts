@@ -3,13 +3,13 @@ import {
   getArrangeBucketType,
   getBucket,
   getOtherBuckets,
-} from "../context/data/buckets";
-import { useData } from "../context/data/data";
+} from "../../models/buckets";
 import {
   getBucketDependencies,
   getBucketsDependingOnNothing,
-} from "../context/data/dependencies";
-import { getLayers } from "../context/data/layers";
+} from "../../models/dependencies";
+import { getLayers } from "../../models/layers";
+import { useData } from "../context/data";
 import { Bucket, BucketID, Dependency, DraggedBucket } from "../types";
 
 const getAccept = (

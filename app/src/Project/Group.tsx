@@ -2,10 +2,10 @@ import React from "react";
 
 import Container from "../common/Container";
 import FlexCol from "../common/FlexCol";
+import { getDumpBucket, getOtherBuckets } from "../models/buckets";
 import Area from "./Area";
 import TaskGroup from "./TaskGroup";
-import { getDumpBucket, getOtherBuckets } from "./context/data/buckets";
-import { useData } from "./context/data/data";
+import { useData } from "./context/data";
 
 interface GroupProps {}
 
