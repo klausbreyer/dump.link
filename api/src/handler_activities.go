@@ -11,16 +11,17 @@ import (
 func (app *application) ApiActivityPost(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
+		return
+	}
+
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
 	if err != nil {
 		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
-	projectId, valid := app.getAndValidateID(w, r, "projectId")
-	if !valid {
-		return
-	}
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

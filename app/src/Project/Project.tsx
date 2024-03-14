@@ -13,26 +13,19 @@ import Settings from "./Settings";
 import { AbsenceProvider } from "./context/absence";
 import { DataProvider } from "./context/data";
 import { GlobalInteractionProvider } from "./context/interaction";
-import {
-  LifecycleProvider,
-  LifecycleState,
-  useLifecycle,
-} from "./context/lifecycle";
 import { TabContext } from "./types";
 
 export default function Project() {
   return (
-    <LifecycleProvider>
-      <GlobalInteractionProvider>
-        <DataProvider>
-          <AbsenceProvider>
-            <DndProvider options={HTML5toTouch}>
-              <Router />
-            </DndProvider>
-          </AbsenceProvider>
-        </DataProvider>
-      </GlobalInteractionProvider>
-    </LifecycleProvider>
+    <GlobalInteractionProvider>
+      <DataProvider>
+        <AbsenceProvider>
+          <DndProvider options={HTML5toTouch}>
+            <Router />
+          </DndProvider>
+        </AbsenceProvider>
+      </DataProvider>
+    </GlobalInteractionProvider>
   );
 }
 
@@ -46,18 +39,6 @@ const Router = function Loaded() {
       alert("Mobile & touch access in beta - expect some quirks!");
     }
   }, []);
-
-  const { lifecycle } = useLifecycle();
-  if (lifecycle === LifecycleState.Initialized) {
-    return <Loading />;
-  }
-  if (
-    lifecycle === LifecycleState.Error ||
-    lifecycle === LifecycleState.Error404 ||
-    lifecycle === LifecycleState.ErrorApi
-  ) {
-    return <ErrorState lifecycle={lifecycle} />;
-  }
 
   return (
     <>
@@ -75,40 +56,6 @@ const Router = function Loaded() {
     </>
   );
 };
-
-const Loading = function Loading() {
-  return (
-    <div className="flex items-center justify-center w-screen h-screen">
-      <div className="animate-pulse">Loading..</div>
-    </div>
-  );
-};
-
-type ErrorStateProps = {
-  lifecycle: LifecycleState;
-};
-
-function ErrorState(props: ErrorStateProps) {
-  const { lifecycle } = props;
-
-  let error = "";
-  switch (lifecycle) {
-    case LifecycleState.Error404:
-      error = "404 :(";
-      break;
-
-    default:
-    case LifecycleState.Error:
-      error = "Something went wrong :(";
-      break;
-  }
-
-  return (
-    <div className="flex items-center justify-center w-screen h-screen">
-      <div className="text-rose-500">{error}</div>
-    </div>
-  );
-}
 
 function NotFoundPage() {
   return (

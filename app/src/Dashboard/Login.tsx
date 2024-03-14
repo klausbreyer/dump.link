@@ -8,5 +8,9 @@ export default function Login() {
     loginWithRedirect();
   }, [loginWithRedirect]);
 
-  return <a>Redirecting to Login</a>;
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <a>Redirecting to Login</a>
+    </div>
+  );
 }

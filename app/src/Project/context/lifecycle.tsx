@@ -1,10 +1,12 @@
 import React, { createContext, ReactNode, useContext, useState } from "react";
+import { ErrorState, Loading } from "../../Error";
 
 export enum LifecycleState {
   Initialized = "initialized",
   Loaded = "loaded",
   Error = "error",
   Error404 = "error404",
+  Error401 = "error401",
   ErrorApi = "errorSocket",
 }
 
@@ -28,9 +30,21 @@ export const LifecycleProvider: React.FC<LifecycleProviderProps> = ({
     LifecycleState.Initialized,
   );
 
+  if (
+    lifecycle !== LifecycleState.Initialized &&
+    lifecycle !== LifecycleState.Loaded
+  ) {
+    return <ErrorState lifecycle={lifecycle} />;
+  }
+
+  console.log(lifecycle);
+
   return (
     <LifecycleContext.Provider value={{ lifecycle, setLifecycle }}>
-      {children}
+      <>
+        {lifecycle === LifecycleState.Initialized && <Loading />}
+        {children}
+      </>
     </LifecycleContext.Provider>
   );
 };

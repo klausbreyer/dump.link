@@ -9,12 +9,6 @@ import (
 func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
-	if err != nil {
-		app.unauthorizedResponse(w, r, err)
-		return
-	}
-
 	bucketId, valid := app.getAndValidateID(w, r, "bucketId")
 	if !valid {
 		return
@@ -22,6 +16,12 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
+		return
+	}
+
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -99,11 +99,6 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
-	if err != nil {
-		app.unauthorizedResponse(w, r, err)
-		return
-	}
 	bucketId, valid := app.getAndValidateID(w, r, "bucketId")
 	if !valid {
 		return
@@ -111,6 +106,12 @@ func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Requ
 
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
+		return
+	}
+
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 

@@ -12,17 +12,16 @@ import (
 func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
-	if err != nil {
-		app.unauthorizedResponse(w, r, err)
-		return
-	}
-
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
 		return
 	}
 
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
+		return
+	}
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -95,14 +94,14 @@ func (app *application) ApiProjectGet(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiProjectPatch(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
-	if err != nil {
-		app.unauthorizedResponse(w, r, err)
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
 		return
 	}
 
-	projectId, valid := app.getAndValidateID(w, r, "projectId")
-	if !valid {
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -206,7 +205,7 @@ func (app *application) ApiProjectsGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if isAnonymous(userID) {
+	if isPublicUser(userID) {
 		app.unauthorizedResponse(w, r, errors.New("anonymous user cannot access projects list"))
 	}
 
@@ -255,7 +254,7 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if isAnonymous(userID) {
+	if isPublicUser(userID) {
 		if input.Name == "" || input.OwnerEmail == "" || input.OwnerFirstName == "" || input.OwnerLastName == "" {
 			app.badRequestResponse(w, r, errors.New("missing required fields"))
 			return
@@ -310,14 +309,14 @@ func (app *application) ApiProjectsPost(w http.ResponseWriter, r *http.Request) 
 func (app *application) ApiResetProjectLayers(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
-	if err != nil {
-		app.unauthorizedResponse(w, r, err)
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
 		return
 	}
 
-	projectId, valid := app.getAndValidateID(w, r, "projectId")
-	if !valid {
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 

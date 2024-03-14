@@ -15,9 +15,10 @@ import Login from "./Dashboard/Login";
 import New from "./Dashboard/New";
 import Signup from "./Dashboard/Signup";
 import Project from "./Project/Project";
+import { LifecycleProvider } from "./Project/context/lifecycle";
 import { DLAuth0 } from "./auth0-provider";
+import { JWTProvider } from "./context/jwt";
 import { OrgProvider } from "./context/org";
-import { OrgIdProvider } from "./context/orgId";
 
 function isLocalhost(): boolean {
   return (
@@ -64,23 +65,25 @@ export function notifyBugsnag(error: unknown): void {
 const App = function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter basename="/a">
-        <DLAuth0>
-          <OrgIdProvider>
-            <OrgProvider>
-              <Routes>
-                <Route path={paths.publicProject} element={<Project />} />
-                <Route path={paths.orgProject} element={<Project />} />
-                <Route path={paths.orgDashboard} element={<Dashboard />} />
-                <Route path={paths.callback} element={<Callback />} />
-                <Route path={paths.new} element={<New />} />
-                <Route path={paths.login} element={<Login />} />
-                <Route path={paths.signup} element={<Signup />} />
-              </Routes>
-            </OrgProvider>
-          </OrgIdProvider>
-        </DLAuth0>
-      </BrowserRouter>
+      <LifecycleProvider>
+        <BrowserRouter basename="/a">
+          <DLAuth0>
+            <JWTProvider>
+              <OrgProvider>
+                <Routes>
+                  <Route path={paths.publicProject} element={<Project />} />
+                  <Route path={paths.orgProject} element={<Project />} />
+                  <Route path={paths.orgDashboard} element={<Dashboard />} />
+                  <Route path={paths.callback} element={<Callback />} />
+                  <Route path={paths.new} element={<New />} />
+                  <Route path={paths.login} element={<Login />} />
+                  <Route path={paths.signup} element={<Signup />} />
+                </Routes>
+              </OrgProvider>
+            </JWTProvider>
+          </DLAuth0>
+        </BrowserRouter>
+      </LifecycleProvider>
     </ErrorBoundary>
   );
 };

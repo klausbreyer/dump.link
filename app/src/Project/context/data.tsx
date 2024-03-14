@@ -20,14 +20,15 @@ import { useParams } from "react-router-dom";
 import { notifyBugsnag } from "../..";
 import { isOrgLink } from "../../../routes";
 import config from "../../config";
-import { useOrg } from "../../context/org";
+import { useJWT } from "../../context/jwt";
 import { APIError, useApi } from "../../hooks/useApi";
 import {
   getUniqueDependingIdsForbucket,
   hasCyclicDependencyWithBucket,
 } from "../../models/dependencies";
 import { getLayerForBucketId } from "../../models/layers";
-import { getUsername, saveProjectIdToLocalStorage } from "../../utils/requests";
+import { getUsername, getUsernameFromPrompt } from "../../models/userid";
+import { saveProjectIdToLocalStorage } from "../../utils/requests";
 import { LifecycleState, useLifecycle } from "./lifecycle";
 import { setupWebSocket } from "./websocket";
 
@@ -280,14 +281,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(dataReducer, initialState);
   const { setLifecycle } = useLifecycle();
 
-  const { orgId, orgLoading } = useOrg();
+  const { orgId, jwtLoading } = useJWT();
+
   const api = useApi(isOrgLink());
   const params = useParams();
   const { projectId } = params;
 
   const loadInitialState = async (projectId: ProjectID) => {
-    console.log("loading initial state", orgId);
-
     try {
       const initialState = await api.getProject(projectId);
       saveProjectIdToLocalStorage(
@@ -311,29 +311,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!projectId) return;
-    if (orgLoading) return;
+    if (!projectId || jwtLoading) return;
 
     loadInitialState(projectId);
-    // if this is for an org, return. if not for an org, prompt for username
-    if (orgId) return;
-    if (!getUsername()) {
-      let username = prompt(
-        "Please enter your name as you would like your team to see it",
-      );
-      if (!username) {
-        username = "";
-      }
-      localStorage.setItem("username", username);
+
+    if (!getUsername() && !orgId) {
+      getUsernameFromPrompt();
     }
-  }, [projectId, orgLoading, orgId]);
+  }, [projectId, jwtLoading, orgId]);
 
   useEffect(() => {
-    if (orgLoading) return;
+    if (jwtLoading) return;
     if (!state.project.id) return;
     const wsCleanup = setupWebSocket(state.project.id, dispatch, () => {
-      console.log("wsCleanup");
-
       loadInitialState(state.project.id);
     });
     // can only make calls when state is there, because it needs a project.id
@@ -345,7 +335,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return () => {
       if (wsCleanup) wsCleanup();
     };
-  }, [state.project.id, orgLoading]);
+  }, [state.project.id, jwtLoading]);
 
   useEffect(() => {
     if (state.project.id === "") return;

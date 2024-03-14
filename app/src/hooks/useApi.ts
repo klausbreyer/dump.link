@@ -1,10 +1,11 @@
 import { ISOToDate, dateToISO } from "../utils/dates";
-import { NewID, getUsername } from "../utils/requests";
+import { NewID } from "../utils/requests";
 
 export const CLIENT_TOKEN = NewID(new Date().getTime().toString());
 
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
+import { LifecycleState, useLifecycle } from "../Project/context/lifecycle";
 import {
   ActivityUpdates,
   ApiMessage,
@@ -18,7 +19,8 @@ import {
   TaskUpdates,
   User,
 } from "../Project/types";
-import { useOrgId } from "../context/orgId";
+import { useJWT } from "../context/jwt";
+import { getUsername } from "../models/userid";
 
 export class APIError extends Error {
   statusCode: number;
@@ -43,10 +45,10 @@ export type useApiProps = ReturnType<typeof useApi>;
  * @returns An object containing various API methods.
  */
 export const useApi = (callWithAuthentication = false) => {
-  const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
-  const { orgId, orgLoading } = useOrgId();
-
-  console.log("useApi", orgId, isAuthenticated, isLoading);
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { orgId, jwtLoading } = useJWT();
+  console.log("useApi", "orgId:", orgId, "jwtLoading:", jwtLoading);
+  const { setLifecycle } = useLifecycle();
 
   const [requestQueue, setRequestQueue] = useState<
     Array<{
@@ -60,7 +62,7 @@ export const useApi = (callWithAuthentication = false) => {
 
   const processQueue = async () => {
     const token =
-      isAuthenticated && !orgLoading && orgId && callWithAuthentication
+      isAuthenticated && !jwtLoading && orgId && callWithAuthentication
         ? await getAccessTokenSilently()
         : undefined;
 
@@ -77,10 +79,10 @@ export const useApi = (callWithAuthentication = false) => {
   };
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!jwtLoading) {
       processQueue();
     }
-  }, [isLoading, requestQueue]);
+  }, [jwtLoading, requestQueue]);
 
   const baseUrl = new URL(
     process.env.NODE_ENV === "production" &&
@@ -129,9 +131,7 @@ export const useApi = (callWithAuthentication = false) => {
     method: string = "GET",
     body: any = null,
   ): Promise<any> => {
-    console.log("managedApiCall", url, orgId, isAuthenticated, isLoading);
-
-    if (isLoading) {
+    if (jwtLoading) {
       return new Promise((resolve, reject) => {
         setRequestQueue((prevQueue) => [
           ...prevQueue,
@@ -139,10 +139,16 @@ export const useApi = (callWithAuthentication = false) => {
         ]);
       });
     } else {
-      const token =
-        isAuthenticated && !orgLoading && orgId && callWithAuthentication
-          ? await getAccessTokenSilently()
-          : undefined;
+      if (
+        (callWithAuthentication && !orgId) ||
+        (callWithAuthentication && !isAuthenticated)
+      ) {
+        setLifecycle(LifecycleState.Error401);
+        console.error("No orgId provided for authenticated API call");
+      }
+      const token = callWithAuthentication
+        ? await getAccessTokenSilently()
+        : undefined;
       return apiCall(url, method, body, token);
     }
   };

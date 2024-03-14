@@ -10,5 +10,9 @@ export default function Signup() {
     });
   }, [loginWithRedirect]);
 
-  return <a>Redirecting to Signup</a>;
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <a>Redirecting to Signup</a>
+    </div>
+  );
 }

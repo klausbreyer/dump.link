@@ -5,22 +5,21 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { isOrgLink } from "../../routes";
 import { Project, User } from "../Project/types";
 import { useApi } from "../hooks/useApi";
-import { useOrgId } from "./orgId";
+import { useJWT } from "./jwt";
 6;
 interface OrgContextType {
   users: User[];
   projects: Project[];
   orgId: string | null;
-  orgLoading: boolean;
 }
 
 const OrgContext = createContext<OrgContextType>({
   users: [],
   projects: [],
   orgId: null,
-  orgLoading: false,
 });
 
 interface OrgProviderProps {
@@ -28,11 +27,14 @@ interface OrgProviderProps {
 }
 
 export const OrgProvider: React.FC<OrgProviderProps> = ({ children }) => {
-  const { orgId, orgLoading } = useOrgId();
-  const api = useApi(orgId ? true : false);
+  const { orgId, jwtLoading } = useJWT();
+  const api = useApi(isOrgLink());
 
   const [users, setUsers] = useState<User[]>([]);
+
   useEffect(() => {
+    if (!isOrgLink()) return;
+    if (jwtLoading) return;
     if (!orgId) return;
 
     const fetchUsers = async () => {
@@ -44,6 +46,8 @@ export const OrgProvider: React.FC<OrgProviderProps> = ({ children }) => {
 
   const [projects, setProjects] = useState<Project[]>([]);
   useEffect(() => {
+    if (!isOrgLink()) return;
+    if (jwtLoading) return;
     if (!orgId) return;
 
     const fetchProjects = async () => {
@@ -57,7 +61,6 @@ export const OrgProvider: React.FC<OrgProviderProps> = ({ children }) => {
     <OrgContext.Provider
       value={{
         users,
-        orgLoading,
         orgId,
         projects,
       }}

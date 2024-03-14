@@ -14,7 +14,7 @@ import {
   getUniqueDependingIdsForbucket,
 } from "../models/dependencies";
 import { getTasksForBucket } from "../models/tasks";
-import { getUsername } from "../utils/requests";
+import { getUsername } from "../models/userid";
 import BoxHeader from "./BoxHeader";
 import MicroProgress from "./MicroProgress";
 import TaskGroup from "./TaskGroup";

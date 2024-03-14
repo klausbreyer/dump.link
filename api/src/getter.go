@@ -32,8 +32,8 @@ func generateDumplinkSubject(username string, projectID string) string {
 	return "dumplink" + "|" + projectID + "_" + url.QueryEscape(username)
 }
 
-func isAnonymous(subject string) bool {
-	return strings.HasPrefix(subject, "dumplink")
+func isPublicUser(subject string) bool {
+	return strings.HasPrefix(subject, "dumplink|")
 }
 
 func (app *application) assumePermission(orgId string, project models.Project) error {

@@ -14,7 +14,7 @@ func (app *application) ApiGetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if isAnonymous(userID) {
+	if isPublicUser(userID) {
 		app.unauthorizedResponse(w, r, fmt.Errorf("anonymous user"))
 		return
 	}

@@ -16,7 +16,8 @@ import {
   getTasksForBucket,
   sortTasksByPriority,
 } from "../models/tasks";
-import { NewID, getUsername } from "../utils/requests";
+import { getUsername } from "../models/userid";
+import { NewID } from "../utils/requests";
 import { ActivityAvatar } from "./HeaderActivity";
 import { getInputBorderColor } from "./bucketColors";
 import { checkIfTaskIDExists, useAbsence } from "./context/absence";

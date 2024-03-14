@@ -1,8 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { links } from "../../routes";
 import DLMenu from "../Menu/Menu";
+import { LifecycleState, useLifecycle } from "../Project/context/lifecycle";
 import Alert from "../common/Alert";
 import Container from "../common/Container";
 import { useOrg } from "../context/org";
@@ -18,9 +20,15 @@ const statuses = {
 };
 
 export default function Dashboard() {
-  const { user, isAuthenticated } = useAuth0();
+  const { user, isLoading, isAuthenticated } = useAuth0();
+  const { setLifecycle } = useLifecycle();
 
   const { projects, users } = useOrg();
+
+  useEffect(() => {
+    if (isLoading) return;
+    setLifecycle(LifecycleState.Loaded);
+  }, [isLoading]);
 
   return (
     <>
@@ -104,7 +112,7 @@ export default function Dashboard() {
                           <circle cx={1} cy={1} r={1} />
                         </svg>
                         <p className="truncate">
-                          Created by {findUser(users, project.createdBy)?.name}
+                          Created by {findUser(project.createdBy, users)?.name}
                         </p>
                       </div>
                     </div>

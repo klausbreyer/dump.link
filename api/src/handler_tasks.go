@@ -9,14 +9,14 @@ import (
 func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
-	if err != nil {
-		app.unauthorizedResponse(w, r, err)
+	projectId, valid := app.getAndValidateID(w, r, "projectId")
+	if !valid {
 		return
 	}
 
-	projectId, valid := app.getAndValidateID(w, r, "projectId")
-	if !valid {
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -89,12 +89,6 @@ func (app *application) ApiPostTask(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
-	if err != nil {
-		app.unauthorizedResponse(w, r, err)
-		return
-	}
-
 	taskId, valid := app.getAndValidateID(w, r, "taskId")
 	if !valid {
 		return
@@ -102,6 +96,12 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
+		return
+	}
+
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -145,11 +145,6 @@ func (app *application) ApiDeleteTask(w http.ResponseWriter, r *http.Request) {
 func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	userID, orgId, err := app.getAndValidateUserAndOrg(r, "")
-	if err != nil {
-		app.unauthorizedResponse(w, r, err)
-		return
-	}
 	taskId, valid := app.getAndValidateID(w, r, "taskId")
 	if !valid {
 		return
@@ -157,6 +152,12 @@ func (app *application) ApiPatchTask(w http.ResponseWriter, r *http.Request) {
 
 	projectId, valid := app.getAndValidateID(w, r, "projectId")
 	if !valid {
+		return
+	}
+
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 

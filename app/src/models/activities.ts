@@ -1,6 +1,6 @@
 import { Activity, TaskID } from "../Project/types";
 import config from "../config";
-import { getUsername } from "../utils/requests";
+import { getUsername } from "./userid";
 
 export function checkTaskActivity(
   activities: Activity[],

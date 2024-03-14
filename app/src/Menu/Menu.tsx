@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { links } from "../../routes";
 import { getButtonClasses } from "../common/InfoButton";
 import { DumplinkIcon } from "../common/icons";
-import { useOrgId } from "../context/orgId";
+import { useJWT } from "../context/jwt";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -13,7 +13,7 @@ function classNames(...classes: string[]) {
 
 export default function DLMenu() {
   const { isAuthenticated, user, logout } = useAuth0();
-  const { orgId } = useOrgId();
+  const { orgId } = useJWT();
 
   const navigation = [
     { name: "Dumplinks", href: links.orgDashboard(orgId || ""), current: true },

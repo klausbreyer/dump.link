@@ -92,10 +92,22 @@ func (app *application) ProjectGet(w http.ResponseWriter, r *http.Request) {
 		app.genericPageResponse(w, r, "dump.link - Dashboard")
 		return
 	}
+
 	if projectId == "callback" {
 		app.genericPageResponse(w, r, "dump.link - Callback")
 		return
 	}
+
+	if projectId == "login" {
+		app.genericPageResponse(w, r, "dump.link - Login")
+		return
+	}
+
+	if projectId == "signup" {
+		app.genericPageResponse(w, r, "dump.link - Signup")
+		return
+	}
+
 	if projectId == "new" {
 		app.genericPageResponse(w, r, "dump.link - New")
 		return
