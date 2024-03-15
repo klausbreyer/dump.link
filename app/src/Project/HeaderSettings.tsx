@@ -2,9 +2,11 @@ import React from "react";
 
 import { Cog8ToothIcon, ShareIcon } from "@heroicons/react/24/solid";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { isOrgLink, links } from "../Routing";
 import InfoModal from "../common/InfoModal";
 import { Tooltip } from "../common/InfoTooltip";
-import { getCurrentTab } from "./HeaderNav";
+import { useJWT } from "../context/jwt";
+import { getCurrentTab } from "./HeaderTabs";
 import RecentLinks from "./RecentLinks";
 import ShareLink from "./ShareLink";
 import { TabContext } from "./types";
@@ -12,13 +14,17 @@ import { TabContext } from "./types";
 const HeaderSettings: React.FC = () => {
   const location = useLocation();
   const currentTab = getCurrentTab(location);
+  const { orgId } = useJWT();
 
   const navigate = useNavigate();
   const params = useParams();
   const { projectId } = params;
 
   function handleTabClick(tab: TabContext) {
-    navigate(`/${projectId}/${tab}`);
+    if (!projectId) return;
+    isOrgLink() && orgId
+      ? navigate(links.orgProject(orgId, projectId) + `/${tab}`)
+      : navigate(links.publicProject(projectId) + `/${tab}`);
   }
 
   return (

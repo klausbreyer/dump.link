@@ -6,15 +6,10 @@ import BugsnagPluginReact, {
 import { createRoot } from "react-dom/client";
 
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import "../public/styles.css";
-import { paths } from "../routes";
-import Callback from "./Dashboard/Callback";
-import Dashboard from "./Dashboard/Dashboard";
-import Login from "./Dashboard/Login";
-import New from "./Dashboard/New";
-import Signup from "./Dashboard/Signup";
-import Project from "./Project/Project";
+import Routing, { links } from "./Routing";
+
 import { LifecycleProvider } from "./Project/context/lifecycle";
 import { DLAuth0 } from "./auth0-provider";
 import { JWTProvider } from "./context/jwt";
@@ -25,6 +20,10 @@ function isLocalhost(): boolean {
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1"
   );
+}
+
+function isKitchen(): boolean {
+  return window.location.host === "kitchen.dump.link";
 }
 
 const releaseStage = isLocalhost() ? "development" : window.location.host;
@@ -62,7 +61,7 @@ export function notifyBugsnag(error: unknown): void {
   }
 }
 
-const App = function App() {
+const App: React.FC = function App() {
   return (
     <ErrorBoundary>
       <LifecycleProvider>
@@ -70,15 +69,8 @@ const App = function App() {
           <DLAuth0>
             <JWTProvider>
               <OrgProvider>
-                <Routes>
-                  <Route path={paths.publicProject} element={<Project />} />
-                  <Route path={paths.orgProject} element={<Project />} />
-                  <Route path={paths.orgDashboard} element={<Dashboard />} />
-                  <Route path={paths.callback} element={<Callback />} />
-                  <Route path={paths.new} element={<New />} />
-                  <Route path={paths.login} element={<Login />} />
-                  <Route path={paths.signup} element={<Signup />} />
-                </Routes>
+                {(isLocalhost() || isKitchen()) && <DebugLinks />}
+                <Routing />
               </OrgProvider>
             </JWTProvider>
           </DLAuth0>
@@ -91,3 +83,35 @@ const App = function App() {
 const container = document.getElementById("app");
 const root = createRoot(container!);
 root.render(<App />);
+
+const DebugLinks = function DebugLinks() {
+  return (
+    <ul className="fixed bottom-0 right-0 p-4 text-black opacity-50 bg-amber-500">
+      <li>
+        <a className="hover:underline" href="/">
+          Go to /
+        </a>
+      </li>
+      <li>
+        <a className="hover:underline" href="/a">
+          Go to /a
+        </a>
+      </li>
+      <li>
+        <a className="hover:underline" href={"/a" + links.publicNew}>
+          Go to {"/a" + links.publicNew}
+        </a>
+      </li>
+      <li>
+        <a className="hover:underline" href={"/a" + links.signup}>
+          Go to {"/a" + links.signup}
+        </a>
+      </li>
+      <li>
+        <a className="hover:underline" href={"/a" + links.login}>
+          Go to {"/a" + links.login}
+        </a>
+      </li>
+    </ul>
+  );
+};

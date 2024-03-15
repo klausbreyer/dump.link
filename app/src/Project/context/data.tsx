@@ -18,7 +18,7 @@ import {
 
 import { useParams } from "react-router-dom";
 import { notifyBugsnag } from "../..";
-import { isOrgLink } from "../../../routes";
+import { isOrgLink } from "../../Routing";
 import config from "../../config";
 import { useJWT } from "../../context/jwt";
 import { APIError, useApi } from "../../hooks/useApi";

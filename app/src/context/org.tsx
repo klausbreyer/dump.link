@@ -5,21 +5,19 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { isOrgLink } from "../../routes";
 import { Project, User } from "../Project/types";
+import { isOrgLink } from "../Routing";
 import { useApi } from "../hooks/useApi";
 import { useJWT } from "./jwt";
 6;
 interface OrgContextType {
   users: User[];
   projects: Project[];
-  orgId: string | null;
 }
 
 const OrgContext = createContext<OrgContextType>({
   users: [],
   projects: [],
-  orgId: null,
 });
 
 interface OrgProviderProps {
@@ -61,7 +59,6 @@ export const OrgProvider: React.FC<OrgProviderProps> = ({ children }) => {
     <OrgContext.Provider
       value={{
         users,
-        orgId,
         projects,
       }}
     >

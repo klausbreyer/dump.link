@@ -1,7 +1,7 @@
 import { Auth0Provider } from "@auth0/auth0-react";
 import React from "react";
 import { useHref } from "react-router-dom";
-import { paths } from "../routes";
+import { paths } from "./Routing";
 
 interface Auth0ProviderConfiguredProps {
   children: React.ReactNode;

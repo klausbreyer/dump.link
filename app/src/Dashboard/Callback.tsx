@@ -2,19 +2,18 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { links } from "../../routes"; // Make sure this path matches your file structure
 import DLMenu from "../Menu/Menu";
 import { LifecycleState, useLifecycle } from "../Project/context/lifecycle";
+import { links } from "../Routing"; // Make sure this path matches your file structure
 import Alert from "../common/Alert";
-import { useOrg } from "../context/org";
+import { useJWT } from "../context/jwt";
 
 export default function LoginSuccess() {
   const { user, isAuthenticated, isLoading } = useAuth0();
   const { setLifecycle } = useLifecycle();
 
-  const { orgId } = useOrg();
+  const { orgId } = useJWT();
 
-  //@todo. this is dirty. it is the same state then a project is loaded.
   useEffect(() => {
     if (isLoading) return;
     setLifecycle(LifecycleState.Loaded);

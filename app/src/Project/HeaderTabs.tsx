@@ -7,9 +7,11 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+import { isOrgLink, links } from "../Routing";
 import InfoModal from "../common/InfoModal";
 import Title from "../common/Title";
 import { ArrangeIcon, GroupIcon, SequenceIcon } from "../common/icons";
+import { useJWT } from "../context/jwt";
 import { TabContext } from "./types";
 
 interface Step {
@@ -90,18 +92,22 @@ The Task Group Arranger helps you and your colleagues easily see what has to be 
   },
 ];
 
-interface HeaderNavProps {}
+interface HeaderTabsProps {}
 
-const HeaderNav: React.FC<HeaderNavProps> = (props) => {
+const HeaderTabs: React.FC<HeaderTabsProps> = (props) => {
   const location = useLocation();
   const currentTab = getCurrentTab(location);
+  const { orgId } = useJWT();
 
   const navigate = useNavigate();
   const params = useParams();
   const { projectId } = params;
 
   function handleTabClick(tab: TabContext) {
-    navigate(`/${projectId}/${tab}`);
+    if (!projectId) return;
+    isOrgLink() && orgId
+      ? navigate(links.orgProject(orgId, projectId) + `/${tab}`)
+      : navigate(links.publicProject(projectId) + `/${tab}`);
   }
 
   const openOnLoad = false;
@@ -186,7 +192,7 @@ const HeaderNav: React.FC<HeaderNavProps> = (props) => {
   );
 };
 
-export default HeaderNav;
+export default HeaderTabs;
 
 export function getCurrentTab(location: Location): TabContext {
   // Assuming the URL pattern is "/{id}/{tab}".

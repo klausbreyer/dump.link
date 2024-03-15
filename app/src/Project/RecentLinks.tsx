@@ -1,7 +1,7 @@
 import { Popover, Transition } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { links } from "../../routes";
+import { links } from "../Routing";
 import { Tooltip } from "../common/InfoTooltip";
 import { RecentIcon } from "../common/icons";
 import { useData } from "./context/data";

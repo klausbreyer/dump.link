@@ -2,7 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { links } from "../../routes";
+import { links } from "../Routing";
 import { getButtonClasses } from "../common/InfoButton";
 import { DumplinkIcon } from "../common/icons";
 import { useJWT } from "../context/jwt";
@@ -63,7 +63,10 @@ export default function DLMenu() {
             <div className="block">
               {isAuthenticated && user && (
                 <div className="flex items-center ml-6">
-                  <Link to={links.new} className={getButtonClasses("white")}>
+                  <Link
+                    to={links.orgNew(orgId || "")}
+                    className={getButtonClasses("white")}
+                  >
                     🥟 Make dumplink
                   </Link>
                   <Menu as="div" className="relative ml-3">

@@ -3,10 +3,10 @@ import React from "react";
 import { ArchiveBoxIcon } from "@heroicons/react/24/outline";
 import Container from "../common/Container";
 import HeaderActivity from "./HeaderActivity";
-import HeaderNav from "./HeaderNav";
 import HeaderProgress from "./HeaderProgress";
 import HeaderProject from "./HeaderProject";
 import HeaderSettings from "./HeaderSettings";
+import HeaderTabs from "./HeaderTabs";
 import { useData } from "./context/data";
 
 interface HeaderProps {}
@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = (props) => {
             <HeaderProgress />
           </div>
         </div>
-        <HeaderNav />
+        <HeaderTabs />
       </div>
     </Container>
   );

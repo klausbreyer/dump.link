@@ -1,5 +1,5 @@
-import { isOrgLink } from "../../routes";
 import { UserID, UserName as UserId } from "../Project/types";
+import { isOrgLink } from "../Routing";
 
 export function getUsername(): UserId {
   return localStorage.getItem("username") || "";

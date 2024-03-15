@@ -1,8 +1,8 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
-import { isOrgLink, links } from "../../routes";
 import DLMenu from "../Menu/Menu";
 import { LifecycleState, useLifecycle } from "../Project/context/lifecycle";
+import { isOrgLink, links } from "../Routing";
 import Container from "../common/Container";
 import Explanation from "../common/Explanation";
 import InfoButton from "../common/InfoButton";
@@ -27,8 +27,12 @@ const defaultFormState: FormState = {
 };
 
 export default function New() {
-  const api = useApi(true);
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { isAuthenticated } = useAuth0();
+  // when not authenticated or authenticated but not creating a dumplink for an org, this is publicMode true.
+  const publicMode = !isAuthenticated || !isOrgLink();
+
+  const api = useApi(!publicMode);
+
   const { setLifecycle } = useLifecycle();
   const [formData, setFormData] = useState<FormState>(defaultFormState);
   const [loading, setLoading] = useState<boolean>(false);
@@ -75,20 +79,20 @@ export default function New() {
       isValid = false;
     }
 
-    if (!isAuthenticated && !formData.firstName) {
+    if (publicMode && !formData.firstName) {
       errors.firstName = "This field is required";
       isValid = false;
     }
-    if (!isAuthenticated && !formData.lastName) {
+    if (publicMode && !formData.lastName) {
       errors.lastName = "This field is required";
       isValid = false;
     }
-    if (!isAuthenticated && !formData.email) {
+    if (publicMode && !formData.email) {
       errors.email = "This field is required";
       isValid = false;
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!isAuthenticated && !emailRegex.test(formData.email)) {
+      if (publicMode && !emailRegex.test(formData.email)) {
         errors.email = "Invalid email format";
         isValid = false;
       }
@@ -111,9 +115,9 @@ export default function New() {
       const project = await api.postProject(
         formData.projectName,
         parseInt(formData.appetite, 10),
-        isAuthenticated ? undefined : formData.email,
-        isAuthenticated ? undefined : formData.firstName,
-        isAuthenticated ? undefined : formData.lastName,
+        publicMode ? formData.email : undefined,
+        publicMode ? formData.firstName : undefined,
+        publicMode ? formData.lastName : undefined,
       );
       const path = project.orgId
         ? links.orgProject(project.orgId, project.id)
@@ -169,7 +173,7 @@ export default function New() {
               />
             </div>
 
-            {!isAuthenticated && (
+            {publicMode && (
               <>
                 <div className=" sm:col-span-6">
                   <h2 className="text-base font-semibold leading-7 text-slate-900">
