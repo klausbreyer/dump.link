@@ -315,10 +315,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
     loadInitialState(projectId);
 
-    if (!getUsername() && !orgId) {
+    if (!getUsername() && !isOrgLink()) {
       getUsernameFromPrompt();
     }
-  }, [projectId, jwtLoading, orgId]);
+  }, [projectId, jwtLoading]);
 
   useEffect(() => {
     if (jwtLoading) return;

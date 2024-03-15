@@ -5,6 +5,7 @@ import Login from "./Dashboard/Login";
 import New from "./Dashboard/New";
 import Signup from "./Dashboard/Signup";
 import Project from "./Project/Project";
+import { NotFoundPage } from "./Project/context/lifecycle";
 
 export enum AppContext { //used as links
   Dashboard = "dashboard",
@@ -38,6 +39,8 @@ const Routing = function Routing() {
       <Route path={paths.publicNew} element={<New />} />
       <Route path={paths.login} element={<Login />} />
       <Route path={paths.signup} element={<Signup />} />
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };
@@ -57,6 +60,7 @@ export const links = {
   orgNew: (orgId: string) => paths.orgNew.replace(":orgId", orgId),
   login: paths.login,
   signup: paths.signup,
+  callback: paths.callback,
 };
 
 export function isOrgLink(): boolean {

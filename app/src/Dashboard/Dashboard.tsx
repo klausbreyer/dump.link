@@ -1,11 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import DLMenu from "../Menu/Menu";
 import { LifecycleState, useLifecycle } from "../Project/context/lifecycle";
 import { links } from "../Routing";
-import Alert from "../common/Alert";
+import { LoginRequired } from "../common/Alert";
 import Container from "../common/Container";
 import { useOrg } from "../context/org";
 import { getEndingAt } from "../models/projects";
@@ -30,36 +29,14 @@ export default function Dashboard() {
     setLifecycle(LifecycleState.Loaded);
   }, [isLoading]);
 
+  if (!isAuthenticated) {
+    return <LoginRequired />;
+  }
+
   return (
     <>
       <DLMenu />
       <Container>
-        {!isAuthenticated && (
-          <Alert>
-            <div className="p-4 rounded-md bg-yellow-50">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <ExclamationTriangleIcon
-                    className="w-5 h-5 text-yellow-400"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-yellow-800">
-                    Login Required
-                  </h3>
-                  <div className="mt-2 text-sm text-yellow-700">
-                    <p>
-                      You must log in to access the dashboard and view all your
-                      dumplinks. Please log in to continue and unlock the full
-                      features of your account.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Alert>
-        )}
         {isAuthenticated && user && projects && users && (
           <>
             <div className="m-10">

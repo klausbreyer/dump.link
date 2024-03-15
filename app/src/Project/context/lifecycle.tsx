@@ -50,6 +50,14 @@ export const useLifecycle = (): LifecycleContextType => {
   return context;
 };
 
+export function NotFoundPage() {
+  return (
+    <div className="flex items-center justify-center w-screen h-screen">
+      <div className="text-slate-500">Route not found</div>
+    </div>
+  );
+}
+
 export const Loading: FC = () => (
   <div className="flex items-center justify-center w-screen h-screen">
     <div className="animate-pulse">Loading...</div>

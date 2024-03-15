@@ -112,6 +112,11 @@ const DebugLinks = function DebugLinks() {
           Go to {"/a" + links.login}
         </a>
       </li>
+      <li>
+        <a className="hover:underline" href={"/a" + links.callback}>
+          Go to {"/a" + links.callback}
+        </a>
+      </li>
     </ul>
   );
 };

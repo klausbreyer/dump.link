@@ -5,6 +5,7 @@ import { DndProvider } from "react-dnd-multi-backend";
 import { Route, Routes } from "react-router-dom";
 import DLMenu from "../Menu/Menu";
 import { isOrgLink } from "../Routing";
+import { LoginRequired } from "../common/Alert";
 import Arrange from "./Arrange";
 import Group from "./Group";
 import Header from "./Header";
@@ -14,6 +15,7 @@ import Settings from "./Settings";
 import { AbsenceProvider } from "./context/absence";
 import { DataProvider } from "./context/data";
 import { GlobalInteractionProvider } from "./context/interaction";
+import { NotFoundPage } from "./context/lifecycle";
 import { TabContext } from "./types";
 
 export default function Project() {
@@ -22,7 +24,7 @@ export default function Project() {
       <DataProvider>
         <AbsenceProvider>
           <DndProvider options={HTML5toTouch}>
-            <Router />
+            <Routing />
           </DndProvider>
         </AbsenceProvider>
       </DataProvider>
@@ -30,7 +32,7 @@ export default function Project() {
   );
 }
 
-const Router = function Loaded() {
+const Routing = function Loaded() {
   const { isAuthenticated } = useAuth0();
   const isTouchDevice = () => {
     return "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -40,6 +42,10 @@ const Router = function Loaded() {
       alert("Mobile & touch access in beta - expect some quirks!");
     }
   }, []);
+
+  if (!isAuthenticated && isOrgLink()) {
+    return <LoginRequired />;
+  }
 
   return (
     <>
@@ -57,11 +63,3 @@ const Router = function Loaded() {
     </>
   );
 };
-
-function NotFoundPage() {
-  return (
-    <div className="flex items-center justify-center w-screen h-screen">
-      <div className="text-slate-500">Route not found</div>
-    </div>
-  );
-}
