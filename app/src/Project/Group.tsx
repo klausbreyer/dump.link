@@ -15,8 +15,7 @@ const Group: React.FC<GroupProps> = (props) => {
 
   const dump = getDumpBucket(buckets);
   if (!dump) {
-    console.error("No dump bucket found.");
-    return;
+    return null;
   }
 
   return (

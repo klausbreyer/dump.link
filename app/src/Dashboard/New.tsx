@@ -1,7 +1,8 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
-import { links } from "../../routes";
+import { isOrgLink, links } from "../../routes";
 import DLMenu from "../Menu/Menu";
+import { LifecycleState, useLifecycle } from "../Project/context/lifecycle";
 import Container from "../common/Container";
 import Explanation from "../common/Explanation";
 import InfoButton from "../common/InfoButton";
@@ -28,11 +29,16 @@ const defaultFormState: FormState = {
 export default function New() {
   const api = useApi(true);
   const { user, isAuthenticated, isLoading } = useAuth0();
+  const { setLifecycle } = useLifecycle();
   const [formData, setFormData] = useState<FormState>(defaultFormState);
   const [loading, setLoading] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<FormState | null>(
     null,
   );
+
+  useEffect(() => {
+    setLifecycle(LifecycleState.Loaded);
+  }, [setLifecycle]);
 
   useEffect(() => {
     const savedFirstName = localStorage.getItem("firstName");
@@ -121,7 +127,7 @@ export default function New() {
 
   return (
     <>
-      {isAuthenticated && <DLMenu />}
+      {isOrgLink() && <DLMenu />}
       <Container>
         <form
           className="flex-col max-w-xl m-10 mx-auto"

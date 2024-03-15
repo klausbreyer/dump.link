@@ -9,7 +9,7 @@ export enum AppContext { //used as links
 }
 
 export const paths = {
-  publicProject: `/:projectId/*`,
+  publicProject: `/p/:projectId/*`,
   orgProject: `/${AppContext.OrgStub}/:orgId/p/:projectId/*`,
   orgDashboard: `/${AppContext.OrgStub}/:orgId/${AppContext.Dashboard}`,
   callback: `/${AppContext.Callback}`,

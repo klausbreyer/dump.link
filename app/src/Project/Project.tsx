@@ -3,6 +3,7 @@ import { HTML5toTouch } from "rdndmb-html5-to-touch";
 import { useEffect } from "react";
 import { DndProvider } from "react-dnd-multi-backend";
 import { Route, Routes } from "react-router-dom";
+import { isOrgLink } from "../../routes";
 import DLMenu from "../Menu/Menu";
 import Arrange from "./Arrange";
 import Group from "./Group";
@@ -42,7 +43,7 @@ const Router = function Loaded() {
 
   return (
     <>
-      {isAuthenticated && <DLMenu />}
+      {isOrgLink() && <DLMenu />}
       <Header />
       <Routes>
         <Route path={TabContext.Settings} element={<Settings />} />
