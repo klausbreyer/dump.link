@@ -51,7 +51,7 @@ func (m *ProjectModel) GetForOrgID(orgId string) ([]*Project, error) {
 	for rows.Next() {
 		var (
 			startedAtStr, createdAtStr, updatedAtStr string
-			endingAt                                 sql.NullString // Use sql.NullString for nullable endingAt field
+			endingAt                                 sql.NullString
 			p                                        Project
 		)
 
@@ -60,7 +60,6 @@ func (m *ProjectModel) GetForOrgID(orgId string) ([]*Project, error) {
 			return nil, err
 		}
 
-		// Parse the non-nullable datetime strings
 		p.StartedAt, err = time.Parse(DateLayout, startedAtStr)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse startedAt: %v", err)
@@ -76,7 +75,6 @@ func (m *ProjectModel) GetForOrgID(orgId string) ([]*Project, error) {
 			return nil, fmt.Errorf("failed to parse updatedAt: %v", err)
 		}
 
-		// Handle nullable endingAt
 		if endingAt.Valid {
 			var endingAtTime time.Time
 			endingAtTime, err = time.Parse(DateLayout, endingAt.String)
@@ -125,7 +123,7 @@ func (m *ProjectModel) IDExists(id string) bool {
 	var count int
 	err := m.DB.QueryRow(stmt, id).Scan(&count)
 	if err != nil {
-		// Handle error. For simplicity, return true to indicate an error occurred.
+
 		return true
 	}
 	return count > 0
@@ -137,12 +135,13 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 
 	var (
 		startedAtStr, createdAtStr, updatedAtStr string
-		endingAt                                 sql.NullString // Use sql.NullString for nullable endingAt field
+		endingAt                                 sql.NullString
 		p                                        Project
-		orgId                                    sql.NullString // Use sql.NullString for nullable org_id field
+		orgId                                    sql.NullString
+		createdBy                                sql.NullString
 	)
 
-	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy, &orgId, &p.CreatedBy)
+	err := row.Scan(&p.ID, &p.Name, &startedAtStr, &createdAtStr, &endingAt, &updatedAtStr, &p.Appetite, &p.Archived, &p.UpdatedBy, &orgId, &createdBy)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("Project with ID %s not found", id)
@@ -150,7 +149,6 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		return nil, err
 	}
 
-	// Parse the non-nullable datetime strings
 	p.StartedAt, err = time.Parse(DateLayout, startedAtStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse startedAt: %v", err)
@@ -166,7 +164,6 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		return nil, fmt.Errorf("failed to parse updatedAt: %v", err)
 	}
 
-	// Handle nullable endingAt
 	if endingAt.Valid {
 		var endingAtTime time.Time
 		endingAtTime, err = time.Parse(DateLayout, endingAt.String)
@@ -178,11 +175,16 @@ func (m *ProjectModel) Get(id string) (*Project, error) {
 		p.EndingAt = nil
 	}
 
-	// Handle nullable orgId
 	if orgId.Valid {
 		p.OrgID = orgId.String
 	} else {
 		p.OrgID = ""
+	}
+
+	if createdBy.Valid {
+		p.CreatedBy = createdBy.String
+	} else {
+		p.CreatedBy = ""
 	}
 
 	return &p, nil
