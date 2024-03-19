@@ -2,40 +2,41 @@ import React from "react";
 
 import { UserIcon } from "@heroicons/react/24/solid";
 import { Tooltip } from "../common/InfoTooltip";
+import { useJWT } from "../context/jwt";
+import { useOrg } from "../context/org";
+import { isActivityOutdated, sortActivitiesByDate } from "../models/activities";
 import {
-  isActivityOutdated,
-  sortActivitiesByDate,
-} from "./context/data/activities";
-import { useData } from "./context/data/data";
-import { dateToHumanReadable } from "./context/data/dates";
-import { getInitials, getUsername } from "./context/data/requests";
+  extractInitials,
+  extractUsername,
+  getUsername,
+  getUsernameFromPrompt,
+  isAnonymous,
+  isPublicUser,
+  isSelf,
+} from "../models/userid";
+import { findUser } from "../models/users";
+import { dateToHumanReadable } from "../utils/dates";
+import { useData } from "./context/data";
 import { Activity, UserName } from "./types";
 
 const HeaderActivity: React.FC = () => {
   const { activities } = useData();
+  const { sub } = useJWT();
   const sortedActivities = sortActivitiesByDate(activities);
   const [username, setUsername] = React.useState<string>(getUsername());
 
   function handleChangeUsername() {
-    const newUsername = prompt(
-      "Please enter your name as you would like your team to see it",
-      getUsername(),
-    );
-    if (!newUsername) return;
-
-    localStorage.setItem("username", newUsername);
-
-    setUsername(getUsername());
+    const newUsername = getUsernameFromPrompt();
+    setUsername(newUsername);
   }
-
   const live = sortedActivities
-    .filter((activity) => activity.createdBy !== username)
-    .filter((activity) => activity.createdBy.length > 0)
-    .filter((activity) => !isActivityOutdated(activity.createdAt));
+    .filter((activity) => !isActivityOutdated(activity.createdAt))
+    .filter((activity) => !isSelf(activity.createdBy, sub))
+    .filter((activity) => !isAnonymous(activity.createdBy));
 
   return (
     <div className="flex items-start gap-2">
-      <Avatar username={username} onClick={handleChangeUsername} type="self" />
+      <Avatar userID={username} onClick={handleChangeUsername} type="self" />
       {live.map((activity) => (
         <ActivityAvatar key={activity.createdBy} activity={activity} />
       ))}
@@ -50,28 +51,41 @@ interface ActivityAvatarProps {
 }
 
 export const ActivityAvatar: React.FC<ActivityAvatarProps> = ({ activity }) => {
-  const username = activity.createdBy;
+  const userID = activity.createdBy;
 
   return (
-    <Avatar username={username} type={"other"} lastSeen={activity.createdAt} />
+    <Avatar userID={userID} type={"other"} lastSeen={activity.createdAt} />
   );
 };
 
 interface AvatarProps {
-  username: UserName;
+  userID: UserName;
   onClick?: () => void;
   lastSeen?: Date;
   type: "self" | "other" | "inactive";
 }
 
 export const Avatar: React.FC<AvatarProps> = ({
-  username,
+  userID,
   onClick,
   lastSeen,
   type,
 }) => {
-  const initials = getInitials(username);
-  const tooltipname = initials !== "" ? username : "Anonymous";
+  const { users } = useOrg();
+
+  let tooltipname = "Anonymous";
+  let avatar = <UserIcon className="w-5 h-5" />;
+  if (isPublicUser(userID)) {
+    avatar = <span>{extractInitials(userID)}</span>;
+    tooltipname = extractUsername(userID);
+  }
+  if (users.length > 0) {
+    const user = findUser(userID, users);
+    if (user) {
+      avatar = <img src={user.picture} className="rounded-full" />;
+    }
+  }
+
   return (
     <Tooltip
       info={
@@ -96,8 +110,7 @@ export const Avatar: React.FC<AvatarProps> = ({
 		  `}
         onClick={onClick}
       >
-        {initials === "" && <UserIcon className="w-5 h-5" />}
-        {initials !== "" && <span>{initials}</span>}
+        {avatar}
       </div>
     </Tooltip>
   );

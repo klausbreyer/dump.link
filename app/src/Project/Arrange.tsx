@@ -3,17 +3,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Container from "../common/Container";
 import InfoButton from "../common/InfoButton";
-import {
-  getBorderCenterCoordinates,
-  shortenLineEnd,
-} from "../common/coordinates";
+import { getBucket } from "../models/buckets";
+import { getAllDependencyChains } from "../models/dependencies";
+import { getAllPairs, getLayers } from "../models/layers";
+import { uniqueValues } from "../utils/arrays";
 import Box from "./Box";
 import Lane from "./Lane";
-import { uniqueValues } from "./context/data/arrays";
-import { getBucket } from "./context/data/buckets";
-import { useData } from "./context/data/data";
-import { getAllDependencyChains } from "./context/data/dependencies";
-import { getAllPairs, getLayers } from "./context/data/layers";
+import { useData } from "./context/data";
+import { getBorderCenterCoordinates, shortenLineEnd } from "./coordinates";
 import { Bucket, BucketID, TabContext } from "./types";
 
 interface ArrangeProps {}

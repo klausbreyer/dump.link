@@ -10,6 +10,7 @@ import (
 	"os"
 	"sync"
 
+	"dump.link/src/auth0client"
 	"dump.link/src/models"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/websocket"
@@ -21,6 +22,7 @@ type wsClient struct {
 	clientToken    string
 	clientUsername string
 }
+
 type application struct {
 	templatesFS embed.FS
 
@@ -36,6 +38,8 @@ type application struct {
 
 	clients map[string]map[*wsClient]bool // Map projectId to Clients
 	mutex   sync.Mutex
+
+	auth0m2mClient *auth0client.Auth0Client
 }
 
 func Run(templatesFS embed.FS) error {
@@ -60,6 +64,13 @@ func Run(templatesFS embed.FS) error {
 
 	defer db.Close()
 
+	auth0m2mClient := auth0client.NewAuth0Client(
+		os.Getenv("AUTH0_DOMAIN"),
+		os.Getenv("AUTH0_M2M_CLIENT_ID"),
+		os.Getenv("AUTH0_M2M_CLIENT_SECRET"),
+		os.Getenv("AUTH0_M2M_AUDIENCE"),
+	)
+
 	app := &application{
 		templatesFS: templatesFS,
 		logger:      logger,
@@ -73,6 +84,8 @@ func Run(templatesFS embed.FS) error {
 		logSubscriptions: &models.LogSubscriptionModel{DB: db},
 
 		clients: make(map[string]map[*wsClient]bool),
+
+		auth0m2mClient: auth0m2mClient,
 	}
 
 	logger.Info(fmt.Sprintf("starting server at http://%s", *addr))

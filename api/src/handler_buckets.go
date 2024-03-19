@@ -9,12 +9,6 @@ import (
 func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
 
-	username, err := app.getUsernameFromHeader(r)
-	if err != nil {
-		app.unauthorizedResponse(w, r)
-		return
-	}
-
 	bucketId, valid := app.getAndValidateID(w, r, "bucketId")
 	if !valid {
 		return
@@ -25,9 +19,21 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
+		return
+	}
+
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgId, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -68,7 +74,7 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data["updated_by"] = username
+	data["updated_by"] = userID
 
 	err = app.buckets.Update(bucketId, data)
 	if err != nil {
@@ -83,7 +89,7 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionUpdateBucket, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionUpdateBucket), username)
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionUpdateBucket), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -92,12 +98,6 @@ func (app *application) ApiPatchBucket(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Request) {
 	startTime := time.Now()
-
-	username, err := app.getUsernameFromHeader(r)
-	if err != nil {
-		app.unauthorizedResponse(w, r)
-		return
-	}
 
 	bucketId, valid := app.getAndValidateID(w, r, "bucketId")
 	if !valid {
@@ -109,9 +109,21 @@ func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	userID, orgId, err := app.getAndValidateUserAndOrg(r, projectId)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
+		return
+	}
+
 	project, err := app.projects.Get(projectId)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.assumePermission(orgId, *project)
+	if err != nil {
+		app.unauthorizedResponse(w, r, err)
 		return
 	}
 
@@ -134,7 +146,7 @@ func (app *application) ApiResetBucketLayers(w http.ResponseWriter, r *http.Requ
 	app.sendActionDataToProjectClients(projectId, senderToken, ActionResetBucketLayers, data)
 	app.writeJSON(w, http.StatusOK, data, nil)
 
-	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionResetBucketLayers), username)
+	err = app.actions.Insert(projectId, &bucketId, nil, startTime, string(ActionResetBucketLayers), userID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

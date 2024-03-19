@@ -61,7 +61,7 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 				if origin == allowedOrigin {
 					w.Header().Set("Access-Control-Allow-Origin", origin)
 					w.Header().Set("Access-Control-Allow-Methods", allowedMethods)
-					w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Upgrade, Connection, Username")
+					w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Upgrade, Connection, Username, Authorization")
 					break
 				}
 			}

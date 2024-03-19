@@ -1,9 +1,10 @@
 import { Popover, Transition } from "@headlessui/react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { links } from "../Routing";
 import { Tooltip } from "../common/InfoTooltip";
 import { RecentIcon } from "../common/icons";
-import { useData } from "./context/data/data";
+import { useData } from "./context/data";
 import { lastAccessedProject } from "./types";
 
 function RecentLinks() {
@@ -24,14 +25,14 @@ function RecentLinks() {
   const { projectId } = params;
 
   const createProjectLink = (project: lastAccessedProject) => {
-    return process.env.NODE_ENV === "production"
-      ? `${window.location.origin}/a/${project.id}`
-      : `${window.location.origin}/${project.id}`;
+    return project.orgId
+      ? links.orgProject(project.orgId, project.id)
+      : links.publicProject(project.id);
   };
 
   return (
     //   z for the whole thing because of the transition.
-    <Popover className="relative z-50">
+    <Popover className="relative z-30">
       <Popover.Button>
         <Tooltip info="Recent">
           <RecentIcon className="w-6 h-6 cursor-pointer text-slate-500 hover:text-slate-800" />
@@ -56,8 +57,9 @@ function RecentLinks() {
                     project.lastAccessed,
                   ).toLocaleDateString()}`}
                 >
-                  <a
-                    href={createProjectLink(project)}
+                  <Link
+                    reloadDocument={true}
+                    to={createProjectLink(project)}
                     className={`block px-4 w-full py-2 text-sm ${
                       project.id === projectId
                         ? "bg-slate-300 text-slate-900"
@@ -65,7 +67,7 @@ function RecentLinks() {
                     }`}
                   >
                     {project.name}
-                  </a>
+                  </Link>
                 </Tooltip>
               ))
             ) : (

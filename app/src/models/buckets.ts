@@ -1,4 +1,4 @@
-import { Bucket, BucketID, BucketState, Task } from "../../types";
+import { Bucket, BucketID, BucketState, Task } from "../Project/types";
 import { getTasksForBucket } from "./tasks";
 
 // Figuring out means: not all tasks of the bucket are closed
@@ -102,6 +102,13 @@ export const getBucketForTask = (buckets: Bucket[], task: Task) => {
 
 export const getNamedBuckets = (buckets: Bucket[]) => {
   return buckets.filter((bucket) => bucket.name !== "");
+};
+
+export const namedBucketsDone = (buckets: Bucket[]) => {
+  const namedBuckets = getNamedBuckets(buckets);
+  const allBucketsDone =
+    namedBuckets.length > 0 && namedBuckets.every((bucket) => bucket.done);
+  return allBucketsDone;
 };
 
 export const getBucket = (buckets: Bucket[], bucketId: BucketID) => {

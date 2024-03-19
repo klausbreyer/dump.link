@@ -12,20 +12,16 @@ var allowedOrigins = []string{"http://localhost:1234", "http://localhost:8080", 
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
-	router.NotFound = http.HandlerFunc(app.notFoundResponse)
-	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
-
 	fileServer := http.FileServer(http.Dir("./static/"))
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
 	router.HandlerFunc(http.MethodGet, "/", app.RootGet)
-	router.HandlerFunc(http.MethodGet, "/a", app.ProjectRoot)
+	router.HandlerFunc(http.MethodGet, "/a/*any", app.AppGet)
+	router.HandlerFunc(http.MethodGet, "/health", app.HealthGet)
 
-	router.HandlerFunc(http.MethodGet, "/a/:projectId", app.ProjectGet)
-	// /a/dashboard
-	router.HandlerFunc(http.MethodGet, "/a/:projectId/*any", app.ProjectGet)
-	router.HandlerFunc(http.MethodGet, "/api/v1/private", EnsureValidToken(app.PrivateGet))
+	router.HandlerFunc(http.MethodGet, "/api/v1/private", app.PrivateGet)
 
+	router.HandlerFunc(http.MethodGet, "/api/v1/projects", app.ApiProjectsGet)
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects", app.ApiProjectsPost)
 	router.HandlerFunc(http.MethodGet, "/api/v1/projects/:projectId", app.ApiProjectGet)
 	router.HandlerFunc(http.MethodPatch, "/api/v1/projects/:projectId", app.ApiProjectPatch)
@@ -43,7 +39,12 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/api/v1/projects/:projectId/dependencies", app.ApiAddDependency)
 	router.HandlerFunc(http.MethodDelete, "/api/v1/projects/:projectId/dependencies/:bucketId/:dependencyId", app.ApiRemoveDependency)
 
+	router.HandlerFunc(http.MethodGet, "/api/v1/users", app.ApiGetUsers)
+
 	router.HandlerFunc(http.MethodGet, "/api/v1/ws/:projectId", app.adaptHandler(app.apiHandleWebSocket))
+
+	router.NotFound = http.HandlerFunc(app.notFoundResponse)
+	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	standard := alice.New(BugsnagMiddleware, app.recoverPanic, app.enableCORS, app.logRequest, app.measureResponseTime, secureHeaders)
 

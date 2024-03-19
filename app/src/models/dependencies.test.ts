@@ -1,4 +1,4 @@
-import { Dependency } from "../../types";
+import { Dependency } from "../Project/types";
 import { hasCyclicDependencyWithBucket } from "./dependencies";
 
 // Sample data for testing

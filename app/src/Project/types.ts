@@ -3,6 +3,14 @@ export type BucketID = string;
 export type TaskID = string;
 
 export type UserName = string;
+export type UserID = string;
+
+export type User = {
+  picture: string;
+  name: string;
+  email: string;
+  userID: UserID;
+};
 
 export type Activity = {
   projectId: ProjectID;
@@ -53,6 +61,8 @@ export type Project = {
   updatedBy: UserName;
   createdAt: Date;
   updatedAt: Date;
+  createdBy: string; // userid
+  orgId: string;
 };
 
 export type State = {
@@ -101,6 +111,7 @@ export type ActivityUpdates = {
 export interface lastAccessedProject {
   id: string;
   name: string;
+  orgId: string;
   lastAccessed: string; // assuming lastAccessed is a string
 }
 

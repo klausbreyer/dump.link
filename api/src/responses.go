@@ -60,7 +60,11 @@ func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }
 
-func (app *application) unauthorizedResponse(w http.ResponseWriter, r *http.Request) {
+func (app *application) unauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
 	message := "Unauthorized: Access is denied due to missing Username."
+	if err != nil {
+		message = err.Error()
+	}
+
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }

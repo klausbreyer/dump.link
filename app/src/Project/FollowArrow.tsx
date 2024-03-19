@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Coordinates } from "../common/coordinates";
+import { Coordinates } from "./coordinates";
 
 interface FollowArrowProps {
   active: boolean;

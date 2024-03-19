@@ -11,4 +11,4 @@ response=$(curl --location 'http://localhost:8080/api/v1/projects' \
 project_id=$(echo $response | grep -o '"id":"[^"]*' | cut -d'"' -f4)
 
 # Output the URL
-echo "http://localhost:1234/a/$project_id"
+echo "http://localhost:1234/a/p/$project_id"
