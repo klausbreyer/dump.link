@@ -55,13 +55,10 @@ export const getUsernameFromPrompt = (defaultUsername: string = ""): string => {
 export function extractUsername(userId: string): string {
   const underscoreIndex = userId.indexOf("_");
   if (underscoreIndex === -1) {
-    console.log(userId);
-
-    throw new Error("No underscore (_) found in the string." + userId);
+    console.error("No underscore (_) found in the string." + userId);
+    return "";
   }
-  // Extract everything after the first underscore
-  const encodedPart = userId.substring(underscoreIndex + 1);
-  // Decode the extracted part using JavaScript's native decodeURIComponent function
+  const encodedPart = userId.substring(underscoreIndex + 1).replace(/\+/g, " ");
   return decodeURIComponent(encodedPart);
 }
 
