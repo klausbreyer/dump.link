@@ -77,7 +77,19 @@ export default function Dashboard() {
                       </div>
                       <div className="flex items-center mt-1 text-xs leading-5 text-gray-500 gap-x-2">
                         <p className="whitespace-nowrap">
-                          Due on{" "}
+                          Start:{" "}
+                          <time dateTime={dateToISO(getEndingAt(project))}>
+                            {formatDate(project.startedAt)}
+                          </time>
+                        </p>
+                        <svg
+                          viewBox="0 0 2 2"
+                          className="h-0.5 w-0.5 fill-current"
+                        >
+                          <circle cx={1} cy={1} r={1} />
+                        </svg>
+                        <p className="whitespace-nowrap">
+                          Due on:{" "}
                           <time dateTime={dateToISO(getEndingAt(project))}>
                             {formatDate(getEndingAt(project))}
                           </time>
