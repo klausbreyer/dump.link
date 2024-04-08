@@ -9,5 +9,5 @@ module.exports = {
       fontSize: {},
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };
