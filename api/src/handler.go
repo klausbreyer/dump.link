@@ -127,6 +127,16 @@ func (app *application) genericPageResponse(w http.ResponseWriter, r *http.Reque
 			<meta name="twitter:image" content="https://dump.link/static/icons/favicon@2x.png">
 		</head>
 		<body>
+			<div class="z-50 ">
+		<p class=" bg-rose-600 px-6 py-2.5 sm:px-3.5 text-sm leading-6 text-center text-white">
+
+			<strong class="font-semibold">dumplink is shutting down!</strong>
+
+			Your started dumplinks will be available until 2024-05-31. Thank you for your support!
+			<a href="/#shutdown" class="underline hover:no-underline" target="_blank">Read more</a>
+		</p>
+	</div>
+
 			<div id="app"></div>
 			<script src="/{JS_FILE}" type="module"></script>
 		</body>
