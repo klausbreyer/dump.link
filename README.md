@@ -70,4 +70,4 @@ We ask that if you use this software for anything you please attribute it to aut
 ## Acknowledgements
 
 - Code developed by Klaus Breyer ([@klausbreyer](https://github.com/klausbreyer))
-- Conceptual contributions by Matthew Lane ([@mattlane66](https://github.com/mattlane66))
+- Conceptual design by Matthew Lane ([@mattlane66](https://github.com/mattlane66))
