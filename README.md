@@ -16,7 +16,7 @@ Dumplink is a systems thinking work editor tool that acts as a communication bri
 
 [![Demo-Video](readme_thumbnail.png)](https://youtu.be/CSEhIJ7safA)
 
-## Components
+## Base product
 
 The pieces that make up this tool are:
 
