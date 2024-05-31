@@ -17,7 +17,6 @@ import {
 } from "../../types";
 
 import { useParams } from "react-router-dom";
-import { notifyBugsnag } from "../../..";
 import config from "../../../config";
 import { LifecycleState, useLifecycle } from "../lifecycle";
 import { APIError, apiFunctions } from "./calls";
@@ -289,7 +288,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         dispatch({ type: "SET_INITIAL_STATE", payload: initialState });
       }
     } catch (error) {
-      notifyBugsnag(error);
       if (error instanceof APIError) {
         if (error.statusCode === 404) {
           setLifecycle(LifecycleState.Error404);
@@ -345,7 +343,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.postTask(state.project.id, task);
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while adding the task");
       }
     })();
@@ -384,7 +381,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.patchTask(state.project.id, taskId, updates);
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while updating the task");
       }
     })();
@@ -400,7 +396,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.deleteTask(state.project.id, taskId);
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while deleting the task");
       }
     })();
@@ -418,7 +413,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.patchBucket(state.project.id, bucketId, updates);
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while updating the bucket");
       }
     })();
@@ -434,7 +428,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.postBucketResetLayer(state.project.id, bucketId);
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while reseting bucket layer");
       }
     })();
@@ -472,7 +465,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.postProjectResetLayers(state.project.id);
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while resetting layers for all buckets");
       }
     })();
@@ -493,7 +485,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.patchProject(state.project.id, updates);
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while updating the project");
       }
     })();
@@ -522,7 +513,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           dependencyId,
         );
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while adding bucket dependency");
       }
     })();
@@ -546,7 +536,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           dependencyId,
         );
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while removing bucket dependency");
       }
     })();
@@ -585,7 +574,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       try {
         await apiFunctions.postActivity(state.project.id, update);
       } catch (error) {
-        notifyBugsnag(error);
         alert("Error while updating activity");
       }
     })();
