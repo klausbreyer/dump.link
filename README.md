@@ -16,6 +16,10 @@ Dumplink is a systems thinking work editor tool that acts as a communication bri
 
 [![Demo-Video](readme_thumbnail.png)](https://youtu.be/CSEhIJ7safA)
 
+## In-Depth Podcast
+
+A more in-depth look is provided by our podcast appearance [in the Shapers & Builders Podcast](https://shapersbuilders.transistor.fm/episodes/building-tools-for-shape-up-klaus-breyer-matt-lane-co-founders-of-dumplink).
+
 ## Base product
 
 The pieces that make up this tool are:
